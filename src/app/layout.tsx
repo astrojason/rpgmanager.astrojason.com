@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Azorian's Bounty",
-  description: "Interactive RPG management system",
+  title: "RPG Manager",
+  description: "Interactive RPG campaign management system",
 };
 
 export default function RootLayout({
