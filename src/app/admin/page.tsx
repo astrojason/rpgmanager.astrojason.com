@@ -117,7 +117,11 @@ export default function AdminPage() {
     }
 
     setIsDrawing(false);
-    setEditingArea({ ...currentArea, isEditing: true, locations: [] } as Location);
+    setEditingArea({
+      ...currentArea,
+      isEditing: true,
+      locations: [],
+    } as Location);
     setCurrentArea(null);
   };
 
@@ -340,8 +344,11 @@ export default function AdminPage() {
             <div
               style={{
                 position: "absolute",
-                left: `${Math.min((editingArea.x || 0) + (editingArea.width || 0) + 2, 75)}%`,
-                top: `${Math.max((editingArea.y || 0), 10)}%`,
+                left: `${Math.min(
+                  (editingArea.x || 0) + (editingArea.width || 0) + 2,
+                  75
+                )}%`,
+                top: `${Math.max(editingArea.y || 0, 10)}%`,
                 pointerEvents: "auto",
                 transform: "translateZ(0)",
                 willChange: "transform",
@@ -479,10 +486,12 @@ export default function AdminPage() {
                     {area.teaser}
                   </div>
                   <div className="text-xs">
-                    Position: {(area.x || 0).toFixed(1)}%, {(area.y || 0).toFixed(1)}%
+                    Position: {(area.x || 0).toFixed(1)}%,{" "}
+                    {(area.y || 0).toFixed(1)}%
                   </div>
                   <div className="text-xs">
-                    Size: {(area.width || 0).toFixed(1)}% × {(area.height || 0).toFixed(1)}%
+                    Size: {(area.width || 0).toFixed(1)}% ×{" "}
+                    {(area.height || 0).toFixed(1)}%
                   </div>
                 </div>
               ))}

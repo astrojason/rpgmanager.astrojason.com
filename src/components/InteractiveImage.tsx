@@ -63,32 +63,34 @@ export default function InteractiveImage({
       />
 
       {/* Clickable areas */}
-      {locations.filter(area => area.x && area.y && area.width && area.height).map((area) => (
-        <div
-          key={area.id}
-          onClick={() => handleAreaClick(area)}
-          onMouseEnter={() => setHoveredArea(area)}
-          onMouseLeave={() => setHoveredArea(null)}
-          style={{
-            position: "absolute",
-            left: `${area.x}%`,
-            top: `${area.y}%`,
-            width: `${area.width}%`,
-            height: `${area.height}%`,
-            cursor: "pointer",
-            backgroundColor:
-              hoveredArea?.id === area.id
-                ? "rgba(59, 130, 246, 0.2)"
-                : "transparent",
-            border:
-              hoveredArea?.id === area.id
-                ? "2px solid rgba(59, 130, 246, 0.6)"
-                : "2px solid transparent",
-            borderRadius: "4px",
-            transition: "all 0.3s ease",
-          }}
-        />
-      ))}
+      {locations
+        .filter((area) => area.x && area.y && area.width && area.height)
+        .map((area) => (
+          <div
+            key={area.id}
+            onClick={() => handleAreaClick(area)}
+            onMouseEnter={() => setHoveredArea(area)}
+            onMouseLeave={() => setHoveredArea(null)}
+            style={{
+              position: "absolute",
+              left: `${area.x}%`,
+              top: `${area.y}%`,
+              width: `${area.width}%`,
+              height: `${area.height}%`,
+              cursor: "pointer",
+              backgroundColor:
+                hoveredArea?.id === area.id
+                  ? "rgba(59, 130, 246, 0.2)"
+                  : "transparent",
+              border:
+                hoveredArea?.id === area.id
+                  ? "2px solid rgba(59, 130, 246, 0.6)"
+                  : "2px solid transparent",
+              borderRadius: "4px",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
 
       {/* Tooltip */}
       {hoveredArea && (

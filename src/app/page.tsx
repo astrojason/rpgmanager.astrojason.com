@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { marked } from "marked";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
@@ -9,6 +10,21 @@ import locationData from "@/data/locations.json";
 export default function Home() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Configure marked for safe rendering
+  const parseMarkdown = useMemo(() => {
+    return (markdown: string) => {
+      try {
+        return marked.parse(markdown, {
+          breaks: true,
+          gfm: true,
+        });
+      } catch (error) {
+        console.warn("Failed to parse markdown:", error);
+        return markdown; // Fallback to plain text
+      }
+    };
+  }, []);
 
   const handleAreaClick = (area: Location) => {
     setSelectedArea(area);
@@ -35,7 +51,7 @@ export default function Home() {
       </header>
 
       <main
-        className={`flex-1 flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
+        className={`flex-1 flex flex-col items-center justify-center p-4 transition-all duration-300 ease-in-out ${
           isSidebarOpen ? "md:pr-[calc(33.333333%+1rem)]" : ""
         }`}
       >
@@ -54,6 +70,43 @@ export default function Home() {
             sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px"
             className="max-w-full h-auto"
           />
+        </div>
+
+        {/* Sublocation List */}
+        <div className="mt-8 w-full max-w-4xl">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-center">
+            Locations
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {locations
+              .filter(
+                (location) =>
+                  location.x && location.y && location.width && location.height
+              ) // Only show clickable locations
+              .map((location) => (
+                <div
+                  key={location.id}
+                  onClick={() => handleAreaClick(location)}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
+                >
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    {location.name}
+                  </h4>
+                  <div
+                    className="text-sm text-gray-600 dark:text-gray-300 overflow-hidden"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical" as const,
+                      overflow: "hidden",
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: parseMarkdown(location.teaser),
+                    }}
+                  />
+                </div>
+              ))}
+          </div>
         </div>
       </main>
 
