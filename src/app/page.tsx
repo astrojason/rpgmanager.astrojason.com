@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { ClickableArea } from "@/types/interfaces";
@@ -32,32 +31,6 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Azorian&apos;s Bounty
           </h2>
-          <nav className="flex gap-4">
-            <Link
-              href="/npcs"
-              className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-            >
-              NPCs
-            </Link>
-            <Link
-              href="/factions"
-              className="px-4 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors"
-            >
-              Factions
-            </Link>
-            <Link
-              href="/pronunciations"
-              className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-            >
-              Pronunciations
-            </Link>
-            <Link
-              href="/admin"
-              className="px-4 py-2 bg-gray-600 dark:bg-gray-700 text-white rounded hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
-            >
-              Admin
-            </Link>
-          </nav>
         </div>
       </header>
 

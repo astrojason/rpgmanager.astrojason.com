@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import {
   SparklesIcon,
   DocumentTextIcon,
   UsersIcon,
+  CogIcon,
 } from "@heroicons/react/24/outline";
 import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
 
@@ -96,7 +97,14 @@ export default function SideNavigation({
   className = "",
 }: SideNavigationProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Check localStorage for admin setting
+    const adminSetting = localStorage.getItem("isAdmin");
+    setIsAdmin(adminSetting === "true");
+  }, []);
 
   const toggleCollapsed = () => {
     setIsCollapsed(!isCollapsed);
@@ -215,6 +223,35 @@ export default function SideNavigation({
             }
           })}
         </ul>
+
+        {/* Admin Section - Only show if isAdmin is true in localStorage */}
+        {isAdmin && (
+          <>
+            <hr className="my-4 border-gray-700" />
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/admin"
+                  className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-colors group ${
+                    pathname === "/admin"
+                      ? "bg-red-600 text-white"
+                      : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  }`}
+                >
+                  <CogIcon className="w-6 h-6 flex-shrink-0" />
+                  {!isCollapsed && (
+                    <div className="ml-3 flex-1 min-w-0">
+                      <div className="text-sm font-medium">Admin</div>
+                      <div className="text-xs text-gray-400 truncate">
+                        Administration panel
+                      </div>
+                    </div>
+                  )}
+                </Link>
+              </li>
+            </ul>
+          </>
+        )}
       </nav>
 
       {/* Footer */}
