@@ -7,7 +7,9 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Human",
     "image": "/images/npcs/Lessa.png"
   },
@@ -19,7 +21,9 @@
     "gender": "Male",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Triton",
     "image": "/images/npcs/ailo.png"
   },
@@ -42,7 +46,9 @@
     "gender": "Male",
     "location": "Sandhaven",
     "status": "Alive",
-    "faction": "Dira' al-Waha",
+    "factions": [
+      "Dira' al-Waha"
+    ],
     "description": "Tiefling",
     "image": "/images/npcs/captain-azar.png"
   },
@@ -54,7 +60,9 @@
     "gender": "Male",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Tortle",
     "image": "/images/npcs/darrik.png"
   },
@@ -66,7 +74,9 @@
     "gender": "Female",
     "location": "Sandhaven",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Tiefling",
     "image": "/images/npcs/despair.png"
   },
@@ -78,7 +88,9 @@
     "gender": "Male",
     "location": "Tidewater",
     "status": "Deceased",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Orc",
     "image": "/images/npcs/grom_blackthorn.png"
   },
@@ -90,7 +102,9 @@
     "gender": "Female",
     "location": "Sandhaven",
     "status": "Alive",
-    "faction": "The Caliphate",
+    "factions": [
+      "The Caliphate"
+    ],
     "description": "Human",
     "image": "/images/npcs/inara_alsahar.png"
   },
@@ -102,7 +116,9 @@
     "gender": "Male",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Tortle",
     "image": "/images/npcs/jokwin.png"
   },
@@ -114,7 +130,9 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Tortle",
     "image": "/images/npcs/kocha.png"
   },
@@ -126,7 +144,9 @@
     "gender": "Female",
     "location": "Unknown",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Human",
     "image": "/images/npcs/lyra_moonfire.png",
     "nameHidden": true
@@ -139,7 +159,9 @@
     "gender": "Male",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Triton",
     "image": "/images/npcs/mako.png"
   },
@@ -175,6 +197,9 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Halfling",
     "image": "/images/npcs/mindy.png"
   },
@@ -186,7 +211,9 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
-    "faction": "The Silent Star",
+    "factions": [
+      "The Silent Star"
+    ],
     "description": "Human",
     "image": "/images/npcs/selene_voss.png"
   },
@@ -198,7 +225,9 @@
     "gender": "Male",
     "location": "Unknown",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Dwarf",
     "image": "/images/npcs/silas.png",
     "nameHidden": true
@@ -211,7 +240,9 @@
     "gender": "Female",
     "location": "Unknown",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Elf",
     "image": "/images/npcs/the_bloody_thorn.png"
   },
@@ -223,7 +254,9 @@
     "gender": "Male",
     "location": "Unknown",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Goliath",
     "image": "/images/npcs/valdus.png"
   },
@@ -235,7 +268,9 @@
     "gender": "Female",
     "location": "Unknown",
     "status": "Alive",
-    "faction": "The Shadow Blades",
+    "factions": [
+      "The Shadow Blades"
+    ],
     "description": "Air Genasi",
     "image": "/images/npcs/zephyr.png",
     "nameHidden": true

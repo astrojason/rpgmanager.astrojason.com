@@ -197,9 +197,11 @@ export default function PronunciationsPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {npc.race} - {npc.gender}
                       </p>
-                      {npc.faction && (
+                      {npc.factions && (
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          {npc.faction}
+                          {npc.factions.map((faction) => (
+                            <span key={faction}>{faction}</span>
+                          ))}
                         </p>
                       )}
                     </div>

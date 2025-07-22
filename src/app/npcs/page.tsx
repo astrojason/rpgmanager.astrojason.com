@@ -201,23 +201,27 @@ export default function NPCsPage() {
                                 {selectedNPC.status}
                               </span>
                             </p>
-                            {selectedNPC.faction && (
+                            {selectedNPC.factions && (
                               <p className="text-gray-700 dark:text-gray-300">
-                                <span className="font-medium">Faction:</span>{" "}
-                                <button
-                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200"
-                                  onClick={() => {
-                                    if (selectedNPC.faction) {
-                                      router.push(
-                                        `/factions?selected=${encodeURIComponent(
-                                          selectedNPC.faction
-                                        )}`
-                                      );
-                                    }
-                                  }}
-                                >
-                                  {selectedNPC.faction}
-                                </button>
+                                <span className="font-medium">Factions:</span>{" "}
+                                {selectedNPC.factions.map((faction) => (
+                                  <span key={faction}>
+                                    <button
+                                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200"
+                                      onClick={() => {
+                                        if (faction) {
+                                          router.push(
+                                            `/factions?selected=${encodeURIComponent(
+                                              faction
+                                            )}`
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      {faction}
+                                    </button>
+                                  </span>
+                                ))}
                               </p>
                             )}
                           </div>

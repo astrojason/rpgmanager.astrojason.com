@@ -46,7 +46,7 @@ export interface NPC {
   gender: string;
   location: string;
   status: string;
-  faction?: string;
+  factions?: string[];
   description: string;
   background?: string;
   personality?: string;
