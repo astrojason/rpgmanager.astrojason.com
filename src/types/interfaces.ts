@@ -63,7 +63,6 @@ export interface Faction {
   description: string;
   location: string;
   status: string;
-  members: string[];
   goals: string;
   background?: string;
   relationships?: {

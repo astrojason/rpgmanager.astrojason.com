@@ -7,16 +7,6 @@
     "description": "A crew aboard the ship The Silent Star",
     "location": "The Silent Star (ship)",
     "status": "Active",
-    "members": [
-      "Lessa",
-      "Ailo",
-      "Darrik",
-      "Jokwin",
-      "Kocha",
-      "Mako",
-      "Selene Voss",
-      "Elmindreda (Mindy)"
-    ],
     "goals": "Maritime adventures and exploration",
     "background": "A tight-knit crew that operates in the coastal waters, known for their loyalty to each other and their captain."
   },
@@ -28,15 +18,6 @@
     "description": "A secretive organization of assassins and thieves",
     "location": "Various",
     "status": "Active",
-    "members": [
-      "Despair",
-      "Grom Blackthorn (Deceased)",
-      "Lyra Moonfire",
-      "Silas",
-      "The Bloody Thorn",
-      "Valdus",
-      "Zephyr"
-    ],
     "goals": "Influence through stealth and elimination",
     "enemies": ["The Caliphate"],
     "background": "Operating from the shadows, this organization specializes in covert operations and has members scattered across different locations."
@@ -49,7 +30,6 @@
     "description": "A governing political entity",
     "location": "Sandhaven region",
     "status": "Active",
-    "members": ["Inara al-Sahar"],
     "goals": "Political control and governance",
     "enemies": ["The Shadow Blades"],
     "background": "A formal political organization that seeks to maintain order and control in their territory."
@@ -62,7 +42,6 @@
     "description": "The city watch of Sandhaven - 'Shield of the Oasis'",
     "location": "Sandhaven",
     "status": "Active",
-    "members": ["Captain Azar"],
     "goals": "Maintain law and order in Sandhaven",
     "background": "Dira' al-Waha, meaning 'Shield of the Oasis', serves as Sandhaven's city watch. This disciplined organization is responsible for maintaining peace, enforcing laws, and protecting the citizens of Sandhaven."
   }
