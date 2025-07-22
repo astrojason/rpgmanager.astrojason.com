@@ -19,13 +19,13 @@ export default function NPCsPage() {
   // Auto-select NPC if query param exists
   useEffect(() => {
     const selected = searchParams.get("selected");
-    if (selected) {
+    if (selected && selectedNPC === null) {
       const npc = visibleNPCs.find(
         (n: NPC) => n.name === selected || n.aka === selected
       );
       if (npc) setSelectedNPC(npc);
     }
-  }, [searchParams, visibleNPCs]);
+  }, [searchParams, visibleNPCs, selectedNPC]);
   const [showFullImage, setShowFullImage] = useState(false);
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
@@ -325,8 +325,7 @@ export default function NPCsPage() {
                 <div
                   key={npc.id}
                   onClick={() => {
-                    setSelectedNPC(npc);
-                    // Remove 'selected' query param from URL
+                    // Remove 'selected' query param from URL first
                     const url = new URL(window.location.href);
                     url.searchParams.delete("selected");
                     window.history.replaceState(
@@ -334,6 +333,7 @@ export default function NPCsPage() {
                       "",
                       url.pathname + url.search
                     );
+                    setSelectedNPC(npc);
                   }}
                   className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
                     selectedNPC?.id === npc.id
