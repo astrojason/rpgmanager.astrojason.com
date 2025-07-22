@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ClickableArea } from "@/types/interfaces";
+import { Location } from "@/types/interfaces";
 
 export default function AdminPage() {
-  const [areas, setAreas] = useState<ClickableArea[]>([]);
+  const [areas, setAreas] = useState<Location[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [currentArea, setCurrentArea] = useState<Partial<ClickableArea> | null>(
+  const [currentArea, setCurrentArea] = useState<Partial<Location> | null>(
     null
   );
-  const [editingArea, setEditingArea] = useState<ClickableArea | null>(null);
+  const [editingArea, setEditingArea] = useState<Location | null>(null);
   const [showExportCode, setShowExportCode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -117,7 +117,10 @@ export default function AdminPage() {
     }
 
     setIsDrawing(false);
-    setEditingArea({ ...currentArea, isEditing: true } as ClickableArea);
+    setEditingArea({
+      ...currentArea,
+      isEditing: true,
+    } as Location);
     setCurrentArea(null);
   };
 
@@ -340,8 +343,11 @@ export default function AdminPage() {
             <div
               style={{
                 position: "absolute",
-                left: `${Math.min(editingArea.x + editingArea.width + 2, 75)}%`,
-                top: `${Math.max(editingArea.y, 10)}%`,
+                left: `${Math.min(
+                  (editingArea.x || 0) + (editingArea.width || 0) + 2,
+                  75
+                )}%`,
+                top: `${Math.max(editingArea.y || 0, 10)}%`,
                 pointerEvents: "auto",
                 transform: "translateZ(0)",
                 willChange: "transform",
@@ -479,10 +485,12 @@ export default function AdminPage() {
                     {area.teaser}
                   </div>
                   <div className="text-xs">
-                    Position: {area.x.toFixed(1)}%, {area.y.toFixed(1)}%
+                    Position: {(area.x || 0).toFixed(1)}%,{" "}
+                    {(area.y || 0).toFixed(1)}%
                   </div>
                   <div className="text-xs">
-                    Size: {area.width.toFixed(1)}% × {area.height.toFixed(1)}%
+                    Size: {(area.width || 0).toFixed(1)}% ×{" "}
+                    {(area.height || 0).toFixed(1)}%
                   </div>
                 </div>
               ))}

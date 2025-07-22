@@ -3,276 +3,28 @@
 import { useState } from "react";
 import Image from "next/image";
 import { NPC } from "@/types/interfaces";
-
-// Generate NPC data based on available images
-const npcData: NPC[] = [
-  {
-    id: "lessa",
-    name: "Lessa",
-    pronunciation: "LESS-ah",
-    race: "Human",
-    gender: "Female",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Human - Female",
-    image: "/images/npcs/Lessa.png",
-  },
-  {
-    id: "ailo",
-    name: "Ailo",
-    pronunciation: "EYE-low",
-    race: "Triton",
-    gender: "Male",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Triton - Male",
-    image: "/images/npcs/ailo.png",
-  },
-  {
-    id: "azorian",
-    name: "Azorian",
-    pronunciation: "ah-ZOR-ee-an",
-    race: "Elf",
-    gender: "Male",
-    location: "Azorian's Tower",
-    status: "Alive",
-    description: "Elf - Male",
-    image: "/images/npcs/azorian.png",
-  },
-  {
-    id: "captain-azar",
-    name: "Captain Azar",
-    pronunciation: "ah-ZAHR",
-    race: "Tiefling",
-    gender: "Male",
-    location: "Sandhaven",
-    status: "Alive",
-    faction: "Dira' al-Waha",
-    description: "Tiefling - Male",
-    image: "/images/npcs/captain-azar.png",
-  },
-  {
-    id: "darrik",
-    name: "Darrik",
-    pronunciation: "DARE-rik",
-    race: "Tortle",
-    gender: "Male",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Tortle - Male",
-    image: "/images/npcs/darrik.png",
-  },
-  {
-    id: "despair",
-    name: "Despair",
-    pronunciation: "deh-SPAIR",
-    race: "Tiefling",
-    gender: "Female",
-    location: "Sandhaven",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Tiefling - Female",
-    image: "/images/npcs/despair.png",
-  },
-  {
-    id: "grom-blackthorn",
-    name: "Grom Blackthorn",
-    pronunciation: "GROM BLACK-thorn",
-    race: "Orc",
-    gender: "Male",
-    location: "Tidewater",
-    status: "Deceased",
-    faction: "The Shadow Blades",
-    description: "Orc - Male",
-    image: "/images/npcs/grom_blackthorn.png",
-  },
-  {
-    id: "inara-alsahar",
-    name: "Inara al-Sahar",
-    pronunciation: "ih-NAH-rah al-SAH-har",
-    race: "Human",
-    gender: "Female",
-    location: "Sandhaven",
-    status: "Alive",
-    faction: "The Caliphate",
-    description: "Human - Female",
-    image: "/images/npcs/inara_alsahar.png",
-  },
-  {
-    id: "jokwin",
-    name: "Jokwin",
-    pronunciation: "JOCK-win",
-    race: "Tortle",
-    gender: "Male",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Tortle - Male",
-    image: "/images/npcs/jokwin.png",
-  },
-  {
-    id: "kocha",
-    name: "Kocha",
-    pronunciation: "KO-cha",
-    race: "Tortle",
-    gender: "Female",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Tortle - Female",
-    image: "/images/npcs/kocha.png",
-  },
-  {
-    id: "lyra-moonfire",
-    name: "Lyra Moonfire",
-    pronunciation: "LIE-rah MOON-fire",
-    race: "Human",
-    gender: "Female",
-    location: "Unknown",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Human - Female",
-    image: "/images/npcs/lyra_moonfire.png",
-    hidden: true,
-  },
-  {
-    id: "mako",
-    name: "Mako",
-    pronunciation: "MAY-ko",
-    race: "Triton",
-    gender: "Male",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Triton - Male",
-    image: "/images/npcs/mako.png",
-  },
-  {
-    id: "malacite",
-    name: "Malacite",
-    pronunciation: "MAL-ah-kite",
-    race: "Human",
-    gender: "Male",
-    location: "Obsidian Spire",
-    status: "Alive",
-    description: "Human - Male",
-    image: "/images/npcs/malacite.png",
-  },
-  {
-    id: "merrin-vask",
-    name: "Merrin Vask",
-    pronunciation: "MARE-rin VASK",
-    race: "Human",
-    gender: "Male",
-    location: "Obsidian Spire",
-    status: "Alive",
-    description: "Human - Male",
-    image: "/images/npcs/merrin_vask.png",
-    hidden: true,
-  },
-  {
-    id: "mindy",
-    name: "Elmindreda",
-    aka: "Mindy",
-    pronunciation: "el-min-DREE-dah",
-    race: "Halfling",
-    gender: "Female",
-    location: "The Silent Star",
-    status: "Alive",
-    description: "Halfling - Female",
-    image: "/images/npcs/mindy.png",
-  },
-  {
-    id: "selene-voss",
-    name: "Selene Voss",
-    pronunciation: "seh-LEEN VOSS",
-    race: "Human",
-    gender: "Female",
-    location: "The Silent Star",
-    status: "Alive",
-    faction: "The Silent Star",
-    description: "Human - Female",
-    image: "/images/npcs/selene_voss.png",
-  },
-  {
-    id: "silas",
-    name: "Silas",
-    pronunciation: "SIE-las",
-    race: "Dwarf",
-    gender: "Male",
-    location: "Unknown",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Dwarf - Male",
-    image: "/images/npcs/silas.png",
-    hidden: true,
-  },
-  {
-    id: "the-bloody-thorn",
-    name: "The Bloody Thorn",
-    pronunciation: "BLUD-ee THORN",
-    race: "Elf",
-    gender: "Female",
-    location: "Unknown",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Elf - Female",
-    image: "/images/npcs/the_bloody_thorn.png",
-  },
-  {
-    id: "valdus",
-    name: "Valdus",
-    pronunciation: "VAL-dus",
-    race: "Goliath",
-    gender: "Male",
-    location: "Unknown",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Goliath - Male",
-    image: "/images/npcs/valdus.png",
-  },
-  {
-    id: "zephyr",
-    name: "Zephyr",
-    pronunciation: "ZEF-fer",
-    race: "Air Genasi",
-    gender: "Male",
-    location: "Unknown",
-    status: "Alive",
-    faction: "The Shadow Blades",
-    description: "Air Genasi - Male",
-    image: "/images/npcs/zephyr.png",
-    hidden: true,
-  },
-];
+import npcData from "@/data/npcs.json";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [raceFilter, setRaceFilter] = useState("");
 
-  // Filter NPCs based on search criteria
-  const filteredNPCs = npcData.filter((npc) => {
-    // Always filter out hidden NPCs from the public list
-    if (npc.hidden) return false;
+  // Filter only visible NPCs (not hidden)
+  const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
 
+  // Filter NPCs based on search criteria
+  const filteredNPCs = visibleNPCs.filter((npc) => {
     const matchesSearch =
       npc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       npc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       npc.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRace = raceFilter === "" || npc.race === raceFilter;
-
     return matchesSearch && matchesRace;
   });
 
   // Get unique values for filter dropdowns
-  const uniqueRaces = [
-    ...new Set(npcData.filter((npc) => !npc.hidden).map((npc) => npc.race)),
-  ].sort();
-  const visibleNPCCount = npcData.filter((npc) => !npc.hidden).length;
+  const uniqueRaces = [...new Set(visibleNPCs.map((npc) => npc.race))].sort();
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -286,7 +38,6 @@ export default function NPCsPage() {
             >
               ← Back to NPCs
             </button>
-
             <div className="max-w-4xl mx-auto">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                 <div className="relative h-96 mb-6">
@@ -315,7 +66,6 @@ export default function NPCsPage() {
                     </p>
                   </div>
                 </div>
-
                 <div className="p-6 space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
@@ -359,7 +109,6 @@ export default function NPCsPage() {
                         </div>
                       </div>
                     </div>
-
                     <div className="space-y-4">
                       {selectedNPC.background && (
                         <div>
@@ -371,7 +120,6 @@ export default function NPCsPage() {
                           </p>
                         </div>
                       )}
-
                       {selectedNPC.personality && (
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -394,7 +142,6 @@ export default function NPCsPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
                 Non-Player Characters
               </h1>
-
               {/* Search and Filters */}
               <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -410,7 +157,6 @@ export default function NPCsPage() {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Race
@@ -429,10 +175,9 @@ export default function NPCsPage() {
                     </select>
                   </div>
                 </div>
-
                 <div className="mt-4 flex justify-between items-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Showing {filteredNPCs.length} of {visibleNPCCount} NPCs
+                    Showing {filteredNPCs.length} of {visibleNPCs.length} NPCs
                   </p>
                   <button
                     onClick={() => {
@@ -445,7 +190,6 @@ export default function NPCsPage() {
                   </button>
                 </div>
               </div>
-
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Click on any character in the sidebar to view their detailed
                 information.
@@ -462,7 +206,6 @@ export default function NPCsPage() {
             NPCs ({filteredNPCs.length})
           </h2>
         </div>
-
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-3">
             {filteredNPCs.map((npc) => (

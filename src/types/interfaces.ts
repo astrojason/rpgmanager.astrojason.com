@@ -1,24 +1,27 @@
-export interface ClickableArea {
+export interface Location {
   id: string;
   name: string;
-  x: number; // percentage
-  y: number; // percentage
-  width: number; // percentage
-  height: number; // percentage
+  mapImg?: string;
+  x?: number; // percentage
+  y?: number; // percentage
+  width?: number; // percentage
+  height?: number; // percentage
   teaser: string;
   detail: string;
   isEditing?: boolean; // Optional field for admin use
+  locations?: Location[];
 }
 
 export interface InteractiveImageProps {
   src: string;
   alt: string;
-  clickableAreas: ClickableArea[];
+  locations: Location[];
   width: number;
   height: number;
   sizes?: string;
   className?: string;
-  onAreaClick?: (area: ClickableArea) => void;
+  onAreaClick?: (area: Location) => void;
+  selectedLocationId?: string | null; // ID of the location with open sidebar
 }
 
 export interface NavigationItem {
@@ -48,4 +51,22 @@ export interface NPC {
   personality?: string;
   image: string;
   hidden?: boolean;
+}
+
+export interface Faction {
+  id: string;
+  name: string;
+  pronunciation: string;
+  type: string;
+  description: string;
+  location: string;
+  status: string;
+  members: string[];
+  goals: string;
+  background?: string;
+  relationships?: {
+    faction: string;
+    status: string;
+    description?: string;
+  }[];
 }

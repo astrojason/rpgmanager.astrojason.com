@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { marked } from "marked";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { ClickableArea } from "@/types/interfaces";
+import { Location } from "@/types/interfaces";
 
 interface DetailSidebarProps {
-  area: ClickableArea | null;
+  area: Location | null;
   isOpen: boolean;
   onClose: () => void;
 }

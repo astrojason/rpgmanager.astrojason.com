@@ -199,3 +199,24 @@ body {
   background: rgba(156, 163, 175, 0.1);
   font-weight: 600;
 }
+
+/* Animation for selected location indicator */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+/* Force selected indicator to be on top */
+.selected-location-indicator {
+  position: absolute !important;
+  z-index: 99999 !important;
+  will-change: transform;
+  isolation: isolate;
+}
