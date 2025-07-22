@@ -40,6 +40,8 @@ export default function Home() {
   // Location data from JSON
   const locations: Location[] = locationData;
 
+  // Get the sublocations from the first location (Azorian's Bounty)
+  const sublocations = locations.length > 0 ? locations[0].locations || [] : [];
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <header className="p-4 z-10">
@@ -65,7 +67,7 @@ export default function Home() {
             alt="Azorian's Bounty"
             width={2048}
             height={1536}
-            locations={locations}
+            locations={sublocations}
             onAreaClick={handleAreaClick}
             sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px"
             className="max-w-full h-auto"
@@ -78,34 +80,29 @@ export default function Home() {
             Locations
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {locations
-              .filter(
-                (location) =>
-                  location.x && location.y && location.width && location.height
-              ) // Only show clickable locations
-              .map((location) => (
+            {sublocations.map((location) => (
+              <div
+                key={location.id}
+                onClick={() => handleAreaClick(location)}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
+              >
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  {location.name}
+                </h4>
                 <div
-                  key={location.id}
-                  onClick={() => handleAreaClick(location)}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
-                >
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {location.name}
-                  </h4>
-                  <div
-                    className="text-sm text-gray-600 dark:text-gray-300 overflow-hidden"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical" as const,
-                      overflow: "hidden",
-                    }}
-                    dangerouslySetInnerHTML={{
-                      __html: parseMarkdown(location.teaser),
-                    }}
-                  />
-                </div>
-              ))}
+                  className="text-sm text-gray-600 dark:text-gray-300 overflow-hidden"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical" as const,
+                    overflow: "hidden",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: parseMarkdown(location.teaser),
+                  }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </main>

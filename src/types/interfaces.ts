@@ -9,7 +9,7 @@ export interface Location {
   teaser: string;
   detail: string;
   isEditing?: boolean; // Optional field for admin use
-  locations: Location[];
+  locations?: Location[];
 }
 
 export interface InteractiveImageProps {

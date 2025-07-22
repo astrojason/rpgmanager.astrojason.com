@@ -120,7 +120,6 @@ export default function AdminPage() {
     setEditingArea({
       ...currentArea,
       isEditing: true,
-      locations: [],
     } as Location);
     setCurrentArea(null);
   };
