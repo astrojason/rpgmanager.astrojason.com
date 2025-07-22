@@ -187,19 +187,24 @@ export default function PronunciationsPage() {
                   Locations ({filteredData.locations.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.locations.map((location: { name: string; pronunciation: string }, index: number) => (
-                    <div
-                      key={index}
-                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
-                    >
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                        {location.name}
-                      </h3>
-                      <p className="text-lg font-mono text-green-600 dark:text-green-400">
-                        {location.pronunciation}
-                      </p>
-                    </div>
-                  ))}
+                  {filteredData.locations.map(
+                    (
+                      location: { name: string; pronunciation: string },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
+                      >
+                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                          {location.name}
+                        </h3>
+                        <p className="text-lg font-mono text-green-600 dark:text-green-400">
+                          {location.pronunciation}
+                        </p>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
@@ -215,19 +220,24 @@ export default function PronunciationsPage() {
                   Factions ({filteredData.factions.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.factions.map((faction: { name: string; pronunciation: string }, index: number) => (
-                    <div
-                      key={index}
-                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 transition-colors duration-200"
-                    >
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                        {faction.name}
-                      </h3>
-                      <p className="text-lg font-mono text-purple-600 dark:text-purple-400">
-                        {faction.pronunciation}
-                      </p>
-                    </div>
-                  ))}
+                  {filteredData.factions.map(
+                    (
+                      faction: { name: string; pronunciation: string },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 transition-colors duration-200"
+                      >
+                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                          {faction.name}
+                        </h3>
+                        <p className="text-lg font-mono text-purple-600 dark:text-purple-400">
+                          {faction.pronunciation}
+                        </p>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
