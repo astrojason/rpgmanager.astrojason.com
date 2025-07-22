@@ -39,7 +39,7 @@ export interface SideNavigationProps {
 
 export interface NPC {
   id: string;
-  name: string;
+  name?: string;
   aka?: string;
   pronunciation: string;
   race: string;
@@ -52,6 +52,7 @@ export interface NPC {
   personality?: string;
   image: string;
   hidden?: boolean;
+  nameHidden?: boolean
 }
 
 export interface Faction {

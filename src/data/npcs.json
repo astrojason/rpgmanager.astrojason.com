@@ -8,7 +8,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Human - Female",
+    "description": "Human",
     "image": "/images/npcs/Lessa.png"
   },
   {
@@ -20,7 +20,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Triton - Male",
+    "description": "Triton",
     "image": "/images/npcs/ailo.png"
   },
   {
@@ -31,7 +31,7 @@
     "gender": "Male",
     "location": "Azorian's Tower",
     "status": "Alive",
-    "description": "Elf - Male",
+    "description": "Elf",
     "image": "/images/npcs/azorian.png"
   },
   {
@@ -43,7 +43,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "faction": "Dira' al-Waha",
-    "description": "Tiefling - Male",
+    "description": "Tiefling",
     "image": "/images/npcs/captain-azar.png"
   },
   {
@@ -55,7 +55,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Tortle - Male",
+    "description": "Tortle",
     "image": "/images/npcs/darrik.png"
   },
   {
@@ -67,7 +67,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Tiefling - Female",
+    "description": "Tiefling",
     "image": "/images/npcs/despair.png"
   },
   {
@@ -79,7 +79,7 @@
     "location": "Tidewater",
     "status": "Deceased",
     "faction": "The Shadow Blades",
-    "description": "Orc - Male",
+    "description": "Orc",
     "image": "/images/npcs/grom_blackthorn.png"
   },
   {
@@ -91,7 +91,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "faction": "The Caliphate",
-    "description": "Human - Female",
+    "description": "Human",
     "image": "/images/npcs/inara_alsahar.png"
   },
   {
@@ -103,7 +103,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Tortle - Male",
+    "description": "Tortle",
     "image": "/images/npcs/jokwin.png"
   },
   {
@@ -115,7 +115,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Tortle - Female",
+    "description": "Tortle",
     "image": "/images/npcs/kocha.png"
   },
   {
@@ -127,9 +127,9 @@
     "location": "Unknown",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Human - Female",
+    "description": "Human",
     "image": "/images/npcs/lyra_moonfire.png",
-    "hidden": true
+    "nameHidden": true
   },
   {
     "id": "mako",
@@ -140,7 +140,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Triton - Male",
+    "description": "Triton",
     "image": "/images/npcs/mako.png"
   },
   {
@@ -151,7 +151,7 @@
     "gender": "Male",
     "location": "Obsidian Spire",
     "status": "Alive",
-    "description": "Human - Male",
+    "description": "Human",
     "image": "/images/npcs/malacite.png"
   },
   {
@@ -162,9 +162,9 @@
     "gender": "Male",
     "location": "Obsidian Spire",
     "status": "Alive",
-    "description": "Human - Male",
+    "description": "Human",
     "image": "/images/npcs/merrin_vask.png",
-    "hidden": true
+    "nameHidden": true
   },
   {
     "id": "mindy",
@@ -175,7 +175,7 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
-    "description": "Halfling - Female",
+    "description": "Halfling",
     "image": "/images/npcs/mindy.png"
   },
   {
@@ -187,7 +187,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "faction": "The Silent Star",
-    "description": "Human - Female",
+    "description": "Human",
     "image": "/images/npcs/selene_voss.png"
   },
   {
@@ -199,20 +199,20 @@
     "location": "Unknown",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Dwarf - Male",
+    "description": "Dwarf",
     "image": "/images/npcs/silas.png",
-    "hidden": true
+    "nameHidden": true
   },
   {
     "id": "the-bloody-thorn",
-    "name": "The Bloody Thorn",
+    "aka": "The Bloody Thorn",
     "pronunciation": "BLUD-ee THORN",
     "race": "Elf",
     "gender": "Female",
     "location": "Unknown",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Elf - Female",
+    "description": "Elf",
     "image": "/images/npcs/the_bloody_thorn.png"
   },
   {
@@ -224,7 +224,7 @@
     "location": "Unknown",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Goliath - Male",
+    "description": "Goliath",
     "image": "/images/npcs/valdus.png"
   },
   {
@@ -232,12 +232,12 @@
     "name": "Zephyr",
     "pronunciation": "ZEF-fer",
     "race": "Air Genasi",
-    "gender": "Male",
+    "gender": "Female",
     "location": "Unknown",
     "status": "Alive",
     "faction": "The Shadow Blades",
-    "description": "Air Genasi - Male",
+    "description": "Air Genasi",
     "image": "/images/npcs/zephyr.png",
-    "hidden": true
+    "nameHidden": true
   }
 ]

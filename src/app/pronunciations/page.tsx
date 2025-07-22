@@ -12,7 +12,9 @@ export default function PronunciationsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Filter only visible NPCs (not hidden)
-  const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
+  const visibleNPCs = npcData.filter(
+    (npc: NPC) => !npc.hidden && !npc.nameHidden
+  );
 
   // Helper to flatten all locations and sublocations
   const flattenLocations = (
@@ -35,7 +37,7 @@ export default function PronunciationsPage() {
     const filterNPCs = (npcs: NPC[]) =>
       npcs.filter(
         (npc) =>
-          npc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          npc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           npc.pronunciation.toLowerCase().includes(searchTerm.toLowerCase())
       );
 

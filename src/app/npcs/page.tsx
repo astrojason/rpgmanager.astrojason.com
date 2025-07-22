@@ -16,7 +16,7 @@ export default function NPCsPage() {
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const matchesSearch =
-      npc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      npc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       npc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       npc.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRace = raceFilter === "" || npc.race === raceFilter;
@@ -43,7 +43,7 @@ export default function NPCsPage() {
                 <div className="relative h-96 mb-6">
                   <Image
                     src={selectedNPC.image}
-                    alt={selectedNPC.name}
+                    alt={selectedNPC.name || selectedNPC.aka || ""}
                     fill
                     style={{ objectFit: "cover", objectPosition: "center top" }}
                     className="rounded-lg"
@@ -51,16 +51,26 @@ export default function NPCsPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-4 left-4 text-white">
                     <h1 className="text-4xl font-bold mb-1">
-                      {selectedNPC.name}
+                      {!selectedNPC.name || selectedNPC.nameHidden ? (
+                        <>Unknown</>
+                      ) : (
+                        <>{selectedNPC.name}</>
+                      )}
                       {selectedNPC.aka && (
-                        <span className="text-2xl font-normal opacity-75 ml-2">
+                        <span
+                          className={`text-2xl font-normal opacity-75${
+                            selectedNPC.name ? " ml-2" : ""
+                          }`}
+                        >
                           &ldquo;{selectedNPC.aka}&rdquo;
                         </span>
                       )}
                     </h1>
-                    <p className="text-lg opacity-75 mb-2">
-                      ({selectedNPC.pronunciation})
-                    </p>
+                    {!selectedNPC.nameHidden && (
+                      <p className="text-lg opacity-75 mb-2">
+                        ({selectedNPC.pronunciation})
+                      </p>
+                    )}
                     <p className="text-lg opacity-90">
                       {selectedNPC.race} - {selectedNPC.gender}
                     </p>
@@ -222,7 +232,7 @@ export default function NPCsPage() {
                   <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                     <Image
                       src={npc.image}
-                      alt={npc.name}
+                      alt={npc.name || npc.aka || ""}
                       fill
                       style={{
                         objectFit: "cover",
@@ -247,7 +257,15 @@ export default function NPCsPage() {
                             : "text-gray-900 dark:text-white"
                         }`}
                       >
-                        {npc.name}
+                        {!npc.name || npc.nameHidden ? (
+                          npc.aka ? (
+                            <>&ldquo;{npc.aka}&rdquo;</>
+                          ) : (
+                            <>Unknown</>
+                          )
+                        ) : (
+                          <>{npc.name}</>
+                        )}
                       </h3>
                       {npc.status === "Deceased" && (
                         <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
@@ -262,7 +280,7 @@ export default function NPCsPage() {
                           : "text-gray-600 dark:text-gray-400"
                       }`}
                     >
-                      {npc.description}
+                      {npc.description} - {npc.gender}
                     </p>
                     <p
                       className={`text-xs truncate ${
