@@ -21,6 +21,7 @@ export interface InteractiveImageProps {
   sizes?: string;
   className?: string;
   onAreaClick?: (area: Location) => void;
+  selectedLocationId?: string | null; // ID of the location with open sidebar
 }
 
 export interface NavigationItem {

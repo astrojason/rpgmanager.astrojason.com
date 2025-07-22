@@ -69,6 +69,7 @@ export default function Home() {
             height={1536}
             locations={sublocations}
             onAreaClick={handleAreaClick}
+            selectedLocationId={selectedArea?.id || null}
             sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px"
             className="max-w-full h-auto"
           />
