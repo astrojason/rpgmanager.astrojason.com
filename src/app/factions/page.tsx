@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Faction } from "@/types/interfaces";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import npcData from "@/data/npcs.json";
+import Image from "next/image";
+import { Faction, NPC } from "@/types/interfaces";
 import factionData from "@/data/factions.json";
 
 export default function FactionsPage() {
   const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Filter factions based on search criteria
   const filteredFactions = factionData.filter((faction: Faction) => {
@@ -20,6 +25,14 @@ export default function FactionsPage() {
     return matchesSearch && matchesType;
   });
 
+  // Auto-select faction if query param exists
+  useEffect(() => {
+    const selected = searchParams.get("selected");
+    if (selected) {
+      const faction = factionData.find((f: Faction) => f.name === selected);
+      if (faction) setSelectedFaction(faction);
+    }
+  }, [searchParams]);
   // Get unique values for filter dropdowns
   const uniqueTypes = [
     ...new Set(factionData.map((faction: Faction) => faction.type)),
@@ -135,16 +148,110 @@ export default function FactionsPage() {
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {selectedFaction.members.map(
-                            (member: string, index: number) => (
-                              <div
-                                key={index}
-                                className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                              >
-                                <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200 text-sm">
-                                  {member}
-                                </button>
-                              </div>
-                            )
+                            (member: string, index: number) => {
+                              // Remove parenthetical status like '(Deceased)' from member name
+                              const memberClean = member
+                                .replace(/\s*\([^)]*\)$/, "")
+                                .trim()
+                                .toLowerCase();
+                              const npc = npcData.find(
+                                (n: NPC) =>
+                                  (n.name &&
+                                    n.name.trim().toLowerCase() ===
+                                      memberClean) ||
+                                  (n.aka &&
+                                    n.aka.trim().toLowerCase() === memberClean)
+                              );
+                              return (
+                                <div
+                                  key={index}
+                                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500`}
+                                  onClick={() =>
+                                    router.push(
+                                      `/npcs?selected=${encodeURIComponent(
+                                        member
+                                          .replace(/\s*\([^)]*\)$/, "")
+                                          .trim()
+                                      )}`
+                                    )
+                                  }
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                      {npc ? (
+                                        <Image
+                                          src={npc.image}
+                                          alt={npc.name || npc.aka || ""}
+                                          fill
+                                          style={{
+                                            objectFit: "cover",
+                                            objectPosition: "center top",
+                                          }}
+                                          className={
+                                            npc && npc.status === "Deceased"
+                                              ? "grayscale opacity-75"
+                                              : ""
+                                          }
+                                        />
+                                      ) : (
+                                        <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                                      )}
+                                      {npc && npc.status === "Deceased" && (
+                                        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                                          <span className="text-white text-lg">
+                                            💀
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <h3
+                                          className={`font-medium truncate ${
+                                            npc && npc.status === "Deceased"
+                                              ? "text-gray-500 dark:text-gray-400 line-through"
+                                              : "text-gray-900 dark:text-white"
+                                          }`}
+                                        >
+                                          {npc
+                                            ? !npc.name || npc.nameHidden
+                                              ? npc.aka
+                                                ? `“${npc.aka}”`
+                                                : "Unknown"
+                                              : npc.name
+                                            : member}
+                                        </h3>
+                                        {npc && npc.status === "Deceased" && (
+                                          <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+                                            [Deceased]
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p
+                                        className={`text-sm truncate ${
+                                          npc && npc.status === "Deceased"
+                                            ? "text-gray-400 dark:text-gray-500"
+                                            : "text-gray-600 dark:text-gray-400"
+                                        }`}
+                                      >
+                                        {npc
+                                          ? `${npc.description} - ${npc.gender}`
+                                          : "NPC not found"}
+                                      </p>
+                                      <p
+                                        className={`text-xs truncate ${
+                                          npc && npc.status === "Deceased"
+                                            ? "text-gray-400 dark:text-gray-600"
+                                            : "text-gray-500 dark:text-gray-500"
+                                        }`}
+                                      >
+                                        {npc ? npc.location : ""}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
                           )}
                         </div>
                       </div>

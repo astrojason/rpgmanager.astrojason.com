@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { NPC } from "@/types/interfaces";
 import npcData from "@/data/npcs.json";
@@ -9,10 +10,22 @@ export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [raceFilter, setRaceFilter] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
 
+  // Auto-select NPC if query param exists
+  useEffect(() => {
+    const selected = searchParams.get("selected");
+    if (selected) {
+      const npc = visibleNPCs.find(
+        (n: NPC) => n.name === selected || n.aka === selected
+      );
+      if (npc) setSelectedNPC(npc);
+    }
+  }, [searchParams, visibleNPCs]);
   const [showFullImage, setShowFullImage] = useState(false);
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
@@ -191,7 +204,18 @@ export default function NPCsPage() {
                             {selectedNPC.faction && (
                               <p className="text-gray-700 dark:text-gray-300">
                                 <span className="font-medium">Faction:</span>{" "}
-                                <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200">
+                                <button
+                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200"
+                                  onClick={() => {
+                                    if (selectedNPC.faction) {
+                                      router.push(
+                                        `/factions?selected=${encodeURIComponent(
+                                          selectedNPC.faction
+                                        )}`
+                                      );
+                                    }
+                                  }}
+                                >
                                   {selectedNPC.faction}
                                 </button>
                               </p>
@@ -300,7 +324,17 @@ export default function NPCsPage() {
               {filteredNPCs.map((npc) => (
                 <div
                   key={npc.id}
-                  onClick={() => setSelectedNPC(npc)}
+                  onClick={() => {
+                    setSelectedNPC(npc);
+                    // Remove 'selected' query param from URL
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete("selected");
+                    window.history.replaceState(
+                      {},
+                      "",
+                      url.pathname + url.search
+                    );
+                  }}
                   className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
                     selectedNPC?.id === npc.id
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
