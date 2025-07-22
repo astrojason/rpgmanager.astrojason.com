@@ -1,28 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-
-export interface ClickableArea {
-  id: string;
-  name: string;
-  x: number; // percentage
-  y: number; // percentage
-  width: number; // percentage
-  height: number; // percentage
-  description: string;
-  link: string;
-}
-
-interface InteractiveImageProps {
-  src: string;
-  alt: string;
-  clickableAreas: ClickableArea[];
-  width: number;
-  height: number;
-  sizes?: string;
-  className?: string;
-}
+import { useState, useMemo } from "react";
+import { marked } from "marked";
+import { ClickableArea, InteractiveImageProps } from "@/types/interfaces";
 
 export default function InteractiveImage({
   src,
@@ -32,9 +13,25 @@ export default function InteractiveImage({
   height,
   sizes = "(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px",
   className = "",
+  onAreaClick,
 }: InteractiveImageProps) {
   const [hoveredArea, setHoveredArea] = useState<ClickableArea | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Configure marked for safe rendering
+  const parseMarkdown = useMemo(() => {
+    return (markdown: string) => {
+      try {
+        return marked.parse(markdown, {
+          breaks: true,
+          gfm: true,
+        });
+      } catch (error) {
+        console.warn("Failed to parse markdown:", error);
+        return markdown; // Fallback to plain text
+      }
+    };
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -42,7 +39,12 @@ export default function InteractiveImage({
   };
 
   const handleAreaClick = (area: ClickableArea) => {
-    alert(`Clicked on ${area.name}: ${area.description}`);
+    if (onAreaClick) {
+      onAreaClick(area);
+    } else {
+      // Fallback alert if no onAreaClick handler is provided
+      alert(`Clicked on ${area.name}: ${area.teaser}`);
+    }
   };
 
   return (
@@ -102,13 +104,23 @@ export default function InteractiveImage({
             fontSize: "14px",
             pointerEvents: "none",
             zIndex: 1000,
-            whiteSpace: "nowrap",
+            maxWidth: "300px",
+            whiteSpace: "normal",
           }}
         >
-          <div style={{ fontWeight: "bold" }}>{hoveredArea.name}</div>
+          <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
+            {hoveredArea.name}
+          </div>
           <div
-            style={{ fontSize: "12px", opacity: 0.9 }}
-            dangerouslySetInnerHTML={{ __html: hoveredArea.description }}
+            style={{
+              fontSize: "12px",
+              opacity: 0.9,
+              lineHeight: "1.4",
+            }}
+            className="tooltip-content"
+            dangerouslySetInnerHTML={{
+              __html: parseMarkdown(hoveredArea.teaser),
+            }}
           />
         </div>
       )}

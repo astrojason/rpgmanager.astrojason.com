@@ -2,20 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ClickableArea } from "@/components/InteractiveImage";
-
-interface AdminArea extends ClickableArea {
-  isEditing?: boolean;
-}
+import { ClickableArea } from "@/types/interfaces";
 
 export default function AdminPage() {
-  const [areas, setAreas] = useState<AdminArea[]>([]);
+  const [areas, setAreas] = useState<ClickableArea[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [currentArea, setCurrentArea] = useState<Partial<AdminArea> | null>(
+  const [currentArea, setCurrentArea] = useState<Partial<ClickableArea> | null>(
     null
   );
-  const [editingArea, setEditingArea] = useState<AdminArea | null>(null);
+  const [editingArea, setEditingArea] = useState<ClickableArea | null>(null);
   const [showExportCode, setShowExportCode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -46,8 +42,8 @@ export default function AdminPage() {
       y,
       width: 0,
       height: 0,
-      description: "",
-      link: "",
+      teaser: "",
+      detail: "",
     });
   };
 
@@ -100,7 +96,7 @@ export default function AdminPage() {
     }
 
     setIsDrawing(false);
-    setEditingArea({ ...currentArea, isEditing: true } as AdminArea);
+    setEditingArea({ ...currentArea, isEditing: true } as ClickableArea);
     setCurrentArea(null);
   };
 
@@ -132,8 +128,8 @@ export default function AdminPage() {
       y: area.y,
       width: area.width,
       height: area.height,
-      description: area.description,
-      link: area.link,
+      teaser: area.teaser,
+      detail: area.detail,
     }));
     return JSON.stringify(exportData, null, 2);
   };
@@ -324,32 +320,35 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Description
+                      Teaser
                     </label>
-                    <textarea
-                      value={editingArea.description}
+                    <input
+                      type="text"
+                      value={editingArea.teaser}
                       onChange={(e) =>
                         setEditingArea({
                           ...editingArea,
-                          description: e.target.value,
+                          teaser: e.target.value,
                         })
                       }
-                      className="w-full p-2 border rounded h-20"
-                      placeholder="Enter description"
+                      className="w-full p-2 border rounded"
+                      placeholder="Brief teaser text"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Link
+                      Detail
                     </label>
-                    <input
-                      type="text"
-                      value={editingArea.link}
+                    <textarea
+                      value={editingArea.detail}
                       onChange={(e) =>
-                        setEditingArea({ ...editingArea, link: e.target.value })
+                        setEditingArea({
+                          ...editingArea,
+                          detail: e.target.value,
+                        })
                       }
-                      className="w-full p-2 border rounded"
-                      placeholder="/path/to/page"
+                      className="w-full p-2 border rounded h-20"
+                      placeholder="Detailed description"
                     />
                   </div>
                   <div className="flex gap-2">
@@ -387,7 +386,7 @@ export default function AdminPage() {
                   <div key={area.id} className="p-3 rounded border">
                     <div className="font-medium">{area.name || "Unnamed"}</div>
                     <div className="text-sm text-gray-600 truncate">
-                      {area.description}
+                      {area.teaser}
                     </div>
                     <div className="text-xs">
                       Position: {area.x.toFixed(1)}%, {area.y.toFixed(1)}%
@@ -437,7 +436,7 @@ export default function AdminPage() {
               <h4 className="font-bold text-blue-100 mb-2">Instructions:</h4>
               <ul className="text-sm text-blue-200 space-y-1">
                 <li>• Click and drag on the image to create areas</li>
-                <li>• Fill in the title, description, and link</li>
+                <li>• Fill in the title, teaser, and detailed description</li>
                 <li>• Click &quot;Save Area&quot; to add it to the list</li>
                 <li>• Use the &quot;×&quot; button to delete areas</li>
                 <li>• Click &quot;Show Code&quot; to get copyable code</li>
