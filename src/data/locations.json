@@ -4,6 +4,7 @@
     "name": "Azorian's Bounty",
     "teaser": "A vast and mysterious archipelago filled with ancient secrets, bustling cities, and untold adventures waiting to be discovered.",
     "detail": "**Azorian's Bounty** is a sprawling archipelago of islands, each with its own unique character, history, and mysteries. From the desert oasis city of Sandhaven to the massive port city of Stormharbor, this realm offers countless opportunities for adventure, trade, and discovery.\n\n### Overview\nThe archipelago consists of numerous islands, each with distinct cultures, climates, and political structures. Trade routes connect the various settlements, creating a complex web of relationships, alliances, and conflicts.\n\n### Major Locations\nThe Bounty is home to several major settlements, each serving as a hub for different types of activity - from trade and scholarship to adventure and intrigue.",
+    "mapImg": "/images/maps/azorians_bounty.jpg",
     "locations": [
       {
         "id": "area-1753030930140",

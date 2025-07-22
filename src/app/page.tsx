@@ -40,8 +40,9 @@ export default function Home() {
   // Location data from JSON
   const locations: Location[] = locationData;
 
-  // Get the sublocations from the first location (Azorian's Bounty)
-  const sublocations = locations.length > 0 ? locations[0].locations || [] : [];
+  // Get the main location (Azorian's Bounty) and its sublocations
+  const mainLocation = locations.length > 0 ? locations[0] : null;
+  const sublocations = mainLocation?.locations || [];
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <header className="p-4 z-10">
@@ -63,7 +64,7 @@ export default function Home() {
           }`}
         >
           <InteractiveImage
-            src="/images/azorians_bounty.jpg"
+            src={mainLocation?.mapImg || "/images/maps/azorians_bounty.jpg"}
             alt="Azorian's Bounty"
             width={2048}
             height={1536}
