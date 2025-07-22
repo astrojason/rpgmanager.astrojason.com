@@ -3,14 +3,14 @@
 import { useState } from "react";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
-import { ClickableArea } from "@/types/interfaces";
+import { Location } from "@/types/interfaces";
 import locationData from "@/data/locations.json";
 
 export default function Home() {
-  const [selectedArea, setSelectedArea] = useState<ClickableArea | null>(null);
+  const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleAreaClick = (area: ClickableArea) => {
+  const handleAreaClick = (area: Location) => {
     setSelectedArea(area);
     setIsSidebarOpen(true);
   };
@@ -21,8 +21,8 @@ export default function Home() {
     setTimeout(() => setSelectedArea(null), 300);
   };
 
-  // Example clickable areas for the Azorian's Bounty
-  const clickableAreas: ClickableArea[] = locationData;
+  // Location data from JSON
+  const locations: Location[] = locationData;
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -49,7 +49,7 @@ export default function Home() {
             alt="Azorian's Bounty"
             width={2048}
             height={1536}
-            clickableAreas={clickableAreas}
+            locations={locations}
             onAreaClick={handleAreaClick}
             sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px"
             className="max-w-full h-auto"

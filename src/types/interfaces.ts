@@ -1,24 +1,26 @@
-export interface ClickableArea {
+export interface Location {
   id: string;
   name: string;
-  x: number; // percentage
-  y: number; // percentage
-  width: number; // percentage
-  height: number; // percentage
+  mapImg?: string;
+  x?: number; // percentage
+  y?: number; // percentage
+  width?: number; // percentage
+  height?: number; // percentage
   teaser: string;
   detail: string;
   isEditing?: boolean; // Optional field for admin use
+  locations: Location[];
 }
 
 export interface InteractiveImageProps {
   src: string;
   alt: string;
-  clickableAreas: ClickableArea[];
+  locations: Location[];
   width: number;
   height: number;
   sizes?: string;
   className?: string;
-  onAreaClick?: (area: ClickableArea) => void;
+  onAreaClick?: (area: Location) => void;
 }
 
 export interface NavigationItem {

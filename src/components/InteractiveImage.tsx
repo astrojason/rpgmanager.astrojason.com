@@ -3,19 +3,19 @@
 import Image from "next/image";
 import { useState, useMemo } from "react";
 import { marked } from "marked";
-import { ClickableArea, InteractiveImageProps } from "@/types/interfaces";
+import { Location, InteractiveImageProps } from "@/types/interfaces";
 
 export default function InteractiveImage({
   src,
   alt,
-  clickableAreas,
+  locations,
   width,
   height,
   sizes = "(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px",
   className = "",
   onAreaClick,
 }: InteractiveImageProps) {
-  const [hoveredArea, setHoveredArea] = useState<ClickableArea | null>(null);
+  const [hoveredArea, setHoveredArea] = useState<Location | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Configure marked for safe rendering
@@ -38,7 +38,7 @@ export default function InteractiveImage({
     setMousePosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const handleAreaClick = (area: ClickableArea) => {
+  const handleAreaClick = (area: Location) => {
     if (onAreaClick) {
       onAreaClick(area);
     } else {
@@ -63,7 +63,7 @@ export default function InteractiveImage({
       />
 
       {/* Clickable areas */}
-      {clickableAreas.map((area) => (
+      {locations.filter(area => area.x && area.y && area.width && area.height).map((area) => (
         <div
           key={area.id}
           onClick={() => handleAreaClick(area)}
