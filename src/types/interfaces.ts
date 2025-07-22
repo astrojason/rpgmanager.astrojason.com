@@ -32,3 +32,20 @@ export interface NavigationItem {
 export interface SideNavigationProps {
   className?: string;
 }
+
+export interface NPC {
+  id: string;
+  name: string;
+  aka?: string;
+  pronunciation: string;
+  race: string;
+  gender: string;
+  location: string;
+  status: string;
+  faction?: string;
+  description: string;
+  background?: string;
+  personality?: string;
+  image: string;
+  hidden?: boolean;
+}

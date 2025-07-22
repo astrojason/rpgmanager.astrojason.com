@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { ClickableArea } from "@/types/interfaces";
@@ -165,8 +166,26 @@ Approximately 300,000 residents
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <header className="text-center p-4 z-10">
-        <h2 className="text-3xl font-bold">Azorian&apos;s Bounty</h2>
+      <header className="p-4 z-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Azorian&apos;s Bounty
+          </h2>
+          <nav className="flex gap-4">
+            <Link
+              href="/npcs"
+              className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+            >
+              NPCs
+            </Link>
+            <Link
+              href="/admin"
+              className="px-4 py-2 bg-gray-600 dark:bg-gray-700 text-white rounded hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            >
+              Admin
+            </Link>
+          </nav>
+        </div>
       </header>
 
       <main

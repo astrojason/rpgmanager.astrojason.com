@@ -181,41 +181,43 @@ export default function AdminPage() {
     <div className="min-h-screen p-4">
       <div className="mx-auto">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold text-center">RPG Manager Admin</h1>
-          <p className="text-center text-gray-600 mt-2">
+          <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-gray-100">
+            RPG Manager Admin
+          </h1>
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
             Click and drag on the image to create clickable areas
           </p>
         </header>
 
         {/* Image Area */}
         <div className="mb-8">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900">
             {/* Zoom Controls */}
             <div className="flex justify-between items-center mb-4">
               <div className="flex gap-2">
                 <button
                   onClick={handleZoomOut}
-                  className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="px-3 py-1 bg-gray-600 dark:bg-gray-700 text-white rounded hover:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   Zoom Out
                 </button>
-                <span className="px-3 py-1 bg-gray-100 rounded">
+                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded">
                   {Math.round(zoomLevel * 100)}%
                 </span>
                 <button
                   onClick={handleZoomIn}
-                  className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="px-3 py-1 bg-gray-600 dark:bg-gray-700 text-white rounded hover:bg-gray-700 dark:hover:bg-gray-600"
                 >
                   Zoom In
                 </button>
                 <button
                   onClick={handleResetZoom}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
                 >
                   Reset
                 </button>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 Hold Ctrl/Cmd and click to pan • Hold Ctrl/Cmd and scroll to
                 zoom
               </div>
