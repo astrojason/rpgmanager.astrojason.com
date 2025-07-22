@@ -1,6 +1,7 @@
 export interface Location {
   id: string;
   name: string;
+  pronunciation?: string;
   mapImg?: string;
   x?: number; // percentage
   y?: number; // percentage

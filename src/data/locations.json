@@ -2,6 +2,7 @@
   {
     "id": "azorians-bounty",
     "name": "Azorian's Bounty",
+    "pronunciation": "ah-ZOR-ee-an's BOWN-tee",
     "teaser": "A vast and mysterious archipelago filled with ancient secrets, bustling cities, and untold adventures waiting to be discovered.",
     "detail": "**Azorian's Bounty** is a sprawling archipelago of islands, each with its own unique character, history, and mysteries. From the desert oasis city of Sandhaven to the massive port city of Stormharbor, this realm offers countless opportunities for adventure, trade, and discovery.\n\n### Overview\nThe archipelago consists of numerous islands, each with distinct cultures, climates, and political structures. Trade routes connect the various settlements, creating a complex web of relationships, alliances, and conflicts.\n\n### Major Locations\nThe Bounty is home to several major settlements, each serving as a hub for different types of activity - from trade and scholarship to adventure and intrigue.",
     "mapImg": "/images/maps/azorians_bounty.jpg",
@@ -9,6 +10,7 @@
       {
         "id": "area-1753030930140",
         "name": "Sandhaven",
+        "pronunciation": "SAND-hay-ven",
         "x": 30.372293030643476,
         "y": 87.44027480048555,
         "width": 7.314144035950875,
@@ -19,6 +21,7 @@
       {
         "id": "area-1753031405938",
         "name": "Stormharbor",
+        "pronunciation": "TIDE-wah-ter",
         "x": 42.397241699918645,
         "y": 50.910405743949994,
         "width": 9.669546352613018,
@@ -29,8 +32,16 @@
       {
         "id": "azorians-tower",
         "name": "Azorian's Tower",
+        "pronunciation": "ah-ZOR-ee-an's TOW-er",
         "teaser": "A massive, twisted tower of **dark stone** that reaches several stories high, topped with mystical symbols and shimmering with a *protective magical aura*.",
         "detail": "A massive structure, reaching several stories in height. It's constructed of dark stone and has a slightly twisted, almost spiral design that gives it an eerie, otherworldly appearance. It's topped with a conical roof and adorned with mystical symbols etched into its surface. The tower's exterior seems to shimmer with a faint, protective magical aura."
+      },
+      {
+        "id": "obsidian-spire",
+        "name": "Obsidian Spire",
+        "pronunciation": "ob-SID-ee-an SPIRE",
+        "teaser": "A towering black spire rising from the heart of the city, shrouded in mystery and legend.",
+        "detail": "Obsidian Spire is a massive, jet-black tower that dominates the skyline. Its origins are lost to history, and many believe it to be a remnant of ancient magic. The spire is both a symbol of power and a source of unease for the city's inhabitants."
       }
     ]
   }

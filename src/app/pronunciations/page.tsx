@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { NPC } from "@/types/interfaces";
 import npcData from "@/data/npcs.json";
-import locationPronunciations from "@/data/location-pronunciations.json";
-import factionPronunciations from "@/data/faction-pronunciations.json";
+import locationData from "@/data/locations.json";
+import factionData from "@/data/factions.json";
+import { Location } from "@/types/interfaces";
 
 export default function PronunciationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,6 +13,22 @@ export default function PronunciationsPage() {
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
+
+  // Helper to flatten all locations and sublocations
+  const flattenLocations = (
+    data: Location[]
+  ): Array<{ name: string; pronunciation?: string }> => {
+    let result: Array<{ name: string; pronunciation?: string }> = [];
+    for (const loc of data) {
+      result.push({ name: loc.name, pronunciation: loc.pronunciation });
+      if (Array.isArray(loc.locations)) {
+        result = result.concat(flattenLocations(loc.locations));
+      }
+    }
+    return result;
+  };
+
+  const allLocations = flattenLocations(locationData);
 
   // Filter data based on search and category
   const getFilteredData = () => {
@@ -22,13 +39,26 @@ export default function PronunciationsPage() {
           npc.pronunciation.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-    const filterOthers = (
-      items: Array<{ name: string; pronunciation: string }>
+    const filterLocations = (
+      items: Array<{ name: string; pronunciation?: string }>
     ) =>
       items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase())
+          (item.pronunciation &&
+            item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+
+    const filterFactions = (
+      factions: Array<{ name: string; pronunciation: string }>
+    ) =>
+      factions.filter(
+        (faction) =>
+          faction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (faction.pronunciation &&
+            faction.pronunciation
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
       );
 
     switch (selectedCategory) {
@@ -41,20 +71,20 @@ export default function PronunciationsPage() {
       case "locations":
         return {
           npcs: [],
-          locations: filterOthers(locationPronunciations),
+          locations: filterLocations(allLocations),
           factions: [],
         };
       case "factions":
         return {
           npcs: [],
           locations: [],
-          factions: filterOthers(factionPronunciations),
+          factions: filterFactions(factionData),
         };
       default:
         return {
           npcs: filterNPCs(visibleNPCs),
-          locations: filterOthers(locationPronunciations),
-          factions: filterOthers(factionPronunciations),
+          locations: filterLocations(allLocations),
+          factions: filterFactions(factionData),
         };
     }
   };
@@ -187,24 +217,19 @@ export default function PronunciationsPage() {
                   Locations ({filteredData.locations.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.locations.map(
-                    (
-                      location: { name: string; pronunciation: string },
-                      index: number
-                    ) => (
-                      <div
-                        key={index}
-                        className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
-                      >
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                          {location.name}
-                        </h3>
-                        <p className="text-lg font-mono text-green-600 dark:text-green-400">
-                          {location.pronunciation}
-                        </p>
-                      </div>
-                    )
-                  )}
+                  {filteredData.locations.map((location, index) => (
+                    <div
+                      key={index}
+                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
+                    >
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                        {location.name}
+                      </h3>
+                      <p className="text-lg font-mono text-green-600 dark:text-green-400">
+                        {location.pronunciation || "—"}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
