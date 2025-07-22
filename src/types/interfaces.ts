@@ -49,3 +49,21 @@ export interface NPC {
   image: string;
   hidden?: boolean;
 }
+
+export interface Faction {
+  id: string;
+  name: string;
+  pronunciation: string;
+  type: string;
+  description: string;
+  location: string;
+  status: string;
+  members: string[];
+  goals: string;
+  background?: string;
+  relationships?: {
+    faction: string;
+    status: string;
+    description?: string;
+  }[];
+}
