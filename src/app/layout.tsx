@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import SideNavigation from "@/components/SideNavigation";
 import "./globals.css";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,7 @@ export default function RootLayout({
         <div className="flex h-screen">
           <SideNavigation className="flex-shrink-0" />
           <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
-            {children}
+            <Suspense>{children}</Suspense>
           </main>
         </div>
       </body>
