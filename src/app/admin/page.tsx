@@ -19,6 +19,11 @@ export default function AdminPage() {
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Don't allow new area creation if we're currently editing an area
+    if (editingArea) {
+      return;
+    }
+
     // Check if holding space for panning
     if (e.button === 1 || e.ctrlKey || e.metaKey) {
       // Middle mouse or Ctrl/Cmd key
@@ -27,11 +32,19 @@ export default function AdminPage() {
       return;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x =
-      ((e.clientX - rect.left - panOffset.x) / (rect.width * zoomLevel)) * 100;
-    const y =
-      ((e.clientY - rect.top - panOffset.y) / (rect.height * zoomLevel)) * 100;
+    // Get the image element directly
+    const imageElement = e.currentTarget.querySelector("img");
+    if (!imageElement) return;
+
+    const imageRect = imageElement.getBoundingClientRect();
+
+    // Calculate mouse position relative to the actual image
+    const mouseX = e.clientX - imageRect.left;
+    const mouseY = e.clientY - imageRect.top;
+
+    // Convert to percentage coordinates relative to the image
+    const x = (mouseX / imageRect.width) * 100;
+    const y = (mouseY / imageRect.height) * 100;
 
     setIsDrawing(true);
     setStartPos({ x, y });
@@ -58,11 +71,19 @@ export default function AdminPage() {
 
     if (!isDrawing || !currentArea) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const currentX =
-      ((e.clientX - rect.left - panOffset.x) / (rect.width * zoomLevel)) * 100;
-    const currentY =
-      ((e.clientY - rect.top - panOffset.y) / (rect.height * zoomLevel)) * 100;
+    // Get the image element directly
+    const imageElement = e.currentTarget.querySelector("img");
+    if (!imageElement) return;
+
+    const imageRect = imageElement.getBoundingClientRect();
+
+    // Calculate mouse position relative to the actual image
+    const mouseX = e.clientX - imageRect.left;
+    const mouseY = e.clientY - imageRect.top;
+
+    // Convert to percentage coordinates relative to the image
+    const currentX = (mouseX / imageRect.width) * 100;
+    const currentY = (mouseY / imageRect.height) * 100;
 
     const width = Math.abs(currentX - startPos.x);
     const height = Math.abs(currentY - startPos.y);
@@ -148,14 +169,17 @@ export default function AdminPage() {
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    setZoomLevel((prev) => Math.min(Math.max(prev * delta, 0.5), 5));
+    // Only zoom if holding Ctrl/Cmd key
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      setZoomLevel((prev) => Math.min(Math.max(prev * delta, 0.5), 5));
+    }
   };
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-center">RPG Manager Admin</h1>
           <p className="text-center text-gray-600 mt-2">
@@ -163,122 +187,122 @@ export default function AdminPage() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Image Area */}
-          <div className="lg:col-span-2">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-              {/* Zoom Controls */}
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleZoomOut}
-                    className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
-                  >
-                    Zoom Out
-                  </button>
-                  <span className="px-3 py-1 bg-gray-100 rounded">
-                    {Math.round(zoomLevel * 100)}%
-                  </span>
-                  <button
-                    onClick={handleZoomIn}
-                    className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
-                  >
-                    Zoom In
-                  </button>
-                  <button
-                    onClick={handleResetZoom}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Reset
-                  </button>
-                </div>
-                <div className="text-sm text-gray-600">
-                  Hold Ctrl/Cmd and click to pan • Scroll to zoom
-                </div>
-              </div>
-
-              <div
-                className="overflow-hidden border rounded"
-                style={{ maxHeight: "70vh" }}
-                onWheel={handleWheel}
-              >
-                <div
-                  className={`relative inline-block ${
-                    isPanning ? "cursor-grab" : "cursor-crosshair"
-                  }`}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  style={{
-                    transform: `scale(${zoomLevel}) translate(${
-                      panOffset.x / zoomLevel
-                    }px, ${panOffset.y / zoomLevel}px)`,
-                    transformOrigin: "0 0",
-                  }}
+        {/* Image Area */}
+        <div className="mb-8">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            {/* Zoom Controls */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={handleZoomOut}
+                  className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
                 >
-                  <Image
-                    src="/images/azorians_bounty.jpg"
-                    alt="Azorian's Bounty - Admin View"
-                    width={1024}
-                    height={768}
-                    className="max-w-full h-auto"
-                    priority
-                    draggable={false}
-                    onDragStart={(e) => e.preventDefault()}
-                  />
+                  Zoom Out
+                </button>
+                <span className="px-3 py-1 bg-gray-100 rounded">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  onClick={handleZoomIn}
+                  className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Zoom In
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Reset
+                </button>
+              </div>
+              <div className="text-sm text-gray-600">
+                Hold Ctrl/Cmd and click to pan • Hold Ctrl/Cmd and scroll to
+                zoom
+              </div>
+            </div>
 
-                  {/* Existing Areas */}
-                  {areas.map((area) => (
-                    <div
-                      key={area.id}
-                      style={{
-                        position: "absolute",
-                        left: `${area.x}%`,
-                        top: `${area.y}%`,
-                        width: `${area.width}%`,
-                        height: `${area.height}%`,
-                        backgroundColor: "rgba(59, 130, 246, 0.3)",
-                        border: "2px solid rgba(59, 130, 246, 0.8)",
-                        borderRadius: "4px",
-                      }}
+            <div
+              className="overflow-hidden border rounded"
+              onWheel={handleWheel}
+            >
+              <div
+                className={`relative inline-block ${
+                  isPanning ? "cursor-grab" : "cursor-crosshair"
+                }`}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                style={{
+                  transform: `scale(${zoomLevel}) translate(${
+                    panOffset.x / zoomLevel
+                  }px, ${panOffset.y / zoomLevel}px)`,
+                  transformOrigin: "0 0",
+                }}
+              >
+                <Image
+                  src="/images/azorians_bounty.jpg?v=2048"
+                  alt="Azorian's Bounty - Admin View"
+                  width={2048}
+                  height={1536}
+                  className="max-w-full h-auto"
+                  priority
+                  draggable={false}
+                  onDragStart={(e) => e.preventDefault()}
+                />
+
+                {/* Existing Areas */}
+                {areas.map((area) => (
+                  <div
+                    key={area.id}
+                    style={{
+                      position: "absolute",
+                      left: `${area.x}%`,
+                      top: `${area.y}%`,
+                      width: `${area.width}%`,
+                      height: `${area.height}%`,
+                      backgroundColor: "rgba(59, 130, 246, 0.3)",
+                      border: "2px solid rgba(59, 130, 246, 0.8)",
+                      borderRadius: "4px",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Could add edit functionality here
+                    }}
+                  >
+                    <div className="absolute -top-6 left-0 text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                      {area.name || "Unnamed"}
+                    </div>
+                    <button
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Could add edit functionality here
+                        deleteArea(area.id);
                       }}
                     >
-                      <div className="absolute -top-6 left-0 text-xs bg-blue-600 text-white px-2 py-1 rounded">
-                        {area.name || "Unnamed"}
-                      </div>
-                      <button
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteArea(area.id);
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                      ×
+                    </button>
+                  </div>
+                ))}
 
-                  {/* Current Drawing Area */}
-                  {currentArea && currentArea.width && currentArea.height && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: `${currentArea.x}%`,
-                        top: `${currentArea.y}%`,
-                        width: `${currentArea.width}%`,
-                        height: `${currentArea.height}%`,
-                        backgroundColor: "rgba(34, 197, 94, 0.3)",
-                        border: "2px solid rgba(34, 197, 94, 0.8)",
-                        borderRadius: "4px",
-                      }}
-                    />
-                  )}
+                {/* Current Drawing Area */}
+                {currentArea && currentArea.width && currentArea.height && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: `${currentArea.x}%`,
+                      top: `${currentArea.y}%`,
+                      width: `${currentArea.width}%`,
+                      height: `${currentArea.height}%`,
+                      backgroundColor: "rgba(34, 197, 94, 0.3)",
+                      border: "2px solid rgba(34, 197, 94, 0.8)",
+                      borderRadius: "4px",
+                    }}
+                  />
+                )}
 
-                  {/* Editing Area Overlay */}
-                  {editingArea && (
+                {/* Editing Area Overlay */}
+                {editingArea && (
+                  <>
                     <div
                       style={{
                         position: "absolute",
@@ -291,157 +315,220 @@ export default function AdminPage() {
                         borderRadius: "4px",
                       }}
                     />
-                  )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Dialog - Portal to body level */}
+        {editingArea && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              pointerEvents: "none",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: `${Math.min(editingArea.x + editingArea.width + 2, 75)}%`,
+                top: `${Math.max(editingArea.y, 10)}%`,
+                pointerEvents: "auto",
+                transform: "translateZ(0)",
+                willChange: "transform",
+              }}
+              className="w-80 p-4 bg-white text-black border-2 border-yellow-500 rounded-lg shadow-xl"
+            >
+              <h3 className="text-lg font-bold mb-3 text-yellow-800">
+                Edit Clickable Area
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editingArea.name}
+                    onChange={(e) =>
+                      setEditingArea({
+                        ...editingArea,
+                        name: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded text-sm focus:outline-none"
+                    placeholder="Enter area title"
+                    style={{
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }}
+                    onFocus={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onBlur={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Teaser
+                  </label>
+                  <input
+                    type="text"
+                    value={editingArea.teaser}
+                    onChange={(e) =>
+                      setEditingArea({
+                        ...editingArea,
+                        teaser: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded text-sm focus:outline-none"
+                    placeholder="Brief teaser text"
+                    style={{
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }}
+                    onFocus={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onBlur={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Detail
+                  </label>
+                  <textarea
+                    value={editingArea.detail}
+                    onChange={(e) =>
+                      setEditingArea({
+                        ...editingArea,
+                        detail: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded h-16 text-sm focus:outline-none resize-none"
+                    placeholder="Detailed description"
+                    style={{
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }}
+                    onFocus={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onBlur={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={saveArea}
+                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700"
+                  >
+                    Save Area
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    className="flex-1 bg-gray-600 text-white px-3 py-2 rounded text-sm hover:bg-gray-700"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Edit Form */}
-            {editingArea && (
-              <div className="p-6 border rounded-lg shadow-lg">
-                <h3 className="text-lg font-bold mb-4">Edit Clickable Area</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editingArea.name}
-                      onChange={(e) =>
-                        setEditingArea({ ...editingArea, name: e.target.value })
-                      }
-                      className="w-full p-2 border rounded"
-                      placeholder="Enter area title"
-                    />
+        {/* Controls Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Areas List */}
+          <div className="p-6 border rounded-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Areas ({areas.length})</h3>
+              <button
+                onClick={toggleExportCode}
+                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                disabled={areas.length === 0}
+              >
+                {showExportCode ? "Hide Code" : "Show Code"}
+              </button>
+            </div>
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {areas.map((area) => (
+                <div key={area.id} className="p-3 rounded border">
+                  <div className="font-medium">{area.name || "Unnamed"}</div>
+                  <div className="text-sm text-gray-600 truncate">
+                    {area.teaser}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Teaser
-                    </label>
-                    <input
-                      type="text"
-                      value={editingArea.teaser}
-                      onChange={(e) =>
-                        setEditingArea({
-                          ...editingArea,
-                          teaser: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border rounded"
-                      placeholder="Brief teaser text"
-                    />
+                  <div className="text-xs">
+                    Position: {area.x.toFixed(1)}%, {area.y.toFixed(1)}%
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Detail
-                    </label>
-                    <textarea
-                      value={editingArea.detail}
-                      onChange={(e) =>
-                        setEditingArea({
-                          ...editingArea,
-                          detail: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border rounded h-20"
-                      placeholder="Detailed description"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={saveArea}
-                      className="flex-1 bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      Save Area
-                    </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="flex-1 bg-gray-600 px-4 py-2 rounded hover:bg-gray-700"
-                    >
-                      Cancel
-                    </button>
+                  <div className="text-xs">
+                    Size: {area.width.toFixed(1)}% × {area.height.toFixed(1)}%
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
+          </div>
 
-            {/* Areas List */}
+          {/* Export Code */}
+          {showExportCode && areas.length > 0 && (
             <div className="p-6 border rounded-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">Areas ({areas.length})</h3>
+              <h3 className="text-lg font-bold mb-4">Copyable Code</h3>
+              <div className="space-y-4">
+                <div>
+                  <textarea
+                    readOnly
+                    value={getExportCode()}
+                    className="w-full p-3 border rounded font-mono text-sm h-64 resize-none"
+                    onClick={(e) => e.currentTarget.select()}
+                  />
+                </div>
                 <button
-                  onClick={toggleExportCode}
-                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                  disabled={areas.length === 0}
+                  onClick={(e) => {
+                    const textarea =
+                      e.currentTarget.previousElementSibling?.querySelector(
+                        "textarea"
+                      ) as HTMLTextAreaElement;
+                    if (textarea) {
+                      textarea.select();
+                      navigator.clipboard.writeText(textarea.value);
+                    }
+                  }}
+                  className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  {showExportCode ? "Hide Code" : "Show Code"}
+                  Copy to Clipboard
                 </button>
               </div>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {areas.map((area) => (
-                  <div key={area.id} className="p-3 rounded border">
-                    <div className="font-medium">{area.name || "Unnamed"}</div>
-                    <div className="text-sm text-gray-600 truncate">
-                      {area.teaser}
-                    </div>
-                    <div className="text-xs">
-                      Position: {area.x.toFixed(1)}%, {area.y.toFixed(1)}%
-                    </div>
-                    <div className="text-xs">
-                      Size: {area.width.toFixed(1)}% × {area.height.toFixed(1)}%
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
+          )}
 
-            {/* Export Code */}
-            {showExportCode && areas.length > 0 && (
-              <div className="p-6 border rounded-lg">
-                <h3 className="text-lg font-bold mb-4">Copyable Code</h3>
-                <div className="space-y-4">
-                  <div>
-                    <textarea
-                      readOnly
-                      value={getExportCode()}
-                      className="w-full p-3 border rounded font-mono text-sm h-64 resize-none"
-                      onClick={(e) => e.currentTarget.select()}
-                    />
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      const textarea =
-                        e.currentTarget.previousElementSibling?.querySelector(
-                          "textarea"
-                        ) as HTMLTextAreaElement;
-                      if (textarea) {
-                        textarea.select();
-                        navigator.clipboard.writeText(textarea.value);
-                      }
-                    }}
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Copy to Clipboard
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Instructions */}
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h4 className="font-bold text-blue-100 mb-2">Instructions:</h4>
-              <ul className="text-sm text-blue-200 space-y-1">
-                <li>• Click and drag on the image to create areas</li>
-                <li>• Fill in the title, teaser, and detailed description</li>
-                <li>• Click &quot;Save Area&quot; to add it to the list</li>
-                <li>• Use the &quot;×&quot; button to delete areas</li>
-                <li>• Click &quot;Show Code&quot; to get copyable code</li>
-              </ul>
-            </div>
+          {/* Instructions */}
+          <div className="bg-gray-700 p-4 rounded-lg">
+            <h4 className="font-bold text-blue-100 mb-2">Instructions:</h4>
+            <ul className="text-sm text-blue-200 space-y-1">
+              <li>• Click and drag on the image to create areas</li>
+              <li>• Fill in the title, teaser, and detailed description</li>
+              <li>• Click &quot;Save Area&quot; to add it to the list</li>
+              <li>• Use the &quot;×&quot; button to delete areas</li>
+              <li>• Click &quot;Show Code&quot; to get copyable code</li>
+            </ul>
           </div>
         </div>
       </div>
