@@ -145,7 +145,7 @@
     "location": "Unknown",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Human",
     "image": "/images/npcs/lyra_moonfire.png",
@@ -226,7 +226,7 @@
     "location": "Unknown",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Dwarf",
     "image": "/images/npcs/silas.png",
@@ -241,7 +241,7 @@
     "location": "Unknown",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Elf",
     "image": "/images/npcs/the_bloody_thorn.png"
@@ -255,7 +255,7 @@
     "location": "Unknown",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Goliath",
     "image": "/images/npcs/valdus.png"
@@ -269,7 +269,7 @@
     "location": "Unknown",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Air Genasi",
     "image": "/images/npcs/zephyr.png",
