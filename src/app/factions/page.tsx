@@ -30,7 +30,7 @@ export default function FactionsPage() {
   useEffect(() => {
     const selected = searchParams.get("selected");
     if (selected) {
-      const faction = factionData.find((f: Faction) => f.name === selected);
+      const faction = factionData.find((f: Faction) => f.id === selected);
       if (faction) setSelectedFaction(faction);
     }
   }, [searchParams]);
@@ -38,7 +38,7 @@ export default function FactionsPage() {
   useEffect(() => {
     if (!selectedFaction) return;
     setFactionMembers(
-      npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.name))
+      npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id))
     );
   }, [selectedFaction]);
 
@@ -160,11 +160,7 @@ export default function FactionsPage() {
                               key={index}
                               className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500`}
                               onClick={() =>
-                                router.push(
-                                  `/npcs?selected=${encodeURIComponent(
-                                    npc.name || npc.aka!
-                                  )}`
-                                )
+                                router.push(`/npcs?selected=${npc.id}`)
                               }
                             >
                               <div className="flex items-center space-x-3">

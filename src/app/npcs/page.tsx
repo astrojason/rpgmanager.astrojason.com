@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { NPC } from "@/types/interfaces";
 import npcData from "@/data/npcs.json";
+import factionData from "@/data/factions.json";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
@@ -20,12 +21,11 @@ export default function NPCsPage() {
   useEffect(() => {
     const selected = searchParams.get("selected");
     if (selected && selectedNPC === null) {
-      const npc = visibleNPCs.find(
-        (n: NPC) => n.name === selected || n.aka === selected
-      );
+      const npc = visibleNPCs.find((n: NPC) => n.id === selected);
       if (npc) setSelectedNPC(npc);
     }
   }, [searchParams, visibleNPCs, selectedNPC]);
+
   const [showFullImage, setShowFullImage] = useState(false);
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
@@ -40,6 +40,12 @@ export default function NPCsPage() {
 
   // Get unique values for filter dropdowns
   const uniqueRaces = [...new Set(visibleNPCs.map((npc) => npc.race))].sort();
+
+  // Helper to get faction name from UUID
+  const getFactionName = (factionId: string) => {
+    const faction = factionData.find((f) => f.id === factionId);
+    return faction ? faction.name : factionId;
+  };
 
   return (
     <>
@@ -91,7 +97,18 @@ export default function NPCsPage() {
           {selectedNPC ? (
             <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
               <button
-                onClick={() => setSelectedNPC(null)}
+                onClick={() => {
+                  // Remove 'selected' query param from URL and clear selectedNPC synchronously
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete("selected");
+                  window.history.replaceState(
+                    {},
+                    "",
+                    url.pathname + url.search
+                  );
+                  // Clear selectedNPC immediately after updating URL
+                  setTimeout(() => setSelectedNPC(null), 0);
+                }}
                 className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
               >
                 ← Back to NPCs
@@ -205,21 +222,21 @@ export default function NPCsPage() {
                             {selectedNPC.factions && (
                               <p className="text-gray-700 dark:text-gray-300">
                                 <span className="font-medium">Factions:</span>{" "}
-                                {selectedNPC.factions.map((faction) => (
-                                  <span key={faction}>
+                                {selectedNPC.factions.map((factionId) => (
+                                  <span key={factionId}>
                                     <button
                                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200"
                                       onClick={() => {
-                                        if (faction) {
+                                        if (factionId) {
                                           router.push(
                                             `/factions?selected=${encodeURIComponent(
-                                              faction
+                                              factionId
                                             )}`
                                           );
                                         }
                                       }}
                                     >
-                                      {faction}
+                                      {getFactionName(factionId)}
                                     </button>
                                   </span>
                                 ))}

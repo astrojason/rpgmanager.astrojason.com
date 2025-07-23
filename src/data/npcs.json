@@ -8,7 +8,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Human",
     "image": "/images/npcs/Lessa.png"
@@ -22,7 +22,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Triton",
     "image": "/images/npcs/ailo.png"
@@ -47,7 +47,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "factions": [
-      "Dira' al-Waha"
+      "e5b4c9d3-0f6a-4d2e-9b3c-4d5e6f7a8b9c"
     ],
     "description": "Tiefling",
     "image": "/images/npcs/captain-azar.png"
@@ -61,7 +61,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Tortle",
     "image": "/images/npcs/darrik.png"
@@ -75,7 +75,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Tiefling",
     "image": "/images/npcs/despair.png"
@@ -89,7 +89,7 @@
     "location": "Tidewater",
     "status": "Deceased",
     "factions": [
-      "The Shadow Blades"
+      "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
     "description": "Orc",
     "image": "/images/npcs/grom_blackthorn.png"
@@ -103,7 +103,7 @@
     "location": "Sandhaven",
     "status": "Alive",
     "factions": [
-      "The Caliphate"
+      "d4a3b8c2-9e5f-4c3d-8a2b-3c4d5e6f7a8b"
     ],
     "description": "Human",
     "image": "/images/npcs/inara_alsahar.png"
@@ -117,7 +117,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Tortle",
     "image": "/images/npcs/jokwin.png"
@@ -131,7 +131,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Tortle",
     "image": "/images/npcs/kocha.png"
@@ -160,7 +160,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Triton",
     "image": "/images/npcs/mako.png"
@@ -198,7 +198,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Halfling",
     "image": "/images/npcs/mindy.png"
@@ -212,7 +212,7 @@
     "location": "The Silent Star",
     "status": "Alive",
     "factions": [
-      "The Silent Star"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Human",
     "image": "/images/npcs/selene_voss.png"
