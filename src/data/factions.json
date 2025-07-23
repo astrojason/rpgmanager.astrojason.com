@@ -1,6 +1,6 @@
 [
   {
-    "id": "the-silent-star",
+    "id": "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
     "name": "The Silent Star",
     "pronunciation": "the SIE-lent STAR",
     "type": "Ship Crew",
@@ -11,7 +11,7 @@
     "background": "A tight-knit crew that operates in the coastal waters, known for their loyalty to each other and their captain."
   },
   {
-    "id": "the-shadow-blades",
+    "id": "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a",
     "name": "The Shadow Blades",
     "pronunciation": "the SHAD-oh BLADES",
     "type": "Criminal Organization",
@@ -23,7 +23,7 @@
     "background": "Operating from the shadows, this organization specializes in covert operations and has members scattered across different locations."
   },
   {
-    "id": "the-caliphate",
+    "id": "d4a3b8c2-9e5f-4c3d-8a2b-3c4d5e6f7a8b",
     "name": "The Caliphate",
     "pronunciation": "the CAL-ih-fate",
     "type": "Political Organization",
@@ -35,7 +35,7 @@
     "background": "A formal political organization that seeks to maintain order and control in their territory."
   },
   {
-    "id": "dira-al-waha",
+    "id": "e5b4c9d3-0f6a-4d2e-9b3c-4d5e6f7a8b9c",
     "name": "Dira' al-Waha",
     "pronunciation": "DEE-rah al-WAH-hah",
     "type": "City Watch",

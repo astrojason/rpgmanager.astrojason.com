@@ -30,7 +30,8 @@ export default function NPCsPage() {
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const matchesSearch =
-      npc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (!npc.nameHidden &&
+        npc.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
       npc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       npc.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRace = raceFilter === "" || npc.race === raceFilter;

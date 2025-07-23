@@ -1,6 +1,6 @@
 [
   {
-    "id": "lessa",
+    "id": "b6e2e2e2-1a2b-4c3d-8e9f-1a2b3c4d5e6f",
     "name": "Lessa",
     "pronunciation": "LESS-ah",
     "race": "Human",
@@ -14,7 +14,7 @@
     "image": "/images/npcs/Lessa.png"
   },
   {
-    "id": "ailo",
+    "id": "c7f3f3f3-2b3c-5d4e-9f0a-2b3c4d5e6f7a",
     "name": "Ailo",
     "pronunciation": "EYE-low",
     "race": "Triton",
@@ -28,7 +28,7 @@
     "image": "/images/npcs/ailo.png"
   },
   {
-    "id": "azorian",
+    "id": "d8a4a4a4-3c4d-6e5f-0a1b-3c4d5e6f7a8b",
     "name": "Azorian",
     "pronunciation": "ah-ZOR-ee-an",
     "race": "Elf",
@@ -39,7 +39,7 @@
     "image": "/images/npcs/azorian.png"
   },
   {
-    "id": "captain-azar",
+    "id": "e9b5b5b5-4d5e-7f6a-1b2c-4d5e6f7a8b9c",
     "name": "Captain Azar",
     "pronunciation": "ah-ZAHR",
     "race": "Tiefling",
@@ -53,7 +53,7 @@
     "image": "/images/npcs/captain-azar.png"
   },
   {
-    "id": "darrik",
+    "id": "f0c6c6c6-5e6f-8a7b-2c3d-5e6f7a8b9c0d",
     "name": "Darrik",
     "pronunciation": "DARE-rik",
     "race": "Tortle",
@@ -67,7 +67,7 @@
     "image": "/images/npcs/darrik.png"
   },
   {
-    "id": "despair",
+    "id": "a1d7d7d7-6f7a-9b8c-3d4e-6f7a8b9c0d1e",
     "name": "Despair",
     "pronunciation": "deh-SPAIR",
     "race": "Tiefling",
@@ -81,7 +81,7 @@
     "image": "/images/npcs/despair.png"
   },
   {
-    "id": "grom-blackthorn",
+    "id": "b2e8e8e8-7a8b-0c9d-4e5f-7a8b9c0d1e2f",
     "name": "Grom Blackthorn",
     "pronunciation": "GROM BLACK-thorn",
     "race": "Orc",
@@ -95,7 +95,7 @@
     "image": "/images/npcs/grom_blackthorn.png"
   },
   {
-    "id": "inara-alsahar",
+    "id": "c3f9f9f9-8b9c-1d0e-5f6a-8b9c0d1e2f3a",
     "name": "Inara al-Sahar",
     "pronunciation": "ih-NAH-rah al-SAH-har",
     "race": "Human",
@@ -109,7 +109,7 @@
     "image": "/images/npcs/inara_alsahar.png"
   },
   {
-    "id": "jokwin",
+    "id": "d4a0a0a0-9c0d-2e1f-6a7b-9c0d1e2f3a4b",
     "name": "Jokwin",
     "pronunciation": "JOCK-win",
     "race": "Tortle",
@@ -123,7 +123,7 @@
     "image": "/images/npcs/jokwin.png"
   },
   {
-    "id": "kocha",
+    "id": "e5b1b1b1-0d1e-3f2a-7b8c-0d1e2f3a4b5c",
     "name": "Kocha",
     "pronunciation": "KO-cha",
     "race": "Tortle",
@@ -137,7 +137,7 @@
     "image": "/images/npcs/kocha.png"
   },
   {
-    "id": "lyra-moonfire",
+    "id": "f6c2c2c2-1e2f-4a3b-8c9d-1e2f3a4b5c6d",
     "name": "Lyra Moonfire",
     "pronunciation": "LIE-rah MOON-fire",
     "race": "Human",
@@ -152,7 +152,7 @@
     "nameHidden": true
   },
   {
-    "id": "mako",
+    "id": "a7d3d3d3-2f3a-5b4c-9d0e-2f3a4b5c6d7e",
     "name": "Mako",
     "pronunciation": "MAY-ko",
     "race": "Triton",
@@ -166,7 +166,7 @@
     "image": "/images/npcs/mako.png"
   },
   {
-    "id": "malacite",
+    "id": "b8e4e4e4-3a4b-6c5d-0e1f-3a4b5c6d7e8f",
     "name": "Malacite",
     "pronunciation": "MAL-ah-kite",
     "race": "Human",
@@ -177,7 +177,7 @@
     "image": "/images/npcs/malacite.png"
   },
   {
-    "id": "merrin-vask",
+    "id": "c9f5f5f5-4b5c-7d6e-1f2a-4b5c6d7e8f9a",
     "name": "Merrin Vask",
     "pronunciation": "MARE-rin VASK",
     "race": "Human",
@@ -189,7 +189,7 @@
     "nameHidden": true
   },
   {
-    "id": "mindy",
+    "id": "dab0b0b0-5c6d-8e7f-2a3b-5c6d7e8f9a0b",
     "name": "Elmindreda",
     "aka": "Mindy",
     "pronunciation": "el-min-DREE-dah",
@@ -204,7 +204,7 @@
     "image": "/images/npcs/mindy.png"
   },
   {
-    "id": "selene-voss",
+    "id": "eab1b1b1-6d7e-9f8a-3b4c-6d7e8f9a0b1c",
     "name": "Selene Voss",
     "pronunciation": "seh-LEEN VOSS",
     "race": "Human",
@@ -218,7 +218,7 @@
     "image": "/images/npcs/selene_voss.png"
   },
   {
-    "id": "silas",
+    "id": "fbc2c2c2-7e8f-0a9b-4c5d-7e8f9a0b1c2d",
     "name": "Silas",
     "pronunciation": "SIE-las",
     "race": "Dwarf",
@@ -233,7 +233,7 @@
     "nameHidden": true
   },
   {
-    "id": "the-bloody-thorn",
+    "id": "0ac3c3c3-8f9a-1b0c-5d6e-8f9a0b1c2d3e",
     "aka": "The Bloody Thorn",
     "pronunciation": "BLUD-ee THORN",
     "race": "Elf",
@@ -247,7 +247,7 @@
     "image": "/images/npcs/the_bloody_thorn.png"
   },
   {
-    "id": "valdus",
+    "id": "1bd4d4d4-9a0b-2c1d-6e7f-9a0b1c2d3e4f",
     "name": "Valdus",
     "pronunciation": "VAL-dus",
     "race": "Goliath",
@@ -261,7 +261,7 @@
     "image": "/images/npcs/valdus.png"
   },
   {
-    "id": "zephyr",
+    "id": "2ce5e5e5-0b1c-3d2e-7f8a-0b1c2d3e4f5a",
     "name": "Zephyr",
     "pronunciation": "ZEF-fer",
     "race": "Air Genasi",
