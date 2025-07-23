@@ -144,17 +144,23 @@ export default function SideNavigation({
             const isLocations = item.id === "locations";
             const isFactions = item.id === "factions";
             const isPronunciations = item.id === "pronunciations";
+            const isQuests = item.id === "quests";
             // Disabled pages - coming soon or not yet implemented
             const isDisabled = [
               "pcs",
-              "quests",
               "items",
               "lore",
               "deities",
               "recaps",
             ].includes(item.id);
 
-            if (isNPCs || isLocations || isFactions || isPronunciations) {
+            if (
+              isNPCs ||
+              isLocations ||
+              isFactions ||
+              isPronunciations ||
+              isQuests
+            ) {
               // Available pages
               return (
                 <li key={item.id}>
