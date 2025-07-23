@@ -319,7 +319,7 @@
     "pronunciation": "GRIM-skale",
     "race": "Redcap",
     "gender": "Male",
-    "location": "Unknown",
+    "location": "Twilight's Cradle",
     "status": "Alive",
     "description": "Bloodthirsty but a begrudged member of Dorian's team."
   },
@@ -340,7 +340,7 @@
     "pronunciation": "hen-ree-ETT-ah HALL-blood",
     "race": "Human",
     "gender": "Female",
-    "location": "Unknown",
+    "location": "Stormharbor",
     "status": "Alive",
     "description": "Daughter of the Haulblood family, twin to Terrence."
   },
@@ -372,7 +372,7 @@
     "pronunciation": "ay-lee-AH-nah SEA-stone",
     "race": "Triton",
     "gender": "Female",
-    "location": "Tidewater (Royal Palace)",
+    "location": "Azorian's Tower on the roat to Elderglen",
     "status": "Alive",
     "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
     "description": "Princess of the Tidewater royal family."
@@ -447,7 +447,7 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
     "description": "Member of The Midnight Current, gives out assignments."
   },
   {
@@ -458,7 +458,7 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
     "description": "Leader of the Midnight Current."
   },
   {
@@ -500,9 +500,9 @@
     "pronunciation": "jess-ill-ah-ROO mor-THAH-nah",
     "race": "Human",
     "gender": "Female",
-    "location": "Unknown",
+    "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["b5c6d7e8-9012-4a3b-8c7d-2e3f4a5b6c7d"],
+    "factions": ["b7c8d9e0-1234-4f5a-8b7c-9d0e1f2a3b4c"],
     "description": "Leader of the Silver Masks."
   },
   {
@@ -544,7 +544,7 @@
     "pronunciation": "seh-rah-FEE-nah SEA-stone",
     "race": "Triton",
     "gender": "Female",
-    "location": "Tidewater (Royal Palace)",
+    "location": "Azorian's Tower on the road to Elderglen",
     "status": "Alive",
     "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
     "description": "Queen of Tidewater."
@@ -597,14 +597,15 @@
     "pronunciation": "DAN-ser",
     "race": "Satyr",
     "gender": "Female",
-    "location": "The Motley Maverick's Carnival of Dreams",
+    "location": "Twilight's Cradle - The Motley Maverick's Carnival of Dreams",
     "status": "Alive",
     "description": "Trapped in The Motley Maverick's Carnival of Dreams, tried to escape through The Mirror Maze, originally from Oakmouth in Twilight's Cradle."
   },
   {
     "id": "e3f4a5b6-7c8d-9e0f-1a2b-3c4d5e6f7a8b",
-    "name": "Damon 'Ghost' Shadowstride",
-    "pronunciation": "DAY-mun 'Ghost' SHAD-oh-stryde",
+    "name": "Damon Shadowstride",
+    "aka": "Ghost",
+    "pronunciation": "DAY-mun SHAD-oh-stryde",
     "race": "Half-Elf",
     "gender": "Male",
     "location": "Stormharbor",
@@ -620,7 +621,7 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
     "description": "One-eyed burglar, part of The Midnight Current."
   },
   {
@@ -631,7 +632,7 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
     "description": "The Midnight Current's demolitions master."
   },
   {
@@ -640,7 +641,7 @@
     "pronunciation": "en-IG-ma",
     "race": "Tiefling",
     "gender": "Female",
-    "location": "Tidewater (Travelling)",
+    "location": "Azorian's Tower",
     "status": "Alive",
     "description": "Amnesiac traveller - Travelling with the Tidewater Royal Family."
   },
@@ -650,7 +651,7 @@
     "pronunciation": "iz-ah-BELL-ah KOP-per-lock",
     "race": "Elf",
     "gender": "Female",
-    "location": "The Verdant Tranquility, Stormharbor",
+    "location": "Stormharbor - The Verdant Tranquility - The Herbalist's Hut",
     "status": "Alive",
     "description": "Caretaker of The Verdant Tranquility in Stormharbor, attacked by the Shadow Blades and infected with the Void Poison."
   },
@@ -661,7 +662,7 @@
     "race": "Aarakokra",
     "gender": "Male",
     "location": "Unknown",
-    "status": "Alive",
+    "status": "Unknown",
     "description": "Squadmate of Gukki."
   },
   {
@@ -670,7 +671,7 @@
     "pronunciation": "KAI DRIFT-wood",
     "race": "Half-Elf",
     "gender": "Male",
-    "location": "The Cackling Octopus Tavern, Stormharbor",
+    "location": "Unknown",
     "status": "Unknown",
     "description": "Musician at The Cackling Octopus tavern, disappeared."
   },
@@ -713,7 +714,7 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
     "description": "Master thief of The Midnight Current."
   },
   {
@@ -724,6 +725,7 @@
     "gender": "Female",
     "location": "The Mystique Mews, Stormharbor",
     "status": "Deceased",
-    "description": "One of Stormharbor's Eleven, from The Mystique Mews."
+    "description": "One of Stormharbor's Eleven, from The Mystique Mews.",
+    "factions": ["e7f8a9b0-3456-4c7d-8e9f-0a1b2c3d4e5f"]
   }
 ]

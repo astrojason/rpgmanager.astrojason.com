@@ -145,5 +145,27 @@
     "status": "Active",
     "goals": "Govern Stormharbor, represent the interests of all districts, and ensure fair and balanced leadership.",
     "background": "The Eleven is Stormharbor's highest authority. Each of the ten districts elects a representative, and an eleventh is chosen by the entire city to preside and break ties. This system ensures both local and citywide interests are represented in governance."
+  },
+  {
+    "id": "d3e4f5a6-7890-4b1c-8d7e-2f3a4b5c6d7e",
+    "name": "The Trident Arcanum",
+    "pronunciation": "TRY-dent ar-KAY-num",
+    "type": "Mage's Guild",
+    "description": "The premier mage's guild of Stormharbor, dedicated to the study and advancement of arcane arts.",
+    "location": "Stormharbor",
+    "status": "Active",
+    "goals": "Advance magical knowledge, train new mages, and safeguard arcane secrets in Stormharbor.",
+    "background": "The Trident Arcanum is a prestigious guild of mages, scholars, and arcanists. Renowned for their magical prowess and influence, they play a key role in Stormharbor's arcane affairs and magical education."
+  },
+  {
+    "id": "f1e2d3c4-5678-4a1b-8c7d-2e3f4a5b6c7d",
+    "name": "The Order of the Light",
+    "pronunciation": "the OR-der of the LITE",
+    "type": "Religious Order",
+    "description": "A long-dissolved order of the servants of Liora, the Everburning Dawn.",
+    "location": "Various (formerly widespread)",
+    "status": "Dissolved",
+    "goals": "To serve Liora, the Everburning Dawn, and spread her light across the world.",
+    "background": "The Order of the Light was once a revered religious order dedicated to Liora, the Everburning Dawn. Their influence spanned many lands, but the order has long since dissolved, leaving behind only scattered relics and legends."
   }
 ]
