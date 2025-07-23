@@ -1,68 +1,47 @@
 [
   {
-    "id": "the-silent-star",
+    "id": "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
     "name": "The Silent Star",
     "pronunciation": "the SIE-lent STAR",
     "type": "Ship Crew",
     "description": "A crew aboard the ship The Silent Star",
     "location": "The Silent Star (ship)",
     "status": "Active",
-    "members": [
-      "Lessa",
-      "Ailo",
-      "Darrik",
-      "Jokwin",
-      "Kocha",
-      "Mako",
-      "Selene Voss",
-      "Elmindreda (Mindy)"
-    ],
     "goals": "Maritime adventures and exploration",
     "background": "A tight-knit crew that operates in the coastal waters, known for their loyalty to each other and their captain."
   },
   {
-    "id": "the-shadow-blades",
+    "id": "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a",
     "name": "The Shadow Blades",
     "pronunciation": "the SHAD-oh BLADES",
     "type": "Criminal Organization",
     "description": "A secretive organization of assassins and thieves",
     "location": "Various",
     "status": "Active",
-    "members": [
-      "Despair",
-      "Grom Blackthorn (Deceased)",
-      "Lyra Moonfire",
-      "Silas",
-      "The Bloody Thorn",
-      "Valdus",
-      "Zephyr"
-    ],
     "goals": "Influence through stealth and elimination",
     "enemies": ["The Caliphate"],
     "background": "Operating from the shadows, this organization specializes in covert operations and has members scattered across different locations."
   },
   {
-    "id": "the-caliphate",
+    "id": "d4a3b8c2-9e5f-4c3d-8a2b-3c4d5e6f7a8b",
     "name": "The Caliphate",
     "pronunciation": "the CAL-ih-fate",
     "type": "Political Organization",
     "description": "A governing political entity",
     "location": "Sandhaven region",
     "status": "Active",
-    "members": ["Inara al-Sahar"],
     "goals": "Political control and governance",
     "enemies": ["The Shadow Blades"],
     "background": "A formal political organization that seeks to maintain order and control in their territory."
   },
   {
-    "id": "dira-al-waha",
+    "id": "e5b4c9d3-0f6a-4d2e-9b3c-4d5e6f7a8b9c",
     "name": "Dira' al-Waha",
     "pronunciation": "DEE-rah al-WAH-hah",
     "type": "City Watch",
     "description": "The city watch of Sandhaven - 'Shield of the Oasis'",
     "location": "Sandhaven",
     "status": "Active",
-    "members": ["Captain Azar"],
     "goals": "Maintain law and order in Sandhaven",
     "background": "Dira' al-Waha, meaning 'Shield of the Oasis', serves as Sandhaven's city watch. This disciplined organization is responsible for maintaining peace, enforcing laws, and protecting the citizens of Sandhaven."
   }
