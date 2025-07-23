@@ -1,0 +1,97 @@
+[
+  {
+    "id": "5e64b901-6e14-4cb7-909b-c7c5355045e2",
+    "name": "Council Assassinations",
+    "notes": [
+      "Murdered council members in Stormharbor and other cities.",
+      "Possibly linked to the Bloody Thorn.",
+      "Both Oogway and Slip recognized an assassin."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "3a1819a3-34f2-4f93-8b6b-3b13f19d4dc6",
+    "name": "Azorian’s Quest: The Celemîr Teltaur",
+    "notes": [
+      "Stormharbor's Celemîr Teltaur is cursed (Weledor’s connection).",
+      "Tidewater's Celemîr Teltaur is in Slip's possession.",
+      "Currently in Sandhaven; Inara promised the Celemîr Teltaur to Oogway if they succeed.",
+      "Need the remaining Celemîr Teltaur for Azorian."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "21732f35-5f94-46ed-8413-f3a64cf21647",
+    "name": "Dorian’s Fate",
+    "notes": [
+      "Trapped in Twilight’s Cradle.",
+      "Connected to the Shattered King."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "0bcd8f60-050b-47a2-a215-1cb1a2a4f9a0",
+    "name": "Tidewater’s Princess and People",
+    "notes": [],
+    "status": "active"
+  },
+  {
+    "id": "8fd27664-7df1-430a-b0fb-cfffb9f6a58e",
+    "name": "Void Poison",
+    "notes": [
+      "The party has witnessed the poison's effects firsthand.",
+      "They possess several pearls containing the poison.",
+      "Thodian is currently poisoned."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "aa8c0a65-1d3f-4d68-9246-9de87e681812",
+    "name": "Silvermask Enslavement",
+    "notes": [
+      "Party was branded with spelled tattoos by the Silvermask.",
+      "Josh had a bounty on him.",
+      "Azorian broke the spell; Gukki died in the process.",
+      "They may still be tracked if discovered."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "f1d3d84d-d6f1-437f-a849-f0e7688f16f7",
+    "name": "Time and Universe Discrepancies",
+    "notes": [
+      "There are signs that events are repeating.",
+      "Mentions of past actions done by the party—unknown to them.",
+      "Presence of amnesiacs with no memory.",
+      "Timelines are inconsistent among characters.",
+      "In some futures, Azorian is missing."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "91aa5b2e-ea3c-4e2a-b276-330be2cd53f6",
+    "name": "The Voidwalker",
+    "notes": [],
+    "status": "active"
+  },
+  {
+    "id": "2b1fc61b-5902-41b0-b90d-2aa3ae82c50d",
+    "name": "The Hag",
+    "notes": [],
+    "status": "active"
+  },
+  {
+    "id": "e2d610ef-f087-4b9c-86f0-25ac3286be70",
+    "name": "Elrich Malachite",
+    "notes": [
+      "Apparent leader of the Shadowblades."
+    ],
+    "status": "active"
+  },
+  {
+    "id": "e3dc26c3-d21a-40fc-95e4-f82cc5f8f643",
+    "name": "Tormenauk",
+    "notes": [],
+    "status": "active"
+  }
+]
