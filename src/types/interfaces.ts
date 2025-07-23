@@ -50,7 +50,8 @@ export interface NPC {
   description: string;
   background?: string;
   personality?: string;
-  image: string;
+// id: string (UUID)
+  image?: string; // optional
   hidden?: boolean;
   nameHidden?: boolean
 }
@@ -70,4 +71,5 @@ export interface Faction {
     status: string;
     description?: string;
   }[];
+  image?:string;
 }

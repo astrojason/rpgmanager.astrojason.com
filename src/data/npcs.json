@@ -197,9 +197,7 @@
     "gender": "Female",
     "location": "The Silent Star",
     "status": "Alive",
-    "factions": [
-      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
-    ],
+    "factions": [],
     "description": "Halfling",
     "image": "/images/npcs/mindy.png"
   },
@@ -219,7 +217,7 @@
   },
   {
     "id": "fbc2c2c2-7e8f-0a9b-4c5d-7e8f9a0b1c2d",
-    "name": "Silas",
+    "name": "Silas Grimstone",
     "pronunciation": "SIE-las",
     "race": "Dwarf",
     "gender": "Male",
@@ -274,5 +272,458 @@
     "description": "Air Genasi",
     "image": "/images/npcs/zephyr.png",
     "nameHidden": true
+  },
+  {
+    "id": "b1e7c2a3-2e4b-4c1d-9f8a-7e6d5c4b3a2f",
+    "name": "Amar Redleaf",
+    "pronunciation": "AH-mar RED-leaf",
+    "race": "Firbolg",
+    "gender": "Male",
+    "location": "Harmonious Hearth Inn, Stormharbor (Global District)",
+    "status": "Alive",
+    "description": "Owner of the Harmonious Hearth Inn in Stormharbor's Global District."
+  },
+  {
+    "id": "c2f8d3b4-3f5c-4d2e-8a9b-8f7e6d5c4b3a",
+    "name": "Barrow Ironhoof",
+    "pronunciation": "BAR-row EYE-urn-hoof",
+    "race": "Minotaur",
+    "gender": "Male",
+    "location": "The Cackling Octopus Tavern, Stormharbor (Sea Trade's District)",
+    "status": "Alive",
+    "description": "Owner of The Cackling Octopus Tavern in Stormharbor's Sea Trade's District."
+  },
+  {
+    "id": "d3a9e4c5-4a6d-4e3f-9b0c-9e8f7d6c5b4a",
+    "name": "Dorian Evenfeast",
+    "pronunciation": "DOR-ee-an EE-vin-feest",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Twilight's Cradle",
+    "status": "Alive",
+    "description": "Thodian's brother, currently in Twilight's Cradle."
+  },
+  {
+    "id": "e4b0f5d6-5b7e-4f4a-0c1d-af9e8d7c6b5a",
+    "name": "Elias",
+    "pronunciation": "EE-lye-us",
+    "race": "Human",
+    "gender": "Male",
+    "location": "Azorian's Tower",
+    "status": "Alive",
+    "description": "Azorian's head of household, butler, and manservant."
+  },
+  {
+    "id": "f5c1a6e7-6c8f-4a5b-1d2e-b0a9e8d7c6b5",
+    "name": "Grimscale",
+    "pronunciation": "GRIM-skale",
+    "race": "Redcap",
+    "gender": "Male",
+    "location": "Unknown",
+    "status": "Alive",
+    "description": "Bloodthirsty but a begrudged member of Dorian's team."
+  },
+  {
+    "id": "a6d2b7f8-7d9e-4b6c-2e3f-c1b0a9e8d7c6",
+    "name": "Terrence Haulblood III",
+    "aka": "Terry",
+    "pronunciation": "TER-ens HALL-blood the third",
+    "race": "Human",
+    "gender": "Male",
+    "location": "Unknown",
+    "status": "Deceased",
+    "description": "Son of the Haulblood family, twin to Henrietta."
+  },
+  {
+    "id": "b7e3c8a9-8e0f-4c7d-3f4a-d2c1b0a9e8d7",
+    "name": "Henrietta Haulblood",
+    "pronunciation": "hen-ree-ETT-ah HALL-blood",
+    "race": "Human",
+    "gender": "Female",
+    "location": "Unknown",
+    "status": "Alive",
+    "description": "Daughter of the Haulblood family, twin to Terrence."
+  },
+  {
+    "id": "c8f4d9b0-9f1a-4d8e-4a5b-e3d2c1b0a9e8",
+    "name": "Lirial Stormcrest",
+    "pronunciation": "LEER-ee-al STORM-crest",
+    "race": "Human",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "Captain of the Tidekeepers."
+  },
+  {
+    "id": "d9a5e0c1-0a2b-4e9f-5b6c-f4e3d2c1b0a9",
+    "name": "Kaela Ravenshadow",
+    "pronunciation": "KAY-lah RAY-ven-shadow",
+    "race": "Human",
+    "gender": "Female",
+    "location": "Stormharbor (Seafarer’s Enclave)",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Guildmaster of The Stormseekers."
+  },
+  {
+    "id": "e0b6f1d2-1b3c-4f0a-6c7d-05f4e3d2c1b0",
+    "name": "Aeliana Seastone",
+    "pronunciation": "ay-lee-AH-nah SEA-stone",
+    "race": "Triton",
+    "gender": "Female",
+    "location": "Tidewater (Royal Palace)",
+    "status": "Alive",
+    "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
+    "description": "Princess of the Tidewater royal family."
+  },
+  {
+    "id": "b2c1e7a4-8d2f-4e1a-9c3b-7f6e5d4c3b2a",
+    "name": "Yunai Shellbloom",
+    "pronunciation": "YOO-nye SHELL-bloom",
+    "race": "Tortle",
+    "gender": "Female",
+    "location": "Saltmarrow",
+    "status": "Alive",
+    "description": "Elder of Saltmarrow."
+  },
+  {
+    "id": "c3d2f8b7-9e1a-4b2c-8d3e-6f5a4c3b2e1d",
+    "name": "Sivaar Seafoam",
+    "pronunciation": "sih-VAR SEE-foam",
+    "race": "Triton",
+    "gender": "Male",
+    "location": "Saltmarrow",
+    "status": "Alive",
+    "description": "Captain of Saltmarrow's city watch."
+  },
+  {
+    "id": "d4e3a9c2-1b7f-4e2a-8c3d-5e6f7a8b9c0d",
+    "name": "Arin Starshroud",
+    "pronunciation": "AH-rin STAR-shroud",
+    "race": "Half-Elf",
+    "gender": "Androgynous",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "The Stormseekers' cleric and healer."
+  },
+  {
+    "id": "e5f4b8d1-2c3a-4e1b-9d2e-7f6a5c4b3e2d",
+    "name": "Constella",
+    "pronunciation": "con-STEL-lah",
+    "race": "Elf",
+    "gender": "Female",
+    "location": "Lorehaven Academy, Stormharbor",
+    "status": "Alive",
+    "description": "Concierge at the Lorehaven Academy in Stormharbor."
+  },
+  {
+    "id": "f6a5c2b3-4d1e-4a2b-8c3d-7e6f5a4b3c2d",
+    "name": "Elara Rainthorn",
+    "pronunciation": "eh-LAH-rah RAIN-thorn",
+    "race": "Giff",
+    "gender": "Female",
+    "location": "The Herbalist's Hunt, Verdant Tranquility District, Stormharbor",
+    "status": "Alive",
+    "description": "Owner and operator of The Herbalist's Hunt in Stormharbor's Verdant Tranquility District."
+  },
+  {
+    "id": "a7b8c9d0-1e2f-4a3b-9c8d-2e1f3a4b5c6d",
+    "name": "Elarion Starfall",
+    "pronunciation": "eh-LAIR-ee-on STAR-fall",
+    "race": "Elf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "The head wizard of the Stormseekers."
+  },
+  {
+    "id": "b8c7d6e5-2f1a-4c3b-8d2e-7f6a5c4b3e2d",
+    "name": "Griff",
+    "pronunciation": "GRIFF",
+    "race": "Human",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "Member of The Midnight Current, gives out assignments."
+  },
+  {
+    "id": "c9d8e7f6-3a2b-4c1d-8e9f-0a1b2c3d4e5f",
+    "name": "Vurel Morridan",
+    "pronunciation": "VOO-rel MOR-rih-dan",
+    "race": "Triton",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "Leader of the Midnight Current."
+  },
+  {
+    "id": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
+    "name": "Sir Cedric Stormblade",
+    "pronunciation": "SED-rik STORM-blade",
+    "race": "Half-Elf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "High Justicar of the Stormseekers."
+  },
+  {
+    "id": "e2f3a4b5-6c7d-8e9f-0a1b-2c3d4e5f6a7b",
+    "name": "Celeste Moonwhisper",
+    "pronunciation": "seh-LEST MOON-whisper",
+    "race": "Half-Elf",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Stormseeker's acolyte healer."
+  },
+  {
+    "id": "f3a4b5c6-7d8e-9f0a-1b2c-3d4e5f6a7b8c",
+    "name": "Gromm Stonesunder",
+    "pronunciation": "GROM STONE-sunder",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Weapons and fighting instructor with the Stormseekers."
+  },
+  {
+    "id": "a5b6c7d8-9e0f-1a2b-3c4d-5e6f7a8b9c0d",
+    "name": "Jessilarue Morthana",
+    "pronunciation": "jess-ill-ah-ROO mor-THAH-nah",
+    "race": "Human",
+    "gender": "Female",
+    "location": "Unknown",
+    "status": "Alive",
+    "factions": ["b5c6d7e8-9012-4a3b-8c7d-2e3f4a5b6c7d"],
+    "description": "Leader of the Silver Masks."
+  },
+  {
+    "id": "b6c7d8e9-0f1a-2b3c-4d5e-6f7a8b9c0d1e",
+    "name": "Lirelle Gearsmith",
+    "pronunciation": "lih-RELL GEAR-smith",
+    "race": "Gnome",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "The Stormseeker's master tinkerer."
+  },
+  {
+    "id": "c7d8e9f0-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "name": "Nerys Wildshaper",
+    "pronunciation": "NEHR-iss WILD-shaper",
+    "race": "Elf",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Master druid of the Stormseekers."
+  },
+  {
+    "id": "d8e9f0a1-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
+    "name": "Orin Melodius",
+    "pronunciation": "OR-in meh-LOH-dee-us",
+    "race": "Half-Elf",
+    "gender": "Androgynous",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Master bard of the Stormseekers."
+  },
+  {
+    "id": "e9f0a1b2-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
+    "name": "Seraphina Seastone",
+    "pronunciation": "seh-rah-FEE-nah SEA-stone",
+    "race": "Triton",
+    "gender": "Female",
+    "location": "Tidewater (Royal Palace)",
+    "status": "Alive",
+    "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
+    "description": "Queen of Tidewater."
+  },
+  {
+    "id": "f0a1b2c3-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+    "name": "Rurik Flamebeard",
+    "pronunciation": "ROO-rik FLAME-beard",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "Quartermaster of the Stormseekers."
+  },
+  {
+    "id": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "name": "Zarina Wildbrook",
+    "pronunciation": "zah-REE-nah WILD-brook",
+    "race": "Elf",
+    "gender": "Female",
+    "location": "Lorehaven Academy, Stormharbor",
+    "status": "Alive",
+    "description": "Astronomy researcher at the Lorehaven Academy."
+  },
+  {
+    "id": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    "name": "Brom Stoneforge",
+    "pronunciation": "BROM STONE-forge",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "description": "Travelling merchant."
+  },
+  {
+    "id": "c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f",
+    "name": "Petra Greystone",
+    "pronunciation": "PEH-trah GRAY-stone",
+    "race": "Human",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["d3e4f5a6-7890-4b1c-8d7e-2f3a4b5c6d7e"],
+    "description": "Archmage of the Trident Arcanum, Stormharbor's Mage's Guild."
+  },
+  {
+    "id": "d2e3f4a5-6b7c-8d9e-0f1a-2b3c4d5e6f7a",
+    "name": "Dancer",
+    "pronunciation": "DAN-ser",
+    "race": "Satyr",
+    "gender": "Female",
+    "location": "The Motley Maverick's Carnival of Dreams",
+    "status": "Alive",
+    "description": "Trapped in The Motley Maverick's Carnival of Dreams, tried to escape through The Mirror Maze, originally from Oakmouth in Twilight's Cradle."
+  },
+  {
+    "id": "e3f4a5b6-7c8d-9e0f-1a2b-3c4d5e6f7a8b",
+    "name": "Damon 'Ghost' Shadowstride",
+    "pronunciation": "DAY-mun 'Ghost' SHAD-oh-stryde",
+    "race": "Half-Elf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "description": "The Stormseeker's master rogue."
+  },
+  {
+    "id": "f4a5b6c7-8d9e-0f1a-2b3c-4d5e6f7a8b9c",
+    "name": "Diero",
+    "pronunciation": "dee-AIR-oh",
+    "race": "Human",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "One-eyed burglar, part of The Midnight Current."
+  },
+  {
+    "id": "a5b6c7d8-9e0f-1a2b-3c4d-5e6f7a8b9c1d",
+    "name": "Durnn",
+    "pronunciation": "DURN",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "The Midnight Current's demolitions master."
+  },
+  {
+    "id": "b6c7d8e9-0f1a-2b3c-4d5e-6f7a8b9c1d2e",
+    "name": "Enigma",
+    "pronunciation": "en-IG-ma",
+    "race": "Tiefling",
+    "gender": "Female",
+    "location": "Tidewater (Travelling)",
+    "status": "Alive",
+    "description": "Amnesiac traveller - Travelling with the Tidewater Royal Family."
+  },
+  {
+    "id": "c7d8e9f0-1a2b-3c4d-5e6f-7a8b9c1d2e3f",
+    "name": "Isabella Copperlock",
+    "pronunciation": "iz-ah-BELL-ah KOP-per-lock",
+    "race": "Elf",
+    "gender": "Female",
+    "location": "The Verdant Tranquility, Stormharbor",
+    "status": "Alive",
+    "description": "Caretaker of The Verdant Tranquility in Stormharbor, attacked by the Shadow Blades and infected with the Void Poison."
+  },
+  {
+    "id": "d8e9f0a1-2b3c-4d5e-6f7a-8b9c1d2e3f4a",
+    "name": "Josh",
+    "pronunciation": "JOSH",
+    "race": "Aarakokra",
+    "gender": "Male",
+    "location": "Unknown",
+    "status": "Alive",
+    "description": "Squadmate of Gukki."
+  },
+  {
+    "id": "e9f0a1b2-3c4d-5e6f-7a8b-9c1d2e3f4a5b",
+    "name": "Kai Driftwood",
+    "pronunciation": "KAI DRIFT-wood",
+    "race": "Half-Elf",
+    "gender": "Male",
+    "location": "The Cackling Octopus Tavern, Stormharbor",
+    "status": "Unknown",
+    "description": "Musician at The Cackling Octopus tavern, disappeared."
+  },
+  {
+    "id": "f0a1b2c3-4d5e-6f7a-8b9c-1d2e3f4a5b6c",
+    "name": "Neldrion",
+    "pronunciation": "NEL-dree-on",
+    "race": "Elf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "description": "Survivor of The Sanctuary Hills Asylum."
+  },
+  {
+    "id": "a1b2c3d4-5e6f-7a8b-9c1d-2e3f4a5b6c7d",
+    "name": "Ingvar Lightforge",
+    "pronunciation": "ING-var LIGHT-forge",
+    "race": "Dwarf",
+    "gender": "Male",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["f1e2d3c4-5678-4a1b-8c7d-2e3f4a5b6c7d"],
+    "description": "Survivor of The Sanctuary Hills Asylum, cleric of The Order of Light."
+  },
+  {
+    "id": "b2c3d4e5-6f7a-8b9c-0d1e-3f4a5b6c7d8e",
+    "name": "Claude Ironhide",
+    "pronunciation": "KLOHD EYE-urn-hide",
+    "race": "Firbolg",
+    "gender": "Male",
+    "location": "Lorehaven Academy, Stormharbor",
+    "status": "Alive",
+    "description": "Professor of metalworking at The Lorehaven Academy."
+  },
+  {
+    "id": "c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+    "name": "Velaeri",
+    "pronunciation": "veh-LAIR-ee",
+    "race": "Elf",
+    "gender": "Female",
+    "location": "Stormharbor",
+    "status": "Alive",
+    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
+    "description": "Master thief of The Midnight Current."
+  },
+  {
+    "id": "d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+    "name": "Zatanna Shadowveil",
+    "pronunciation": "zah-TAN-nah SHAD-oh-vail",
+    "race": "Unknown",
+    "gender": "Female",
+    "location": "The Mystique Mews, Stormharbor",
+    "status": "Deceased",
+    "description": "One of Stormharbor's Eleven, from The Mystique Mews."
   }
 ]

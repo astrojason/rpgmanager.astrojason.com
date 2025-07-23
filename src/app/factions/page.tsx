@@ -12,6 +12,7 @@ export default function FactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [factionMembers, setFactionMembers] = useState<NPC[] | null>(null);
+  const [showFullImage, setShowFullImage] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -61,20 +62,127 @@ export default function FactionsPage() {
             </button>
             <div className="max-w-4xl mx-auto">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                {/* Header section - no image for factions, but styled banner */}
-                <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-8 mb-6">
-                  <div className="text-white">
-                    <h1 className="text-4xl font-bold mb-1">
-                      {selectedFaction.name}
-                    </h1>
-                    <p className="text-lg opacity-75 mb-2">
-                      ({selectedFaction.pronunciation})
-                    </p>
-                    <p className="text-lg opacity-90">
-                      {selectedFaction.type} - {selectedFaction.status}
-                    </p>
-                  </div>
+                {/* Header section - show image if available, else fallback to gradient */}
+                <div className="relative mb-6">
+                  {selectedFaction.image ? (
+                    <div className="relative h-56 md:h-72 w-full group">
+                      <Image
+                        src={selectedFaction.image}
+                        alt={selectedFaction.name}
+                        fill
+                        style={{
+                          objectFit: "cover",
+                          objectPosition: "center top",
+                        }}
+                        className="w-full h-full object-cover object-top"
+                        priority
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      {/* Eye Icon Button */}
+                      <button
+                        type="button"
+                        className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none opacity-80 group-hover:opacity-100 transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowFullImage(true);
+                        }}
+                        aria-label="View full image"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-0 left-0 p-8 text-white">
+                        <h1 className="text-4xl font-bold mb-1">
+                          {selectedFaction.name}
+                        </h1>
+                        <p className="text-lg opacity-75 mb-2">
+                          ({selectedFaction.pronunciation})
+                        </p>
+                        <p className="text-lg opacity-90">
+                          {selectedFaction.type} - {selectedFaction.status}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-8 flex items-center justify-center">
+                      <span className="text-5xl text-white/60 absolute left-8 top-8">
+                        ?
+                      </span>
+                      <div className="text-white w-full">
+                        <h1 className="text-4xl font-bold mb-1">
+                          {selectedFaction.name}
+                        </h1>
+                        <p className="text-lg opacity-75 mb-2">
+                          ({selectedFaction.pronunciation})
+                        </p>
+                        <p className="text-lg opacity-90">
+                          {selectedFaction.type} - {selectedFaction.status}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {/* Full Image Modal */}
+                {selectedFaction.image && (
+                  <div
+                    className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300 ${
+                      showFullImage
+                        ? "opacity-100 pointer-events-auto"
+                        : "opacity-0 pointer-events-none"
+                    }`}
+                    onClick={() => setShowFullImage(false)}
+                  >
+                    <div
+                      className={`relative max-w-3xl w-full transform transition-transform duration-300 ${
+                        showFullImage ? "scale-100" : "scale-90"
+                      }`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Image
+                        src={selectedFaction.image}
+                        alt={selectedFaction.name}
+                        width={900}
+                        height={600}
+                        style={{ objectFit: "contain" }}
+                        className={`rounded-lg shadow-2xl transition-all duration-300 ${
+                          showFullImage
+                            ? "opacity-100 scale-100"
+                            : "opacity-0 scale-90"
+                        }`}
+                      />
+                      <button
+                        className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded hover:bg-opacity-80"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowFullImage(false);
+                        }}
+                        aria-label="Close full image"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="p-6 space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
@@ -165,7 +273,7 @@ export default function FactionsPage() {
                             >
                               <div className="flex items-center space-x-3">
                                 <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                                  {npc ? (
+                                  {npc.image ? (
                                     <Image
                                       src={npc.image}
                                       alt={npc.name || npc.aka || ""}
@@ -181,7 +289,9 @@ export default function FactionsPage() {
                                       }
                                     />
                                   ) : (
-                                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                      <span className="text-lg">?</span>
+                                    </div>
                                   )}
                                   {npc && npc.status === "Deceased" && (
                                     <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">

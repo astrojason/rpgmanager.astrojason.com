@@ -8,7 +8,8 @@
     "location": "The Silent Star (ship)",
     "status": "Active",
     "goals": "Maritime adventures and exploration",
-    "background": "A tight-knit crew that operates in the coastal waters, known for their loyalty to each other and their captain."
+    "background": "A tight-knit crew that operates in the coastal waters, known for their loyalty to each other and their captain.",
+    "image": "/images/factions/thesilentstar.png"
   },
   {
     "id": "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a",
@@ -44,5 +45,105 @@
     "status": "Active",
     "goals": "Maintain law and order in Sandhaven",
     "background": "Dira' al-Waha, meaning 'Shield of the Oasis', serves as Sandhaven's city watch. This disciplined organization is responsible for maintaining peace, enforcing laws, and protecting the citizens of Sandhaven."
+  },
+  {
+    "id": "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c",
+    "name": "The Midnight Current",
+    "pronunciation": "the MID-night CUR-rent",
+    "type": "Criminal Organization",
+    "description": "A shadowy criminal organization operating out of Stormharbor.",
+    "location": "Stormharbor",
+    "status": "Active",
+    "goals": "Control the underworld and smuggling routes in Stormharbor.",
+    "background": "The Midnight Current is a secretive group known for their influence over Stormharbor's docks and black markets. Their operations are swift, silent, and often undetected by the authorities."
+  },
+  {
+    "id": "b7c8d9e0-1234-4f5a-8b7c-9d0e1f2a3b4c",
+    "name": "The Silver Masks",
+    "pronunciation": "the SIL-ver masks",
+    "type": "Spy Network",
+    "description": "A clandestine spy network based in Stormharbor.",
+    "location": "Stormharbor",
+    "status": "Active",
+    "goals": "Gather intelligence and manipulate political events in Stormharbor and beyond.",
+    "background": "The Silvermasks are renowned for their ability to infiltrate even the most secure circles. Masters of disguise and subterfuge, their true motives and leadership remain a mystery to most."
+  },
+  {
+    "id": "f9e8d7c6-4321-4b5a-9c8d-7e6f5a4b3c2d",
+    "name": "The Crimson Cartel",
+    "pronunciation": "the CRIM-son CAR-tel",
+    "type": "Criminal Organization",
+    "description": "A once-feared criminal organization in Stormharbor, now believed to be destroyed.",
+    "location": "Stormharbor",
+    "status": "Destroyed",
+    "goals": "Unknown after their apparent destruction; formerly controlled illicit trade and racketeering.",
+    "background": "The Crimson Cartel was infamous for its ruthlessness and control over Stormharbor's criminal underworld. Recent events have led to their apparent destruction, leaving a power vacuum in the city's underworld."
+  },
+  {
+    "id": "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+    "name": "The Stormseekers",
+    "pronunciation": "the STORM-seek-ers",
+    "type": "Adventuring Guild",
+    "description": "The oldest adventuring guild in Azorian's Bounty, headquartered in Stormharbor's Seafarer’s Enclave district.",
+    "location": "Stormharbor (Seafarer’s Enclave)",
+    "status": "Active",
+    "goals": "To explore, protect, and seek fortune across Azorian's Bounty and beyond.",
+    "background": "The Stormseekers is the oldest and most respected adventuring guild in Azorian's Bounty. Based in Stormharbor's Seafarer’s Enclave, they are known for their storied history, legendary members, and commitment to both exploration and the defense of the realm.",
+    "image": "/images/factions/stormseekers.png"
+  },
+  {
+    "id": "a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c",
+    "name": "The Tidekeepers",
+    "pronunciation": "the TIDE-keep-ers",
+    "type": "City Guard",
+    "description": "Stormharbor's city guard, responsible for maintaining order and safety in the city and its docks.",
+    "location": "Stormharbor",
+    "status": "Active",
+    "goals": "Protect Stormharbor, enforce the law, and keep the peace in the bustling port city.",
+    "background": "The Tidekeepers are a disciplined and respected force, patrolling Stormharbor's streets and docks. Known for their blue-and-silver uniforms and unwavering dedication, they are the first line of defense against crime and unrest in the city."
+  },
+  {
+    "id": "d7e8f9a0-2345-4b6c-8d7e-9f0a1b2c3d4e",
+    "name": "Verdant Seekers",
+    "pronunciation": "VER-dant SEEK-ers",
+    "type": "Druidic Circle",
+    "description": "A nomadic group of druids focused on healing, rare plants, and the exchange of knowledge for goods.",
+    "location": "Nomadic (no set location)",
+    "status": "Active",
+    "goals": "To study rare plants, heal the land and people, and share knowledge of herbs and survival in exchange for food and goods.",
+    "background": "The Verdant Seekers are a wandering circle of druids who travel between regions, offering healing and wisdom in exchange for supplies. They are renowned for their deep knowledge of rare plants and herbs, and for teaching communities how to live off the land."
+  },
+  {
+    "id": "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c",
+    "name": "The Coral Guard",
+    "pronunciation": "the COR-al GUARD",
+    "type": "Royal Guard",
+    "description": "The elite guard of the royal family of Tidewater, sworn to protect the monarchy and palace.",
+    "location": "Tidewater",
+    "status": "Active",
+    "goals": "Defend the royal family, maintain palace security, and uphold the honor of Tidewater's monarchy.",
+    "background": "The Coral Guard is a prestigious and highly trained unit, recognized by their ornate armor and unwavering loyalty to the royal family of Tidewater. They are entrusted with the safety of the palace and its rulers."
+  },
+  {
+    "id": "c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d",
+    "name": "Tidewater Royal Family",
+    "pronunciation": "TIDE-water ROY-al FAM-i-ly",
+    "type": "Royalty",
+    "description": "The ruling family of Tidewater, sovereigns of the city and its surrounding lands.",
+    "location": "Tidewater (Royal Palace)",
+    "status": "Active",
+    "goals": "Govern Tidewater, ensure the prosperity and safety of their people, and maintain the royal lineage.",
+    "background": "The Tidewater Royal Family is the heart of the city's leadership, presiding over matters of state, diplomacy, and tradition. Their influence shapes the destiny of Tidewater and its people."
+  },
+  {
+    "id": "e7f8a9b0-3456-4c7d-8e9f-0a1b2c3d4e5f",
+    "name": "The Eleven",
+    "pronunciation": "the eh-LEV-en",
+    "type": "Ruling Council",
+    "description": "Stormharbor's ruling council, composed of one elected member from each of the ten districts and an eleventh elected for the whole city.",
+    "location": "Stormharbor (Council Hall)",
+    "status": "Active",
+    "goals": "Govern Stormharbor, represent the interests of all districts, and ensure fair and balanced leadership.",
+    "background": "The Eleven is Stormharbor's highest authority. Each of the ten districts elects a representative, and an eleventh is chosen by the entire city to preside and break ties. This system ensures both local and citywide interests are represented in governance."
   }
 ]

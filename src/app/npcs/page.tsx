@@ -30,16 +30,19 @@ export default function NPCsPage() {
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const matchesSearch =
-      (!npc.nameHidden &&
-        npc.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      npc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      npc.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRace = raceFilter === "" || npc.race === raceFilter;
+      !npc.nameHidden &&
+      ((npc.name &&
+        npc.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (npc.aka && npc.aka.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (npc.race &&
+          npc.race.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (npc.location &&
+          npc.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (npc.description &&
+          npc.description.toLowerCase().includes(searchTerm.toLowerCase())));
+    const matchesRace = !raceFilter || npc.race === raceFilter;
     return matchesSearch && matchesRace;
   });
-
-  // Get unique values for filter dropdowns
-  const uniqueRaces = [...new Set(visibleNPCs.map((npc) => npc.race))].sort();
 
   // Helper to get faction name from UUID
   const getFactionName = (factionId: string) => {
@@ -67,16 +70,31 @@ export default function NPCsPage() {
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <Image
-                src={selectedNPC.image}
-                alt={selectedNPC.name || selectedNPC.aka || ""}
-                width={900}
-                height={600}
-                style={{ objectFit: "contain" }}
-                className={`rounded-lg shadow-2xl transition-all duration-300 ${
-                  showFullImage ? "opacity-100 scale-100" : "opacity-0 scale-90"
-                }`}
-              />
+              {selectedNPC && selectedNPC.image ? (
+                <Image
+                  src={selectedNPC.image as string}
+                  alt={selectedNPC.name || selectedNPC.aka || ""}
+                  width={900}
+                  height={600}
+                  style={{ objectFit: "contain" }}
+                  className={`rounded-lg shadow-2xl transition-all duration-300 ${
+                    showFullImage
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-90"
+                  }`}
+                />
+              ) : null}
+              {selectedNPC && !selectedNPC.image ? (
+                <div
+                  className={`w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-5xl transition-all duration-300 ${
+                    showFullImage
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-90"
+                  }`}
+                >
+                  ?
+                </div>
+              ) : null}
               <button
                 className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded hover:bg-opacity-80"
                 onClick={(e) => {
@@ -116,49 +134,109 @@ export default function NPCsPage() {
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
-                    <Image
-                      src={selectedNPC.image}
-                      alt={selectedNPC.name || selectedNPC.aka || ""}
-                      fill
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center top",
-                      }}
-                      className="rounded-lg transition duration-200"
-                    />
-                    {/* Eye Icon Button */}
-                    <button
-                      type="button"
-                      className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowFullImage(true);
-                      }}
-                      aria-label="View full image"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                    {selectedNPC.image ? (
+                      <div className="w-full h-full rounded-lg overflow-hidden relative">
+                        <Image
+                          src={selectedNPC.image}
+                          alt={selectedNPC.name || selectedNPC.aka || ""}
+                          fill
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center top",
+                          }}
+                          className="rounded-lg transition duration-200"
                         />
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="3"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                    </button>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
+                        {/* Eye Icon Button */}
+                        <button
+                          type="button"
+                          className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowFullImage(true);
+                          }}
+                          aria-label="View full image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                            />
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="3"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                        </button>
+                        <div className="absolute bottom-4 left-4 text-white pointer-events-none">
+                          <h1 className="text-4xl font-bold mb-1">
+                            {!selectedNPC.name || selectedNPC.nameHidden ? (
+                              <>Unknown</>
+                            ) : (
+                              <>{selectedNPC.name}</>
+                            )}
+                            {selectedNPC.aka && (
+                              <span
+                                className={`text-2xl font-normal opacity-75${
+                                  selectedNPC.name ? " ml-2" : ""
+                                }`}
+                              >
+                                &ldquo;{selectedNPC.aka}&rdquo;
+                              </span>
+                            )}
+                          </h1>
+                          {!selectedNPC.nameHidden && (
+                            <p className="text-lg opacity-75 mb-2">
+                              ({selectedNPC.pronunciation})
+                            </p>
+                          )}
+                          <p className="text-lg opacity-90">
+                            {selectedNPC.race} - {selectedNPC.gender}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-900 to-blue-400 dark:from-blue-900 dark:to-blue-700 rounded-lg flex items-end">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
+                        <div className="absolute bottom-4 left-4 text-white pointer-events-none">
+                          <h1 className="text-4xl font-bold mb-1">
+                            {!selectedNPC.name || selectedNPC.nameHidden ? (
+                              <>Unknown</>
+                            ) : (
+                              <>{selectedNPC.name}</>
+                            )}
+                            {selectedNPC.aka && (
+                              <span
+                                className={`text-2xl font-normal opacity-75${
+                                  selectedNPC.name ? " ml-2" : ""
+                                }`}
+                              >
+                                &ldquo;{selectedNPC.aka}&rdquo;
+                              </span>
+                            )}
+                          </h1>
+                          {!selectedNPC.nameHidden && (
+                            <p className="text-lg opacity-75 mb-2">
+                              ({selectedNPC.pronunciation})
+                            </p>
+                          )}
+                          <p className="text-lg opacity-90">
+                            {selectedNPC.race} - {selectedNPC.gender}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     <div className="absolute bottom-4 left-4 text-white pointer-events-none">
                       <h1 className="text-4xl font-bold mb-1">
                         {!selectedNPC.name || selectedNPC.nameHidden ? (
@@ -303,11 +381,15 @@ export default function NPCsPage() {
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         <option value="">All Races</option>
-                        {uniqueRaces.map((race) => (
-                          <option key={race} value={race}>
-                            {race}
-                          </option>
-                        ))}
+                        {Array.from(
+                          new Set(visibleNPCs.map((npc: NPC) => npc.race))
+                        )
+                          .sort()
+                          .map((race: string) => (
+                            <option key={race} value={race}>
+                              {race}
+                            </option>
+                          ))}
                       </select>
                     </div>
                   </div>
@@ -365,20 +447,26 @@ export default function NPCsPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                      <Image
-                        src={npc.image}
-                        alt={npc.name || npc.aka || ""}
-                        fill
-                        style={{
-                          objectFit: "cover",
-                          objectPosition: "center top",
-                        }}
-                        className={
-                          npc.status === "Deceased"
-                            ? "grayscale opacity-75"
-                            : ""
-                        }
-                      />
+                      {npc.image ? (
+                        <Image
+                          src={npc.image}
+                          alt={npc.name || npc.aka || ""}
+                          fill
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center top",
+                          }}
+                          className={
+                            npc.status === "Deceased"
+                              ? "grayscale opacity-75"
+                              : ""
+                          }
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                          <span className="text-lg">?</span>
+                        </div>
+                      )}
                       {npc.status === "Deceased" && (
                         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
                           <span className="text-white text-lg">💀</span>
