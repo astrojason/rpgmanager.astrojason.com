@@ -94,4 +94,23 @@
     "notes": [],
     "status": "active"
   }
+  ,
+  {
+    "id": "b2e7c1a2-8e2a-4b7a-9c1d-1e2f3a4b5c6d",
+    "name": "Disappearances in Scholar's Summit",
+    "notes": [],
+    "status": "completed"
+  },
+  {
+    "id": "c3d4e5f6-7a8b-4c9d-8e1f-2a3b4c5d6e7f",
+    "name": "The Sanctuary Hills Asylum",
+    "notes": [],
+    "status": "completed"
+  },
+  {
+    "id": "d4e5f6a7-b8c9-4d1e-9f2a-3b4c5d6e7f8a",
+    "name": "Merrow Assault During Storm",
+    "notes": [],
+    "status": "completed"
+  }
 ]

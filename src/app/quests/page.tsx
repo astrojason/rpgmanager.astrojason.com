@@ -12,6 +12,8 @@ interface Quest {
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  // By default, only show active quests
+  const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
 
   const filteredQuests = (questsData as Quest[]).filter((quest) => {
@@ -20,8 +22,14 @@ export default function QuestsPage() {
       quest.notes.some((note) =>
         note.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    const matchesStatus = statusFilter === "" || quest.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    // If searching, ignore showActiveOnly and use statusFilter
+    if (searchTerm.trim() !== "" || statusFilter !== "") {
+      const matchesStatus =
+        statusFilter === "" || quest.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    }
+    // Default: only show active quests
+    return matchesSearch && (quest.status === "active" || !showActiveOnly);
   });
 
   const uniqueStatuses = Array.from(
@@ -71,15 +79,27 @@ export default function QuestsPage() {
               Showing {filteredQuests.length} of{" "}
               {(questsData as Quest[]).length} Quests
             </p>
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setStatusFilter("");
-              }}
-              className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-            >
-              Clear Filters
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowActiveOnly((v) => !v);
+                  setStatusFilter("");
+                  setSearchTerm("");
+                }}
+                className="px-4 py-2 text-sm bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-md transition-colors duration-200"
+              >
+                {showActiveOnly ? "Show All Quests" : "Show Only Active"}
+              </button>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("");
+                }}
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
+              >
+                Clear Filters
+              </button>
+            </div>
           </div>
         </div>
         <div className="space-y-6">
