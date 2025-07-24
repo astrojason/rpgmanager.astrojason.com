@@ -254,13 +254,14 @@ export default function PCsPage() {
                             </p>
                             {selectedPC.factions &&
                               selectedPC.factions.length > 0 && (
-                                <p className="text-gray-700 dark:text-gray-300">
+                                <div className="text-gray-700 dark:text-gray-300">
                                   <span className="font-medium">Factions:</span>{" "}
-                                  {selectedPC.factions.map(
-                                    (factionId: string) => (
-                                      <span key={factionId}>
+                                  <div className="flex flex-row flex-nowrap gap-x-2 gap-y-1 overflow-x-auto whitespace-nowrap mt-1">
+                                    {selectedPC.factions.map(
+                                      (factionId: string) => (
                                         <button
-                                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200"
+                                          key={factionId}
+                                          className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 whitespace-nowrap border border-blue-200 dark:border-blue-700 mr-1"
                                           onClick={() => {
                                             if (factionId) {
                                               router.push(
@@ -270,13 +271,14 @@ export default function PCsPage() {
                                               );
                                             }
                                           }}
+                                          title={getFactionName(factionId)}
                                         >
                                           {getFactionName(factionId)}
                                         </button>
-                                      </span>
-                                    )
-                                  )}
-                                </p>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
                               )}
                           </div>
                         </div>

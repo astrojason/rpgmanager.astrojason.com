@@ -129,9 +129,6 @@ export default function FactionsPage() {
                     </div>
                   ) : (
                     <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-8 flex items-center justify-center">
-                      <span className="text-5xl text-white/60 absolute left-8 top-8">
-                        ?
-                      </span>
                       <div className="text-white w-full">
                         <h1 className="text-4xl font-bold mb-1">
                           {selectedFaction.name}
@@ -220,8 +217,11 @@ export default function FactionsPage() {
                           </p>
                           {factionMembers && factionMembers.length > 0 && (
                             <p className="text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Members:</span>{" "}
-                              {factionMembers.length}
+                              <span className="font-medium">
+                                Known Members:
+                              </span>{" "}
+                              {(factionMembers?.length || 0) +
+                                (factionPCs?.length || 0)}
                             </p>
                           )}
                         </div>
@@ -264,7 +264,7 @@ export default function FactionsPage() {
                   {factionMembers && factionMembers.length > 0 && (
                     <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Known NPC Members ({factionMembers.length})
+                        NPCs ({factionMembers.length})
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {factionMembers.map((npc: NPC, index: number) => {
@@ -359,7 +359,7 @@ export default function FactionsPage() {
                   {factionPCs && factionPCs.length > 0 && (
                     <div className="border-t border-gray-200 dark:border-gray-600 pt-6 mt-6">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Player Characters ({factionPCs.length})
+                        PCs ({factionPCs.length})
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {factionPCs.map((pc: PC, index: number) => (
