@@ -145,21 +145,19 @@ export default function SideNavigation({
             const isFactions = item.id === "factions";
             const isPronunciations = item.id === "pronunciations";
             const isQuests = item.id === "quests";
+            const isPCs = item.id === "pcs";
             // Disabled pages - coming soon or not yet implemented
-            const isDisabled = [
-              "pcs",
-              "items",
-              "lore",
-              "deities",
-              "recaps",
-            ].includes(item.id);
+            const isDisabled = ["items", "lore", "deities", "recaps"].includes(
+              item.id
+            );
 
             if (
               isNPCs ||
               isLocations ||
               isFactions ||
               isPronunciations ||
-              isQuests
+              isQuests ||
+              isPCs
             ) {
               // Available pages
               return (

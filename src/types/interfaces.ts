@@ -50,12 +50,22 @@ export interface NPC {
   description: string;
   background?: string;
   personality?: string;
-// id: string (UUID)
   image?: string; // optional
   hidden?: boolean;
   nameHidden?: boolean
 }
 
+export interface PC {
+  id: string;
+  name: string;
+  nickname?: string;
+  race: string;
+  hometown: string;
+  status: string;
+  factions?: string[];
+  image?: string; // optional
+  class: string;
+}
 export interface Faction {
   id: string;
   name: string;

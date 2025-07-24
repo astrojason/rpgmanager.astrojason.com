@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import npcData from "@/data/npcs.json";
+import pcsData from "@/data/pcs.json";
 import Image from "next/image";
-import { Faction, NPC } from "@/types/interfaces";
+import { Faction, NPC, PC } from "@/types/interfaces";
 import factionData from "@/data/factions.json";
 
 export default function FactionsPage() {
@@ -36,10 +37,14 @@ export default function FactionsPage() {
     }
   }, [searchParams]);
 
+  const [factionPCs, setFactionPCs] = useState<PC[] | null>(null);
   useEffect(() => {
     if (!selectedFaction) return;
     setFactionMembers(
       npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id))
+    );
+    setFactionPCs(
+      pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id))
     );
   }, [selectedFaction]);
 
@@ -259,7 +264,7 @@ export default function FactionsPage() {
                   {factionMembers && factionMembers.length > 0 && (
                     <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Known Members ({factionMembers.length})
+                        Known NPC Members ({factionMembers.length})
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {factionMembers.map((npc: NPC, index: number) => {
@@ -347,6 +352,59 @@ export default function FactionsPage() {
                             </div>
                           );
                         })}
+                      </div>
+                    </div>
+                  )}
+                  {/* PCs Section */}
+                  {factionPCs && factionPCs.length > 0 && (
+                    <div className="border-t border-gray-200 dark:border-gray-600 pt-6 mt-6">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Player Characters ({factionPCs.length})
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {factionPCs.map((pc: PC, index: number) => (
+                          <div
+                            key={index}
+                            className="p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
+                            onClick={() =>
+                              (window.location.href = `/pcs?selected=${pc.id}`)
+                            }
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                {pc.image ? (
+                                  <Image
+                                    src={pc.image}
+                                    alt={pc.name || pc.nickname || ""}
+                                    fill
+                                    style={{
+                                      objectFit: "cover",
+                                      objectPosition: "center top",
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                    <span className="text-lg">?</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-medium truncate text-gray-900 dark:text-white">
+                                    {pc.name}
+                                    {pc.nickname ? ` "${pc.nickname}"` : ""}
+                                  </h3>
+                                </div>
+                                <p className="text-sm truncate text-gray-600 dark:text-gray-400">
+                                  {pc.race} - {pc.class}
+                                </p>
+                                <p className="text-xs truncate text-gray-500 dark:text-gray-500">
+                                  {pc.hometown}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}

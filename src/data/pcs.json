@@ -1,0 +1,133 @@
+[
+    {
+        "name": "Gukki",
+        "status": "Deceased",
+        "race": "Aarakokra",
+        "class": "Cleric",
+        "id": "6dcab54c-57f8-4da4-8678-9749b286cb9f",
+        "hometown": "Stormharbor",
+        "image": "",
+        "factions": [
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+        ]
+    },
+    {
+        "name": "Oogway",
+        "status": "Alive",
+        "race": "Tortle",
+        "class": "Barbarian (Path of the Totem Warrior)",
+        "id": "a540f661-08eb-4342-908a-8172d959a39b",
+        "hometown": "Tidewater",
+        "image": "/images/pcs/oogway.png",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+            "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+        ]
+    },
+    {
+        "name": "Shinusu Rampart",
+        "status": "Alive",
+        "race": "Halfling",
+        "class": "Paladin (Oath of Devotion)",
+        "id": "6c20c9e2-c009-406f-9841-545f4adb9e24",
+        "nickname": "Shin",
+        "hometown": "Stormharbor",
+        "image": "/images/pcs/shin.png",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+            "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+        ]
+    },
+    {
+        "name": "Silvern Catter",
+        "status": "Alive",
+        "race": "Human",
+        "class": "Rogue (Thief)",
+        "id": "85465d66-59fd-4911-bd6e-68897b590a9a",
+        "nickname": "Slip",
+        "hometown": "Stormharbor",
+        "image": "/images/pcs/slip.png",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+            "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+        ]
+    },
+    {
+        "name": "Thodian Evenfeast",
+        "status": "Alive",
+        "race": "Hill Dwarf",
+        "class": "Paladin (Oath of Conquest)",
+        "id": "6e790b53-7f9f-49d0-a8c8-0c8d4fed6aa7",
+        "hometown": "Orzammar",
+        "image": "/images/pcs/thodian.png",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+            "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+        ]
+    },
+    {
+        "name": "Weledor",
+        "status": "Alive",
+        "race": "Halfling",
+        "class": "Bard (College of Glamour)",
+        "id": "909a254d-b5b4-4688-824d-7ed8f9767d50",
+        "hometown": "Stormharbor",
+        "image": "",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
+            "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+        ]
+    },
+    {
+        "name": "Zorron",
+        "status": "Alive",
+        "race": "Tiefling",
+        "class": "Paladin (Oath of Devotion)",
+        "id": "d4f61cac-6e06-4f7d-b8f8-1c81ef186433",
+        "hometown": "Stormharbor",
+        "image": "",
+        "factions": [
+            "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
+            "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+        ]
+    },
+    {
+        "name": "Magnolia",
+        "status": "Alive",
+        "race": "High Elf",
+        "class": "Druid (Circle of the Land)",
+        "id": "0d78d475-ce39-4c61-82a2-72fadd8c322a",
+        "hometown": "Caerilfen",
+        "image": "",
+        "factions": []
+    },
+    {
+        "name": "Clay Westwoods",
+        "status": "Inactive",
+        "race": "Unknown",
+        "class": "Druid (Circle of the Moon)",
+        "id": "87189b1b-e9f5-45e6-8252-d9cc070498d3",
+        "hometown": "Silvershade",
+        "image": "",
+        "factions": [
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+        ]
+    },
+    {
+        "name": "Finn Copperlock",
+        "status": "Inactive",
+        "race": "Custom Lineage",
+        "class": "Artificer (Armorer)",
+        "id": "41df75fa-04a0-450e-91d0-d91f700ce60a",
+        "hometown": "Stormharbor",
+        "image": "",
+        "factions": [
+            "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+        ]
+    }
+]
