@@ -1,0 +1,312 @@
+{
+  "name": "Azorian's Bounty",
+  "description": "",
+  "id": "ID_0bf89b696a29",
+  "showIntercalarySeparately": true,
+  "static": {
+    "incrementDay": false,
+    "firstWeekDay": 0,
+    "overflow": true,
+    "weekdays": [
+      { "type": "day", "name": "Adonel", "pronunciation": "AH-doh-nell", "id": "ID_29a848bac94a" },
+      { "type": "day", "name": "Selūnēl", "pronunciation": "seh-LOO-nell", "id": "ID_5a2adbd8ba88" },
+      { "type": "day", "name": "Rilithar", "pronunciation": "RILL-ih-thar", "id": "ID_4829991808c8" },
+      { "type": "day", "name": "Tel'endar", "pronunciation": "TEL-en-dar", "id": "ID_5b78c94ac82a" },
+      { "type": "day", "name": "Pyrthar", "pronunciation": "PEER-thar", "id": "ID_c978088ad8fa" },
+      { "type": "day", "name": "Neldēl", "pronunciation": "NEL-dale", "id": "ID_7b8b9ada6aba" },
+      { "type": "day", "name": "Viandar", "pronunciation": "VEE-an-dar", "id": "ID_2b9b69d8793b" },
+      { "type": "day", "name": "Illu'endar", "pronunciation": "ILL-oo-en-dar", "id": "ID_0a1a7b0ae80b" },
+      { "type": "day", "name": "Barithar", "pronunciation": "BAR-ih-thar", "id": "ID_bb985a794908" },
+      { "type": "day", "name": "Anarathar", "pronunciation": "ah-NAH-rah-thar", "id": "ID_cb59aa9b18ba" }
+    ],
+    "months": [
+      {
+        "type": "month",
+        "name": "Teldrathal",
+        "pronunciation": "TEL-drah-thal",
+        "length": 40,
+        "id": "ID_a9ba3b491998",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Tiritheon",
+        "pronunciation": "tir-ITH-ee-on",
+        "length": 40,
+        "id": "ID_da0a59690b0b",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Calantheon",
+        "pronunciation": "ka-LAN-thee-on",
+        "length": 40,
+        "id": "ID_c9d978a83b99",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Miriandar",
+        "pronunciation": "meer-ee-AN-dar",
+        "length": 40,
+        "id": "ID_9ab8c969fa3a",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Belanthir",
+        "pronunciation": "beh-LAN-theer",
+        "length": 40,
+        "id": "ID_3b3a5968583a",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Selūn'artas",
+        "pronunciation": "seh-LOON-ar-tas",
+        "length": 40,
+        "id": "ID_a809182a7bca",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Ilyanwe",
+        "pronunciation": "il-YAN-way",
+        "length": 40,
+        "id": "ID_fa49682af9e9",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Pyrthendel",
+        "pronunciation": "peer-THEN-del",
+        "length": 40,
+        "id": "ID_cb79f8bb4bbb",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Naraeran",
+        "pronunciation": "nah-RARE-an",
+        "length": 40,
+        "id": "ID_8819c8786839",
+        "interval": 1,
+        "offset": 0
+      },
+      {
+        "type": "month",
+        "name": "Ara'halan",
+        "pronunciation": "ah-RAH-ha-lan",
+        "length": 40,
+        "id": "ID_48b9d88aa8c9",
+        "interval": 1,
+        "offset": 0
+      }
+    ],
+    "moons": [
+      {
+        "name": "Seldarine",
+        "cycle": 40,
+        "offset": 0,
+        "faceColor": "#f3eded",
+        "shadowColor": "#000",
+        "id": "ID_18b8ea99bbca"
+      },
+      {
+        "name": "Shyn",
+        "cycle": 28,
+        "offset": 6,
+        "faceColor": "#740202",
+        "shadowColor": "#000",
+        "id": "ID_48e8dbe81858"
+      },
+      {
+        "name": "Cyrian",
+        "cycle": 35,
+        "offset": 18,
+        "faceColor": "#b1bff7",
+        "shadowColor": "#000",
+        "id": "ID_5bb8199a8b2b"
+      }
+    ],
+    "displayMoons": true,
+    "displayDayNumber": false,
+    "leapDays": [],
+    "eras": [],
+    "padMonths": 2,
+    "padDays": 2
+  },
+  "current": { "day": 36, "month": 3, "year": 427 },
+  "events": [
+    {
+      "name": "Tide Festival",
+      "description": "A weeklong celebration in the middle of summer, featuring boat races, fishing competitions, and nightly festivities. It honors the city's connection to the sea and the bounty it provides.",
+      "date": { "month": 5, "day": 11, "year": 427 },
+      "id": "ID_ea0b3b38791b",
+      "note": null,
+      "category": "ID_da29491a8b4b",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Range",
+      "end": { "month": 5, "day": 20, "year": 427 }
+    },
+    {
+      "name": "Founder's Day",
+      "description": "Commemorates the founding of Stormharbor. The council selects a \"Citizen of the Year\" who exemplifies the city's values of hard work, innovation, and community.  ",
+      "date": { "month": 3, "day": 18, "year": 427 },
+      "id": "ID_daaabb1b5afb",
+      "note": null,
+      "category": "ID_da29491a8b4b",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "The Brontis Festival",
+      "description": "A celebration of the arts and artists of Stormharbor. Initially a celebration of the founding of Stormharbor, but over the centuries has become more of a celebration of the wonders of the city. It kicks off on Founder's Day and lasts through the end of the tenday.",
+      "date": { "month": 3, "day": 18, "year": 427 },
+      "id": "ID_a91bbb99b9d8",
+      "note": null,
+      "category": "ID_da29491a8b4b",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Range",
+      "end": { "month": 3, "day": 20, "year": 427 }
+    },
+    {
+      "name": "Coral Bloom Celebration",
+      "description": "When the coral reefs surrounding the island bloom in a dazzling array of colors, the tritons hold underwater concerts and artistic performances.",
+      "date": { "month": 4, "day": 1, "year": 427 },
+      "id": "ID_497b688b6949",
+      "note": null,
+      "category": "ID_d808f938a9db",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Range",
+      "end": { "month": 4, "day": 10, "year": 427 }
+    },
+    {
+      "name": "Day of the Deeps",
+      "description": "Honors those lost at sea. Tributes and offerings are made to appease the spirits of the deep.",
+      "date": { "month": 6, "day": 15, "year": 427 },
+      "id": "ID_fb6b5b6bfae9",
+      "note": null,
+      "category": "ID_d808f938a9db",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "Hammer's Call",
+      "description": "A day celebrating the city's mining heritage with contests of strength, craftsmanship displays, and a grand feast. ",
+      "date": { "month": 1, "day": 10, "year": 427 },
+      "id": "ID_8bc8385aa9db",
+      "note": null,
+      "category": "ID_182819c99b2a",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "Earthen Remembrance",
+      "description": "A solemn day to remember those who gave their lives in the mines. Stones are carved with the names of the fallen.",
+      "date": { "month": 9, "day": 5, "year": 427 },
+      "id": "ID_a86aba0a88e9",
+      "note": null,
+      "category": "ID_182819c99b2a",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "Oasis Festival",
+      "description": "A month-long celebration when the desert blooms after the brief rainy season, the city holds grand market festivals with traders from across the Bounty.",
+      "date": { "month": 3, "day": [1, 40], "year": 427 },
+      "id": "ID_99499a9a78ca",
+      "note": null,
+      "category": "ID_385b2babaaa9",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Recurring"
+    },
+    {
+      "name": "Night of Tales",
+      "description": "A night of storytelling where the city's elders share tales of the desert's mysteries and the city's history.",
+      "date": { "month": 7, "day": 20, "year": 427 },
+      "id": "ID_18383bcaca98",
+      "note": null,
+      "category": "ID_385b2babaaa9",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "Greensong",
+      "description": "A celebration of spring's arrival with performances, art shows, and magical displays honoring nature's renewal.",
+      "date": { "month": 2, "day": 15, "year": 427 },
+      "id": "ID_597b9a4908c8",
+      "note": null,
+      "category": "ID_5abad92a382a",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Range",
+      "end": { "month": 2, "day": 28, "year": 427 }
+    },
+    {
+      "name": "Wildlight Eve",
+      "description": "A night when the forest is filled with enchanted lights, believed to guide lost souls. Elves leave offerings for ancestors.",
+      "date": { "month": 8, "day": 30, "year": 427 },
+      "id": "ID_695b68caea29",
+      "note": null,
+      "category": "ID_5abad92a382a",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "The Eclipse",
+      "description": "The sun was momentarily blacked out for reasons unknown",
+      "date": { "month": 5, "day": 18, "year": 352 },
+      "id": "ID_3bb8b8d9da18",
+      "note": null,
+      "category": "ID_b9783acbfa88",
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date"
+    },
+    {
+      "name": "Shard Emerges",
+      "description": "The Shard of the Voidwalker will escape from the corrupted Celemîr Teltaur",
+      "date": { "day": 36, "month": 3, "year": 427 },
+      "id": "ID_6bc89a4afaa9",
+      "note": null,
+      "category": null,
+      "sort": { "timestamp": 5e-324, "order": "" },
+      "type": "Date",
+      "dmOnly": true
+    }
+  ],
+  "categories": [
+    { "id": "ID_da29491a8b4b", "color": "#11513a", "name": "Stormharbor" },
+    { "id": "ID_d808f938a9db", "color": "#8a185a", "name": "Tidewater" },
+    { "id": "ID_182819c99b2a", "color": "#17636a", "name": "Harborwatch" },
+    { "id": "ID_385b2babaaa9", "color": "#b23c2a", "name": "Sandhaven" },
+    { "id": "ID_5abad92a382a", "color": "#7a1a9a", "name": "Silvershade" },
+    { "id": "ID_b9783acbfa88", "color": "#1a1040", "name": "Bounty Wide" }
+  ],
+  "autoParse": false,
+  "path": ["/"],
+  "supportInlineEvents": false,
+  "inlineEventTag": "#inline-events",
+  "seasonal": {
+    "seasons": [],
+    "offset": 0,
+    "type": "Periodic",
+    "displayColors": true,
+    "interpolateColors": true,
+    "weather": {
+      "enabled": false,
+      "seed": -948884120,
+      "tempUnits": "Imperial",
+      "windUnits": "Imperial",
+      "primaryWindDirection": "E"
+    }
+  },
+  "locations": { "locations": [] }
+}

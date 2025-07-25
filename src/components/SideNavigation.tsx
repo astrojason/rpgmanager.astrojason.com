@@ -29,6 +29,20 @@ const navigationItems: NavigationItem[] = [
     description: "Towns, cities, landmarks",
   },
   {
+    id: "calendar",
+    name: "Calendar",
+    icon: AcademicCapIcon,
+    href: "/calendar",
+    description: "World calendar and events",
+  },
+  {
+    id: "timeline",
+    name: "Timeline",
+    icon: ChevronRightIcon,
+    href: "/timeline",
+    description: "Campaign timeline of major events",
+  },
+  {
     id: "npcs",
     name: "NPCs",
     icon: UserGroupIcon,
@@ -146,10 +160,16 @@ export default function SideNavigation({
             const isPronunciations = item.id === "pronunciations";
             const isQuests = item.id === "quests";
             const isPCs = item.id === "pcs";
+            const isTimeline = item.id === "timeline";
+            const isCalendar = item.id === "calendar";
             // Disabled pages - coming soon or not yet implemented
-            const isDisabled = ["items", "lore", "deities", "recaps"].includes(
-              item.id
-            );
+            const isDisabled = [
+              "items",
+              "lore",
+              "deities",
+              "recaps",
+              "timeline",
+            ].includes(item.id);
 
             if (
               isNPCs ||
@@ -157,7 +177,9 @@ export default function SideNavigation({
               isFactions ||
               isPronunciations ||
               isQuests ||
-              isPCs
+              isPCs ||
+              // isTimeline ||
+              isCalendar
             ) {
               // Available pages
               return (

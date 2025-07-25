@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { NPC } from "@/types/interfaces";
+import { NPC, Location } from "@/types/interfaces";
 import npcData from "@/data/npcs.json";
 import locationData from "@/data/locations.json";
 import factionData from "@/data/factions.json";
-import { Location } from "@/types/interfaces";
+import calendarData from "@/data/calendar.json";
+import { CalendarWeekday, CalendarMonth } from "@/types/interfaces";
 
 export default function PronunciationsPage() {
+  // Calendar days and months
+  const calendarWeekdays: CalendarWeekday[] = calendarData.static.weekdays;
+  const calendarMonths: CalendarMonth[] = calendarData.static.months;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -32,70 +36,49 @@ export default function PronunciationsPage() {
 
   const allLocations = flattenLocations(locationData);
 
-  // Filter data based on search and category
-  const getFilteredData = () => {
-    const filterNPCs = (npcs: NPC[]) =>
-      npcs.filter(
-        (npc) =>
-          npc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          npc.pronunciation.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  // Filter data based on search and category, now including months and days
+  const filterPronunciationItems = (
+    items: Array<{ name: string; pronunciation?: string }>
+  ) =>
+    items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.pronunciation &&
+          item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
-    const filterLocations = (
-      items: Array<{ name: string; pronunciation?: string }>
-    ) =>
-      items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.pronunciation &&
-            item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+  // Map NPCs to { name, pronunciation } for filtering and display
+  const mappedNPCs = visibleNPCs.map((npc) => ({
+    name: npc.name || npc.aka || "",
+    pronunciation: npc.pronunciation || "",
+  }));
+  const filteredNPCs =
+    selectedCategory === "npcs" || selectedCategory === "all"
+      ? filterPronunciationItems(mappedNPCs)
+      : [];
+  const filteredLocations =
+    selectedCategory === "locations" || selectedCategory === "all"
+      ? filterPronunciationItems(allLocations)
+      : [];
+  const filteredFactions =
+    selectedCategory === "factions" || selectedCategory === "all"
+      ? filterPronunciationItems(factionData)
+      : [];
+  const filteredMonths =
+    selectedCategory === "months" || selectedCategory === "all"
+      ? filterPronunciationItems(calendarMonths)
+      : [];
+  const filteredWeekdays =
+    selectedCategory === "days" || selectedCategory === "all"
+      ? filterPronunciationItems(calendarWeekdays)
+      : [];
 
-    const filterFactions = (
-      factions: Array<{ name: string; pronunciation: string }>
-    ) =>
-      factions.filter(
-        (faction) =>
-          faction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (faction.pronunciation &&
-            faction.pronunciation
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      );
-
-    switch (selectedCategory) {
-      case "npcs":
-        return {
-          npcs: filterNPCs(visibleNPCs),
-          locations: [],
-          factions: [],
-        };
-      case "locations":
-        return {
-          npcs: [],
-          locations: filterLocations(allLocations),
-          factions: [],
-        };
-      case "factions":
-        return {
-          npcs: [],
-          locations: [],
-          factions: filterFactions(factionData),
-        };
-      default:
-        return {
-          npcs: filterNPCs(visibleNPCs),
-          locations: filterLocations(allLocations),
-          factions: filterFactions(factionData),
-        };
-    }
-  };
-
-  const filteredData = getFilteredData();
   const totalResults =
-    filteredData.npcs.length +
-    filteredData.locations.length +
-    filteredData.factions.length;
+    filteredNPCs.length +
+    filteredLocations.length +
+    filteredFactions.length +
+    filteredMonths.length +
+    filteredWeekdays.length;
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
@@ -137,6 +120,8 @@ export default function PronunciationsPage() {
                 <option value="npcs">NPCs</option>
                 <option value="locations">Locations</option>
                 <option value="factions">Factions</option>
+                <option value="months">Months of the Year</option>
+                <option value="days">Days of the Week</option>
               </select>
             </div>
           </div>
@@ -162,48 +147,28 @@ export default function PronunciationsPage() {
         <div className="space-y-8">
           {/* NPCs Section */}
           {(selectedCategory === "all" || selectedCategory === "npcs") &&
-            filteredData.npcs.length > 0 && (
+            filteredNPCs.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="text-blue-600 dark:text-blue-400 mr-2">
                     👥
                   </span>
-                  NPCs ({filteredData.npcs.length})
+                  NPCs ({filteredNPCs.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.npcs.map((npc: NPC) => (
+                  {filteredNPCs.map((npc, idx) => (
                     <div
-                      key={npc.id}
+                      key={idx}
                       className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-500 transition-colors duration-200"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-medium text-gray-900 dark:text-white">
                           {npc.name}
-                          {npc.aka && (
-                            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
-                              &ldquo;{npc.aka}&rdquo;
-                            </span>
-                          )}
                         </h3>
-                        {npc.status === "Deceased" && (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">
-                            💀
-                          </span>
-                        )}
                       </div>
                       <p className="text-lg font-mono text-blue-600 dark:text-blue-400 mb-1">
                         {npc.pronunciation}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {npc.race} - {npc.gender}
-                      </p>
-                      {npc.factions && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          {npc.factions.map((faction) => (
-                            <span key={faction}>{faction}</span>
-                          ))}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -212,16 +177,16 @@ export default function PronunciationsPage() {
 
           {/* Locations Section */}
           {(selectedCategory === "all" || selectedCategory === "locations") &&
-            filteredData.locations.length > 0 && (
+            filteredLocations.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="text-green-600 dark:text-green-400 mr-2">
                     📍
                   </span>
-                  Locations ({filteredData.locations.length})
+                  Locations ({filteredLocations.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.locations.map((location, index) => (
+                  {filteredLocations.map((location, index) => (
                     <div
                       key={index}
                       className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
@@ -240,33 +205,28 @@ export default function PronunciationsPage() {
 
           {/* Factions Section */}
           {(selectedCategory === "all" || selectedCategory === "factions") &&
-            filteredData.factions.length > 0 && (
+            filteredFactions.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="text-purple-600 dark:text-purple-400 mr-2">
                     ⚔️
                   </span>
-                  Factions ({filteredData.factions.length})
+                  Factions ({filteredFactions.length})
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredData.factions.map(
-                    (
-                      faction: { name: string; pronunciation: string },
-                      index: number
-                    ) => (
-                      <div
-                        key={index}
-                        className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 transition-colors duration-200"
-                      >
-                        <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                          {faction.name}
-                        </h3>
-                        <p className="text-lg font-mono text-purple-600 dark:text-purple-400">
-                          {faction.pronunciation}
-                        </p>
-                      </div>
-                    )
-                  )}
+                  {filteredFactions.map((faction, index) => (
+                    <div
+                      key={index}
+                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 transition-colors duration-200"
+                    >
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                        {faction.name}
+                      </h3>
+                      <p className="text-lg font-mono text-purple-600 dark:text-purple-400">
+                        {faction.pronunciation}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -289,6 +249,64 @@ export default function PronunciationsPage() {
             </div>
           )}
         </div>
+
+        {/* Months of the Year Section */}
+        {filteredMonths.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-8">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="text-yellow-600 dark:text-yellow-400 mr-2">
+                📅
+              </span>
+              Months of the Year
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {filteredMonths.map((m, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
+                >
+                  <div className="font-medium text-gray-900 dark:text-white text-lg">
+                    {m.name}
+                  </div>
+                  <div className="text-blue-600 dark:text-blue-400 font-mono text-base">
+                    {m.pronunciation || (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Days of the Week Section */}
+        {filteredWeekdays.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-8">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="text-yellow-600 dark:text-yellow-400 mr-2">
+                📆
+              </span>
+              Days of the Week
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {filteredWeekdays.map((wd, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
+                >
+                  <div className="font-medium text-gray-900 dark:text-white text-lg">
+                    {wd.name}
+                  </div>
+                  <div className="text-blue-600 dark:text-blue-400 font-mono text-base">
+                    {wd.pronunciation || (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick Reference */}
         <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "b1e2c3d4-1111-4a5b-8c6d-1e2f3a4b5c6d",
+    "date": "Year 1, Spring",
+    "title": "Founding of Stormharbor",
+    "description": "The city of Stormharbor is founded as a trading post on the coast, quickly growing into a bustling port."
+  },
+  {
+    "id": "c2d3e4f5-2222-4b6c-9d7e-2a3b4c5d6e7f",
+    "date": "Year 5, Autumn",
+    "title": "Arrival of the Azorians",
+    "description": "The Azorian people arrive and settle in the region, bringing new customs and magic."
+  },
+  {
+    "id": "d3e4f5a6-3333-4c7d-8e9f-3b4c5d6e7f8a",
+    "date": "Year 12, Winter",
+    "title": "The First Void Event",
+    "description": "A mysterious void rift opens near Stormharbor, causing panic and the first recorded appearance of void creatures."
+  },
+  {
+    "id": "e4f5a6b7-4444-4d8e-9f1a-4c5d6e7f8a9b",
+    "date": "Year 20, Summer",
+    "title": "Council Assassinations",
+    "description": "A series of assassinations shakes the city council, leading to political upheaval and the rise of new factions."
+  },
+  {
+    "id": "f5a6b7c8-5555-4e9f-1a2b-5d6e7f8a9b0c",
+    "date": "Year 21, Spring",
+    "title": "The Sanctuary Hills Asylum Incident",
+    "description": "Strange disturbances at the Sanctuary Hills Asylum are resolved by the party, restoring peace."
+  }
+]
