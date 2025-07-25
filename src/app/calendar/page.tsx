@@ -13,7 +13,7 @@ function getMonthName(
   months: CalendarMonth[],
   opts?: { withPronunciation?: boolean }
 ) {
-  const month = months[monthIdx - 1];
+  const month = months[monthIdx];
   if (!month) return "";
   if (opts?.withPronunciation && month.pronunciation) {
     return <span title={month.pronunciation}>{month.name}</span>;
