@@ -49,6 +49,7 @@
         "nickname": "Slip",
         "hometown": "Stormharbor",
         "image": "/images/pcs/slip.png",
+        "gif": "/images/pcs/slip.gif",
         "factions": [
             "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
             "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
@@ -63,6 +64,7 @@
         "id": "6e790b53-7f9f-49d0-a8c8-0c8d4fed6aa7",
         "hometown": "Orzammar",
         "image": "/images/pcs/thodian.png",
+        "gif": "/images/pcs/thodian.gif",
         "factions": [
             "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
             "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
@@ -103,7 +105,8 @@
         "class": "Druid (Circle of the Land)",
         "id": "0d78d475-ce39-4c61-82a2-72fadd8c322a",
         "hometown": "Caerilfen",
-        "image": "",
+        "image": "/images/pcs/magnolia.png",
+        "gif": "/images/pcs/magnolia.gif",
         "factions": []
     },
     {

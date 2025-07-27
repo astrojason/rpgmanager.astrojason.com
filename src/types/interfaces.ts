@@ -65,6 +65,7 @@ export interface PC {
   factions?: string[];
   image?: string; // optional
   class: string;
+  gif?: string;
 }
 export interface Faction {
   id: string;

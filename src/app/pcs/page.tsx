@@ -27,6 +27,24 @@ export default function PCsPage() {
   }, [searchParams, allPCs, selectedPC]);
 
   const [showFullImage, setShowFullImage] = useState(false);
+  const [showGif, setShowGif] = useState(false);
+  const [fadeGif, setFadeGif] = useState(false);
+
+  // Switch to gif after 5 seconds if available
+  useEffect(() => {
+    if (selectedPC && selectedPC.gif) {
+      setShowGif(false);
+      setFadeGif(false);
+      const timer = setTimeout(() => {
+        setShowGif(true);
+        setTimeout(() => setFadeGif(true), 100); // trigger fade-in after gif loads
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowGif(false);
+      setFadeGif(false);
+    }
+  }, [selectedPC]);
   // Sidebar filter: show only active PCs or all PCs
   const [showActiveOnly, setShowActiveOnly] = useState(true);
 
@@ -75,20 +93,86 @@ export default function PCsPage() {
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              {selectedPC && selectedPC.image ? (
-                <Image
-                  src={selectedPC.image as string}
-                  alt={selectedPC.name || selectedPC.nickname || ""}
-                  width={900}
-                  height={600}
-                  style={{ objectFit: "contain" }}
-                  className={`rounded-lg shadow-2xl transition-all duration-300 ${
-                    showFullImage
-                      ? "opacity-100 scale-100"
-                      : "opacity-0 scale-90"
-                  }`}
-                />
-              ) : null}
+              {selectedPC &&
+                (showGif && selectedPC.gif ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={
+                        selectedPC.image ?? "/public/images/pcs/magnolia.png"
+                      }
+                      alt={selectedPC.name || selectedPC.nickname || ""}
+                      fill
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center top",
+                      }}
+                      className={`rounded-lg transition-opacity duration-[3000ms] absolute top-0 left-0 w-full h-full ${
+                        showGif
+                          ? fadeGif
+                            ? "opacity-0"
+                            : "opacity-100"
+                          : "opacity-100"
+                      }`}
+                    />
+                    {showGif && selectedPC.gif && (
+                      <Image
+                        src={
+                          selectedPC.gif ??
+                          selectedPC.image ??
+                          "/public/images/pcs/magnolia.png"
+                        }
+                        alt={selectedPC.name || selectedPC.nickname || ""}
+                        fill
+                        style={{
+                          objectFit: "cover",
+                          objectPosition: "center top",
+                        }}
+                        className={`rounded-lg absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${
+                          fadeGif
+                            ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]"
+                            : "opacity-0 blur-md drop-shadow-[0_0_32px_rgba(0,212,255,0.3)]"
+                        } ${showFullImage ? "scale-100" : "scale-90"}`}
+                      />
+                    )}
+                  </div>
+                ) : selectedPC.image ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={
+                        selectedPC.image ?? "/public/images/pcs/magnolia.png"
+                      }
+                      alt={selectedPC.name || selectedPC.nickname || ""}
+                      width={900}
+                      height={600}
+                      style={{ objectFit: "contain" }}
+                      className={`rounded-lg shadow-2xl transition-opacity duration-[3000ms] absolute top-0 left-0 w-full h-full ${
+                        showGif
+                          ? fadeGif
+                            ? "opacity-0"
+                            : "opacity-100"
+                          : "opacity-100"
+                      } ${showFullImage ? "scale-100" : "scale-90"}`}
+                    />
+                    {showGif && selectedPC.gif && (
+                      <Image
+                        src={
+                          selectedPC.gif ??
+                          selectedPC.image ??
+                          "/public/images/pcs/magnolia.png"
+                        }
+                        alt={selectedPC.name || selectedPC.nickname || ""}
+                        width={900}
+                        height={600}
+                        style={{ objectFit: "contain" }}
+                        className={`rounded-lg shadow-2xl absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${
+                          fadeGif
+                            ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]"
+                            : "opacity-0 blur-md drop-shadow-[0_0_32px_rgba(0,212,255,0.3)]"
+                        } ${showFullImage ? "scale-100" : "scale-90"}`}
+                      />
+                    )}
+                  </div>
+                ) : null)}
               {selectedPC && !selectedPC.image ? (
                 <div
                   className={`w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-5xl transition-all duration-300 ${
@@ -139,17 +223,108 @@ export default function PCsPage() {
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
-                    {selectedPC.image ? (
-                      <div className="w-full h-full rounded-lg overflow-hidden relative">
+                    {showGif && selectedPC.gif ? (
+                      <div className="relative w-full h-full">
                         <Image
-                          src={selectedPC.image}
+                          src={
+                            selectedPC.image ??
+                            "/public/images/pcs/magnolia.png"
+                          }
                           alt={selectedPC.name || selectedPC.nickname || ""}
                           fill
                           style={{
                             objectFit: "cover",
                             objectPosition: "center top",
                           }}
-                          className="rounded-lg transition duration-200"
+                          className={`rounded-lg transition-opacity duration-[3000ms] absolute top-0 left-0 w-full h-full ${
+                            fadeGif ? "opacity-0" : "opacity-100"
+                          }`}
+                        />
+                        <Image
+                          src={
+                            selectedPC.gif ??
+                            selectedPC.image ??
+                            "/public/images/pcs/magnolia.png"
+                          }
+                          alt={selectedPC.name || selectedPC.nickname || ""}
+                          fill
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center top",
+                          }}
+                          className={`rounded-lg absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${
+                            fadeGif
+                              ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]"
+                              : "opacity-0 blur-md drop-shadow-[0_0_32px_rgba(0,212,255,0.3)]"
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
+                        {/* Eye Icon Button */}
+                        <button
+                          type="button"
+                          className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowFullImage(true);
+                          }}
+                          aria-label="View full image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
+                            />
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="3"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                        </button>
+                        <div className="absolute bottom-4 left-4 text-white pointer-events-none">
+                          <h1 className="text-4xl font-bold mb-1">
+                            {selectedPC.name}
+                            {selectedPC.nickname && (
+                              <span
+                                className={`text-2xl font-normal opacity-75${
+                                  selectedPC.name ? " ml-2" : ""
+                                }`}
+                              >
+                                &ldquo;{selectedPC.nickname}&rdquo;
+                              </span>
+                            )}
+                          </h1>
+                          <p className="text-lg opacity-90">
+                            {selectedPC.race} - {selectedPC.class}
+                          </p>
+                        </div>
+                      </div>
+                    ) : selectedPC.image ? (
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={
+                            selectedPC.image ??
+                            "/public/images/pcs/magnolia.png"
+                          }
+                          alt={selectedPC.name || selectedPC.nickname || ""}
+                          fill
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center top",
+                          }}
+                          className={`rounded-lg transition-opacity duration-[3000ms] absolute top-0 left-0 w-full h-full ${
+                            fadeGif ? "opacity-0" : "opacity-100"
+                          }`}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
                         {/* Eye Icon Button */}
