@@ -281,7 +281,8 @@
     "gender": "Male",
     "location": "Harmonious Hearth Inn, Stormharbor (Global District)",
     "status": "Alive",
-    "description": "Owner of the Harmonious Hearth Inn in Stormharbor's Global District."
+    "description": "Owner of the Harmonious Hearth Inn in Stormharbor's Global District.",
+    "image": "/images/npcs/amar.png"
   },
   {
     "id": "c2f8d3b4-3f5c-4d2e-8a9b-8f7e6d5c4b3a",
@@ -291,7 +292,8 @@
     "gender": "Male",
     "location": "The Cackling Octopus Tavern, Stormharbor (Sea Trade's District)",
     "status": "Alive",
-    "description": "Owner of The Cackling Octopus Tavern in Stormharbor's Sea Trade's District."
+    "description": "Owner of The Cackling Octopus Tavern in Stormharbor's Sea Trade's District.",
+    "image": "/images/npcs/barrow.png"
   },
   {
     "id": "d3a9e4c5-4a6d-4e3f-9b0c-9e8f7d6c5b4a",
@@ -364,7 +366,8 @@
     "location": "Stormharbor (Seafarer’s Enclave)",
     "status": "Alive",
     "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
-    "description": "Guildmaster of The Stormseekers."
+    "description": "Guildmaster of The Stormseekers.",
+    "image": "/images/npcs/ravenshadow.png"
   },
   {
     "id": "e0b6f1d2-1b3c-4f0a-6c7d-05f4e3d2c1b0",
