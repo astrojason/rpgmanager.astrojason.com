@@ -303,7 +303,8 @@
     "gender": "Male",
     "location": "Twilight's Cradle",
     "status": "Alive",
-    "description": "Thodian's brother, currently in Twilight's Cradle."
+    "description": "Thodian's brother, currently in Twilight's Cradle.",
+    "image": "/images/npcs/dorian.png"
   },
   {
     "id": "e4b0f5d6-5b7e-4f4a-0c1d-af9e8d7c6b5a",
@@ -313,7 +314,8 @@
     "gender": "Male",
     "location": "Azorian's Tower",
     "status": "Alive",
-    "description": "Azorian's head of household, butler, and manservant."
+    "description": "Azorian's head of household, butler, and manservant.",
+    "image": "/images/npcs/elias.png"
   },
   {
     "id": "f5c1a6e7-6c8f-4a5b-1d2e-b0a9e8d7c6b5",
@@ -354,8 +356,11 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"],
-    "description": "Captain of the Tidekeepers."
+    "factions": [
+      "a3b4c5d6-7890-4e1f-8b7c-2d3e4f5a6b7c"
+    ],
+    "description": "Captain of the Tidekeepers.",
+    "image": "/images/npcs/lirial_stormcrest.png"
   },
   {
     "id": "d9a5e0c1-0a2b-4e9f-5b6c-f4e3d2c1b0a9",
@@ -365,7 +370,9 @@
     "gender": "Female",
     "location": "Stormharbor (Seafarer’s Enclave)",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Guildmaster of The Stormseekers.",
     "image": "/images/npcs/ravenshadow.png"
   },
@@ -377,7 +384,9 @@
     "gender": "Female",
     "location": "Azorian's Tower on the roat to Elderglen",
     "status": "Alive",
-    "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
+    "factions": [
+      "c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"
+    ],
     "description": "Princess of the Tidewater royal family."
   },
   {
@@ -388,7 +397,8 @@
     "gender": "Female",
     "location": "Saltmarrow",
     "status": "Alive",
-    "description": "Elder of Saltmarrow."
+    "description": "Elder of Saltmarrow.",
+    "image": "/images/npcs/shellbloom.png"
   },
   {
     "id": "c3d2f8b7-9e1a-4b2c-8d3e-6f5a4c3b2e1d",
@@ -398,7 +408,8 @@
     "gender": "Male",
     "location": "Saltmarrow",
     "status": "Alive",
-    "description": "Captain of Saltmarrow's city watch."
+    "description": "Captain of Saltmarrow's city watch.",
+    "image": "/images/npcs/sivaar.png"
   },
   {
     "id": "d4e3a9c2-1b7f-4e2a-8c3d-5e6f7a8b9c0d",
@@ -408,8 +419,11 @@
     "gender": "Androgynous",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
-    "description": "The Stormseekers' cleric and healer."
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
+    "description": "The Stormseekers' cleric and healer.",
+    "image": "/images/npcs/starshroud.png"
   },
   {
     "id": "e5f4b8d1-2c3a-4e1b-9d2e-7f6a5c4b3e2d",
@@ -429,7 +443,8 @@
     "gender": "Female",
     "location": "The Herbalist's Hunt, Verdant Tranquility District, Stormharbor",
     "status": "Alive",
-    "description": "Owner and operator of The Herbalist's Hunt in Stormharbor's Verdant Tranquility District."
+    "description": "Owner and operator of The Herbalist's Hunt in Stormharbor's Verdant Tranquility District.",
+    "image": "/images/npcs/elara_rainthorn.png"
   },
   {
     "id": "a7b8c9d0-1e2f-4a3b-9c8d-2e1f3a4b5c6d",
@@ -439,7 +454,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "The head wizard of the Stormseekers."
   },
   {
@@ -450,7 +467,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
+    "factions": [
+      "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+    ],
     "description": "Member of The Midnight Current, gives out assignments."
   },
   {
@@ -461,8 +480,11 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
-    "description": "Leader of the Midnight Current."
+    "factions": [
+      "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+    ],
+    "description": "Leader of the Midnight Current.",
+    "image": "/images/npcs/vurel_morridan.png"
   },
   {
     "id": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
@@ -472,7 +494,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "High Justicar of the Stormseekers."
   },
   {
@@ -483,7 +507,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Stormseeker's acolyte healer."
   },
   {
@@ -494,7 +520,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Weapons and fighting instructor with the Stormseekers."
   },
   {
@@ -505,7 +533,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["b7c8d9e0-1234-4f5a-8b7c-9d0e1f2a3b4c"],
+    "factions": [
+      "b7c8d9e0-1234-4f5a-8b7c-9d0e1f2a3b4c"
+    ],
     "description": "Leader of the Silver Masks."
   },
   {
@@ -516,7 +546,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "The Stormseeker's master tinkerer."
   },
   {
@@ -527,7 +559,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Master druid of the Stormseekers."
   },
   {
@@ -538,7 +572,9 @@
     "gender": "Androgynous",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Master bard of the Stormseekers."
   },
   {
@@ -549,7 +585,9 @@
     "gender": "Female",
     "location": "Azorian's Tower on the road to Elderglen",
     "status": "Alive",
-    "factions": ["c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"],
+    "factions": [
+      "c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"
+    ],
     "description": "Queen of Tidewater."
   },
   {
@@ -560,7 +598,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "Quartermaster of the Stormseekers."
   },
   {
@@ -591,7 +631,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["d3e4f5a6-7890-4b1c-8d7e-2f3a4b5c6d7e"],
+    "factions": [
+      "d3e4f5a6-7890-4b1c-8d7e-2f3a4b5c6d7e"
+    ],
     "description": "Archmage of the Trident Arcanum, Stormharbor's Mage's Guild."
   },
   {
@@ -613,7 +655,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"],
+    "factions": [
+      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d"
+    ],
     "description": "The Stormseeker's master rogue."
   },
   {
@@ -624,7 +668,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
+    "factions": [
+      "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+    ],
     "description": "One-eyed burglar, part of The Midnight Current."
   },
   {
@@ -635,7 +681,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
+    "factions": [
+      "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+    ],
     "description": "The Midnight Current's demolitions master."
   },
   {
@@ -696,7 +744,9 @@
     "gender": "Male",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["f1e2d3c4-5678-4a1b-8c7d-2e3f4a5b6c7d"],
+    "factions": [
+      "f1e2d3c4-5678-4a1b-8c7d-2e3f4a5b6c7d"
+    ],
     "description": "Survivor of The Sanctuary Hills Asylum, cleric of The Order of Light."
   },
   {
@@ -717,7 +767,9 @@
     "gender": "Female",
     "location": "Stormharbor",
     "status": "Alive",
-    "factions": ["a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"],
+    "factions": [
+      "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
+    ],
     "description": "Master thief of The Midnight Current."
   },
   {
@@ -729,6 +781,8 @@
     "location": "The Mystique Mews, Stormharbor",
     "status": "Deceased",
     "description": "One of Stormharbor's Eleven, from The Mystique Mews.",
-    "factions": ["e7f8a9b0-3456-4c7d-8e9f-0a1b2c3d4e5f"]
+    "factions": [
+      "e7f8a9b0-3456-4c7d-8e9f-0a1b2c3d4e5f"
+    ]
   }
 ]
