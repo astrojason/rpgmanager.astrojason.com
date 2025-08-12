@@ -19,90 +19,91 @@ import {
   CogIcon,
 } from "@heroicons/react/24/outline";
 import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
+import SignOutButton from "@/components/SignOutButton";
 
 const navigationItems: NavigationItem[] = [
   {
     id: "locations",
     name: "Locations",
     icon: MapPinIcon,
-    href: "/",
+    href: "/campaign/locations",
     description: "Towns, cities, landmarks",
   },
   {
     id: "calendar",
     name: "Calendar",
     icon: AcademicCapIcon,
-    href: "/calendar",
+    href: "/campaign/calendar",
     description: "World calendar and events",
   },
   {
     id: "timeline",
     name: "Timeline",
     icon: ChevronRightIcon,
-    href: "/timeline",
+    href: "/campaign/timeline",
     description: "Campaign timeline of major events",
   },
   {
     id: "npcs",
     name: "NPCs",
     icon: UserGroupIcon,
-    href: "/npcs",
+    href: "/campaign/npcs",
     description: "Characters, merchants, quest givers",
   },
   {
     id: "pcs",
     name: "PCs",
     icon: UsersIcon,
-    href: "/pcs",
+    href: "/campaign/pcs",
     description: "Player characters",
   },
   {
     id: "factions",
     name: "Factions",
     icon: ShieldCheckIcon,
-    href: "/factions",
+    href: "/campaign/factions",
     description: "Organizations, guilds, political groups",
   },
   {
     id: "quests",
     name: "Quests",
     icon: ClipboardDocumentListIcon,
-    href: "/quests",
+    href: "/campaign/quests",
     description: "Active, completed, available quests",
   },
   {
     id: "items",
     name: "Items",
     icon: CubeIcon,
-    href: "/items",
+    href: "/campaign/items",
     description: "Weapons, armor, artifacts, consumables",
   },
   {
     id: "lore",
     name: "Lore",
     icon: BookOpenIcon,
-    href: "/lore",
+    href: "/campaign/lore",
     description: "History, stories, world building",
   },
   {
     id: "deities",
     name: "Deities",
     icon: SparklesIcon,
-    href: "/deities",
+    href: "/campaign/deities",
     description: "Gods, pantheons, divine powers",
   },
   {
     id: "recaps",
     name: "Recaps",
     icon: DocumentTextIcon,
-    href: "/recaps",
+    href: "/campaign/recaps",
     description: "Session summaries, campaign notes",
   },
   {
     id: "pronunciations",
     name: "Pronunciations",
     icon: AcademicCapIcon,
-    href: "/pronunciations",
+    href: "/campaign/pronunciations",
     description: "Name pronunciation guide",
   },
 ];
@@ -282,8 +283,9 @@ export default function SideNavigation({
 
       {/* Footer */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-gray-700">
-          <p className="text-xs text-gray-400">More features coming soon</p>
+        <div className="px-4 py-3 border-t border-gray-700 flex flex-col gap-2">
+          <p className="text-xs text-gray-400 mb-2">More features coming soon</p>
+          <SignOutButton />
         </div>
       )}
     </div>
