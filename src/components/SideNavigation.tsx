@@ -161,14 +161,14 @@ export default function SideNavigation({
             const isPronunciations = item.id === "pronunciations";
             const isQuests = item.id === "quests";
             const isPCs = item.id === "pcs";
-            const isTimeline = item.id === "timeline";
+            // const isTimeline = item.id === "timeline";
             const isCalendar = item.id === "calendar";
+            const isRecaps = item.id === "recaps";
             // Disabled pages - coming soon or not yet implemented
             const isDisabled = [
               "items",
               "lore",
               "deities",
-              "recaps",
               "timeline",
             ].includes(item.id);
 
@@ -180,7 +180,8 @@ export default function SideNavigation({
               isQuests ||
               isPCs ||
               // isTimeline ||
-              isCalendar
+              isCalendar ||
+              isRecaps
             ) {
               // Available pages
               return (
