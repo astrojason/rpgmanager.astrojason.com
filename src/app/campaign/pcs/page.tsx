@@ -198,7 +198,7 @@ export default function PCsPage() {
           </div>
         </>
       )}
-      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex bg-gray-100 dark:bg-gray-900">
         {/* Main Content Area */}
         <div className="flex-1 overflow-hidden">
           {selectedPC ? (

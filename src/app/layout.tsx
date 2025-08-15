@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}
       >
-        <div className="flex h-screen">
+        <div className="flex">
           <SideNavigation className="flex-shrink-0" />
           <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
             <Suspense>{children}</Suspense>
