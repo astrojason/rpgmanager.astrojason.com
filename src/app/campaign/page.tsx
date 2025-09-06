@@ -9,6 +9,8 @@ export default function CampaignLanding() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!auth) return;
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.replace("/auth");
@@ -40,7 +42,7 @@ export default function CampaignLanding() {
         </div>
         <button
           className="mt-8 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md font-semibold transition-colors duration-200"
-          onClick={() => signOut(auth)}
+          onClick={() => auth && signOut(auth)}
         >
           Sign Out
         </button>

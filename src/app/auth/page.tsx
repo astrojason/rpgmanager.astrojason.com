@@ -15,9 +15,11 @@ export default function AuthPage() {
 
   // Redirect authenticated users to campaign landing
   useEffect(() => {
+    if (!auth) return;
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-  router.replace("/campaign");
+        router.replace("/campaign");
       }
     });
     return () => unsubscribe();
@@ -25,6 +27,11 @@ export default function AuthPage() {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+      setError("Authentication not initialized");
+      return;
+    }
+    
     setError("");
     setLoading(true);
     try {
@@ -41,6 +48,11 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!auth) {
+      setError("Authentication not initialized");
+      return;
+    }
+    
     setError("");
     setLoading(true);
     try {

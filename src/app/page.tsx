@@ -9,6 +9,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!auth) return;
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         router.replace("/campaign");

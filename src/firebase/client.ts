@@ -1,6 +1,6 @@
 // Firebase client initialization for Next.js
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
 
 // TODO: Replace with your Firebase project config
 const firebaseConfig = {
@@ -12,7 +12,13 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Only initialize Firebase on the client side
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+
+if (typeof window !== 'undefined') {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+}
 
 export { auth, app };
