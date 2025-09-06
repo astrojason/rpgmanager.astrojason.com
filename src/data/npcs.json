@@ -433,7 +433,8 @@
     "gender": "Female",
     "location": "Lorehaven Academy, Stormharbor",
     "status": "Alive",
-    "description": "Concierge at the Lorehaven Academy in Stormharbor."
+    "description": "Concierge at the Lorehaven Academy in Stormharbor.",
+    "image": "/images/npcs/constella.png"
   },
   {
     "id": "f6a5c2b3-4d1e-4a2b-8c3d-7e6f5a4b3c2d",

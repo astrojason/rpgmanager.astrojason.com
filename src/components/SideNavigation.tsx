@@ -163,13 +163,14 @@ export default function SideNavigation({
             const isPCs = item.id === "pcs";
             // const isTimeline = item.id === "timeline";
             const isCalendar = item.id === "calendar";
-            const isRecaps = item.id === "recaps";
+            // const isRecaps = item.id === "recaps";
             // Disabled pages - coming soon or not yet implemented
             const isDisabled = [
               "items",
               "lore",
               "deities",
               "timeline",
+              "recaps"
             ].includes(item.id);
 
             if (
@@ -180,8 +181,8 @@ export default function SideNavigation({
               isQuests ||
               isPCs ||
               // isTimeline ||
-              isCalendar ||
-              isRecaps
+              isCalendar //||
+              // isRecaps
             ) {
               // Available pages
               return (
