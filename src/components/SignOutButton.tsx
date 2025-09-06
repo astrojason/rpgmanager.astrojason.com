@@ -7,7 +7,7 @@ async function handleSignOut() {
   try {
     await signOut(auth);
     window.location.href = "/auth";
-  } catch (error) {
+  } catch {
     alert("Sign out failed");
   }
 }
