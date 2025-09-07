@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { marked } from "marked";
+import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { useIsAdmin } from "@/utils/adminCheck";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
@@ -10,21 +12,23 @@ import locationData from "@/data/locations.json";
 export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isAdmin = useIsAdmin();
 
-  // Configure marked for safe rendering
+  // Configure marked for safe rendering with link conversion
   const parseMarkdown = useMemo(() => {
     return (markdown: string) => {
       try {
-        return marked.parse(markdown, {
+        const parsedMarkdown = marked.parse(markdown, {
           breaks: true,
           gfm: true,
         });
+        return parseMarkdownWithLinks(parsedMarkdown as string, isAdmin);
       } catch (error) {
         console.warn("Failed to parse markdown:", error);
         return markdown; // Fallback to plain text
       }
     };
-  }, []);
+  }, [isAdmin]);
 
   const handleAreaClick = (area: Location) => {
     setSelectedArea(area);

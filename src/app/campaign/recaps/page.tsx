@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 import { marked } from "marked";
+import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { useIsAdmin } from "@/utils/adminCheck";
 import recapsData from "@/data/session_recaps.json";
 
 interface Recap {
@@ -16,6 +18,7 @@ export default function RecapsPage() {
   const [search, setSearch] = useState('');
   const [activeRecap, setActiveRecap] = useState<string | null>(null);
   const recapRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const isAdmin = useIsAdmin();
 
   const filteredRecaps = allRecaps
     .filter(
@@ -88,8 +91,8 @@ export default function RecapsPage() {
                   <div className="text-sm text-gray-500 mb-1">{recap.date}</div>
                   <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{recap.title}</h2>
                   <div
-                    className="prose prose-neutral"
-                    dangerouslySetInnerHTML={{ __html: marked.parse(recap.recap) }}
+                    className="prose prose-neutral max-w-none dark:prose-invert"
+                    dangerouslySetInnerHTML={{ __html: parseMarkdownWithLinks(marked.parse(recap.recap) as string, isAdmin) }}
                   />
                 </div>
               ))
