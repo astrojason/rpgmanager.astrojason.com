@@ -56,7 +56,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
             if (faction?.name) {
                 linkMap.set(faction.name.toLowerCase(), {
                     name: faction.name,
-                    url: `/campaign/factions#${encodeURIComponent(faction.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                    url: `/campaign/factions?selected=${encodeURIComponent(faction.id)}`,
                     type: 'faction'
                 });
 
@@ -65,7 +65,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
                     const nameWithoutThe = faction.name.substring(4); // Remove "The "
                     linkMap.set(nameWithoutThe.toLowerCase(), {
                         name: faction.name, // Keep original name for display
-                        url: `/campaign/factions#${encodeURIComponent(faction.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                        url: `/campaign/factions?selected=${encodeURIComponent(faction.id)}`,
                         type: 'faction'
                     });
                 }
@@ -73,36 +73,20 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
         });
 
         // Add locations
-        locationsData.forEach((locationGroup: any) => {
-            if (locationGroup?.name) {
-                // Add the main location
-                linkMap.set(locationGroup.name.toLowerCase(), {
-                    name: locationGroup.name,
-                    url: `/campaign/locations#${encodeURIComponent(locationGroup.name.toLowerCase().replace(/\s+/g, '-'))}`,
+        locationsData.forEach((location: any) => {
+            if (location?.name) {
+                linkMap.set(location.name.toLowerCase(), {
+                    name: location.name,
+                    url: `/campaign/locations?selected=${encodeURIComponent(location.id)}`,
                     type: 'location'
                 });
-
-                // Add sub-locations if they exist
-                if (locationGroup.locations) {
-                    locationGroup.locations.forEach((location: any) => {
-                        if (location?.name) {
-                            linkMap.set(location.name.toLowerCase(), {
-                                name: location.name,
-                                url: `/campaign/locations#${encodeURIComponent(location.name.toLowerCase().replace(/\s+/g, '-'))}`,
-                                type: 'location'
-                            });
-                        }
-                    });
-                }
             }
-        });
-
-        // Add NPCs
+        });        // Add NPCs
         npcsData.forEach((npc: any) => {
             if (npc?.name) {
                 linkMap.set(npc.name.toLowerCase(), {
                     name: npc.name,
-                    url: `/campaign/npcs#${encodeURIComponent(npc.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                    url: `/campaign/npcs?selected=${encodeURIComponent(npc.id)}`,
                     type: 'npc'
                 });
 
@@ -110,7 +94,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
                 if (npc.aka) {
                     linkMap.set(npc.aka.toLowerCase(), {
                         name: npc.aka,
-                        url: `/campaign/npcs#${encodeURIComponent(npc.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                        url: `/campaign/npcs?selected=${encodeURIComponent(npc.id)}`,
                         type: 'npc'
                     });
                 }
@@ -122,7 +106,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
             if (pc?.name) {
                 linkMap.set(pc.name.toLowerCase(), {
                     name: pc.name,
-                    url: `/campaign/pcs#${encodeURIComponent(pc.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                    url: `/campaign/pcs?selected=${encodeURIComponent(pc.id)}`,
                     type: 'pc'
                 });
 
@@ -130,7 +114,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
                 if (pc.nickname) {
                     linkMap.set(pc.nickname.toLowerCase(), {
                         name: pc.nickname,
-                        url: `/campaign/pcs#${encodeURIComponent(pc.name.toLowerCase().replace(/\s+/g, '-'))}`,
+                        url: `/campaign/pcs?selected=${encodeURIComponent(pc.id)}`,
                         type: 'pc'
                     });
                 }

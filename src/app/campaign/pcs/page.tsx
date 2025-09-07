@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
 import { PC } from "@/types/interfaces";
 import pcsData from "@/data/pcs.json";
@@ -13,9 +14,18 @@ export default function PCsPage() {
   const [raceFilter, setRaceFilter] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const referrerInfo = useReferrerInfo();
+  
+  // Track this page visit
+  usePageTracking();
 
   // All PCs (no hidden field in PC data)
   const allPCs: PC[] = pcsData;
+
+  // Get back button info - use referrer if available, otherwise default to PCs
+  const backInfo = selectedPC ? (
+    referrerInfo.label !== 'PCs' ? referrerInfo : getDefaultBackInfo('pcs')
+  ) : getDefaultBackInfo('pcs');
 
   // Auto-select PC if query param exists
   useEffect(() => {
@@ -205,20 +215,25 @@ export default function PCsPage() {
             <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
               <button
                 onClick={() => {
-                  // Remove 'selected' query param from URL and clear selectedPC synchronously
-                  const url = new URL(window.location.href);
-                  url.searchParams.delete("selected");
-                  window.history.replaceState(
-                    {},
-                    "",
-                    url.pathname + url.search
-                  );
-                  // Clear selectedPC immediately after updating URL
-                  setTimeout(() => setSelectedPC(null), 0);
+                  // Navigate back to referrer or clear selection
+                  if (referrerInfo.label !== 'PCs') {
+                    router.push(backInfo.url);
+                  } else {
+                    // Remove 'selected' query param from URL and clear selectedPC synchronously
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete("selected");
+                    window.history.replaceState(
+                      {},
+                      "",
+                      url.pathname + url.search
+                    );
+                    // Clear selectedPC immediately after updating URL
+                    setTimeout(() => setSelectedPC(null), 0);
+                  }
                 }}
                 className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
               >
-                ← Back to PCs
+                ← Back to {backInfo.label}
               </button>
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
 import { NPC } from "@/types/interfaces";
 import npcData from "@/data/npcs.json";
@@ -13,16 +14,51 @@ export default function NPCsPage() {
   const [raceFilter, setRaceFilter] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const referrerInfo = useReferrerInfo();
+  
+  // Track this page visit
+  usePageTracking();
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
 
-  // Auto-select NPC if query param exists
+  // Get back button info - use referrer if available, otherwise default to NPCs
+  const backInfo = selectedNPC ? (
+    referrerInfo.label !== 'NPCs' ? referrerInfo : getDefaultBackInfo('npcs')
+  ) : getDefaultBackInfo('npcs');
+
+  // Auto-select NPC if query param or fragment exists
   useEffect(() => {
     const selected = searchParams.get("selected");
-    if (selected && selectedNPC === null) {
-      const npc = visibleNPCs.find((n: NPC) => n.id === selected);
-      if (npc) setSelectedNPC(npc);
+    const fragment = window.location.hash.slice(1); // Remove the '#'
+    
+    if (selectedNPC === null) {
+      let npc: NPC | undefined;
+      
+      // First try to find by query param (ID)
+      if (selected) {
+        npc = visibleNPCs.find((n: NPC) => n.id === selected);
+      }
+      
+      // If no query param match, try to find by fragment (name-based)
+      if (!npc && fragment) {
+        // Convert fragment back to original name format
+        const searchName = fragment.replace(/-/g, ' ').toLowerCase();
+        npc = visibleNPCs.find((n: NPC) => {
+          const nameMatch = n.name && n.name.toLowerCase() === searchName;
+          const akaMatch = n.aka && n.aka.toLowerCase() === searchName;
+          return nameMatch || akaMatch;
+        });
+      }
+      
+      if (npc) {
+        setSelectedNPC(npc);
+        // Update URL to use query param format for consistency
+        const url = new URL(window.location.href);
+        url.searchParams.set('selected', npc.id);
+        url.hash = ''; // Clear fragment
+        window.history.replaceState({}, '', url.toString());
+      }
     }
   }, [searchParams, visibleNPCs, selectedNPC]);
 
@@ -116,20 +152,25 @@ export default function NPCsPage() {
             <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
               <button
                 onClick={() => {
-                  // Remove 'selected' query param from URL and clear selectedNPC synchronously
-                  const url = new URL(window.location.href);
-                  url.searchParams.delete("selected");
-                  window.history.replaceState(
-                    {},
-                    "",
-                    url.pathname + url.search
-                  );
-                  // Clear selectedNPC immediately after updating URL
-                  setTimeout(() => setSelectedNPC(null), 0);
+                  // Navigate back to referrer or clear selection
+                  if (referrerInfo.label !== 'NPCs') {
+                    router.push(backInfo.url);
+                  } else {
+                    // Remove 'selected' query param from URL and clear selectedNPC synchronously
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete("selected");
+                    window.history.replaceState(
+                      {},
+                      "",
+                      url.pathname + url.search
+                    );
+                    // Clear selectedNPC immediately after updating URL
+                    setTimeout(() => setSelectedNPC(null), 0);
+                  }
                 }}
                 className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
               >
-                ← Back to NPCs
+                ← Back to {backInfo.label}
               </button>
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">

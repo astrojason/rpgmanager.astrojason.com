@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { marked } from "marked";
 import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
 import { useIsAdmin } from "@/utils/adminCheck";
+import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
@@ -13,6 +15,68 @@ export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isAdmin = useIsAdmin();
+  const searchParams = useSearchParams();
+  
+  // Track this page visit
+  usePageTracking();
+
+  // Location data from JSON
+  const locations: Location[] = locationData;
+
+  // Get the main location (Azorian's Bounty) and its sublocations
+  const mainLocation = locations.length > 0 ? locations[0] : null;
+  const sublocations = mainLocation?.locations || [];
+
+  // Auto-select location if query param or fragment exists in URL
+  useEffect(() => {
+    const selected = searchParams.get("selected");
+    const fragment = window.location.hash.slice(1); // Remove the '#'
+    
+    if (selectedArea === null) {
+      let location: Location | undefined;
+      
+      // First try to find by query param (ID)
+      if (selected) {
+        // Search in main location first
+        if (mainLocation && mainLocation.id === selected) {
+          location = mainLocation;
+        }
+        
+        // Then search in sublocations
+        if (!location) {
+          location = sublocations.find((loc: Location) => loc.id === selected);
+        }
+      }
+      
+      // If no query param match, try to find by fragment (name-based for backwards compatibility)
+      if (!location && fragment) {
+        // Convert fragment back to original name format
+        const searchName = decodeURIComponent(fragment).replace(/-/g, ' ').toLowerCase();
+        
+        // Search in main location first
+        if (mainLocation && mainLocation.name.toLowerCase() === searchName) {
+          location = mainLocation;
+        }
+        
+        // Then search in sublocations
+        if (!location) {
+          location = sublocations.find((loc: Location) => 
+            loc.name.toLowerCase() === searchName
+          );
+        }
+      }
+      
+      if (location) {
+        setSelectedArea(location);
+        setIsSidebarOpen(true);
+        // Update URL to use query param format for consistency
+        const url = new URL(window.location.href);
+        url.searchParams.set('selected', location.id);
+        url.hash = ''; // Clear fragment
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, mainLocation, sublocations, selectedArea]);
 
   // Configure marked for safe rendering with link conversion
   const parseMarkdown = useMemo(() => {
@@ -33,20 +97,24 @@ export default function LocationsPage() {
   const handleAreaClick = (area: Location) => {
     setSelectedArea(area);
     setIsSidebarOpen(true);
+    
+    // Update URL query param to reflect selected area
+    const url = new URL(window.location.href);
+    url.searchParams.set('selected', area.id);
+    url.hash = ''; // Clear any existing fragment
+    window.history.replaceState({}, '', url.toString());
   };
 
   const handleCloseSidebar = () => {
     setIsSidebarOpen(false);
+    // Clear URL query param when closing sidebar
+    const url = new URL(window.location.href);
+    url.searchParams.delete('selected');
+    url.hash = '';
+    window.history.replaceState({}, '', url.toString());
     // Small delay before clearing the selected area to allow for animation
     setTimeout(() => setSelectedArea(null), 300);
   };
-
-  // Location data from JSON
-  const locations: Location[] = locationData;
-
-  // Get the main location (Azorian's Bounty) and its sublocations
-  const mainLocation = locations.length > 0 ? locations[0] : null;
-  const sublocations = mainLocation?.locations || [];
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <header className="p-4 z-10">

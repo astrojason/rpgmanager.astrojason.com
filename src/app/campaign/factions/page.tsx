@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import npcData from "@/data/npcs.json";
 import pcsData from "@/data/pcs.json";
 import Image from "next/image";
@@ -16,6 +17,15 @@ export default function FactionsPage() {
   const [showFullImage, setShowFullImage] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const referrerInfo = useReferrerInfo();
+  
+  // Track this page visit
+  usePageTracking();
+
+  // Get back button info - use referrer if available, otherwise default to Factions
+  const backInfo = selectedFaction ? (
+    referrerInfo.label !== 'Factions' ? referrerInfo : getDefaultBackInfo('factions')
+  ) : getDefaultBackInfo('factions');
 
   // Filter factions based on search criteria
   const filteredFactions = factionData.filter((faction: Faction) => {
@@ -60,10 +70,17 @@ export default function FactionsPage() {
         {selectedFaction ? (
           <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
             <button
-              onClick={() => setSelectedFaction(null)}
+              onClick={() => {
+                // Navigate back to referrer or clear selection
+                if (referrerInfo.label !== 'Factions') {
+                  router.push(backInfo.url);
+                } else {
+                  setSelectedFaction(null);
+                }
+              }}
               className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
             >
-              ← Back to Factions
+              ← Back to {backInfo.label}
             </button>
             <div className="max-w-4xl mx-auto">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
