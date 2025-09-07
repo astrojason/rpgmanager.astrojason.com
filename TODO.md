@@ -2,9 +2,9 @@
 
 ## Core Features Still To Complete
 
-- [ ] Interactive sidebar for details (right-side panel, markdown support, responsive, close/minimize)
-- [ ] Collapsible left navigation panel with categories (Locations, NPCs, Quests, Items, Lore)
-- [ ] Authentication system (Firebase Auth, protected routes, user session/profile, logout)
+- [x] Interactive sidebar for details (right-side panel, markdown support, responsive, close/minimize)
+- [x] Collapsible left navigation panel with categories (Locations, NPCs, Quests, Items, Lore)
+- [x] Authentication system (Firebase Auth, protected routes, user session/profile, logout)
 - [ ] User notes system (Firestore schema, add note button, markdown editor, private notes, note management)
 - [ ] Dynamic app title based on campaign/section
 
@@ -14,8 +14,8 @@
 - [ ] Error boundaries
 - [ ] Toast notifications for user actions
 - [ ] Consistent design system/theme
-- [ ] Dark mode toggle
-- [ ] Mobile responsiveness improvements
+- [x] Dark mode toggle
+- [x] Mobile responsiveness improvements
 - [ ] Image optimization & lazy loading
 - [ ] Caching for Firebase data
 - [ ] Bundle size optimization
