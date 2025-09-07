@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface ReferrerInfo {
     label: string;
@@ -53,7 +52,7 @@ export function useReferrerInfo(): ReferrerInfo {
                         url: '/campaign'
                     });
                 }
-            } catch (error) {
+            } catch {
                 // Invalid URL, keep default
                 console.warn('Invalid referrer URL:', referrer);
             }
@@ -65,8 +64,6 @@ export function useReferrerInfo(): ReferrerInfo {
 
 // Hook to track page visits for better referrer tracking
 export function usePageTracking() {
-    const router = useRouter();
-
     useEffect(() => {
         // Store current page in session storage when component mounts
         sessionStorage.setItem('lastPage', window.location.href);

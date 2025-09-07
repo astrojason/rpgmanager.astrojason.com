@@ -25,7 +25,7 @@ export default function LocationsPage() {
 
   // Get the main location (Azorian's Bounty) and its sublocations
   const mainLocation = locations.length > 0 ? locations[0] : null;
-  const sublocations = mainLocation?.locations || [];
+  const sublocations = useMemo(() => mainLocation?.locations || [], [mainLocation]);
 
   // Auto-select location if query param or fragment exists in URL
   useEffect(() => {

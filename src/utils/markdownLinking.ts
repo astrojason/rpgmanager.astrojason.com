@@ -1,3 +1,26 @@
+// Import type definitions for data structures
+interface Faction {
+    id: string;
+    name: string;
+}
+
+interface Location {
+    id: string;
+    name: string;
+}
+
+interface NPC {
+    id: string;
+    name: string;
+    aka?: string;
+}
+
+interface PC {
+    id: string;
+    name: string;
+    nickname?: string;
+}
+
 interface LinkMapping {
     name: string;
     url: string;
@@ -21,38 +44,42 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
     const linkMap = new Map<string, LinkMapping>();
 
     try {
-        // Use dynamic imports with fallbacks for better HMR compatibility
-        let factionsData: any[] = [];
-        let locationsData: any[] = [];
-        let npcsData: any[] = [];
-        let pcsData: any[] = [];
+        // Use require with proper type assertions for JSON imports
+        let factionsData: Faction[] = [];
+        let locationsData: Location[] = [];
+        let npcsData: NPC[] = [];
+        let pcsData: PC[] = [];
 
         try {
-            factionsData = require("@/data/factions.json");
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            factionsData = require("@/data/factions.json") as Faction[];
         } catch (e) {
             console.warn('Could not load factions data:', e);
         }
 
         try {
-            locationsData = require("@/data/locations.json");
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            locationsData = require("@/data/locations.json") as Location[];
         } catch (e) {
             console.warn('Could not load locations data:', e);
         }
 
         try {
-            npcsData = require("@/data/npcs.json");
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            npcsData = require("@/data/npcs.json") as NPC[];
         } catch (e) {
             console.warn('Could not load npcs data:', e);
         }
 
         try {
-            pcsData = require("@/data/pcs.json");
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            pcsData = require("@/data/pcs.json") as PC[];
         } catch (e) {
             console.warn('Could not load pcs data:', e);
         }
 
         // Add factions
-        factionsData.forEach((faction: any) => {
+        factionsData.forEach((faction: Faction) => {
             if (faction?.name) {
                 linkMap.set(faction.name.toLowerCase(), {
                     name: faction.name,
@@ -73,7 +100,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
         });
 
         // Add locations
-        locationsData.forEach((location: any) => {
+        locationsData.forEach((location: Location) => {
             if (location?.name) {
                 linkMap.set(location.name.toLowerCase(), {
                     name: location.name,
@@ -81,8 +108,10 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
                     type: 'location'
                 });
             }
-        });        // Add NPCs
-        npcsData.forEach((npc: any) => {
+        });
+
+        // Add NPCs
+        npcsData.forEach((npc: NPC) => {
             if (npc?.name) {
                 linkMap.set(npc.name.toLowerCase(), {
                     name: npc.name,
@@ -102,7 +131,7 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
         });
 
         // Add PCs
-        pcsData.forEach((pc: any) => {
+        pcsData.forEach((pc: PC) => {
             if (pc?.name) {
                 linkMap.set(pc.name.toLowerCase(), {
                     name: pc.name,
