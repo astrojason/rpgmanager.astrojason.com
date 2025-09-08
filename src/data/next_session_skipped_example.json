@@ -1,10 +1,10 @@
 {
-  "date": "2025-09-14",
-  "agenda": "Session skipped",
-  "reminders": [],
-  "currentGameDate": "Miriandar 36, 427",
-  "notes": "Session cancelled due to scheduling conflicts. We'll pick up next week where we left off in Sandhaven.",
-  "lastUpdated": "2025-09-08",
-  "isSkipped": true,
-  "skipReason": "Multiple players unavailable due to family obligations"
+    "date": "2025-09-14",
+    "agenda": "Session skipped",
+    "reminders": [],
+    "currentGameDate": "Miriandar 36, 427",
+    "notes": "Session cancelled due to scheduling conflicts. We'll pick up next week where we left off in Sandhaven.",
+    "lastUpdated": "2025-09-08",
+    "isSkipped": true,
+    "skipReason": "Multiple players unavailable due to family obligations"
 }
