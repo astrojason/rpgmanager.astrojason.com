@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsAdmin } from "@/utils/adminCheck";
 import nextSessionData from "@/data/next_session.json";
 import Link from "next/link";
@@ -19,12 +19,20 @@ interface NextSessionData {
 
 export default function NextSessionPage() {
   const [sessionData] = useState<NextSessionData>(nextSessionData);
+  const [isClient, setIsClient] = useState(false);
+  const [daysUntil, setDaysUntil] = useState<number>(0);
   const isAdmin = useIsAdmin();
 
-  // Calculate days until next session
-  const today = new Date();
-  const nextSession = new Date(sessionData.date);
-  const daysUntil = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  // Ensure this only runs on client side to prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Calculate days until next session on client side only
+    const today = new Date();
+    const nextSession = new Date(sessionData.date);
+    const calculatedDays = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    setDaysUntil(calculatedDays);
+  }, [sessionData.date]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -66,7 +74,7 @@ export default function NextSessionPage() {
                 <div className="text-2xl font-bold">
                   {sessionData.isSkipped 
                     ? '⏸️' 
-                    : daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`
+                    : !isClient ? "..." : daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`
                   }
                 </div>
                 <div className={sessionData.isSkipped ? 'text-gray-200' : 'text-blue-100'}>
@@ -95,7 +103,7 @@ export default function NextSessionPage() {
 
                 <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
                   <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center">
-                    📖 Current Game Date
+                    📖 In-world Date
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
                     {sessionData.currentGameDate}
@@ -129,7 +137,7 @@ export default function NextSessionPage() {
 
                   <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
                     <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center">
-                      📖 Current Game Date
+                      📖 In-world date
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
                       {sessionData.currentGameDate}
@@ -180,7 +188,7 @@ export default function NextSessionPage() {
             </div>
 
             {/* Admin Controls */}
-            {isAdmin && (
+            {isClient && isAdmin && (
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div className="flex gap-4">
                   <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">

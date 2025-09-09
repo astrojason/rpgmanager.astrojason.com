@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 // Simple admin check utility
 // You can expand this based on your authentication system
 
@@ -23,9 +25,18 @@ export function isUserAdmin(): boolean {
 
 // Hook to use admin status in React components
 export function useIsAdmin(): boolean {
-    if (typeof window === 'undefined') {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+        setIsAdmin(isUserAdmin());
+    }, []);
+
+    // Return false during SSR and before client hydration
+    if (!isClient) {
         return false;
     }
 
-    return isUserAdmin();
+    return isAdmin;
 }
