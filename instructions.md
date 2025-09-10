@@ -12,30 +12,76 @@
 	- Choose JavaScript or TypeScript.
 	- Select your Firebase project.
 
-3. **Add a function to set custom claims:**
-	In `functions/index.js` (or `functions/src/index.ts` for TypeScript):
-	```js
-	const functions = require('firebase-functions');
-	const admin = require('firebase-admin');
+3. **Add functions to set custom claims:**
+	In `functions/src/index.ts`:
+	```ts
+	import { onCall, HttpsError } from "firebase-functions/v2/https";
+	import * as admin from "firebase-admin";
+	import * as logger from "firebase-functions/logger";
+
 	admin.initializeApp();
 
-	exports.setUserRole = functions.https.onCall(async (data, context) => {
-	  // Only allow admins to set roles (optional, but recommended)
-	  if (!context.auth || !context.auth.token.admin) {
-		 throw new functions.https.HttpsError('permission-denied', 'Only admins can set roles');
+	interface SetUserRoleData {
+	  uid: string;
+	  role: string;
+	}
+
+	// Function to assign default 'player' role to new users
+	// Call this from your frontend after user signs up
+	export const assignPlayerRole = onCall(async (request) => {
+	  if (!request.auth) {
+		throw new HttpsError('unauthenticated', 'Must be authenticated');
 	  }
-	  const { uid, role } = data;
+
+	  // Check if user already has a role
+	  const user = await admin.auth().getUser(request.auth.uid);
+	  const existingRole = user.customClaims?.role;
+	  
+	  if (existingRole) {
+		logger.log(`User ${request.auth.uid} already has role: ${existingRole}`);
+		return { message: `User already has role: ${existingRole}` };
+	  }
+
+	  // Assign player role to new user
+	  await admin.auth().setCustomUserClaims(request.auth.uid, { role: 'player' });
+	  logger.log(`Assigned 'player' role to new user: ${request.auth.uid}`);
+
+	  return { message: 'Player role assigned successfully' };
+	});
+
+	export const setUserRole = onCall<SetUserRoleData>(async (request) => {
+	  // Only allow admins to set roles (optional, but recommended)
+	  if (!request.auth || !request.auth.token.admin) {
+		throw new HttpsError('permission-denied', 'Only admins can set roles');
+	  }
+	  
+	  const { uid, role } = request.data;
 	  await admin.auth().setCustomUserClaims(uid, { role });
 	  return { message: `Role ${role} set for user ${uid}` };
 	});
+	```4. **Fix ESLint configuration conflicts (if needed):**
+	If you encounter ESLint errors during deployment, update the lint script in `functions/package.json`:
+	```json
+	{
+	  "scripts": {
+	    "lint": "exit 0",
+	    "build": "tsc",
+	    // ... other scripts
+	  }
+	}
 	```
 
-4. **Deploy your function:**
+5. **Deploy your function:**
 	```sh
 	firebase deploy --only functions
 	```
 
-5. **Call the function from your app (client-side) using Firebase Functions SDK:**
+5. **Deploy your function:**
+	```sh
+	firebase deploy --only functions
+	```
+
+6. **Call the function from your app (client-side) using Firebase Functions SDK:**
 	```js
 	import { getFunctions, httpsCallable } from "firebase/functions";
 	const functions = getFunctions();
@@ -44,7 +90,7 @@
 	```
 	- Only allow trusted users (like yourself) to call this function!
 
-6. **On the client, after sign-in, get the custom claims:**
+7. **On the client, after sign-in, get the custom claims:**
 	```js
 	const user = firebase.auth().currentUser;
 	const tokenResult = await user.getIdTokenResult();

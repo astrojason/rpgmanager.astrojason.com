@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Location } from "@/types/interfaces";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 export default function AdminPage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [roleCheckResult, setRoleCheckResult] = useState<any>(null);
   const [areas, setAreas] = useState<Location[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -17,6 +23,55 @@ export default function AdminPage() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
+  // Auth state management
+  useEffect(() => {
+    if (!auth) return;
+    
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        // Get user's role from custom claims
+        const tokenResult = await user.getIdTokenResult();
+        const role = tokenResult.claims.role as string || null;
+        setUserRole(role);
+        
+        // If user has no role, try to assign player role
+        if (!role) {
+          try {
+            const functions = getFunctions();
+            const assignPlayerRole = httpsCallable(functions, 'assignPlayerRole');
+            await assignPlayerRole();
+            
+            // Refresh token to get updated claims
+            await user.getIdToken(true);
+            const updatedTokenResult = await user.getIdTokenResult();
+            setUserRole(updatedTokenResult.claims.role as string || null);
+          } catch (error) {
+            console.log('Could not assign player role:', error);
+          }
+        }
+      } else {
+        setUserRole(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Check role function
+  const handleCheckRole = async () => {
+    if (!user) return;
+
+    try {
+      const functions = getFunctions();
+      const checkMyRole = httpsCallable(functions, 'checkMyRole');
+      const result = await checkMyRole();
+      setRoleCheckResult(result.data);
+    } catch (error: any) {
+      setRoleCheckResult({ error: error.message });
+    }
+  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Don't allow new area creation if we're currently editing an area
@@ -191,6 +246,87 @@ export default function AdminPage() {
             Click and drag on the image to create clickable areas
           </p>
         </header>
+
+        {/* User Status Display */}
+        {user && (
+          <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Signed in as: <span className="font-medium">{user.email}</span>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Role: <span className={`font-medium ${userRole === 'admin' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                    {userRole || 'No role assigned'}
+                  </span>
+                </p>
+              </div>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={handleCheckRole}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors"
+                >
+                  Check Role Details
+                </button>
+                {userRole !== 'admin' && (
+                  <div className="text-right">
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                      Admin access required
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Role Check Results */}
+        {roleCheckResult && (
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <h3 className="text-lg font-bold text-blue-800 dark:text-blue-200 mb-3">
+              Role Verification Results
+            </h3>
+            {roleCheckResult.error ? (
+              <div className="text-red-600 dark:text-red-400">
+                Error: {roleCheckResult.error}
+              </div>
+            ) : (
+              <div className="space-y-2 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p><strong>UID:</strong> {roleCheckResult.uid}</p>
+                    <p><strong>Email:</strong> {roleCheckResult.email}</p>
+                    <p><strong>Current Role:</strong> <span className={`font-medium ${roleCheckResult.role === 'admin' ? 'text-green-600' : 'text-yellow-600'}`}>{roleCheckResult.role}</span></p>
+                  </div>
+                  <div>
+                    <p><strong>Token Role:</strong> {roleCheckResult.tokenClaims.role}</p>
+                    <p><strong>Admin Flag:</strong> {roleCheckResult.tokenClaims.admin ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <p><strong>All Custom Claims:</strong></p>
+                  <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto">
+                    {JSON.stringify(roleCheckResult.allClaims, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => setRoleCheckResult(null)}
+              className="mt-3 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-sm"
+            >
+              Close
+            </button>
+          </div>
+        )}
+
+        {!user && (
+          <div className="mb-6 p-4 bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-blue-800 dark:text-blue-200">
+              Please sign in to access the admin panel.
+            </p>
+          </div>
+        )}
 
         {/* Image Area */}
         <div className="mb-8">
