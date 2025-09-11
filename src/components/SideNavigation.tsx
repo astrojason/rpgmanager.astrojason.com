@@ -20,6 +20,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
 import SignOutButton from "@/components/SignOutButton";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 const navigationItems: NavigationItem[] = [
   {
@@ -113,12 +115,30 @@ export default function SideNavigation({
 }: SideNavigationProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check localStorage for admin setting
-    const adminSetting = localStorage.getItem("isAdmin");
-    setIsAdmin(adminSetting === "true");
+    if (!auth) return;
+    
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        try {
+          // Get user's ID token to check custom claims
+          const tokenResult = await user.getIdTokenResult();
+          const userRole = tokenResult.claims.role as string || null;
+          setIsAdmin(userRole === 'admin');
+        } catch (error) {
+          console.error('Error checking user role:', error);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const toggleCollapsed = () => {
@@ -252,8 +272,8 @@ export default function SideNavigation({
           })}
         </ul>
 
-        {/* Admin Section - Only show if isAdmin is true in localStorage */}
-        {isAdmin && (
+        {/* Admin Section - Only show if user is authenticated and has admin role */}
+        {user && isAdmin && (
           <>
             <hr className="my-4 border-gray-700" />
             <ul className="space-y-2">

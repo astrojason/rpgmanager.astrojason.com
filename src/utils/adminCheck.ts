@@ -1,36 +1,61 @@
 import { useState, useEffect } from 'react';
+import { auth } from '@/firebase/client';
+import { onAuthStateChanged } from 'firebase/auth';
 
-// Simple admin check utility
-// You can expand this based on your authentication system
-
+// Firebase-based admin check utility
 export function isUserAdmin(): boolean {
-    // For now, we'll check for a simple condition
-    // You might want to replace this with actual authentication logic
+    // This function is primarily for server-side or immediate checks
+    // For React components, prefer using useIsAdmin hook
 
     if (typeof window === 'undefined') {
-        // Server-side rendering
+        // Server-side rendering - cannot check Firebase auth
         return false;
     }
 
-    // Check for admin flag in localStorage, URL parameter
-    const isLocalAdmin = localStorage.getItem('isAdmin') === 'true';
-    const isUrlAdmin = window.location.search.includes('admin=true');
+    // Fallback to localStorage for immediate synchronous checks
+    // This should be set by the useIsAdmin hook after Firebase auth is verified
+    const isLocalAdmin = localStorage.getItem('isFirebaseAdmin') === 'true';
 
-    // Removed automatic development mode admin access
-    // const isDevelopment = process.env.NODE_ENV === 'development';
-
-    // Return true if any admin condition is met
-    return isLocalAdmin || isUrlAdmin;
+    return isLocalAdmin;
 }
 
-// Hook to use admin status in React components
+// Hook to use admin status in React components with Firebase authentication
 export function useIsAdmin(): boolean {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
-        setIsAdmin(isUserAdmin());
+
+        if (!auth) {
+            setIsAdmin(false);
+            return;
+        }
+
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    // Get user's ID token to check custom claims
+                    const tokenResult = await user.getIdTokenResult();
+                    const userRole = tokenResult.claims.role as string || null;
+                    const adminStatus = userRole === 'admin';
+
+                    setIsAdmin(adminStatus);
+
+                    // Store in localStorage for synchronous access in other parts of the app
+                    localStorage.setItem('isFirebaseAdmin', adminStatus.toString());
+                } catch (error) {
+                    console.error('Error checking user role:', error);
+                    setIsAdmin(false);
+                    localStorage.removeItem('isFirebaseAdmin');
+                }
+            } else {
+                setIsAdmin(false);
+                localStorage.removeItem('isFirebaseAdmin');
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
     // Return false during SSR and before client hydration
