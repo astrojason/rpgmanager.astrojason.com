@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
-import QuestNotesEditor from '@/components/QuestNotesEditor';
+import UserNotesEditor from '@/components/UserNotesEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
-import { Quest, QuestNote } from '@/types/interfaces';
+import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { 
   PlusIcon, 
@@ -363,7 +363,7 @@ export default function QuestsManagementPage() {
                   </div>
 
                   <div>
-                    <QuestNotesEditor
+                    <UserNotesEditor
                       notes={formData.notes ? 
                         (typeof formData.notes[0] === 'string' ? 
                           (formData.notes as string[]).map((content, index) => ({
@@ -372,11 +372,11 @@ export default function QuestsManagementPage() {
                             timestamp: '',
                             author: 'Unknown'
                           })) : 
-                          formData.notes as QuestNote[]
+                          formData.notes as UserNote[]
                         ) : []
                       }
                       onChange={(notes) => setFormData({ ...formData, notes })}
-                      currentUser={user?.uid || "Admin"}
+                      currentUser={user}
                     />
                   </div>
 
@@ -452,7 +452,7 @@ export default function QuestsManagementPage() {
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Notes</h3>
                       <div className="space-y-4">
-                        {normalizeQuestNotes(selectedQuest).map((note: QuestNote, index: number) => (
+                        {normalizeQuestNotes(selectedQuest).map((note: UserNote, index: number) => (
                           <div key={note.id} className="border border-gray-200 dark:border-gray-600 rounded-lg">
                             <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
                               <div className="flex items-center justify-between">

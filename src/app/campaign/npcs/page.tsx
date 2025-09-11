@@ -6,7 +6,7 @@ import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/re
 import { useIsAdmin } from "@/utils/adminCheck";
 import Image from "next/image";
 import { NPC, Faction } from "@/types/interfaces";
-import QuestNotesEditor from "@/components/QuestNotesEditor";
+import UserNotesEditor from "@/components/UserNotesEditor";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -414,15 +414,13 @@ export default function NPCsPage() {
 
                 {/* Notes Section */}
                 <div>
-                  <QuestNotesEditor
+                  <UserNotesEditor
                     notes={editingNPC.notes || []}
                     onChange={(updatedNotes) => setEditingNPC({...editingNPC, notes: updatedNotes})}
                     currentUser={user}
                     className="mt-4"
                   />
-                </div>
-
-                <div className="flex items-center space-x-4">
+                </div>                <div className="flex items-center space-x-4">
                   <label className="flex items-center">
                     <input
                       type="checkbox"
@@ -790,7 +788,7 @@ export default function NPCsPage() {
                         
                         {/* NPC Notes Section */}
                         <div>
-                          <QuestNotesEditor
+                          <UserNotesEditor
                             notes={selectedNPC.notes || []}
                             onChange={(updatedNotes) => handleUpdateNPCNotes(selectedNPC.id, updatedNotes)}
                             currentUser={user}

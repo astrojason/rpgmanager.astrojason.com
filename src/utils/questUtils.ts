@@ -1,4 +1,4 @@
-import { Quest, QuestNote, PC } from '@/types/interfaces';
+import { Quest, UserNote, PC } from '@/types/interfaces';
 
 // Cache for PCs data
 let pcsCache: PC[] | null = null;
@@ -72,17 +72,17 @@ export function getDisplayNameSync(uid: string): string {
     return 'Unknown';
 }
 
-export function normalizeQuestNotes(quest: Quest): QuestNote[] {
+export function normalizeQuestNotes(quest: Quest): UserNote[] {
     if (!quest.notes || quest.notes.length === 0) {
         return [];
     }
 
     // Check if it's already in the new format
     if (typeof quest.notes[0] === 'object' && 'id' in quest.notes[0]) {
-        return quest.notes as QuestNote[];
+        return quest.notes as UserNote[];
     }
 
-    // Convert legacy string format to QuestNote format
+    // Convert legacy string format to UserNote format
     return (quest.notes as string[]).map((noteContent, index) => ({
         id: `legacy-${quest.id}-${index}`,
         content: noteContent,
@@ -91,11 +91,11 @@ export function normalizeQuestNotes(quest: Quest): QuestNote[] {
     }));
 }
 
-export function isLegacyNote(note: QuestNote): boolean {
+export function isLegacyNote(note: UserNote): boolean {
     return !note.timestamp || note.timestamp === '';
 }
 
-export function formatNoteTimestamp(note: QuestNote): string {
+export function formatNoteTimestamp(note: UserNote): string {
     if (!note.timestamp) {
         return '';
     }

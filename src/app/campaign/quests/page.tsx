@@ -6,7 +6,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
-import { Quest, QuestNote } from "@/types/interfaces";
+import { Quest, UserNote } from "@/types/interfaces";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 
 export default function QuestsPage() {
@@ -73,7 +73,7 @@ export default function QuestsPage() {
       const quest = questsData.find(q => q.id === questId);
       if (!quest) throw new Error('Quest not found');
 
-      const newQuestNote: QuestNote = {
+      const newUserNote: UserNote = {
         id: `note-${Date.now()}`,
         content: newNoteContent.trim(),
         timestamp: new Date().toISOString(),
@@ -84,7 +84,7 @@ export default function QuestsPage() {
       const normalizedNotes = normalizeQuestNotes(quest);
       const updatedQuest = {
         ...quest,
-        notes: [...normalizedNotes, newQuestNote] as QuestNote[]
+        notes: [...normalizedNotes, newUserNote] as UserNote[]
       };
 
       // Save to backend

@@ -53,7 +53,7 @@ export interface NPC {
   image?: string; // optional
   hidden?: boolean;
   nameHidden?: boolean;
-  notes?: QuestNote[]; // Reuse the same note structure as quests
+  notes?: UserNote[]; // Reuse the same note structure as quests
 }
 
 export interface PC {
@@ -157,17 +157,17 @@ export interface CalendarData {
   categories: CalendarCategory[];
 }
 
-export interface QuestNote {
+export interface UserNote {
   id: string;
   content: string;
+  author: string;
   timestamp: string;
-  author: string; // Firebase UID of the user who created the note
 }
 
 export interface Quest {
   id: string;
   name: string;
-  notes: QuestNote[] | string[]; // Support legacy string format
+  notes: UserNote[] | string[]; // Support legacy string format
   status: string;
 }
 
