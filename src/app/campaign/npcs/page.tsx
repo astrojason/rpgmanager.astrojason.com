@@ -149,6 +149,15 @@ export default function NPCsPage() {
         const npcsResponse = await fetch('/api/data/npcs');
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
+        
+        // Update selectedNPC if it was the one being edited
+        if (isEditing && selectedNPC && npcData.id === selectedNPC.id) {
+          const updatedNPC = npcs.find((npc: NPC) => npc.id === npcData.id);
+          if (updatedNPC) {
+            setSelectedNPC(updatedNPC);
+          }
+        }
+        
         setIsEditing(false);
         setShowAddForm(false);
         setEditingNPC({});
