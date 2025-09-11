@@ -7,10 +7,22 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 
+interface RoleCheckResult {
+  uid: string;
+  email: string;
+  role: string;
+  allClaims: Record<string, unknown>;
+  tokenClaims: {
+    role: string;
+    admin: boolean;
+  };
+  error?: string;
+}
+
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [roleCheckResult, setRoleCheckResult] = useState<any>(null);
+  const [roleCheckResult, setRoleCheckResult] = useState<RoleCheckResult | null>(null);
   const [areas, setAreas] = useState<Location[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -67,9 +79,17 @@ export default function AdminPage() {
       const functions = getFunctions();
       const checkMyRole = httpsCallable(functions, 'checkMyRole');
       const result = await checkMyRole();
-      setRoleCheckResult(result.data);
-    } catch (error: any) {
-      setRoleCheckResult({ error: error.message });
+      setRoleCheckResult(result.data as RoleCheckResult);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setRoleCheckResult({
+        uid: '',
+        email: '',
+        role: '',
+        allClaims: {},
+        tokenClaims: { role: '', admin: false },
+        error: errorMessage
+      });
     }
   };
 

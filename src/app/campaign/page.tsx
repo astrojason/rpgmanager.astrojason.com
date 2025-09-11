@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/client";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import NextSessionCard from "@/components/NextSessionCard";
 
 export default function CampaignLanding() {
