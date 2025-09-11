@@ -55,12 +55,14 @@ export default function NextSessionPage() {
   }, [sessionData]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
+    return `${formattedDate} at 7:00 PM Pacific`;
   };
 
   // Show loading state

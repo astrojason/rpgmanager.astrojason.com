@@ -17,6 +17,8 @@ import {
   DocumentTextIcon,
   UsersIcon,
   CogIcon,
+  HomeIcon,
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
 import SignOutButton from "@/components/SignOutButton";
@@ -24,6 +26,20 @@ import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 const navigationItems: NavigationItem[] = [
+  {
+    id: "campaign-home",
+    name: "Campaign Home",
+    icon: HomeIcon,
+    href: "/campaign",
+    description: "Main campaign dashboard",
+  },
+  {
+    id: "next-session",
+    name: "Next Session",
+    icon: CalendarDaysIcon,
+    href: "/campaign/next-session",
+    description: "Upcoming session details",
+  },
   {
     id: "locations",
     name: "Locations",
@@ -181,6 +197,8 @@ export default function SideNavigation({
             const isPronunciations = item.id === "pronunciations";
             const isQuests = item.id === "quests";
             const isPCs = item.id === "pcs";
+            const isCampaignHome = item.id === "campaign-home";
+            const isNextSession = item.id === "next-session";
             // const isTimeline = item.id === "timeline";
             const isCalendar = item.id === "calendar";
             const isRecaps = item.id === "recaps";
@@ -193,6 +211,8 @@ export default function SideNavigation({
             ].includes(item.id);
 
             if (
+              isCampaignHome ||
+              isNextSession ||
               isNPCs ||
               isLocations ||
               isFactions ||

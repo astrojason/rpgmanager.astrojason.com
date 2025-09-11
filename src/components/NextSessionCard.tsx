@@ -122,12 +122,14 @@ export default function NextSessionCard() {
   const daysUntil = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
+    return `${formattedDate} at 7:00 PM Pacific`;
   };
 
   // Don't render if session is skipped
