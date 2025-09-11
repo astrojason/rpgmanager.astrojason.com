@@ -25,7 +25,8 @@
       "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ],
     "description": "Triton",
-    "image": "/images/npcs/ailo.png"
+    "image": "/images/npcs/ailo.png",
+    "notes": []
   },
   {
     "id": "d8a4a4a4-3c4d-6e5f-0a1b-3c4d5e6f7a8b",

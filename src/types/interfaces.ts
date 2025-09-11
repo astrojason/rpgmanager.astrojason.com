@@ -52,7 +52,8 @@ export interface NPC {
   personality?: string;
   image?: string; // optional
   hidden?: boolean;
-  nameHidden?: boolean
+  nameHidden?: boolean;
+  notes?: QuestNote[]; // Reuse the same note structure as quests
 }
 
 export interface PC {

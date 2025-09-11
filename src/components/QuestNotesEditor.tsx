@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from './MarkdownEditor';
 import AuthorDisplay from './AuthorDisplay';
 import { QuestNote } from '@/types/interfaces';
+import { User } from 'firebase/auth';
 import { 
   PlusIcon, 
   TrashIcon, 
@@ -15,14 +16,14 @@ interface QuestNotesEditorProps {
   notes: QuestNote[];
   onChange: (notes: QuestNote[]) => void;
   className?: string;
-  currentUser?: string;
+  currentUser?: User | null;
 }
 
 export default function QuestNotesEditor({ 
   notes, 
   onChange, 
   className = "",
-  currentUser = "Admin"
+  currentUser
 }: QuestNotesEditorProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
@@ -35,13 +36,13 @@ export default function QuestNotesEditor({
   };
 
   const handleSaveEdit = () => {
-    if (editingIndex !== null) {
+    if (editingIndex !== null && currentUser) {
       const updatedNotes = [...notes];
       updatedNotes[editingIndex] = {
         ...updatedNotes[editingIndex],
         content: editingContent,
         timestamp: new Date().toISOString(),
-        author: currentUser
+        author: currentUser.uid
       };
       onChange(updatedNotes);
       setEditingIndex(null);
@@ -62,12 +63,12 @@ export default function QuestNotesEditor({
   };
 
   const handleAddNote = () => {
-    if (newNote.trim()) {
+    if (newNote.trim() && currentUser) {
       const newQuestNote: QuestNote = {
         id: `note-${Date.now()}`,
         content: newNote.trim(),
         timestamp: new Date().toISOString(),
-        author: currentUser
+        author: currentUser.uid
       };
       onChange([...notes, newQuestNote]);
       setNewNote("");

@@ -6,6 +6,9 @@ import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/re
 import { useIsAdmin } from "@/utils/adminCheck";
 import Image from "next/image";
 import { NPC, Faction } from "@/types/interfaces";
+import QuestNotesEditor from "@/components/QuestNotesEditor";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
@@ -17,6 +20,7 @@ export default function NPCsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
@@ -27,30 +31,32 @@ export default function NPCsPage() {
 
   // Load data on component mount
   useEffect(() => {
-    const loadData = async () => {
+    const fetchData = async () => {
       try {
-        const [npcResponse, factionResponse] = await Promise.all([
+        const [npcsResponse, factionsResponse] = await Promise.all([
           fetch('/api/data/npcs'),
           fetch('/api/data/factions')
         ]);
-
-        if (!npcResponse.ok || !factionResponse.ok) {
-          throw new Error('Failed to load data');
-        }
-
-        const npcs = await npcResponse.json();
-        const factions = await factionResponse.json();
-
+        const npcs = await npcsResponse.json();
+        const factions = await factionsResponse.json();
         setNpcData(npcs);
         setFactionData(factions);
+        setLoading(false);
       } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
+        console.error('Error fetching data:', error);
         setLoading(false);
       }
     };
 
-    loadData();
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
   }, []);
 
   // Filter only visible NPCs (not hidden)
@@ -189,6 +195,43 @@ export default function NPCsPage() {
     }
   };
 
+  const handleUpdateNPCNotes = async (npcId: string, updatedNotes: any[]) => {
+    try {
+      // Find the current NPC data
+      const currentNPC = npcData.find((npc: NPC) => npc.id === npcId);
+      if (!currentNPC) return;
+
+      // Update the NPC with new notes
+      const updatedNPC = {
+        ...currentNPC,
+        notes: updatedNotes
+      };
+
+      const response = await fetch('/api/data/npcs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedNPC),
+      });
+
+      if (response.ok) {
+        // Reload data
+        const npcsResponse = await fetch('/api/data/npcs');
+        const npcs = await npcsResponse.json();
+        setNpcData(npcs);
+        
+        // Update selectedNPC if it was the one being updated
+        if (selectedNPC && selectedNPC.id === npcId) {
+          const updatedSelectedNPC = npcs.find((npc: NPC) => npc.id === npcId);
+          if (updatedSelectedNPC) {
+            setSelectedNPC(updatedSelectedNPC);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error updating NPC notes:', error);
+    }
+  };
+
   const startEditing = (npc: NPC) => {
     setEditingNPC(npc);
     setIsEditing(true);
@@ -211,6 +254,7 @@ export default function NPCsPage() {
       factions: [],
       hidden: false,
       nameHidden: false,
+      notes: [],
     });
     setIsEditing(false);
     setShowAddForm(true);
@@ -339,6 +383,42 @@ export default function NPCsPage() {
                     value={editingNPC.image || ''}
                     onChange={(e) => setEditingNPC({...editingNPC, image: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Background
+                  </label>
+                  <textarea
+                    value={editingNPC.background || ''}
+                    onChange={(e) => setEditingNPC({...editingNPC, background: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Character background and history..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Personality
+                  </label>
+                  <textarea
+                    value={editingNPC.personality || ''}
+                    onChange={(e) => setEditingNPC({...editingNPC, personality: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Character personality traits and quirks..."
+                  />
+                </div>
+
+                {/* Notes Section */}
+                <div>
+                  <QuestNotesEditor
+                    notes={editingNPC.notes || []}
+                    onChange={(updatedNotes) => setEditingNPC({...editingNPC, notes: updatedNotes})}
+                    currentUser={user}
+                    className="mt-4"
                   />
                 </div>
 
@@ -707,6 +787,16 @@ export default function NPCsPage() {
                             </p>
                           </div>
                         )}
+                        
+                        {/* NPC Notes Section */}
+                        <div>
+                          <QuestNotesEditor
+                            notes={selectedNPC.notes || []}
+                            onChange={(updatedNotes) => handleUpdateNPCNotes(selectedNPC.id, updatedNotes)}
+                            currentUser={user}
+                            className="mt-4"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
