@@ -401,7 +401,7 @@ export default function AdminPage() {
                 }}
               >
                 <Image
-                  src="/images/azorians_bounty.jpg?v=2048"
+                  src="/images/maps/azorians_bounty.jpg"
                   alt="Azorian's Bounty - Admin View"
                   width={2048}
                   height={1536}
