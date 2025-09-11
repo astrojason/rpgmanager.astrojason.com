@@ -3,11 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
-import npcData from "@/data/npcs.json";
-import pcsData from "@/data/pcs.json";
 import Image from "next/image";
 import { Faction, NPC, PC } from "@/types/interfaces";
-import factionData from "@/data/factions.json";
 
 export default function FactionsPage() {
   const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
@@ -15,12 +12,45 @@ export default function FactionsPage() {
   const [typeFilter, setTypeFilter] = useState("");
   const [factionMembers, setFactionMembers] = useState<NPC[] | null>(null);
   const [showFullImage, setShowFullImage] = useState(false);
+  const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [npcData, setNpcData] = useState<NPC[]>([]);
+  const [pcsData, setPcsData] = useState<PC[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
   
   // Track this page visit
   usePageTracking();
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [factionsResponse, npcsResponse, pcsResponse] = await Promise.all([
+          fetch('/api/data/factions'),
+          fetch('/api/data/npcs'),
+          fetch('/api/data/pcs')
+        ]);
+
+        if (factionsResponse.ok && npcsResponse.ok && pcsResponse.ok) {
+          const factions = await factionsResponse.json();
+          const npcs = await npcsResponse.json();
+          const pcs = await pcsResponse.json();
+
+          setFactionData(factions);
+          setNpcData(npcs);
+          setPcsData(pcs);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Get back button info - use referrer if available, otherwise default to Factions
   const backInfo = selectedFaction ? (
@@ -45,7 +75,7 @@ export default function FactionsPage() {
       const faction = factionData.find((f: Faction) => f.id === selected);
       if (faction) setSelectedFaction(faction);
     }
-  }, [searchParams]);
+  }, [searchParams, factionData]);
 
   const [factionPCs, setFactionPCs] = useState<PC[] | null>(null);
   useEffect(() => {
@@ -56,12 +86,22 @@ export default function FactionsPage() {
     setFactionPCs(
       pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id))
     );
-  }, [selectedFaction]);
+  }, [selectedFaction, npcData, pcsData]);
 
   // Get unique values for filter dropdowns
   const uniqueTypes = [
     ...new Set(factionData.map((faction: Faction) => faction.type)),
   ].sort();
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading factions...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex bg-gray-100 dark:bg-gray-900">
@@ -509,7 +549,7 @@ export default function FactionsPage() {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
                       <option value="">All Types</option>
-                      {uniqueTypes.map((type) => (
+                      {uniqueTypes.map((type: string) => (
                         <option key={type} value={type}>
                           {type}
                         </option>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import calendarData from "@/data/calendar.json";
+import { useState, useEffect } from "react";
 import {
   CalendarMonth,
   CalendarWeekday,
@@ -35,20 +34,71 @@ function getDayName(
 }
 
 export default function CalendarPage() {
+  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [viewYear, setViewYear] = useState<number>(427); // Default year
+  const [viewMonth, setViewMonth] = useState<number>(1); // Default month
+
+  // Load calendar data on mount
+  useEffect(() => {
+    const loadCalendarData = async () => {
+      try {
+        const response = await fetch('/api/data/calendar');
+        if (response.ok) {
+          const data = await response.json();
+          setCalendarData(data);
+          // Set initial navigation state based on loaded data
+          if (data.current) {
+            setViewYear(data.current.year);
+            setViewMonth(data.current.month);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading calendar data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCalendarData();
+  }, []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading calendar...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (!calendarData) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
+            Calendar Unavailable
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">Unable to load calendar data.</p>
+        </div>
+      </div>
+    );
+  }
+
   const {
     current: initialCurrent,
     static: staticData,
     events,
     categories,
-  } = calendarData as CalendarData;
+  } = calendarData;
   const months = staticData.months;
   const weekdays = staticData.weekdays;
   const eventList = events;
   const categoryList = categories;
-
-  // State for navigation
-  const [viewYear, setViewYear] = useState(initialCurrent.year);
-  const [viewMonth, setViewMonth] = useState(initialCurrent.month);
 
   // Find events for the viewed month/year, hide dmOnly events by default
   const currentMonthEvents = eventList.filter(

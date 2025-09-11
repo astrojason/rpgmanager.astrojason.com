@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { auth } from "@/firebase/client";
 import { 
   UsersIcon, 
   ShieldCheckIcon, 

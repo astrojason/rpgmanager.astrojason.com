@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsAdmin } from "@/utils/adminCheck";
-import nextSessionData from "@/data/next_session.json";
 
 interface NextSessionData {
   date: string;
@@ -17,8 +16,105 @@ interface NextSessionData {
 }
 
 export default function NextSessionCard() {
-  const [sessionData] = useState<NextSessionData>(nextSessionData);
+  const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
+  const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
+
+  // Load session data on mount
+  useEffect(() => {
+    const loadSessionData = async () => {
+      try {
+        const response = await fetch('/api/data/next-session');
+        if (response.ok) {
+          const data = await response.json();
+          setSessionData(data);
+        }
+      } catch (error) {
+        console.error('Error loading session data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSessionData();
+  }, []);
+
+  // Handle skip/resume session
+  const handleSkipSession = async () => {
+    if (!sessionData) return;
+    
+    const reason = prompt('Reason for skipping this session (optional):');
+    if (reason === null) return; // User cancelled
+
+    try {
+      const updatedData = {
+        ...sessionData,
+        isSkipped: true,
+        skipReason: reason,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+
+      const response = await fetch('/api/data/next-session', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        setSessionData(updatedData);
+      }
+    } catch (error) {
+      console.error('Error skipping session:', error);
+    }
+  };
+
+  const handleResumeSession = async () => {
+    if (!sessionData) return;
+
+    try {
+      const updatedData = {
+        ...sessionData,
+        isSkipped: false,
+        skipReason: '',
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+
+      const response = await fetch('/api/data/next-session', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        setSessionData(updatedData);
+      }
+    } catch (error) {
+      console.error('Error resuming session:', error);
+    }
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-r from-slate-50 to-stone-50 dark:from-slate-900/20 dark:to-stone-900/20 border border-slate-200 dark:border-slate-700 rounded-lg p-6 shadow-lg">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
+          <span className="ml-3 text-slate-600 dark:text-slate-400">Loading session info...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!sessionData) {
+    return (
+      <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-6 shadow-lg">
+        <h2 className="text-2xl font-bold text-red-700 dark:text-red-300 mb-2">
+          Session Data Unavailable
+        </h2>
+        <p className="text-red-600 dark:text-red-400">Unable to load next session information.</p>
+      </div>
+    );
+  }
 
   // Calculate days until next session
   const today = new Date();
@@ -49,10 +145,7 @@ export default function NextSessionCard() {
             {isAdmin && (
               <button 
                 className="text-xs px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors"
-                onClick={() => {
-                  // Handle un-skip session functionality
-                  console.log("Un-skip session clicked");
-                }}
+                onClick={handleResumeSession}
               >
                 ▶️ Resume
               </button>
@@ -93,10 +186,7 @@ export default function NextSessionCard() {
           {isAdmin && (
             <button 
               className="text-xs px-3 py-1 bg-slate-600 hover:bg-slate-700 text-white rounded-full transition-colors"
-              onClick={() => {
-                // Handle skip session functionality
-                console.log("Skip session clicked");
-              }}
+              onClick={handleSkipSession}
             >
               ⏸️ Skip
             </button>

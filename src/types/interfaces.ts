@@ -82,7 +82,7 @@ export interface Faction {
     status: string;
     description?: string;
   }[];
-  image?:string;
+  image?: string;
 }
 
 export interface CalendarWeekday {
@@ -153,4 +153,11 @@ export interface CalendarData {
   current: { day: number; month: number; year: number };
   events: CalendarEvent[];
   categories: CalendarCategory[];
+}
+
+export interface Quest {
+  id: string;
+  name: string;
+  notes: string[];
+  status: string;
 }

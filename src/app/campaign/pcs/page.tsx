@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
-import { PC } from "@/types/interfaces";
-import pcsData from "@/data/pcs.json";
-import factionData from "@/data/factions.json";
+import { PC, Faction } from "@/types/interfaces";
 
 export default function PCsPage() {
   const [selectedPC, setSelectedPC] = useState<PC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [raceFilter, setRaceFilter] = useState("");
+  const [pcsData, setPcsData] = useState<PC[]>([]);
+  const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
@@ -19,6 +20,33 @@ export default function PCsPage() {
   // Track this page visit
   usePageTracking();
 
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [pcsResponse, factionResponse] = await Promise.all([
+          fetch('/data/pcs.json'),
+          fetch('/data/factions.json')
+        ]);
+
+        if (!pcsResponse.ok || !factionResponse.ok) {
+          throw new Error('Failed to load data');
+        }
+
+        const pcs = await pcsResponse.json();
+        const factions = await factionResponse.json();
+
+        setPcsData(pcs);
+        setFactionData(factions);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
   // All PCs (no hidden field in PC data)
   const allPCs: PC[] = pcsData;
 
@@ -82,6 +110,16 @@ export default function PCsPage() {
     const faction = factionData.find((f) => f.id === factionId);
     return faction ? faction.name : factionId;
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Player Characters...</span>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { marked } from "marked";
 import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
 import { useIsAdmin } from "@/utils/adminCheck";
-import recapsData from "@/data/session_recaps.json";
 
 interface Recap {
   date: string;
@@ -13,12 +12,32 @@ interface Recap {
 }
 
 export default function RecapsPage() {
-  const allRecaps: Recap[] = recapsData;
+  const [allRecaps, setAllRecaps] = useState<Recap[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [search, setSearch] = useState('');
   const [activeRecap, setActiveRecap] = useState<string | null>(null);
   const recapRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isAdmin = useIsAdmin();
+
+  // Load recaps data on mount
+  useEffect(() => {
+    const loadRecaps = async () => {
+      try {
+        const response = await fetch('/api/data/session-recaps');
+        if (response.ok) {
+          const data = await response.json();
+          setAllRecaps(data);
+        }
+      } catch (error) {
+        console.error('Error loading recaps:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecaps();
+  }, []);
 
   const filteredRecaps = allRecaps
     .filter(
@@ -41,6 +60,18 @@ export default function RecapsPage() {
       recapRefs.current[date]?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading session recaps...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">

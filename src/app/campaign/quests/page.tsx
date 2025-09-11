@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import questsData from "@/data/quests.json";
+import { useState, useEffect } from "react";
 
 interface Quest {
   id: string;
@@ -12,11 +11,29 @@ interface Quest {
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [questsData, setQuestsData] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
   // By default, only show active quests
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
 
-  const filteredQuests = (questsData as Quest[]).filter((quest) => {
+  useEffect(() => {
+    const loadQuests = async () => {
+      try {
+        const response = await fetch('/data/quests.json');
+        if (!response.ok) throw new Error('Failed to load quests');
+        const data = await response.json();
+        setQuestsData(data);
+      } catch (error) {
+        console.error('Error loading quests:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadQuests();
+  }, []);
+
+  const filteredQuests = questsData.filter((quest) => {
     const matchesSearch =
       quest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quest.notes.some((note) =>
@@ -33,8 +50,21 @@ export default function QuestsPage() {
   });
 
   const uniqueStatuses = Array.from(
-    new Set((questsData as Quest[]).map((q) => q.status))
+    new Set(questsData.map((q) => q.status))
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Quests...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">

@@ -1,19 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { NPC, Location } from "@/types/interfaces";
-import npcData from "@/data/npcs.json";
-import locationData from "@/data/locations.json";
-import factionData from "@/data/factions.json";
-import calendarData from "@/data/calendar.json";
-import { CalendarWeekday, CalendarMonth } from "@/types/interfaces";
+import { useState, useEffect } from "react";
+import { NPC, Location, Faction, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
 
 export default function PronunciationsPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [npcData, setNpcData] = useState<NPC[]>([]);
+  const [locationData, setLocationData] = useState<Location[]>([]);
+  const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [npcsResponse, locationsResponse, factionsResponse, calendarResponse] = await Promise.all([
+          fetch('/api/data/npcs'),
+          fetch('/api/data/locations'),
+          fetch('/api/data/factions'),
+          fetch('/api/data/calendar')
+        ]);
+
+        if (npcsResponse.ok && locationsResponse.ok && factionsResponse.ok && calendarResponse.ok) {
+          const npcs = await npcsResponse.json();
+          const locations = await locationsResponse.json();
+          const factions = await factionsResponse.json();
+          const calendar = await calendarResponse.json();
+
+          setNpcData(npcs);
+          setLocationData(locations);
+          setFactionData(factions);
+          setCalendarData(calendar);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading pronunciations...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!calendarData) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
+            Pronunciation Data Unavailable
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">Unable to load pronunciation information.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Calendar days and months
   const calendarWeekdays: CalendarWeekday[] = calendarData.static.weekdays;
   const calendarMonths: CalendarMonth[] = calendarData.static.months;
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter(
@@ -48,7 +106,7 @@ export default function PronunciationsPage() {
     );
 
   // Map NPCs to { name, pronunciation } for filtering and display
-  const mappedNPCs = visibleNPCs.map((npc) => ({
+  const mappedNPCs = visibleNPCs.map((npc: NPC) => ({
     name: npc.name || npc.aka || "",
     pronunciation: npc.pronunciation || "",
   }));

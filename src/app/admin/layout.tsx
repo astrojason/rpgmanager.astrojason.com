@@ -6,10 +6,8 @@ import { usePathname } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
-  DocumentTextIcon,
   UsersIcon,
   CogIcon,
-  MapIcon,
 } from "@heroicons/react/24/outline";
 
 interface AdminLayoutProps {
@@ -19,17 +17,10 @@ interface AdminLayoutProps {
 const adminNavItems = [
   {
     id: "overview",
-    name: "Overview",
+    name: "Dashboard",
     href: "/admin",
     icon: CogIcon,
-    description: "Interactive map editor",
-  },
-  {
-    id: "data-management",
-    name: "Data Management",
-    href: "/admin/data",
-    icon: DocumentTextIcon,
-    description: "Edit JSON data files",
+    description: "Admin dashboard and overview",
   },
   {
     id: "user-management",

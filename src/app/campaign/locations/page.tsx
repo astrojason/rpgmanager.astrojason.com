@@ -9,19 +9,36 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
-import locationData from "@/data/locations.json";
 
 export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
   const searchParams = useSearchParams();
   
   // Track this page visit
   usePageTracking();
 
-  // Location data from JSON
-  const locations: Location[] = locationData;
+  // Load location data on mount
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const response = await fetch('/api/data/locations');
+        if (response.ok) {
+          const data = await response.json();
+          setLocations(data);
+        }
+      } catch (error) {
+        console.error('Error loading locations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLocations();
+  }, []);
 
   // Get the main location (Azorian's Bounty) and its sublocations
   const mainLocation = locations.length > 0 ? locations[0] : null;
@@ -115,6 +132,19 @@ export default function LocationsPage() {
     // Small delay before clearing the selected area to allow for animation
     setTimeout(() => setSelectedArea(null), 300);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading locations...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <header className="p-4 z-10">

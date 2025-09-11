@@ -45,35 +45,34 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
 
     try {
         // Use require with proper type assertions for JSON imports
-        let factionsData: Faction[] = [];
-        let locationsData: Location[] = [];
-        let npcsData: NPC[] = [];
-        let pcsData: PC[] = [];
+        // Initialize data variables as empty arrays since file loading is disabled
+        const factionsData: Faction[] = [];
+        const locationsData: Location[] = [];
+        const npcsData: NPC[] = [];
+        const pcsData: PC[] = [];
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            factionsData = require("@/data/factions.json") as Faction[];
+            // factionsData = require("@/data/factions.json") as Faction[];
         } catch (e) {
             console.warn('Could not load factions data:', e);
         }
 
+        // Temporarily disabled due to file path changes
+        // TODO: Refactor to use API data or pass data as parameters
         try {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            locationsData = require("@/data/locations.json") as Location[];
+            // locationsData = require("@/data/locations.json") as Location[];
         } catch (e) {
             console.warn('Could not load locations data:', e);
         }
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            npcsData = require("@/data/npcs.json") as NPC[];
+            // npcsData = require("@/data/npcs.json") as NPC[];
         } catch (e) {
             console.warn('Could not load npcs data:', e);
         }
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            pcsData = require("@/data/pcs.json") as PC[];
+            // pcsData = require("@/data/pcs.json") as PC[];
         } catch (e) {
             console.warn('Could not load pcs data:', e);
         }

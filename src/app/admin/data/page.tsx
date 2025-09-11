@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
   DocumentTextIcon, 
-  PencilIcon, 
-  EyeIcon,
+  PencilIcon,
   CheckIcon,
   XMarkIcon,
-  ArrowDownTrayIcon,
-  ArrowUpTrayIcon
+  ArrowDownTrayIcon
 } from "@heroicons/react/24/outline";
 
 interface DataFile {
@@ -179,7 +177,7 @@ export default function DataManagementPage() {
       const parsed = JSON.parse(editedContent);
       const formatted = JSON.stringify(parsed, null, 2);
       setEditedContent(formatted);
-    } catch (err) {
+    } catch {
       setError("Invalid JSON format. Cannot format.");
     }
   };

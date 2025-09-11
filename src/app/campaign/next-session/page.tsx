@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useIsAdmin } from "@/utils/adminCheck";
-import nextSessionData from "@/data/next_session.json";
 import Link from "next/link";
 
 interface NextSessionData {
@@ -18,13 +17,34 @@ interface NextSessionData {
 }
 
 export default function NextSessionPage() {
-  const [sessionData] = useState<NextSessionData>(nextSessionData);
+  const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [daysUntil, setDaysUntil] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
+
+  // Load session data on mount
+  useEffect(() => {
+    const loadSessionData = async () => {
+      try {
+        const response = await fetch('/api/data/next-session');
+        if (response.ok) {
+          const data = await response.json();
+          setSessionData(data);
+        }
+      } catch (error) {
+        console.error('Error loading session data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSessionData();
+  }, []);
 
   // Ensure this only runs on client side to prevent hydration mismatch
   useEffect(() => {
+    if (!sessionData) return;
     setIsClient(true);
     
     // Calculate days until next session on client side only
@@ -32,7 +52,7 @@ export default function NextSessionPage() {
     const nextSession = new Date(sessionData.date);
     const calculatedDays = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     setDaysUntil(calculatedDays);
-  }, [sessionData.date]);
+  }, [sessionData]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -42,6 +62,32 @@ export default function NextSessionPage() {
       day: 'numeric'
     });
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading session info...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (!sessionData) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
+            Session Data Unavailable
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">Unable to load next session information.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">

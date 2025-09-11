@@ -3,21 +3,55 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
+import { useIsAdmin } from "@/utils/adminCheck";
 import Image from "next/image";
-import { NPC } from "@/types/interfaces";
-import npcData from "@/data/npcs.json";
-import factionData from "@/data/factions.json";
+import { NPC, Faction } from "@/types/interfaces";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [raceFilter, setRaceFilter] = useState("");
+  const [npcData, setNpcData] = useState<NPC[]>([]);
+  const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
+  const [showAddForm, setShowAddForm] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
+  const isAdmin = useIsAdmin();
   
   // Track this page visit
   usePageTracking();
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [npcResponse, factionResponse] = await Promise.all([
+          fetch('/api/data/npcs'),
+          fetch('/api/data/factions')
+        ]);
+
+        if (!npcResponse.ok || !factionResponse.ok) {
+          throw new Error('Failed to load data');
+        }
+
+        const npcs = await npcResponse.json();
+        const factions = await factionResponse.json();
+
+        setNpcData(npcs);
+        setFactionData(factions);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
@@ -86,8 +120,265 @@ export default function NPCsPage() {
     return faction ? faction.name : factionId;
   };
 
+  // CRUD functions for admin functionality
+  const handleSaveNPC = async (npcData: Partial<NPC>) => {
+    try {
+      let response;
+      if (npcData.id && isEditing) {
+        // Update existing NPC
+        response = await fetch('/api/data/npcs', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(npcData),
+        });
+      } else {
+        // Create new NPC
+        const newNPC = {
+          ...npcData,
+          id: `npc_${Date.now()}`, // Generate a simple ID
+        };
+        response = await fetch('/api/data/npcs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newNPC),
+        });
+      }
+
+      if (response.ok) {
+        // Reload data
+        const npcsResponse = await fetch('/api/data/npcs');
+        const npcs = await npcsResponse.json();
+        setNpcData(npcs);
+        setIsEditing(false);
+        setShowAddForm(false);
+        setEditingNPC({});
+      }
+    } catch (error) {
+      console.error('Error saving NPC:', error);
+    }
+  };
+
+  const handleDeleteNPC = async (npcId: string) => {
+    if (!confirm('Are you sure you want to delete this NPC?')) return;
+    
+    try {
+      const response = await fetch(`/api/data/npcs?id=${npcId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Reload data
+        const npcsResponse = await fetch('/api/data/npcs');
+        const npcs = await npcsResponse.json();
+        setNpcData(npcs);
+        if (selectedNPC?.id === npcId) {
+          setSelectedNPC(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting NPC:', error);
+    }
+  };
+
+  const startEditing = (npc: NPC) => {
+    setEditingNPC(npc);
+    setIsEditing(true);
+    setShowAddForm(true);
+  };
+
+  const startAdding = () => {
+    setEditingNPC({
+      name: '',
+      aka: '',
+      pronunciation: '',
+      race: '',
+      gender: '',
+      description: '',
+      location: '',
+      status: 'Alive',
+      background: '',
+      personality: '',
+      image: '',
+      factions: [],
+      hidden: false,
+      nameHidden: false,
+    });
+    setIsEditing(false);
+    setShowAddForm(true);
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading NPCs...</span>
+      </div>
+    );
+  }
+
   return (
     <>
+      {/* Add/Edit NPC Modal */}
+      {showAddForm && isAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                {isEditing ? 'Edit NPC' : 'Add New NPC'}
+              </h2>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveNPC(editingNPC);
+              }} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editingNPC.name || ''}
+                      onChange={(e) => setEditingNPC({...editingNPC, name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      AKA
+                    </label>
+                    <input
+                      type="text"
+                      value={editingNPC.aka || ''}
+                      onChange={(e) => setEditingNPC({...editingNPC, aka: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Race
+                    </label>
+                    <input
+                      type="text"
+                      value={editingNPC.race || ''}
+                      onChange={(e) => setEditingNPC({...editingNPC, race: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Gender
+                    </label>
+                    <select
+                      value={editingNPC.gender || ''}
+                      onChange={(e) => setEditingNPC({...editingNPC, gender: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-binary">Non-binary</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      value={editingNPC.location || ''}
+                      onChange={(e) => setEditingNPC({...editingNPC, location: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={editingNPC.status || 'Alive'}
+                      onChange={(e) => setEditingNPC({...editingNPC, status: e.target.value as 'Alive' | 'Deceased' | 'Unknown'})}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="Alive">Alive</option>
+                      <option value="Deceased">Deceased</option>
+                      <option value="Unknown">Unknown</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={editingNPC.description || ''}
+                    onChange={(e) => setEditingNPC({...editingNPC, description: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editingNPC.image || ''}
+                    onChange={(e) => setEditingNPC({...editingNPC, image: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingNPC.hidden || false}
+                      onChange={(e) => setEditingNPC({...editingNPC, hidden: e.target.checked})}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hidden from players</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingNPC.nameHidden || false}
+                      onChange={(e) => setEditingNPC({...editingNPC, nameHidden: e.target.checked})}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Name hidden</span>
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setIsEditing(false);
+                      setEditingNPC({});
+                    }}
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded-lg transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                  >
+                    {isEditing ? 'Save Changes' : 'Add NPC'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Full Image Modal (top-level, outside main layout) */}
       {selectedNPC && (
         <>
@@ -150,28 +441,48 @@ export default function NPCsPage() {
         <div className="flex-1 overflow-hidden">
           {selectedNPC ? (
             <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
-              <button
-                onClick={() => {
-                  // Navigate back to referrer or clear selection
-                  if (referrerInfo.label !== 'NPCs') {
-                    router.push(backInfo.url);
-                  } else {
-                    // Remove 'selected' query param from URL and clear selectedNPC synchronously
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete("selected");
-                    window.history.replaceState(
-                      {},
-                      "",
-                      url.pathname + url.search
-                    );
-                    // Clear selectedNPC immediately after updating URL
-                    setTimeout(() => setSelectedNPC(null), 0);
-                  }
-                }}
-                className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
-              >
-                ← Back to {backInfo.label}
-              </button>
+              <div className="flex items-center justify-between mb-6">
+                <button
+                  onClick={() => {
+                    // Navigate back to referrer or clear selection
+                    if (referrerInfo.label !== 'NPCs') {
+                      router.push(backInfo.url);
+                    } else {
+                      // Remove 'selected' query param from URL and clear selectedNPC synchronously
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete("selected");
+                      window.history.replaceState(
+                        {},
+                        "",
+                        url.pathname + url.search
+                      );
+                      // Clear selectedNPC immediately after updating URL
+                      setTimeout(() => setSelectedNPC(null), 0);
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                >
+                  ← Back to {backInfo.label}
+                </button>
+
+                {/* Admin Actions */}
+                {isAdmin && selectedNPC && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => startEditing(selectedNPC)}
+                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-lg transition-colors duration-200"
+                    >
+                      Edit NPC
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNPC(selectedNPC.id)}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors duration-200"
+                    >
+                      Delete NPC
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
@@ -399,6 +710,28 @@ export default function NPCsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
                   Non-Player Characters
                 </h1>
+
+                {/* Admin Controls */}
+                {isAdmin && (
+                  <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                          Admin Mode - You can add, edit, and delete NPCs
+                        </span>
+                      </div>
+                      <button
+                        onClick={startAdding}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                      >
+                        + Add New NPC
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {/* Search and Filters */}
                 <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
                   <div className="grid md:grid-cols-2 gap-4">
