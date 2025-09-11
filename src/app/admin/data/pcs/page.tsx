@@ -2,18 +2,27 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { 
   PlusIcon, 
   PencilIcon, 
   TrashIcon,
   EyeIcon,
   XMarkIcon,
-  CheckIcon
+  CheckIcon,
+  UserIcon
 } from "@heroicons/react/24/outline";
 import { PC } from "@/types/interfaces";
 
+interface UserData {
+  uid: string;
+  email: string;
+  displayName?: string;
+}
+
 export default function PCsManagementPage() {
   const [pcs, setPcs] = useState<PC[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -23,20 +32,32 @@ export default function PCsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<PC>>({});
 
-  // Load PCs data
+  // Load PCs data and users
   useEffect(() => {
-    loadPcs();
+    loadData();
   }, []);
 
-  const loadPcs = async () => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/pcs.json');
-      if (!response.ok) throw new Error('Failed to load PCs');
-      const data = await response.json();
-      setPcs(Array.isArray(data) ? data : []);
+      // Load PCs
+      const pcsResponse = await fetch('/data/pcs.json');
+      if (!pcsResponse.ok) throw new Error('Failed to load PCs');
+      const pcsData = await pcsResponse.json();
+      setPcs(Array.isArray(pcsData) ? pcsData : []);
+
+      // Load Users
+      try {
+        const functions = getFunctions();
+        const listUsers = httpsCallable(functions, 'listUsers');
+        const result = await listUsers();
+        setUsers(result.data as UserData[]);
+      } catch (userError) {
+        console.error('Failed to load users:', userError);
+        // Continue without users data
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load PCs');
+      setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -49,6 +70,11 @@ export default function PCsManagementPage() {
     pc.class?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     pc.hometown?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getUserForPc = (pc: PC) => {
+    if (!pc.player) return null;
+    return users.find(user => user.uid === pc.player);
+  };
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -87,20 +113,46 @@ export default function PCsManagementPage() {
 
       const pcData = formData as PC;
       
+      let response;
+      let successMessage;
+      
+      if (isCreating) {
+        response = await fetch('/api/data/pcs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(pcData),
+        });
+        successMessage = "PC created successfully!";
+      } else {
+        response = await fetch('/api/data/pcs', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(pcData),
+        });
+        successMessage = "PC updated successfully!";
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to save PC');
+      }
+
+      // Update local state
       let updatedPcs;
       if (isCreating) {
         updatedPcs = [...pcs, pcData];
-        setSuccess("PC created successfully!");
       } else {
         updatedPcs = pcs.map(pc => pc.id === pcData.id ? pcData : pc);
-        setSuccess("PC updated successfully!");
       }
 
-      // TODO: Save to backend/API
       setPcs(updatedPcs);
       setIsCreating(false);
       setIsEditing(false);
       setSelectedPc(pcData);
+      setSuccess(successMessage);
       
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -112,8 +164,15 @@ export default function PCsManagementPage() {
     if (!confirm(`Are you sure you want to delete ${pc.name}?`)) return;
     
     try {
+      const response = await fetch(`/api/data/pcs?id=${pc.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete PC');
+      }
+
       const updatedPcs = pcs.filter(p => p.id !== pc.id);
-      // TODO: Save to backend/API
       setPcs(updatedPcs);
       setSelectedPc(null);
       setSuccess("PC deleted successfully!");
@@ -216,6 +275,12 @@ export default function PCsManagementPage() {
                         <div className="text-xs text-gray-400 dark:text-gray-500">
                           From: {pc.hometown}
                         </div>
+                        {pc.player && (
+                          <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center mt-1">
+                            <UserIcon className="w-3 h-3 mr-1" />
+                            {getUserForPc(pc)?.displayName || getUserForPc(pc)?.email || 'Unknown Player'}
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center space-x-1">
                         <button
@@ -343,6 +408,26 @@ export default function PCsManagementPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Assigned Player
+                    </label>
+                    <select
+                      value={formData.player || ""}
+                      onChange={(e) => setFormData({ ...formData, player: e.target.value || null })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="">No Player Assigned</option>
+                      {users
+                        .filter(user => !pcs.find(pc => pc.player === user.uid && pc.id !== formData.id))
+                        .map((user) => (
+                        <option key={user.uid} value={user.uid}>
+                          {user.displayName || user.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Factions (comma-separated)
                     </label>
                     <input
@@ -441,6 +526,9 @@ export default function PCsManagementPage() {
                         <p><span className="font-medium">Class:</span> {selectedPc.class}</p>
                         <p><span className="font-medium">Hometown:</span> {selectedPc.hometown}</p>
                         <p><span className="font-medium">Status:</span> <span className={`capitalize ${selectedPc.status === 'active' ? 'text-green-600' : selectedPc.status === 'deceased' ? 'text-red-600' : 'text-yellow-600'}`}>{selectedPc.status}</span></p>
+                        {selectedPc.player && (
+                          <p><span className="font-medium">Player:</span> {getUserForPc(selectedPc)?.displayName || getUserForPc(selectedPc)?.email || 'Unknown Player'}</p>
+                        )}
                       </div>
                     </div>
                     

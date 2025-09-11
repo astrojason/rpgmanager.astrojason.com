@@ -10,6 +10,7 @@ import {
   CheckIcon,
   XMarkIcon
 } from "@heroicons/react/24/outline";
+import { PC } from "@/types/interfaces";
 
 interface UserData {
   uid: string;
@@ -18,6 +19,7 @@ interface UserData {
   displayName?: string;
   lastSignIn?: string;
   created?: string;
+  assignedCharacter?: string | null; // PC ID
 }
 
 interface RoleUpdateData {
@@ -27,11 +29,13 @@ interface RoleUpdateData {
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
+  const [pcs, setPcs] = useState<PC[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<string>("");
+  const [newCharacter, setNewCharacter] = useState<string>("");
 
   const roles = [
     { value: "player", label: "Player", description: "Standard user access" },
@@ -47,7 +51,24 @@ export default function UserManagementPage() {
       const functions = getFunctions();
       const listUsers = httpsCallable(functions, 'listUsers');
       const result = await listUsers();
-      setUsers(result.data as UserData[]);
+      const userData = result.data as UserData[];
+      
+      // Load PCs to get character assignments
+      const pcsResponse = await fetch('/data/pcs.json');
+      if (pcsResponse.ok) {
+        const pcsData = await pcsResponse.json();
+        setPcs(pcsData);
+        
+        // Map character assignments to users
+        const usersWithCharacters = userData.map(user => ({
+          ...user,
+          assignedCharacter: pcsData.find((pc: PC) => pc.player === user.uid)?.id || null
+        }));
+        
+        setUsers(usersWithCharacters);
+      } else {
+        setUsers(userData);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load users");
     } finally {
@@ -83,22 +104,95 @@ export default function UserManagementPage() {
     }
   };
 
+  const updateCharacterAssignment = async (uid: string, characterId: string | null) => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+    
+    try {
+      // Update PCs data
+      const updatedPcs = pcs.map(pc => {
+        // Remove assignment from previous character
+        if (pc.player === uid) {
+          return { ...pc, player: null };
+        }
+        // Assign to new character
+        if (pc.id === characterId) {
+          return { ...pc, player: uid };
+        }
+        return pc;
+      });
+      
+      // Save to API
+      const response = await fetch('/api/data/pcs', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedPcs),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save character assignment');
+      }
+      
+      // Update local state
+      setPcs(updatedPcs);
+      
+      // Update local user state
+      setUsers(users.map(user => 
+        user.uid === uid ? { ...user, assignedCharacter: characterId } : user
+      ));
+      
+      const characterName = characterId ? pcs.find(pc => pc.id === characterId)?.name : 'None';
+      setSuccess(`Character assignment updated to ${characterName} successfully!`);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update character assignment");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (editingUser && (newRole || newCharacter !== undefined)) {
+      const user = users.find(u => u.uid === editingUser);
+      if (!user) return;
+
+      // Update role if changed
+      if (newRole && newRole !== user.role) {
+        await updateUserRole(editingUser, newRole);
+      }
+
+      // Update character assignment if changed
+      if (newCharacter !== undefined && newCharacter !== (user.assignedCharacter || "")) {
+        await updateCharacterAssignment(editingUser, newCharacter || null);
+      }
+
+      setEditingUser(null);
+      setNewRole("");
+      setNewCharacter("");
+    }
+  };
+
   const handleEditRole = (user: UserData) => {
     setEditingUser(user.uid);
     setNewRole(user.role);
+    setNewCharacter(user.assignedCharacter || "");
     setError("");
     setSuccess("");
   };
 
   const handleSaveRole = () => {
-    if (editingUser && newRole) {
-      updateUserRole(editingUser, newRole);
-    }
+    handleSaveChanges();
   };
 
   const handleCancelEdit = () => {
     setEditingUser(null);
     setNewRole("");
+    setNewCharacter("");
     setError("");
   };
 
@@ -225,6 +319,9 @@ export default function UserManagementPage() {
                     Role
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Character
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Last Sign In
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -272,6 +369,34 @@ export default function UserManagementPage() {
                             {roles.find(r => r.value === user.role)?.label || user.role}
                           </span>
                         </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingUser === user.uid ? (
+                        <select
+                          value={newCharacter}
+                          onChange={(e) => setNewCharacter(e.target.value)}
+                          className="text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-2 py-1"
+                        >
+                          <option value="">No Character</option>
+                          {pcs
+                            .filter(pc => !pc.player || pc.player === user.uid || pc.id === newCharacter)
+                            .map((pc) => (
+                            <option key={pc.id} value={pc.id}>
+                              {pc.name} {pc.nickname ? `"${pc.nickname}"` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {user.assignedCharacter ? 
+                            (() => {
+                              const pc = pcs.find(p => p.id === user.assignedCharacter);
+                              return pc ? `${pc.name}${pc.nickname ? ` "${pc.nickname}"` : ''}` : 'Unknown Character';
+                            })()
+                            : 'No Character'
+                          }
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">

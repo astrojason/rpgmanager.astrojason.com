@@ -62,6 +62,23 @@ export async function PUT(request: NextRequest) {
     }
 }
 
+export async function PATCH(request: NextRequest) {
+    try {
+        const pcsArray = await request.json();
+
+        if (!Array.isArray(pcsArray)) {
+            return NextResponse.json({ error: 'Expected an array of PCs' }, { status: 400 });
+        }
+
+        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(pcsArray, null, 2));
+
+        return NextResponse.json({ success: true, data: pcsArray });
+    } catch (error) {
+        console.error('Error updating PCs array:', error);
+        return NextResponse.json({ error: 'Failed to update PCs' }, { status: 500 });
+    }
+}
+
 export async function DELETE(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

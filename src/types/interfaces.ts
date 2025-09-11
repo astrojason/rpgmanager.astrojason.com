@@ -66,6 +66,7 @@ export interface PC {
   image?: string; // optional
   class: string;
   gif?: string;
+  player?: string | null; // UUID of the user who plays this character
 }
 export interface Faction {
   id: string;
