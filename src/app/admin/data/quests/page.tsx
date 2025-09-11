@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ReactMarkdown from 'react-markdown';
+import QuestNotesEditor from '@/components/QuestNotesEditor';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -40,11 +42,16 @@ export default function QuestsManagementPage() {
     }
   };
 
-  const filteredQuests = quests.filter(quest => 
-    quest.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quest.notes?.some(note => note.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    quest.status?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredQuests = quests.filter(quest => {
+    const searchLower = searchTerm.toLowerCase();
+    const notesText = Array.isArray(quest.notes) 
+      ? quest.notes.join(" ") 
+      : (quest.notes || "");
+    
+    return quest.name?.toLowerCase().includes(searchLower) ||
+      notesText.toLowerCase().includes(searchLower) ||
+      quest.status?.toLowerCase().includes(searchLower);
+  });
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -202,13 +209,46 @@ export default function QuestsManagementPage() {
                     }`}
                     onClick={() => handleView(quest)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
                           {quest.name}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {quest.notes && quest.notes.length > 0 ? quest.notes[0] : "No notes"}
+                        <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1 max-h-16 overflow-hidden">
+                          {(() => {
+                            // Handle quest notes array - each note on its own line with markdown
+                            if (quest.notes && quest.notes.length > 0) {
+                              // Show first few notes, truncate if needed
+                              const displayNotes = quest.notes.slice(0, 3);
+                              return (
+                                <>
+                                  {displayNotes.map((note, noteIndex) => (
+                                    <div key={noteIndex} className="flex items-start">
+                                      <span className="text-gray-400 mr-1 mt-0.5 flex-shrink-0">•</span>
+                                      <div className="prose dark:prose-invert prose-xs max-w-none overflow-hidden">
+                                        <ReactMarkdown
+                                          components={{
+                                            p: ({ children }) => <span>{children}</span>,
+                                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                                            em: ({ children }) => <em className="italic">{children}</em>,
+                                            code: ({ children }) => <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs">{children}</code>,
+                                          }}
+                                        >
+                                          {note.length > 100 ? note.substring(0, 100) + "..." : note}
+                                        </ReactMarkdown>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {quest.notes.length > 3 && (
+                                    <div className="text-xs italic pl-4">
+                                      +{quest.notes.length - 3} more notes...
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            }
+                            return <div>No notes</div>;
+                          })()}
                         </div>
                         <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(quest.status || 'active')}`}>
                           {quest.status || 'active'}
@@ -269,18 +309,9 @@ export default function QuestsManagementPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Notes
-                    </label>
-                    <textarea
-                      value={formData.notes ? formData.notes.join('\n') : ""}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        notes: e.target.value.split('\n').filter(line => line.trim()) 
-                      })}
-                      rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="Enter each note on a new line"
+                    <QuestNotesEditor
+                      notes={formData.notes || []}
+                      onChange={(notes) => setFormData({ ...formData, notes })}
                     />
                   </div>
 
@@ -354,15 +385,23 @@ export default function QuestsManagementPage() {
                 <div className="space-y-4">
                   {selectedQuest.notes && selectedQuest.notes.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</h3>
-                      <ul className="mt-1 space-y-1">
+                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Notes</h3>
+                      <div className="space-y-4">
                         {selectedQuest.notes.map((note: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-gray-400 mr-2">•</span>
-                            <span className="text-gray-900 dark:text-gray-100">{note}</span>
-                          </li>
+                          <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg">
+                            <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Note #{index + 1}
+                              </span>
+                            </div>
+                            <div className="p-3">
+                              <div className="prose dark:prose-invert max-w-none prose-sm">
+                                <ReactMarkdown>{note}</ReactMarkdown>
+                              </div>
+                            </div>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -161,3 +161,9 @@ export interface Quest {
   notes: string[];
   status: string;
 }
+
+export interface SessionRecap {
+  date: string;
+  title: string;
+  recap: string;
+}
