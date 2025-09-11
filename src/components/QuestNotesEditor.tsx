@@ -157,11 +157,14 @@ export default function QuestNotesEditor({
                   rows={6}
                 />
               ) : (
-                <div className="prose dark:prose-invert max-w-none prose-sm">
+                <div className="prose dark:prose-invert max-w-none prose-sm mb-2">
                   <ReactMarkdown>{note.content}</ReactMarkdown>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                    By {note.author} • {new Date(note.timestamp).toLocaleString()}
-                  </div>
+                </div>
+              )}
+              {!editingIndex && note.timestamp && (
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
+                  <span>{new Date(note.timestamp).toLocaleString()}</span>
+                  <span>{note.author}</span>
                 </div>
               )}
             </div>

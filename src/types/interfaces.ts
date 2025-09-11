@@ -165,7 +165,7 @@ export interface QuestNote {
 export interface Quest {
   id: string;
   name: string;
-  notes: QuestNote[];
+  notes: QuestNote[] | string[]; // Support legacy string format
   status: string;
 }
 

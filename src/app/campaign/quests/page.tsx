@@ -6,6 +6,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { Quest, QuestNote } from "@/types/interfaces";
+import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +49,7 @@ export default function QuestsPage() {
   const filteredQuests = questsData.filter((quest) => {
     const matchesSearch =
       quest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      quest.notes.some((note) =>
+      normalizeQuestNotes(quest).some((note) =>
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     // If searching, ignore showActiveOnly and use statusFilter
@@ -78,9 +79,11 @@ export default function QuestsPage() {
         author: user.email || 'Anonymous'
       };
 
+      // Normalize existing notes and add the new one
+      const normalizedNotes = normalizeQuestNotes(quest);
       const updatedQuest = {
         ...quest,
-        notes: [...quest.notes, newQuestNote]
+        notes: [...normalizedNotes, newQuestNote] as QuestNote[]
       };
 
       // Save to backend
@@ -222,19 +225,20 @@ export default function QuestsPage() {
                       Notes:
                     </h3>
                     <div className="space-y-3">
-                      {quest.notes.map((note) => (
+                      {normalizeQuestNotes(quest).map((note) => (
                         <div
                           key={note.id}
                           className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {note.author} • {new Date(note.timestamp).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <div className="prose prose-sm dark:prose-invert max-w-none mb-2">
                             <ReactMarkdown>{note.content}</ReactMarkdown>
                           </div>
+                          {!isLegacyNote(note) && (
+                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
+                              <span>{formatNoteTimestamp(note)}</span>
+                              <span>{note.author}</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import QuestNotesEditor from '@/components/QuestNotesEditor';
 import { Quest, QuestNote } from '@/types/interfaces';
+import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -44,9 +45,9 @@ export default function QuestsManagementPage() {
 
   const filteredQuests = quests.filter(quest => {
     const searchLower = searchTerm.toLowerCase();
-    const notesText = quest.notes
-      ? quest.notes.map(note => note.content).join(" ") 
-      : "";
+    const normalizedNotes = normalizeQuestNotes(quest);
+    const notesText = normalizedNotes
+      .map(note => note.content).join(" ");
     
     return quest.name?.toLowerCase().includes(searchLower) ||
       notesText.toLowerCase().includes(searchLower) ||
@@ -256,7 +257,8 @@ export default function QuestsManagementPage() {
                             // Handle quest notes array - each note on its own line with markdown
                             if (quest.notes && quest.notes.length > 0) {
                               // Show first few notes, truncate if needed
-                              const displayNotes = quest.notes.slice(0, 3);
+                              const normalizedNotes = normalizeQuestNotes(quest);
+                              const displayNotes = normalizedNotes.slice(0, 3);
                               return (
                                 <>
                                   {displayNotes.map((note, noteIndex) => (
@@ -276,7 +278,7 @@ export default function QuestsManagementPage() {
                                       </div>
                                     </div>
                                   ))}
-                                  {quest.notes.length > 3 && (
+                                  {normalizedNotes.length > 3 && (
                                     <div className="text-xs italic pl-4">
                                       +{quest.notes.length - 3} more notes...
                                     </div>
@@ -347,7 +349,17 @@ export default function QuestsManagementPage() {
 
                   <div>
                     <QuestNotesEditor
-                      notes={formData.notes || []}
+                      notes={formData.notes ? 
+                        (typeof formData.notes[0] === 'string' ? 
+                          (formData.notes as string[]).map((content, index) => ({
+                            id: `legacy-${index}`,
+                            content,
+                            timestamp: '',
+                            author: 'Unknown'
+                          })) : 
+                          formData.notes as QuestNote[]
+                        ) : []
+                      }
                       onChange={(notes) => setFormData({ ...formData, notes })}
                       currentUser="Admin"
                     />
@@ -425,22 +437,25 @@ export default function QuestsManagementPage() {
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Notes</h3>
                       <div className="space-y-4">
-                        {selectedQuest.notes.map((note: QuestNote, index: number) => (
+                        {normalizeQuestNotes(selectedQuest).map((note: QuestNote, index: number) => (
                           <div key={note.id} className="border border-gray-200 dark:border-gray-600 rounded-lg">
                             <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
                               <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                   Note #{index + 1}
                                 </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {note.author} • {new Date(note.timestamp).toLocaleString()}
-                                </span>
                               </div>
                             </div>
                             <div className="p-3">
-                              <div className="prose dark:prose-invert max-w-none prose-sm">
+                              <div className="prose dark:prose-invert max-w-none prose-sm mb-2">
                                 <ReactMarkdown>{note.content}</ReactMarkdown>
                               </div>
+                              {!isLegacyNote(note) && (
+                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                  <span>{formatNoteTimestamp(note)}</span>
+                                  <span>{note.author}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
