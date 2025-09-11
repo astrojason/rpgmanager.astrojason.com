@@ -3,7 +3,7 @@
     "id": "5e64b901-6e14-4cb7-909b-c7c5355045e2",
     "name": "Council Assassinations",
     "notes": [
-      "Murdered council members in Stormharbor and other cities.",
+      "Murdered council members in Stormharbor and other cities.\n\n*test*",
       "Possibly linked to the Bloody Thorn.",
       "Both Oogway and Slip recognized an assassin."
     ],
@@ -93,8 +93,7 @@
     "name": "Tormenauk",
     "notes": [],
     "status": "active"
-  }
-  ,
+  },
   {
     "id": "b2e7c1a2-8e2a-4b7a-9c1d-1e2f3a4b5c6d",
     "name": "Disappearances in Scholar's Summit",

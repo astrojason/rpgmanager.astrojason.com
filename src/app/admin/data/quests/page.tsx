@@ -31,7 +31,7 @@ export default function QuestsManagementPage() {
   const loadQuests = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/quests.json');
+      const response = await fetch('/api/data/quests');
       if (!response.ok) throw new Error('Failed to load Quests');
       const data = await response.json();
       setQuests(Array.isArray(data) ? data : []);
@@ -88,19 +88,48 @@ export default function QuestsManagementPage() {
 
       const questData = formData as Quest;
       
-      let updatedQuests;
       if (isCreating) {
-        updatedQuests = [...quests, questData];
+        // Create new quest
+        const response = await fetch('/api/data/quests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(questData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create quest');
+        }
+
+        const result = await response.json();
+        const updatedQuests = [...quests, result.data];
+        setQuests(updatedQuests);
+        setSelectedQuest(result.data);
         setSuccess("Quest created successfully!");
       } else {
-        updatedQuests = quests.map(quest => quest.id === questData.id ? questData : quest);
+        // Update existing quest
+        const response = await fetch('/api/data/quests', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(questData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update quest');
+        }
+
+        const result = await response.json();
+        const updatedQuests = quests.map(quest => quest.id === questData.id ? result.data : quest);
+        setQuests(updatedQuests);
+        setSelectedQuest(result.data);
         setSuccess("Quest updated successfully!");
       }
-
-      setQuests(updatedQuests);
+      
       setIsCreating(false);
       setIsEditing(false);
-      setSelectedQuest(questData);
       
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -112,6 +141,14 @@ export default function QuestsManagementPage() {
     if (!confirm(`Are you sure you want to delete "${quest.name}"?`)) return;
     
     try {
+      const response = await fetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete quest');
+      }
+
       const updatedQuests = quests.filter(q => q.id !== quest.id);
       setQuests(updatedQuests);
       setSelectedQuest(null);
