@@ -160,7 +160,7 @@ export interface QuestNote {
   id: string;
   content: string;
   timestamp: string;
-  author: string;
+  author: string; // Firebase UID of the user who created the note
 }
 
 export interface Quest {

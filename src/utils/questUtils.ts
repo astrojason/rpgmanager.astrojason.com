@@ -1,4 +1,76 @@
-import { Quest, QuestNote } from '@/types/interfaces';
+import { Quest, QuestNote, PC } from '@/types/interfaces';
+
+// Cache for PCs data
+let pcsCache: PC[] | null = null;
+
+// Function to load PCs data and cache it
+async function loadPcsCache(): Promise<PC[]> {
+    if (pcsCache) {
+        return pcsCache;
+    }
+
+    try {
+        const response = await fetch('/data/pcs.json');
+        if (response.ok) {
+            pcsCache = await response.json();
+            return pcsCache || [];
+        }
+    } catch (error) {
+        console.error('Error loading PCs cache:', error);
+    }
+
+    return [];
+}
+
+// Function to get display name for a UID - either "DM", character name, or "Unknown"
+export async function getDisplayNameForUID(uid: string): Promise<string> {
+    if (!uid) return 'Unknown';
+
+    // Handle legacy authors that are not UIDs
+    if (uid.includes('@') || uid === 'Admin' || uid === 'Unknown') {
+        return uid;
+    }
+
+    // Check if this is the DM's UID
+    if (uid === '75jk9LhhIfhqYkqV3cHsLr3ONeb2') {
+        return 'DM';
+    }
+
+    // Load PCs and find character assigned to this UID
+    const pcs = await loadPcsCache();
+    const assignedCharacter = pcs.find(pc => pc.player === uid);
+
+    if (assignedCharacter) {
+        return assignedCharacter.name;
+    }
+
+    return 'Unknown';
+}
+
+// Function to get display name synchronously (returns "Unknown" if not cached)
+export function getDisplayNameSync(uid: string): string {
+    if (!uid) return 'Unknown';
+
+    // Handle legacy authors that are not UIDs
+    if (uid.includes('@') || uid === 'Admin' || uid === 'Unknown') {
+        return uid;
+    }
+
+    // Check if this is the DM's UID
+    if (uid === '75jk9LhhIfhqYkqV3cHsLr3ONeb2') {
+        return 'DM';
+    }
+
+    // Check cached PCs data
+    if (pcsCache) {
+        const assignedCharacter = pcsCache.find(pc => pc.player === uid);
+        if (assignedCharacter) {
+            return assignedCharacter.name;
+        }
+    }
+
+    return 'Unknown';
+}
 
 export function normalizeQuestNotes(quest: Quest): QuestNote[] {
     if (!quest.notes || quest.notes.length === 0) {

@@ -5,6 +5,7 @@ import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
+import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, QuestNote } from "@/types/interfaces";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 
@@ -76,7 +77,7 @@ export default function QuestsPage() {
         id: `note-${Date.now()}`,
         content: newNoteContent.trim(),
         timestamp: new Date().toISOString(),
-        author: user.email || 'Anonymous'
+        author: user.uid
       };
 
       // Normalize existing notes and add the new one
@@ -236,7 +237,7 @@ export default function QuestsPage() {
                           {!isLegacyNote(note) && (
                             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                               <span>{formatNoteTimestamp(note)}</span>
-                              <span>{note.author}</span>
+                              <AuthorDisplay uid={note.author} />
                             </div>
                           )}
                         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from './MarkdownEditor';
+import AuthorDisplay from './AuthorDisplay';
 import { QuestNote } from '@/types/interfaces';
 import { 
   PlusIcon, 
@@ -164,7 +165,7 @@ export default function QuestNotesEditor({
               {!editingIndex && note.timestamp && (
                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                   <span>{new Date(note.timestamp).toLocaleString()}</span>
-                  <span>{note.author}</span>
+                  <AuthorDisplay uid={note.author} />
                 </div>
               )}
             </div>

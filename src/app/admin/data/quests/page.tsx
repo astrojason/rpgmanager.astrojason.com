@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
 import QuestNotesEditor from '@/components/QuestNotesEditor';
+import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, QuestNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { 
@@ -16,6 +19,7 @@ import {
 
 export default function QuestsManagementPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -24,6 +28,17 @@ export default function QuestsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Quest>>({});
+
+  // Authentication state
+  useEffect(() => {
+    if (!auth) return;
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     loadQuests();
@@ -361,7 +376,7 @@ export default function QuestsManagementPage() {
                         ) : []
                       }
                       onChange={(notes) => setFormData({ ...formData, notes })}
-                      currentUser="Admin"
+                      currentUser={user?.uid || "Admin"}
                     />
                   </div>
 
@@ -453,7 +468,7 @@ export default function QuestsManagementPage() {
                               {!isLegacyNote(note) && (
                                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                                   <span>{formatNoteTimestamp(note)}</span>
-                                  <span>{note.author}</span>
+                                  <AuthorDisplay uid={note.author} />
                                 </div>
                               )}
                             </div>
