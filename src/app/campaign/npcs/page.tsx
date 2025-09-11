@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import Image from "next/image";
-import { NPC, Faction } from "@/types/interfaces";
+import { NPC, Faction, UserNote } from "@/types/interfaces";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -195,7 +195,7 @@ export default function NPCsPage() {
     }
   };
 
-  const handleUpdateNPCNotes = async (npcId: string, updatedNotes: any[]) => {
+  const handleUpdateNPCNotes = async (npcId: string, updatedNotes: UserNote[]) => {
     try {
       // Find the current NPC data
       const currentNPC = npcData.find((npc: NPC) => npc.id === npcId);

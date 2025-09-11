@@ -31,7 +31,7 @@ export default function CampaignLanding() {
         {/* Campaign Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Azorian's Bounty Campaign
+            Azorian&apos;s Bounty Campaign
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Welcome to your campaign management dashboard
@@ -109,7 +109,7 @@ export default function CampaignLanding() {
               {/* Critical Hits */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
-                  🎲 "I got a nat 20 on my attack roll!"
+                  🎲 &quot;I got a nat 20 on my attack roll!&quot;
                 </h3>
                 <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
@@ -117,7 +117,7 @@ export default function CampaignLanding() {
                   </p>
                   <ul className="text-gray-700 dark:text-gray-300 space-y-1 pl-4">
                     <li>• Your dagger does 1d4+3 damage, crit means you do <strong>1d4+7!</strong></li>
-                    <li>• "I have sneak attack!" - same thing applies you roll 3d6 and add <strong>18!</strong></li>
+                    <li>• &quot;I have sneak attack!&quot; - same thing applies you roll 3d6 and add <strong>18!</strong></li>
                     <li>• If you roll dice for your damage, you add the maximum possible to what you roll: <strong>2d8+6? 2d8+22</strong></li>
                   </ul>
                 </div>
@@ -126,15 +126,15 @@ export default function CampaignLanding() {
               {/* Inspiration */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
-                  ✨ "How do I use my inspiration?"
+                  ✨ &quot;How do I use my inspiration?&quot;
                 </h3>
                 <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
                     <strong>Please use it!</strong> You get it for doing the recap, or if you do something really cool, or for really good roleplaying!
                   </p>
                   <ul className="text-gray-700 dark:text-gray-300 space-y-1 pl-4">
-                    <li>• <strong>Skill checks & saving throws:</strong> makes it 20 + your modifiers (crits don't exist for skill checks and saving throws)</li>
-                    <li>• <strong>Combat:</strong> use it like bardic inspiration (add 1d8 to your attack roll, not the damage), or use it like bane (impose -1d4 on the opponent's attack or saving throw)</li>
+                    <li>• <strong>Skill checks &amp; saving throws:</strong> makes it 20 + your modifiers (crits don&apos;t exist for skill checks and saving throws)</li>
+                    <li>• <strong>Combat:</strong> use it like bardic inspiration (add 1d8 to your attack roll, not the damage), or use it like bane (impose -1d4 on the opponent&apos;s attack or saving throw)</li>
                   </ul>
                 </div>
               </div>
@@ -142,7 +142,7 @@ export default function CampaignLanding() {
               {/* Healing Potions */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
-                  🧪 "Healing potions?"
+                  🧪 &quot;Healing potions?&quot;
                 </h3>
                 <div className="bg-rose-50 dark:bg-rose-900/20 p-4 rounded-lg border border-rose-200 dark:border-rose-800">
                   <ul className="text-gray-700 dark:text-gray-300 space-y-1 pl-4">
@@ -155,7 +155,7 @@ export default function CampaignLanding() {
               {/* Level Up HP */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
-                  📈 "We leveled up, how do I calculate my new HP?"
+                  📈 &quot;We leveled up, how do I calculate my new HP?&quot;
                 </h3>
                 <div className="bg-stone-50 dark:bg-stone-900/20 p-4 rounded-lg border border-stone-200 dark:border-stone-800">
                   <ul className="text-gray-700 dark:text-gray-300 space-y-1 pl-4">
@@ -169,11 +169,11 @@ export default function CampaignLanding() {
               {/* Leveling Up Process */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
-                  🏠 "We leveled up, how does that work again?"
+                  🏠 &quot;We leveled up, how does that work again?&quot;
                 </h3>
                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
                   <p className="text-gray-700 dark:text-gray-300">
-                    In order to level up, you must spend a <strong>week at your "base"</strong> training and carousing, 
+                    In order to level up, you must spend a <strong>week at your &quot;base&quot;</strong> training and carousing, 
                     once the week is up you can use your new abilities and new HP.
                   </p>
                 </div>
