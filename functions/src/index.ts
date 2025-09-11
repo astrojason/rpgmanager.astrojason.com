@@ -57,21 +57,55 @@ export const checkMyRole = onCall(async (request) => {
         role: user.customClaims?.role || 'No role assigned',
         allClaims: user.customClaims || {},
         tokenClaims: {
-            role: request.auth.token.role || 'No role in token',
-            admin: request.auth.token.admin || false
+            role: request.auth.token.role || 'No role in token'
         }
     };
 });
 
 export const setUserRole = onCall<SetUserRoleData>(async (request) => {
-    if (!request.auth || !request.auth.token.admin) {
+    // Check if the caller is an admin
+    if (!request.auth || request.auth.token.role !== 'admin') {
         throw new HttpsError('permission-denied', 'Only admins can set roles')
     }
 
     const { uid, role } = request.data;
+
+    // Validate role
+    const validRoles = ['player', 'dm', 'admin'];
+    if (!validRoles.includes(role)) {
+        throw new HttpsError('invalid-argument', 'Invalid role specified');
+    }
+
     await admin.auth().setCustomUserClaims(uid, { role });
-    logger.log(`Role ${role} set for user ${uid}`);
+
+    logger.log(`Role ${role} set for user ${uid} by ${request.auth.uid}`);
     return { message: `Role ${role} set for user ${uid}` }
+});
+
+// Function to list all users (admin only)
+export const listUsers = onCall(async (request) => {
+    // Check if the caller is an admin
+    if (!request.auth || request.auth.token.role !== 'admin') {
+        throw new HttpsError('permission-denied', 'Only admins can list users');
+    }
+
+    try {
+        const listUsersResult = await admin.auth().listUsers(1000); // Max 1000 users
+
+        const users = listUsersResult.users.map(userRecord => ({
+            uid: userRecord.uid,
+            email: userRecord.email || '',
+            displayName: userRecord.displayName || '',
+            role: userRecord.customClaims?.role || 'No role',
+            lastSignIn: userRecord.metadata.lastSignInTime,
+            created: userRecord.metadata.creationTime,
+        }));
+
+        return users;
+    } catch (error) {
+        logger.error('Error listing users:', error);
+        throw new HttpsError('internal', 'Failed to list users');
+    }
 });
 
 // Start writing functions
