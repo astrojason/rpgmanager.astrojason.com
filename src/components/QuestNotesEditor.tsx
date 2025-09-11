@@ -89,7 +89,7 @@ export default function QuestNotesEditor({
         <button
           type="button"
           onClick={() => setIsAddingNote(true)}
-          className="flex items-center px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          className="flex items-center px-3 py-1.5 text-sm bg-slate-600 text-white rounded hover:bg-slate-700 transition-colors"
         >
           <PlusIcon className="w-4 h-4 mr-1" />
           Add Note
@@ -111,7 +111,7 @@ export default function QuestNotesEditor({
                       <button
                         type="button"
                         onClick={handleSaveEdit}
-                        className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200"
+                        className="p-1 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
                         title="Save"
                       >
                         <CheckIcon className="w-4 h-4" />
@@ -130,7 +130,7 @@ export default function QuestNotesEditor({
                       <button
                         type="button"
                         onClick={() => handleStartEdit(index)}
-                        className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                        className="p-1 text-slate-600 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
                         title="Edit"
                       >
                         <PencilIcon className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function QuestNotesEditor({
                       <button
                         type="button"
                         onClick={() => handleDeleteNote(index)}
-                        className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+                        className="p-1 text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300"
                         title="Delete"
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function QuestNotesEditor({
                 <button
                   type="button"
                   onClick={handleAddNote}
-                  className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200"
+                  className="p-1 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
                   title="Add Note"
                 >
                   <CheckIcon className="w-4 h-4" />

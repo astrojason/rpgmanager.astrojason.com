@@ -144,7 +144,7 @@ export default function NextSessionCard() {
             </div>
             {isAdmin && (
               <button 
-                className="text-xs px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors"
+                className="text-xs px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full transition-colors"
                 onClick={handleResumeSession}
               >
                 ▶️ Resume

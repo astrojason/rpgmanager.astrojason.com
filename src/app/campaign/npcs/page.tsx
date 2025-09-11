@@ -329,7 +329,7 @@ export default function NPCsPage() {
                     type="text"
                     value={editingNPC.image || ''}
                     onChange={(e) => setEditingNPC({...editingNPC, image: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -339,7 +339,7 @@ export default function NPCsPage() {
                       type="checkbox"
                       checked={editingNPC.hidden || false}
                       onChange={(e) => setEditingNPC({...editingNPC, hidden: e.target.checked})}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-slate-600 focus:ring-slate-500"
                     />
                     <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hidden from players</span>
                   </label>
@@ -348,7 +348,7 @@ export default function NPCsPage() {
                       type="checkbox"
                       checked={editingNPC.nameHidden || false}
                       onChange={(e) => setEditingNPC({...editingNPC, nameHidden: e.target.checked})}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-slate-600 focus:ring-slate-500"
                     />
                     <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Name hidden</span>
                   </label>
@@ -368,7 +368,7 @@ export default function NPCsPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                    className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
                   >
                     {isEditing ? 'Save Changes' : 'Add NPC'}
                   </button>
@@ -460,7 +460,7 @@ export default function NPCsPage() {
                       setTimeout(() => setSelectedNPC(null), 0);
                     }
                   }}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
                 >
                   ← Back to {backInfo.label}
                 </button>
@@ -470,13 +470,13 @@ export default function NPCsPage() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => startEditing(selectedNPC)}
-                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-lg transition-colors duration-200"
+                      className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white text-sm rounded-lg transition-colors duration-200"
                     >
                       Edit NPC
                     </button>
                     <button
                       onClick={() => handleDeleteNPC(selectedNPC.id)}
-                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors duration-200"
+                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm rounded-lg transition-colors duration-200"
                     >
                       Delete NPC
                     </button>
@@ -631,7 +631,7 @@ export default function NPCsPage() {
                             </p>
                             <p className="text-gray-700 dark:text-gray-300">
                               <span className="font-medium">Location:</span>{" "}
-                              <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200">
+                              <button className="text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer transition-colors duration-200">
                                 {selectedNPC.location}
                               </button>
                             </p>
@@ -640,10 +640,10 @@ export default function NPCsPage() {
                               <span
                                 className={`px-2 py-1 rounded-full text-xs ${
                                   selectedNPC.status === "Alive"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                                     : selectedNPC.status === "Deceased"
-                                    ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                    ? "bg-stone-100 text-stone-800 dark:bg-stone-900 dark:text-stone-200"
+                                    : "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200"
                                 }`}
                               >
                                 {selectedNPC.status}
@@ -656,7 +656,7 @@ export default function NPCsPage() {
                                   {selectedNPC.factions.map((factionId) => (
                                     <button
                                       key={factionId}
-                                      className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 whitespace-nowrap border border-blue-200 dark:border-blue-700 mr-1"
+                                      className="inline-block bg-slate-100 dark:bg-slate-900/40 text-slate-800 dark:text-slate-200 px-2 py-1 rounded-full text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200 whitespace-nowrap border border-slate-200 dark:border-slate-700 mr-1"
                                       onClick={() => {
                                         if (factionId) {
                                           router.push(
@@ -725,7 +725,7 @@ export default function NPCsPage() {
                       </div>
                       <button
                         onClick={startAdding}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
                       >
                         + Add New NPC
                       </button>
@@ -744,7 +744,7 @@ export default function NPCsPage() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search by name, description, or location..."
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     </div>
                     <div>
@@ -754,7 +754,7 @@ export default function NPCsPage() {
                       <select
                         value={raceFilter}
                         onChange={(e) => setRaceFilter(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         <option value="">All Races</option>
                         {Array.from(
@@ -817,7 +817,7 @@ export default function NPCsPage() {
                   }}
                   className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
                     selectedNPC?.id === npc.id
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
+                      ? "border-slate-500 bg-slate-50 dark:bg-slate-900/20 dark:border-slate-400"
                       : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
                   }`}
                 >

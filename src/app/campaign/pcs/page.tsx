@@ -269,7 +269,7 @@ export default function PCsPage() {
                     setTimeout(() => setSelectedPC(null), 0);
                   }
                 }}
-                className="mb-6 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
               >
                 ← Back to {backInfo.label}
               </button>

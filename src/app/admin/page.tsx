@@ -20,7 +20,7 @@ const dataManagementItems = [
     icon: UserGroupIcon,
     href: "/admin/data/npcs",
     description: "Manage Non-Player Characters",
-    color: "bg-blue-500"
+    color: "bg-slate-500"
   },
   {
     id: "pcs",
@@ -28,7 +28,7 @@ const dataManagementItems = [
     icon: UsersIcon,
     href: "/admin/data/pcs",
     description: "Manage Player Characters",
-    color: "bg-green-500"
+    color: "bg-emerald-500"
   },
   {
     id: "factions",
@@ -36,7 +36,7 @@ const dataManagementItems = [
     icon: ShieldCheckIcon,
     href: "/admin/data/factions",
     description: "Manage Organizations & Guilds",
-    color: "bg-purple-500"
+    color: "bg-stone-500"
   },
   {
     id: "quests",
@@ -44,7 +44,7 @@ const dataManagementItems = [
     icon: ClipboardDocumentListIcon,
     href: "/admin/data/quests",
     description: "Manage Campaign Quests",
-    color: "bg-orange-500"
+    color: "bg-amber-600"
   },
   {
     id: "locations",
@@ -52,7 +52,7 @@ const dataManagementItems = [
     icon: MapPinIcon,
     href: "/admin/data/locations",
     description: "Manage Locations & Maps",
-    color: "bg-teal-500"
+    color: "bg-teal-600"
   },
   {
     id: "timeline",
@@ -60,7 +60,7 @@ const dataManagementItems = [
     icon: ClockIcon,
     href: "/admin/data/timeline",
     description: "Manage Timeline Events",
-    color: "bg-indigo-500"
+    color: "bg-slate-600"
   },
 ];
 
@@ -71,7 +71,7 @@ const adminTools = [
     icon: CogIcon,
     href: "/admin/users",
     description: "Manage user roles and permissions",
-    color: "bg-red-500"
+    color: "bg-rose-600"
   },
   {
     id: "calendar",
@@ -79,7 +79,7 @@ const adminTools = [
     icon: CalendarIcon,
     href: "/admin/data/calendar",
     description: "Manage world calendar and events",
-    color: "bg-yellow-500"
+    color: "bg-amber-500"
   },
   {
     id: "recaps",
@@ -87,7 +87,7 @@ const adminTools = [
     icon: DocumentTextIcon,
     href: "/admin/data/recaps", 
     description: "Manage session summaries",
-    color: "bg-pink-500"
+    color: "bg-stone-500"
   }
 ];
 
@@ -122,7 +122,7 @@ export default function AdminPage() {
                     <IconComponent className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
                       {item.name}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -155,7 +155,7 @@ export default function AdminPage() {
                     <IconComponent className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
                       {tool.name}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -175,42 +175,42 @@ export default function AdminPage() {
           Quick Overview
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="p-6 bg-slate-50 dark:bg-slate-900/20 rounded-lg border border-slate-200 dark:border-slate-800">
             <div className="flex items-center">
-              <UserGroupIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <UserGroupIcon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-blue-900 dark:text-blue-100">--</p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">NPCs</p>
+                <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">--</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">NPCs</p>
               </div>
             </div>
           </div>
           
-          <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
             <div className="flex items-center">
-              <ClipboardDocumentListIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
+              <ClipboardDocumentListIcon className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-green-900 dark:text-green-100">--</p>
-                <p className="text-sm text-green-600 dark:text-green-400">Quests</p>
+                <p className="text-2xl font-semibold text-emerald-900 dark:text-emerald-100">--</p>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">Quests</p>
               </div>
             </div>
           </div>
           
-          <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+          <div className="p-6 bg-stone-50 dark:bg-stone-900/20 rounded-lg border border-stone-200 dark:border-stone-800">
             <div className="flex items-center">
-              <MapPinIcon className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              <MapPinIcon className="w-8 h-8 text-stone-600 dark:text-stone-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-purple-900 dark:text-purple-100">--</p>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Locations</p>
+                <p className="text-2xl font-semibold text-stone-900 dark:text-stone-100">--</p>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Locations</p>
               </div>
             </div>
           </div>
           
-          <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+          <div className="p-6 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
             <div className="flex items-center">
-              <ShieldCheckIcon className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+              <ShieldCheckIcon className="w-8 h-8 text-amber-600 dark:text-amber-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-orange-900 dark:text-orange-100">--</p>
-                <p className="text-sm text-orange-600 dark:text-orange-400">Factions</p>
+                <p className="text-2xl font-semibold text-amber-900 dark:text-amber-100">--</p>
+                <p className="text-sm text-amber-600 dark:text-amber-400">Factions</p>
               </div>
             </div>
           </div>

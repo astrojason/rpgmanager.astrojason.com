@@ -93,7 +93,7 @@ export default function NextSessionPage() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-6">
-          <Link href="/campaign" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors">
+          <Link href="/campaign" className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
             ← Back to Campaign
           </Link>
         </div>
@@ -102,8 +102,8 @@ export default function NextSessionPage() {
           {/* Header */}
           <div className={`px-6 py-8 text-white ${
             sessionData.isSkipped 
-              ? 'bg-gradient-to-r from-gray-500 to-gray-600' 
-              : 'bg-gradient-to-r from-blue-600 to-cyan-600'
+              ? 'bg-gradient-to-r from-stone-500 to-stone-600' 
+              : 'bg-gradient-to-r from-slate-600 to-stone-600'
           }`}>
             <div className="flex items-center justify-between">
               <div>
@@ -111,7 +111,7 @@ export default function NextSessionPage() {
                   {sessionData.isSkipped ? 'Session Skipped' : 'Next Session'}
                 </h1>
                 <p className={`text-lg ${
-                  sessionData.isSkipped ? 'text-gray-200' : 'text-blue-100'
+                  sessionData.isSkipped ? 'text-stone-200' : 'text-slate-100'
                 }`}>
                   {formatDate(sessionData.date)}
                 </p>
@@ -123,7 +123,7 @@ export default function NextSessionPage() {
                     : !isClient ? "..." : daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`
                   }
                 </div>
-                <div className={sessionData.isSkipped ? 'text-gray-200' : 'text-blue-100'}>
+                <div className={sessionData.isSkipped ? 'text-stone-200' : 'text-slate-100'}>
                   {sessionData.isSkipped ? 'No session' : 'to go'}
                 </div>
               </div>
@@ -147,8 +147,8 @@ export default function NextSessionPage() {
                   )}
                 </div>
 
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                  <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold text-emerald-900 dark:text-emerald-100 mb-2 flex items-center">
                     📖 In-world Date
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
@@ -172,8 +172,8 @@ export default function NextSessionPage() {
               <>
                 {/* Quick Info Grid */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+                  <div className="bg-slate-50 dark:bg-slate-900/20 p-4 rounded-lg">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center">
                       📅 Session Details
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 mb-1">
@@ -181,8 +181,8 @@ export default function NextSessionPage() {
                     </p>
                   </div>
 
-                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                    <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg">
+                    <h3 className="font-semibold text-emerald-900 dark:text-emerald-100 mb-2 flex items-center">
                       📖 In-world date
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 text-lg font-medium">
@@ -192,8 +192,8 @@ export default function NextSessionPage() {
                 </div>
 
                 {/* Session Agenda */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-lg">
-                  <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-3 text-xl flex items-center">
+                <div className="bg-stone-50 dark:bg-stone-900/20 p-6 rounded-lg">
+                  <h3 className="font-semibold text-stone-900 dark:text-stone-100 mb-3 text-xl flex items-center">
                     🎯 Session Agenda
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
@@ -221,13 +221,13 @@ export default function NextSessionPage() {
                 🔗 Quick Links
               </h3>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <Link href="/campaign/recaps" className="inline-block px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-center transition-colors">
+                <Link href="/campaign/recaps" className="inline-block px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md text-center transition-colors">
                   📚 Last Session Recap
                 </Link>
-                <Link href="/campaign/pcs" className="inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-center transition-colors">
+                <Link href="/campaign/pcs" className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-center transition-colors">
                   👥 Player Characters
                 </Link>
-                <Link href="/campaign/calendar" className="inline-block px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md text-center transition-colors">
+                <Link href="/campaign/calendar" className="inline-block px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-md text-center transition-colors">
                   📅 Campaign Calendar
                 </Link>
               </div>
@@ -237,19 +237,19 @@ export default function NextSessionPage() {
             {isClient && isAdmin && (
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div className="flex gap-4">
-                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                  <button className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-md transition-colors">
                     ✏️ Edit Session Info
                   </button>
                   {sessionData.isSkipped ? (
-                    <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
+                    <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors">
                       ▶️ Un-skip Session
                     </button>
                   ) : (
-                    <button className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition-colors">
+                    <button className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors">
                       ⏸️ Mark as Skipped
                     </button>
                   )}
-                  <button className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors">
+                  <button className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors">
                     ➡️ Advance to Next Week
                   </button>
                 </div>

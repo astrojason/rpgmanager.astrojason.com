@@ -210,7 +210,7 @@ export default function SideNavigation({
                     href={item.href}
                     className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-colors group ${
                       isActive
-                        ? "bg-blue-600 text-white"
+                        ? "bg-slate-600 text-white"
                         : "text-gray-300 hover:text-white hover:bg-gray-800"
                     }`}
                   >
@@ -282,7 +282,7 @@ export default function SideNavigation({
                   href="/admin"
                   className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-colors group ${
                     pathname === "/admin"
-                      ? "bg-red-600 text-white"
+                      ? "bg-rose-600 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-800"
                   }`}
                 >

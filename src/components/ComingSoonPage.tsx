@@ -22,8 +22,8 @@ export default function ComingSoonPage({
           <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
             {description}
           </p>
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <p className="text-blue-800 dark:text-blue-200 text-sm">
+          <div className="bg-slate-50 dark:bg-slate-900/20 rounded-lg p-4">
+            <p className="text-slate-700 dark:text-slate-300 text-sm">
               This feature is currently under development and will be available
               in a future update.
             </p>

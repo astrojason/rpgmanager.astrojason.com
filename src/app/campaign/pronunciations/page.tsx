@@ -300,7 +300,7 @@ export default function PronunciationsPage() {
                   setSearchTerm("");
                   setSelectedCategory("all");
                 }}
-                className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                className="mt-4 px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
               >
                 Show All Pronunciations
               </button>
@@ -326,7 +326,7 @@ export default function PronunciationsPage() {
                   <div className="font-medium text-gray-900 dark:text-white text-lg">
                     {m.name}
                   </div>
-                  <div className="text-blue-600 dark:text-blue-400 font-mono text-base">
+                  <div className="text-slate-600 dark:text-slate-400 font-mono text-base">
                     {m.pronunciation || (
                       <span className="text-gray-400">—</span>
                     )}
