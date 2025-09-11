@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
 import QuestNotesEditor from '@/components/QuestNotesEditor';
+import { Quest, QuestNote } from '@/types/interfaces';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -11,7 +12,6 @@ import {
   XMarkIcon,
   CheckIcon
 } from "@heroicons/react/24/outline";
-import { Quest } from "@/types/interfaces";
 
 export default function QuestsManagementPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -44,9 +44,9 @@ export default function QuestsManagementPage() {
 
   const filteredQuests = quests.filter(quest => {
     const searchLower = searchTerm.toLowerCase();
-    const notesText = Array.isArray(quest.notes) 
-      ? quest.notes.join(" ") 
-      : (quest.notes || "");
+    const notesText = quest.notes
+      ? quest.notes.map(note => note.content).join(" ") 
+      : "";
     
     return quest.name?.toLowerCase().includes(searchLower) ||
       notesText.toLowerCase().includes(searchLower) ||
@@ -271,7 +271,7 @@ export default function QuestsManagementPage() {
                                             code: ({ children }) => <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs">{children}</code>,
                                           }}
                                         >
-                                          {note.length > 100 ? note.substring(0, 100) + "..." : note}
+                                          {note.content.length > 100 ? note.content.substring(0, 100) + "..." : note.content}
                                         </ReactMarkdown>
                                       </div>
                                     </div>
@@ -349,6 +349,7 @@ export default function QuestsManagementPage() {
                     <QuestNotesEditor
                       notes={formData.notes || []}
                       onChange={(notes) => setFormData({ ...formData, notes })}
+                      currentUser="Admin"
                     />
                   </div>
 
@@ -424,16 +425,21 @@ export default function QuestsManagementPage() {
                     <div>
                       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Notes</h3>
                       <div className="space-y-4">
-                        {selectedQuest.notes.map((note: string, index: number) => (
-                          <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg">
+                        {selectedQuest.notes.map((note: QuestNote, index: number) => (
+                          <div key={note.id} className="border border-gray-200 dark:border-gray-600 rounded-lg">
                             <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Note #{index + 1}
-                              </span>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  Note #{index + 1}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {note.author} • {new Date(note.timestamp).toLocaleString()}
+                                </span>
+                              </div>
                             </div>
                             <div className="p-3">
                               <div className="prose dark:prose-invert max-w-none prose-sm">
-                                <ReactMarkdown>{note}</ReactMarkdown>
+                                <ReactMarkdown>{note.content}</ReactMarkdown>
                               </div>
                             </div>
                           </div>

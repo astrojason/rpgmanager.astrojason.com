@@ -5,7 +5,6 @@ import {
   PlusIcon, 
   PencilIcon, 
   TrashIcon,
-  EyeIcon,
   XMarkIcon,
   CheckIcon,
   DocumentTextIcon

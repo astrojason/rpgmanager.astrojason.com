@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from './MarkdownEditor';
+import { QuestNote } from '@/types/interfaces';
 import { 
   PlusIcon, 
   TrashIcon, 
@@ -10,12 +11,18 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface QuestNotesEditorProps {
-  notes: string[];
-  onChange: (notes: string[]) => void;
+  notes: QuestNote[];
+  onChange: (notes: QuestNote[]) => void;
   className?: string;
+  currentUser?: string;
 }
 
-export default function QuestNotesEditor({ notes, onChange, className = "" }: QuestNotesEditorProps) {
+export default function QuestNotesEditor({ 
+  notes, 
+  onChange, 
+  className = "",
+  currentUser = "Admin"
+}: QuestNotesEditorProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [newNote, setNewNote] = useState("");
@@ -23,13 +30,18 @@ export default function QuestNotesEditor({ notes, onChange, className = "" }: Qu
 
   const handleStartEdit = (index: number) => {
     setEditingIndex(index);
-    setEditingContent(notes[index]);
+    setEditingContent(notes[index].content);
   };
 
   const handleSaveEdit = () => {
     if (editingIndex !== null) {
       const updatedNotes = [...notes];
-      updatedNotes[editingIndex] = editingContent;
+      updatedNotes[editingIndex] = {
+        ...updatedNotes[editingIndex],
+        content: editingContent,
+        timestamp: new Date().toISOString(),
+        author: currentUser
+      };
       onChange(updatedNotes);
       setEditingIndex(null);
       setEditingContent("");
@@ -50,7 +62,13 @@ export default function QuestNotesEditor({ notes, onChange, className = "" }: Qu
 
   const handleAddNote = () => {
     if (newNote.trim()) {
-      onChange([...notes, newNote.trim()]);
+      const newQuestNote: QuestNote = {
+        id: `note-${Date.now()}`,
+        content: newNote.trim(),
+        timestamp: new Date().toISOString(),
+        author: currentUser
+      };
+      onChange([...notes, newQuestNote]);
       setNewNote("");
       setIsAddingNote(false);
     }
@@ -140,7 +158,10 @@ export default function QuestNotesEditor({ notes, onChange, className = "" }: Qu
                 />
               ) : (
                 <div className="prose dark:prose-invert max-w-none prose-sm">
-                  <ReactMarkdown>{note}</ReactMarkdown>
+                  <ReactMarkdown>{note.content}</ReactMarkdown>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                    By {note.author} • {new Date(note.timestamp).toLocaleString()}
+                  </div>
                 </div>
               )}
             </div>
@@ -190,7 +211,7 @@ export default function QuestNotesEditor({ notes, onChange, className = "" }: Qu
 
       {notes.length === 0 && !isAddingNote && (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <p>No notes yet. Click "Add Note" to create your first quest note.</p>
+          <p>No notes yet. Click &ldquo;Add Note&rdquo; to create your first quest note.</p>
         </div>
       )}
     </div>

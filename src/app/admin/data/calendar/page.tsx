@@ -5,7 +5,6 @@ import {
   PlusIcon, 
   PencilIcon, 
   TrashIcon,
-  EyeIcon,
   XMarkIcon,
   CheckIcon,
   CalendarIcon
@@ -304,7 +303,7 @@ export default function CalendarManagementPage() {
                       value={formData.date?.day?.toString() || "1"}
                       onChange={(e) => setFormData({ 
                         ...formData, 
-                        date: { ...formData.date, day: parseInt(e.target.value) || 1 } as any
+                        date: { ...formData.date, day: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     />
@@ -319,7 +318,7 @@ export default function CalendarManagementPage() {
                       value={formData.date?.month?.toString() || "1"}
                       onChange={(e) => setFormData({ 
                         ...formData, 
-                        date: { ...formData.date, month: parseInt(e.target.value) || 1 } as any
+                        date: { ...formData.date, month: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     />
@@ -333,7 +332,7 @@ export default function CalendarManagementPage() {
                       value={formData.date?.year?.toString() || "1"}
                       onChange={(e) => setFormData({ 
                         ...formData, 
-                        date: { ...formData.date, year: parseInt(e.target.value) || 1 } as any
+                        date: { ...formData.date, year: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     />

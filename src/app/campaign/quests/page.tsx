@@ -1,26 +1,38 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-interface Quest {
-  id: string;
-  name: string;
-  notes: string[];
-  status: string;
-}
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
+import ReactMarkdown from 'react-markdown';
+import MarkdownEditor from '@/components/MarkdownEditor';
+import { Quest, QuestNote } from "@/types/interfaces";
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [questsData, setQuestsData] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
-  // By default, only show active quests
+  const [user, setUser] = useState<User | null>(null);
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [newNoteContent, setNewNoteContent] = useState("");
 
+  // Authentication state
+  useEffect(() => {
+    if (!auth) return;
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Load quests data
   useEffect(() => {
     const loadQuests = async () => {
       try {
-        const response = await fetch('/data/quests.json');
+        const response = await fetch('/api/data/quests');
         if (!response.ok) throw new Error('Failed to load quests');
         const data = await response.json();
         setQuestsData(data);
@@ -37,7 +49,7 @@ export default function QuestsPage() {
     const matchesSearch =
       quest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quest.notes.some((note) =>
-        note.toLowerCase().includes(searchTerm.toLowerCase())
+        note.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     // If searching, ignore showActiveOnly and use statusFilter
     if (searchTerm.trim() !== "" || statusFilter !== "") {
@@ -49,9 +61,53 @@ export default function QuestsPage() {
     return matchesSearch && (quest.status === "active" || !showActiveOnly);
   });
 
-  const uniqueStatuses = Array.from(
-    new Set(questsData.map((q) => q.status))
-  );
+    // Get unique status values for the dropdown
+  const uniqueStatuses = [...new Set(questsData.map(quest => quest.status))];
+
+  const handleAddNote = async (questId: string) => {
+    if (!questId || !newNoteContent.trim() || !user) return;
+    
+    try {
+      const quest = questsData.find(q => q.id === questId);
+      if (!quest) throw new Error('Quest not found');
+
+      const newQuestNote: QuestNote = {
+        id: `note-${Date.now()}`,
+        content: newNoteContent.trim(),
+        timestamp: new Date().toISOString(),
+        author: user.email || 'Anonymous'
+      };
+
+      const updatedQuest = {
+        ...quest,
+        notes: [...quest.notes, newQuestNote]
+      };
+
+      // Save to backend
+      const response = await fetch('/api/data/quests', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedQuest),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save note');
+      }
+
+      // Update local state
+      const updatedQuests = questsData.map(q => 
+        q.id === questId ? updatedQuest : q
+      );
+      setQuestsData(updatedQuests);
+      setNewNoteContent("");
+      setEditingNote(null);
+    } catch (error) {
+      console.error('Error adding note:', error);
+      alert('Failed to add note. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -158,12 +214,79 @@ export default function QuestsPage() {
                       quest.status.slice(1)}
                   </span>
                 </div>
-                {quest.notes.length > 0 && (
-                  <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 mt-2 space-y-1">
-                    {quest.notes.map((note, idx) => (
-                      <li key={idx}>{note}</li>
-                    ))}
-                  </ul>
+
+                {/* Existing Quest Notes */}
+                {quest.notes && quest.notes.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Notes:
+                    </h3>
+                    <div className="space-y-3">
+                      {quest.notes.map((note) => (
+                        <div
+                          key={note.id}
+                          className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {note.author} • {new Date(note.timestamp).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                            <ReactMarkdown>{note.content}</ReactMarkdown>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Add Note Section for Authenticated Users */}
+                {user && (
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <button
+                      onClick={() => {
+                        if (editingNote === quest.id) {
+                          setEditingNote(null);
+                          setNewNoteContent("");
+                        } else {
+                          setEditingNote(quest.id);
+                          setNewNoteContent("");
+                        }
+                      }}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium"
+                    >
+                      {editingNote === quest.id ? "Cancel" : "Add Note"}
+                    </button>
+
+                    {editingNote === quest.id && (
+                      <div className="mt-3">
+                        <MarkdownEditor
+                          value={newNoteContent}
+                          onChange={setNewNoteContent}
+                          placeholder="Add a note about this quest..."
+                        />
+                        <div className="flex justify-end gap-2 mt-2">
+                          <button
+                            onClick={() => {
+                              setEditingNote(null);
+                              setNewNoteContent("");
+                            }}
+                            className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleAddNote(quest.id)}
+                            disabled={!newNoteContent.trim()}
+                            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Add Note
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             ))

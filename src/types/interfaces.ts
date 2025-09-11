@@ -155,10 +155,17 @@ export interface CalendarData {
   categories: CalendarCategory[];
 }
 
+export interface QuestNote {
+  id: string;
+  content: string;
+  timestamp: string;
+  author: string;
+}
+
 export interface Quest {
   id: string;
   name: string;
-  notes: string[];
+  notes: QuestNote[];
   status: string;
 }
 
