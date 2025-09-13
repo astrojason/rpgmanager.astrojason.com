@@ -1,26 +1,4 @@
-// Import type definitions for data structures
-interface Faction {
-    id: string;
-    name: string;
-}
-
-interface Location {
-    id: string;
-    name: string;
-}
-
-interface NPC {
-    id: string;
-    name: string;
-    aka?: string;
-}
-
-interface PC {
-    id: string;
-    name: string;
-    nickname?: string;
-}
-
+// Import type definitions for data structures used to build links
 interface LinkMapping {
     name: string;
     url: string;
@@ -35,122 +13,15 @@ export function resetLinkMapCache() {
     cachedLinkMap = null;
 }
 
-// Create a comprehensive mapping of all entities to their pages
+// Create a mapping of entity names to their destination URLs.
+// Data loading is intentionally omitted here; prefer passing pre-fetched
+// data into a variant of this function in the future if needed.
 function createEntityLinkMap(): Map<string, LinkMapping> {
     if (cachedLinkMap) {
         return cachedLinkMap;
     }
 
     const linkMap = new Map<string, LinkMapping>();
-
-    try {
-        // Use require with proper type assertions for JSON imports
-        // Initialize data variables as empty arrays since file loading is disabled
-        const factionsData: Faction[] = [];
-        const locationsData: Location[] = [];
-        const npcsData: NPC[] = [];
-        const pcsData: PC[] = [];
-
-        try {
-            // factionsData = require("@/data/factions.json") as Faction[];
-        } catch (e) {
-            console.warn('Could not load factions data:', e);
-        }
-
-        // Temporarily disabled due to file path changes
-        // TODO: Refactor to use API data or pass data as parameters
-        try {
-            // locationsData = require("@/data/locations.json") as Location[];
-        } catch (e) {
-            console.warn('Could not load locations data:', e);
-        }
-
-        try {
-            // npcsData = require("@/data/npcs.json") as NPC[];
-        } catch (e) {
-            console.warn('Could not load npcs data:', e);
-        }
-
-        try {
-            // pcsData = require("@/data/pcs.json") as PC[];
-        } catch (e) {
-            console.warn('Could not load pcs data:', e);
-        }
-
-        // Add factions
-        factionsData.forEach((faction: Faction) => {
-            if (faction?.name) {
-                linkMap.set(faction.name.toLowerCase(), {
-                    name: faction.name,
-                    url: `/campaign/factions?selected=${encodeURIComponent(faction.id)}`,
-                    type: 'faction'
-                });
-
-                // Also add version without "The" prefix if it exists
-                if (faction.name.toLowerCase().startsWith('the ')) {
-                    const nameWithoutThe = faction.name.substring(4); // Remove "The "
-                    linkMap.set(nameWithoutThe.toLowerCase(), {
-                        name: faction.name, // Keep original name for display
-                        url: `/campaign/factions?selected=${encodeURIComponent(faction.id)}`,
-                        type: 'faction'
-                    });
-                }
-            }
-        });
-
-        // Add locations
-        locationsData.forEach((location: Location) => {
-            if (location?.name) {
-                linkMap.set(location.name.toLowerCase(), {
-                    name: location.name,
-                    url: `/campaign/locations?selected=${encodeURIComponent(location.id)}`,
-                    type: 'location'
-                });
-            }
-        });
-
-        // Add NPCs
-        npcsData.forEach((npc: NPC) => {
-            if (npc?.name) {
-                linkMap.set(npc.name.toLowerCase(), {
-                    name: npc.name,
-                    url: `/campaign/npcs?selected=${encodeURIComponent(npc.id)}`,
-                    type: 'npc'
-                });
-
-                // Also add aliases/aka names if they exist
-                if (npc.aka) {
-                    linkMap.set(npc.aka.toLowerCase(), {
-                        name: npc.aka,
-                        url: `/campaign/npcs?selected=${encodeURIComponent(npc.id)}`,
-                        type: 'npc'
-                    });
-                }
-            }
-        });
-
-        // Add PCs
-        pcsData.forEach((pc: PC) => {
-            if (pc?.name) {
-                linkMap.set(pc.name.toLowerCase(), {
-                    name: pc.name,
-                    url: `/campaign/pcs?selected=${encodeURIComponent(pc.id)}`,
-                    type: 'pc'
-                });
-
-                // Also add nicknames if they exist
-                if (pc.nickname) {
-                    linkMap.set(pc.nickname.toLowerCase(), {
-                        name: pc.nickname,
-                        url: `/campaign/pcs?selected=${encodeURIComponent(pc.id)}`,
-                        type: 'pc'
-                    });
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error loading data for entity link map:', error);
-    }
 
     cachedLinkMap = linkMap;
     return linkMap;
@@ -163,7 +34,9 @@ export function convertMarkdownLinks(markdownText: string, isAdmin: boolean = fa
     // Regex to match [[{NAME}]] patterns
     const linkRegex = /\[\[([^\]]+)\]\]/g;
 
-    return markdownText.replace(linkRegex, (match, entityName) => {
+    return markdownText.replace(linkRegex, (_match, entityName) => {
+        // Mark unused parameter as intentionally ignored to satisfy strict TS flags
+        void _match;
         const normalizedName = entityName.trim().toLowerCase();
         const linkData = linkMap.get(normalizedName);
 
