@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { marked } from "marked";
-import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Location } from "@/types/interfaces";
@@ -31,19 +30,7 @@ export default function DetailSidebar({
     }
   }, [isOpen]);
 
-  // Configure marked for safe rendering with link conversion
-  const parseMarkdown = (markdown: string) => {
-    try {
-      const parsedMarkdown = marked.parse(markdown, {
-        breaks: true,
-        gfm: true,
-      });
-      return parseMarkdownWithLinks(parsedMarkdown as string, isAdmin);
-    } catch (error) {
-      console.warn("Failed to parse markdown:", error);
-      return markdown;
-    }
-  };
+  const parseMarkdown = (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin);
 
   if (!isOpen || !area) return null;
 

@@ -2,8 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { marked } from "marked";
-import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
@@ -95,20 +94,9 @@ export default function LocationsPage() {
     }
   }, [searchParams, mainLocation, sublocations, selectedArea]);
 
-  // Configure marked for safe rendering with link conversion
+  // Markdown rendering with custom link conversion
   const parseMarkdown = useMemo(() => {
-    return (markdown: string) => {
-      try {
-        const parsedMarkdown = marked.parse(markdown, {
-          breaks: true,
-          gfm: true,
-        });
-        return parseMarkdownWithLinks(parsedMarkdown as string, isAdmin);
-      } catch (error) {
-        console.warn("Failed to parse markdown:", error);
-        return markdown; // Fallback to plain text
-      }
-    };
+    return (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin);
   }, [isAdmin]);
 
   const handleAreaClick = (area: Location) => {

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { marked } from "marked";
-import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 
 interface Recap {
@@ -123,7 +122,7 @@ export default function RecapsPage() {
                   <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{recap.title}</h2>
                   <div
                     className="prose prose-neutral max-w-none dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: parseMarkdownWithLinks(marked.parse(recap.recap) as string, isAdmin) }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
                   />
                 </div>
               ))

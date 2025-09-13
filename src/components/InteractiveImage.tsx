@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { marked } from "marked";
 import { Location, InteractiveImageProps } from "@/types/interfaces";
+import { renderMarkdown } from "@/utils/markdown";
 
 export default function InteractiveImage({
   src,
@@ -53,20 +53,8 @@ export default function InteractiveImage({
     };
   }, [selectedLocationId]); // Recalculate when selection changes
 
-  // Configure marked for safe rendering
-  const parseMarkdown = useMemo(() => {
-    return (markdown: string) => {
-      try {
-        return marked.parse(markdown, {
-          breaks: true,
-          gfm: true,
-        });
-      } catch (error) {
-        console.warn("Failed to parse markdown:", error);
-        return markdown; // Fallback to plain text
-      }
-    };
-  }, []);
+  // Markdown renderer (no custom link conversion needed here)
+  const parseMarkdown = (markdown: string) => renderMarkdown(markdown);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
