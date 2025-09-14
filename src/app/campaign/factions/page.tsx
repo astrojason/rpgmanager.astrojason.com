@@ -80,9 +80,13 @@ export default function FactionsPage() {
   const [factionPCs, setFactionPCs] = useState<PC[] | null>(null);
   useEffect(() => {
     if (!selectedFaction) return;
-    setFactionMembers(
-      npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id))
-    );
+    const members = npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id));
+    members.sort((a: NPC, b: NPC) => {
+      const la = (a.name || a.aka || a.id || '').toLowerCase();
+      const lb = (b.name || b.aka || b.id || '').toLowerCase();
+      return la.localeCompare(lb);
+    });
+    setFactionMembers(members);
     setFactionPCs(
       pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id))
     );

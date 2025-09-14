@@ -37,7 +37,11 @@
     "location": "Azorian's Tower",
     "status": "Alive",
     "description": "Elf",
-    "image": "/images/npcs/azorian.png"
+    "image": "/images/npcs/azorian.png",
+    "aka": [
+      "The Archmage",
+      "The Creator"
+    ]
   },
   {
     "id": "e9b5b5b5-4d5e-7f6a-1b2c-4d5e6f7a8b9c",
@@ -59,7 +63,12 @@
         "timestamp": "2025-09-11T22:01:31.914Z",
         "author": "75jk9LhhIfhqYkqV3cHsLr3ONeb2"
       }
-    ]
+    ],
+    "aka": [
+      "Azar"
+    ],
+    "display_name": "Captain Azar",
+    "hide_name": false
   },
   {
     "id": "f0c6c6c6-5e6f-8a7b-2c3d-5e6f7a8b9c0d",
@@ -115,7 +124,13 @@
       "d4a3b8c2-9e5f-4c3d-8a2b-3c4d5e6f7a8b"
     ],
     "description": "Human",
-    "image": "/images/npcs/inara_alsahar.png"
+    "image": "/images/npcs/inara_alsahar.png",
+    "aka": [
+      "Inara",
+      "Princess Inara"
+    ],
+    "display_name": "Inara al-Sahar",
+    "hide_name": false
   },
   {
     "id": "d4a0a0a0-9c0d-2e1f-6a7b-9c0d1e2f3a4b",
@@ -158,7 +173,8 @@
     ],
     "description": "Human",
     "image": "/images/npcs/lyra_moonfire.png",
-    "nameHidden": true
+    "nameHidden": true,
+    "display_name": "Shadow Blade's Human Sorcerer"
   },
   {
     "id": "a7d3d3d3-2f3a-5b4c-9d0e-2f3a4b5c6d7e",
@@ -176,19 +192,27 @@
   },
   {
     "id": "b8e4e4e4-3a4b-6c5d-0e1f-3a4b5c6d7e8f",
-    "name": "Malacite",
-    "pronunciation": "MAL-ah-kite",
+    "name": "Elrich Malacite",
+    "pronunciation": "El-RICK MAL-ah-kite",
     "race": "Human",
     "gender": "Male",
     "location": "Obsidian Spire",
     "status": "Alive",
     "description": "Human",
-    "image": "/images/npcs/malacite.png"
+    "image": "/images/npcs/malacite.png",
+    "aka": [
+      "Malacite",
+      "Lord Malacite",
+      "Elrich"
+    ],
+    "display_name": "Lord Elrich Malacite",
+    "hide_name": false
   },
   {
     "id": "c9f5f5f5-4b5c-7d6e-1f2a-4b5c6d7e8f9a",
     "name": "Merrin Vask",
     "pronunciation": "MARE-rin VASK",
+    "display_name": "Obsidian Spire Poisoner",
     "race": "Human",
     "gender": "Male",
     "location": "Obsidian Spire",
@@ -200,7 +224,12 @@
   {
     "id": "dab0b0b0-5c6d-8e7f-2a3b-5c6d7e8f9a0b",
     "name": "Elmindreda",
-    "aka": "Mindy",
+    "aka": [
+      "Elmindreada",
+      "Mindy",
+      "Oracle",
+      "The Oracle"
+    ],
     "pronunciation": "el-min-DREE-dah",
     "race": "Halfling",
     "gender": "Female",
@@ -208,7 +237,26 @@
     "status": "Alive",
     "factions": [],
     "description": "Halfling",
-    "image": "/images/npcs/mindy.png"
+    "image": "/images/npcs/mindy.png",
+    "display_name": "Elmindreda",
+    "hide_name": false,
+    "personas": [
+      {
+        "name": "Elmindreda",
+        "public": true,
+        "gm_only_note": ""
+      },
+      {
+        "name": "The Oracle",
+        "public": true,
+        "gm_only_note": "Public title/persona"
+      }
+    ],
+    "secret_links": [],
+    "reveal_state": {
+      "revealed_to_players": false,
+      "revealed_session": null
+    }
   },
   {
     "id": "eab1b1b1-6d7e-9f8a-3b4c-6d7e8f9a0b1c",
@@ -396,7 +444,14 @@
     "factions": [
       "c6d7e8f9-0123-4a5b-8c7d-2e3f4a5b6c7d"
     ],
-    "description": "Princess of the Tidewater royal family."
+    "description": "Princess of the Tidewater royal family.",
+    "aka": [
+      "Aeliana",
+      "Princess Aeliana",
+      "Princess Aeliana Seastone"
+    ],
+    "display_name": "Aeliana Seastone",
+    "hide_name": false
   },
   {
     "id": "b2c1e7a4-8d2f-4e1a-9c3b-7f6e5d4c3b2a",
@@ -494,7 +549,12 @@
       "a1b2c3d4-5678-4e9f-8a7b-1c2d3e4f5b6c"
     ],
     "description": "Leader of the Midnight Current.",
-    "image": "/images/npcs/vurel_morridan.png"
+    "image": "/images/npcs/vurel_morridan.png",
+    "aka": [
+      "Morridan"
+    ],
+    "display_name": "Vurel Morridan",
+    "hide_name": false
   },
   {
     "id": "d1e2f3a4-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
@@ -794,5 +854,320 @@
     "factions": [
       "e7f8a9b0-3456-4c7d-8e9f-0a1b2c3d4e5f"
     ]
+  },
+  {
+    "id": "815d5012-f9ee-443d-9c8e-251ae46737be",
+    "name": "Faris al-Miraj",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Faris al-Miraj",
+    "hide_name": false
+  },
+  {
+    "id": "997a6e71-9af0-4565-9d2d-3c6560b65b7d",
+    "name": "Saela Varn",
+    "pronunciation": "",
+    "race": "Human",
+    "gender": "female",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": "Saela",
+    "display_name": "Saela",
+    "hide_name": false
+  },
+  {
+    "id": "0d6d95f4-72cc-4c94-ae19-0f7a757da27b",
+    "name": "Jorren",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Jorren",
+    "hide_name": false
+  },
+  {
+    "id": "1c5bb384-a293-43d4-83fb-991e7e19cc02",
+    "name": "Dima",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Dima",
+    "hide_name": false
+  },
+  {
+    "id": "60b6669e-6b0f-4683-8dc2-d0036a812d03",
+    "name": "Halim",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Halim",
+    "hide_name": false
+  },
+  {
+    "id": "e2578e4b-6c02-4093-a94e-3e9411ca2e53",
+    "name": "Tamas",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Tamas",
+    "hide_name": false
+  },
+  {
+    "id": "631c61e6-966e-435b-a7b2-2988dd2568c0",
+    "name": "Aban",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Aban",
+    "hide_name": false
+  },
+  {
+    "id": "23e8eff9-6ec0-45c9-b9b2-088e7cb82a1e",
+    "name": "Jalila",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Jalila",
+    "hide_name": false
+  },
+  {
+    "id": "c6f10f7e-a059-40f9-9c13-53d868ed3e30",
+    "name": "Kavah",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Kavah",
+    "hide_name": false
+  },
+  {
+    "id": "e46bbf8c-a204-49a4-88aa-4850a36d26ac",
+    "name": "Tariq",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Tariq",
+    "hide_name": false
+  },
+  {
+    "id": "6e6bfb31-0dd6-4422-8cc2-7d24f2c86075",
+    "name": "Zafir al-Nahil",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Zafir"
+    ],
+    "display_name": "Zafir al-Nahil",
+    "hide_name": false
+  },
+  {
+    "id": "5a0c3914-7849-4b1a-9f85-3086ac73ddb1",
+    "name": "Sarif al-Sahar",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Sarif al-Sahar",
+    "hide_name": false
+  },
+  {
+    "id": "f78ae051-ef62-4635-a66e-064075b4080f",
+    "name": "Aurel Sunshield",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Aurel"
+    ],
+    "display_name": "Aurel Sunshield",
+    "hide_name": false
+  },
+  {
+    "id": "419b833e-bbc9-4cee-ab22-c969c5731bc9",
+    "name": "Nali",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Nali",
+    "hide_name": false
+  },
+  {
+    "id": "536c6220-49f6-4ee0-bdbb-1bb58459ddcc",
+    "name": "Likka",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Dead",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Likka",
+    "hide_name": false
+  },
+  {
+    "id": "e83c7071-cd9d-45d1-921e-b9ee010fa264",
+    "name": "Basso",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Sandhaven",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [],
+    "display_name": "Basso",
+    "hide_name": false
+  },
+  {
+    "id": "fdd76231-2ae8-432d-bcce-f0f34c4c4439",
+    "name": "Xylos the Corrupter",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Xylos",
+      "The Corrupter",
+      "The Corruptor"
+    ],
+    "display_name": "Xylos the Corrupter",
+    "hide_name": false
+  },
+  {
+    "id": "21d42421-2383-4e45-9596-ee3d662424d1",
+    "name": "Silene Varess",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Silene"
+    ],
+    "display_name": "Silene Varess",
+    "hide_name": false
+  },
+  {
+    "id": "27a242a6-808c-485a-9520-927d80619f9d",
+    "name": "Prince Vandros",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Plane of Water",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Vandros"
+    ],
+    "display_name": "Prince Vandros",
+    "hide_name": false
+  },
+  {
+    "id": "c64adb99-550c-4d78-93e8-ca10cd2cecbf",
+    "name": "Otto & Oddo",
+    "pronunciation": "",
+    "race": "",
+    "gender": "",
+    "location": "Waystation Between Worlds",
+    "status": "Alive",
+    "factions": [],
+    "description": "",
+    "image": "",
+    "aka": [
+      "Otto",
+      "Oddo"
+    ],
+    "display_name": "Otto & Oddo",
+    "hide_name": false
   }
 ]

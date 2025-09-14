@@ -103,21 +103,34 @@ export default function NPCsPage() {
   }, [searchParams, visibleNPCs, selectedNPC]);
 
   const [showFullImage, setShowFullImage] = useState(false);
+  const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || (npc as any).hide_name);
+  const displayName = (npc: NPC) =>
+    isNameHidden(npc)
+      ? ((npc as any).display_name as string) || npc.aka || ''
+      : npc.name || npc.aka || '';
+
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
+    const term = searchTerm.trim().toLowerCase();
+    // Completely hidden are never searchable
+    if (term !== '' && npc.hidden) return false;
+    const allowRealName = !isNameHidden(npc);
     const matchesSearch =
-      !npc.nameHidden &&
-      ((npc.name &&
-        npc.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (npc.aka && npc.aka.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (npc.race &&
-          npc.race.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (npc.location &&
-          npc.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (npc.description &&
-          npc.description.toLowerCase().includes(searchTerm.toLowerCase())));
+      term === '' ||
+      (allowRealName && Boolean(npc.name) && npc.name!.toLowerCase().includes(term)) ||
+      (isNameHidden(npc) && Boolean((npc as any).display_name) && ((npc as any).display_name as string).toLowerCase().includes(term)) ||
+      (Boolean(npc.aka) && (npc.aka as string).toLowerCase().includes(term)) ||
+      (Boolean(npc.race) && npc.race!.toLowerCase().includes(term)) ||
+      (Boolean(npc.location) && npc.location!.toLowerCase().includes(term)) ||
+      (Boolean(npc.description) && npc.description!.toLowerCase().includes(term));
     const matchesRace = !raceFilter || npc.race === raceFilter;
     return matchesSearch && matchesRace;
+  });
+  // Default sort by name (then AKA, then ID)
+  const sortedFilteredNPCs = [...filteredNPCs].sort((a, b) => {
+    const la = displayName(a).toLowerCase() || (a.id || '').toLowerCase();
+    const lb = displayName(b).toLowerCase() || (b.id || '').toLowerCase();
+    return la.localeCompare(lb);
   });
 
   // Helper to get faction name from UUID
@@ -364,6 +377,18 @@ export default function NPCsPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Display Name (shown when name is hidden)
+                  </label>
+                  <input
+                    type="text"
+                    value={(editingNPC as any).display_name || ''}
+                    onChange={(e) => setEditingNPC({ ...editingNPC, display_name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
                   </label>
                   <textarea
@@ -487,7 +512,7 @@ export default function NPCsPage() {
               {selectedNPC && selectedNPC.image ? (
                 <Image
                   src={selectedNPC.image as string}
-                  alt={selectedNPC.name || selectedNPC.aka || ""}
+                  alt={displayName(selectedNPC) || ""}
                   width={900}
                   height={600}
                   style={{ objectFit: "contain" }}
@@ -523,7 +548,7 @@ export default function NPCsPage() {
           </div>
         </>
       )}
-      <div className="flex bg-gray-100 dark:bg-gray-900">
+    <div className="flex bg-gray-100 dark:bg-gray-900 h-dvh min-h-dvh overflow-hidden">
         {/* Main Content Area */}
         <div className="flex-1 overflow-hidden">
           {selectedNPC ? (
@@ -577,7 +602,7 @@ export default function NPCsPage() {
                       <div className="w-full h-full rounded-lg overflow-hidden relative">
                         <Image
                           src={selectedNPC.image}
-                          alt={selectedNPC.name || selectedNPC.aka || ""}
+                          alt={displayName(selectedNPC) || ""}
                           fill
                           style={{
                             objectFit: "cover",
@@ -893,12 +918,12 @@ export default function NPCsPage() {
         <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              NPCs ({filteredNPCs.length})
+              NPCs ({sortedFilteredNPCs.length})
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-3">
-              {filteredNPCs.map((npc) => (
+              {sortedFilteredNPCs.map((npc) => (
                 <div
                   key={npc.id}
                   onClick={() => {
@@ -955,15 +980,7 @@ export default function NPCsPage() {
                               : "text-gray-900 dark:text-white"
                           }`}
                         >
-                          {!npc.name || npc.nameHidden ? (
-                            npc.aka ? (
-                              <>&ldquo;{npc.aka}&rdquo;</>
-                            ) : (
-                              <>Unknown</>
-                            )
-                          ) : (
-                            <>{npc.name}</>
-                          )}
+                          {displayName(npc) || 'Unknown'}
                         </h3>
                         {npc.status === "Deceased" && (
                           <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">

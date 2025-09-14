@@ -85,7 +85,7 @@ export default function UserNotesEditor({
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Quest Notes
+          Notes
         </label>
         <button
           type="button"
@@ -216,7 +216,7 @@ export default function UserNotesEditor({
 
       {notes.length === 0 && !isAddingNote && (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <p>No notes yet. Click &ldquo;Add Note&rdquo; to create your first quest note.</p>
+          <p>No notes yet. Click &ldquo;Add Note&rdquo; to create your first note.</p>
         </div>
       )}
     </div>

@@ -41,6 +41,7 @@ export interface NPC {
   id: string;
   name?: string;
   aka?: string;
+  display_name?: string; // public-facing name when real name is hidden
   pronunciation: string;
   race: string;
   gender: string;
@@ -53,6 +54,7 @@ export interface NPC {
   image?: string; // optional
   hidden?: boolean;
   nameHidden?: boolean;
+  hide_name?: boolean; // legacy/alt flag in data
   notes?: UserNote[]; // Reuse the same note structure as quests
 }
 

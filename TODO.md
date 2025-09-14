@@ -5,25 +5,25 @@
 - [x] Interactive sidebar for details (right-side panel, markdown support, responsive, close/minimize)
 - [x] Collapsible left navigation panel with categories (Locations, NPCs, Quests, Items, Lore)
 - [x] Authentication system (Firebase Auth, protected routes, user session/profile, logout)
-- [ ] User notes system (Firestore schema, add note button, markdown editor, private notes, note management)
+- [ ] User notes system (partial: UI/editor in admin and NPCs; persistence via custom API, no Firestore schema yet)
 - [ ] Dynamic app title based on campaign/section
 
 ## Technical Improvements
 
-- [ ] Loading states for all components
+- [ ] Loading states for all components (partial coverage in some pages)
 - [ ] Error boundaries
 - [ ] Toast notifications for user actions
 - [ ] Consistent design system/theme
-- [x] Dark mode toggle
+- [ ] Dark mode toggle (support present via classes; no user-toggle component)
 - [x] Mobile responsiveness improvements
-- [ ] Image optimization & lazy loading
+- [ ] Image optimization & lazy loading (partial: next/image in use; some usages set priority)
 - [ ] Caching for Firebase data
 - [ ] Bundle size optimization
 
 ## Admin & Content Management
 
 - [ ] Bulk import for locations/NPCs
-- [ ] Markdown content management (editor, preview, templates, bulk import)
+- [ ] Markdown content management (partial: editor/preview for notes; no bulk import/templates)
 - [ ] Content management interface
 - [ ] Image upload functionality
 - [ ] Version control for content changes
@@ -33,7 +33,7 @@
 - [ ] Search across all content
 - [ ] Favorites/bookmarks system
 - [ ] Map layers (political, geographic, etc.)
-- [ ] Timeline/calendar system
+- [ ] Timeline/calendar system (partial: calendar page implemented; timeline pending)
 - [ ] Character relationship graphs
 - [ ] Quest dependency tracking
 - [ ] Campaign management (multi-campaign support, selection, shared groups, DM/player roles)

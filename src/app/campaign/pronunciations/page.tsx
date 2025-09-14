@@ -106,10 +106,12 @@ export default function PronunciationsPage() {
     );
 
   // Map NPCs to { name, pronunciation } for filtering and display
-  const mappedNPCs = visibleNPCs.map((npc: NPC) => ({
-    name: npc.name || npc.aka || "",
-    pronunciation: npc.pronunciation || "",
-  }));
+  const mappedNPCs = visibleNPCs
+    .map((npc: NPC) => ({
+      name: npc.name || npc.aka || "",
+      pronunciation: npc.pronunciation || "",
+    }))
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
   const filteredNPCs =
     selectedCategory === "npcs" || selectedCategory === "all"
       ? filterPronunciationItems(mappedNPCs)
