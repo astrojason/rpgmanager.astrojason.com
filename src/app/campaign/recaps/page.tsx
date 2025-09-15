@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
+import UserNotesEditor from "@/components/UserNotesEditor";
+import { UserNote } from "@/types/interfaces";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
 
 interface Recap {
   date: string;
   title: string;
   recap: string;
+  id?: string;
+  author?: string;
+  notes?: UserNote[];
 }
 
 export default function RecapsPage() {
@@ -18,6 +26,11 @@ export default function RecapsPage() {
   const [activeRecap, setActiveRecap] = useState<string | null>(null);
   const recapRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const isAdmin = useIsAdmin();
+  const [user, setUser] = useState<User | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "" });
+  const [editingRecapId, setEditingRecapId] = useState<string | null>(null);
+  const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
 
   // Load recaps data on mount
   useEffect(() => {
@@ -36,6 +49,12 @@ export default function RecapsPage() {
     };
 
     loadRecaps();
+  }, []);
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
   }, []);
 
   const filteredRecaps = allRecaps
@@ -58,6 +77,67 @@ export default function RecapsPage() {
     setTimeout(() => {
       recapRefs.current[date]?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
+  };
+
+  const canEditRecap = (recap: Recap) => {
+    const uid = user?.uid;
+    return !!uid && (isAdmin || (recap.author && recap.author === uid));
+  };
+
+  const handleAddRecap = async () => {
+    if (!user) return;
+    try {
+      const payload = { ...newRecap, author: user.uid } as Recap;
+      const res = await fetch('/api/data/session-recaps', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to add recap');
+      const data = await (await fetch('/api/data/session-recaps')).json();
+      setAllRecaps(data);
+      setShowAddForm(false);
+      setNewRecap({ date: "", title: "", recap: "" });
+    } catch (e) {
+      console.error(e);
+      alert('Failed to add recap');
+    }
+  };
+
+  const handleStartEditRecap = (recap: Recap) => {
+    if (!canEditRecap(recap)) return;
+    setEditingRecapId(recap.id || null);
+    setEditingRecap({ ...recap });
+  };
+
+  const handleSaveEditRecap = async () => {
+    if (!editingRecapId) return;
+    try {
+      const res = await fetch('/api/data/session-recaps', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingRecap)
+      });
+      if (!res.ok) throw new Error('Failed to save recap');
+      const data = await (await fetch('/api/data/session-recaps')).json();
+      setAllRecaps(data);
+      setEditingRecapId(null);
+      setEditingRecap({});
+    } catch (e) {
+      console.error(e);
+      alert('Failed to save recap');
+    }
+  };
+
+  const handleUpdateRecapNotes = async (recap: Recap, updatedNotes: UserNote[]) => {
+    try {
+      const payload = { ...recap, notes: updatedNotes };
+      const res = await fetch('/api/data/session-recaps', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to update notes');
+      const data = await (await fetch('/api/data/session-recaps')).json();
+      setAllRecaps(data);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update notes');
+    }
   };
 
   // Show loading state
@@ -106,6 +186,33 @@ export default function RecapsPage() {
             </div>
           </div>
           <div className="space-y-6">
+            {user && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Create New Recap</h2>
+                  <button onClick={() => setShowAddForm(!showAddForm)} className="px-3 py-1 text-sm bg-slate-600 text-white rounded">{showAddForm ? 'Cancel' : 'Add Recap'}</button>
+                </div>
+                {showAddForm && (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                      <input type="date" value={newRecap.date || ''} onChange={(e) => setNewRecap({ ...newRecap, date: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                      <input type="text" value={newRecap.title || ''} onChange={(e) => setNewRecap({ ...newRecap, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recap</label>
+                      <MarkdownEditor value={newRecap.recap || ''} onChange={(v) => setNewRecap({ ...newRecap, recap: v })} rows={10} label="Recap" />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end">
+                      <button onClick={handleAddRecap} className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Save Recap</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {filteredRecaps.length === 0 ? (
               <p className="text-gray-600 dark:text-gray-400">No recaps found.</p>
             ) : (
@@ -118,12 +225,46 @@ export default function RecapsPage() {
                   className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700 scroll-mt-24 transition-all duration-200 ${activeRecap === recap.date ? "ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/10" : ""}`}
                   id={`recap-${recap.date}`}
                 >
-                  <div className="text-sm text-gray-500 mb-1">{recap.date}</div>
-                  <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{recap.title}</h2>
-                  <div
-                    className="prose prose-neutral max-w-none dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
-                  />
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="text-sm text-gray-500">{recap.date}</div>
+                      {editingRecapId === recap.id ? (
+                        <input type="text" value={editingRecap.title as string} onChange={(e) => setEditingRecap({ ...editingRecap, title: e.target.value })} className="mt-1 px-3 py-2 border rounded w-full" />
+                      ) : (
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{recap.title}</h2>
+                      )}
+                    </div>
+                    {canEditRecap(recap) && (
+                      <div className="flex gap-2 ml-4">
+                        {editingRecapId === recap.id ? (
+                          <>
+                            <button onClick={() => { setEditingRecapId(null); setEditingRecap({}); }} className="px-3 py-1 text-sm">Cancel</button>
+                            <button onClick={handleSaveEditRecap} className="px-3 py-1 text-sm bg-emerald-600 text-white rounded">Save</button>
+                          </>
+                        ) : (
+                          <button onClick={() => handleStartEditRecap(recap)} className="px-3 py-1 text-sm bg-slate-600 text-white rounded">Edit</button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {editingRecapId === recap.id ? (
+                    <MarkdownEditor value={(editingRecap.recap as string) || ''} onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })} rows={12} label="Recap" />
+                  ) : (
+                    <div
+                      className="prose prose-neutral max-w-none dark:prose-invert"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
+                    />
+                  )}
+
+                  {/* Notes for this recap */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <UserNotesEditor
+                      notes={recap.notes || []}
+                      onChange={(notes) => handleUpdateRecapNotes(recap, notes)}
+                      currentUser={user}
+                      isAdmin={isAdmin}
+                    />
+                  </div>
                 </div>
               ))
             )}

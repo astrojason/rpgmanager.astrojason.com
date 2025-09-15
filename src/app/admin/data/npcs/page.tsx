@@ -12,6 +12,8 @@ import {
   XMarkIcon,
   CheckIcon
 } from "@heroicons/react/24/outline";
+import MarkdownEditor from "@/components/MarkdownEditor";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction } from "@/types/interfaces";
 
 export default function NPCsManagementPage() {
@@ -722,38 +724,42 @@ export default function NPCsManagementPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Description
-                    </label>
-                    <textarea
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <MarkdownEditor
                       value={formData.description || ""}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      onChange={(value) => setFormData({ ...formData, description: value })}
+                      rows={6}
+                      label="Description"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Background
-                    </label>
-                    <textarea
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background</label>
+                    <MarkdownEditor
                       value={formData.background || ""}
-                      onChange={(e) => setFormData({ ...formData, background: e.target.value })}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      onChange={(value) => setFormData({ ...formData, background: value })}
+                      rows={6}
+                      label="Background"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Personality
-                    </label>
-                    <textarea
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Personality</label>
+                    <MarkdownEditor
                       value={formData.personality || ""}
-                      onChange={(e) => setFormData({ ...formData, personality: e.target.value })}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      onChange={(value) => setFormData({ ...formData, personality: value })}
+                      rows={6}
+                      label="Personality"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <MarkdownEditor
+                      value={(formData as any).gm_notes || ""}
+                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      rows={6}
+                      label="GM Notes"
                     />
                   </div>
 
@@ -903,21 +909,21 @@ export default function NPCsManagementPage() {
                 {selectedNpc.description && (
                   <div className="mt-6">
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{selectedNpc.description}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.description || '', true) }} />
                   </div>
                 )}
                 
                 {selectedNpc.background && (
                   <div className="mt-6">
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Background</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{selectedNpc.background}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.background || '', true) }} />
                   </div>
                 )}
                 
                 {selectedNpc.personality && (
                   <div className="mt-6">
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Personality</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{selectedNpc.personality}</p>
+                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.personality || '', true) }} />
                   </div>
                 )}
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Image from "next/image";
 import { 
   PlusIcon, 
@@ -11,6 +12,7 @@ import {
   CheckIcon
 } from "@heroicons/react/24/outline";
 import { Location } from "@/types/interfaces";
+import MarkdownEditor from "@/components/MarkdownEditor";
 
 export default function LocationsManagementPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -46,6 +48,51 @@ export default function LocationsManagementPage() {
     location.teaser?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.detail?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Arrow key navigation similar to NPCs editor
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      if (!el || !(el as HTMLElement).closest) return false;
+      const node = el as HTMLElement;
+      return !!node.closest('input, textarea, select, [contenteditable="true"]');
+    };
+    const moveSelection = (delta: number) => {
+      if (filteredLocations.length === 0) return;
+      let idx = selectedLocation ? filteredLocations.findIndex(n => n.id === selectedLocation.id) : -1;
+      if (idx === -1) {
+        const nextIdx = delta > 0 ? 0 : filteredLocations.length - 1;
+        const next = filteredLocations[nextIdx];
+        if (next) {
+          setSelectedLocation(next);
+          setIsEditing(false);
+          setIsCreating(false);
+          setFormData({});
+          setTimeout(() => {
+            document.querySelector(`[data-location-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
+          }, 0);
+        }
+        return;
+      }
+      const nextIdx = idx + delta;
+      if (nextIdx < 0 || nextIdx >= filteredLocations.length) return;
+      const next = filteredLocations[nextIdx];
+      if (!next) return;
+      setSelectedLocation(next);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setTimeout(() => {
+        document.querySelector(`[data-location-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (isEditable(e.target)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [filteredLocations, selectedLocation, setSelectedLocation, setIsEditing, setIsCreating]);
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -186,6 +233,7 @@ export default function LocationsManagementPage() {
                 {filteredLocations.map((location) => (
                   <div
                     key={location.id}
+                    data-location-id={location.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedLocation?.id === location.id
                         ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
@@ -194,8 +242,8 @@ export default function LocationsManagementPage() {
                     onClick={() => handleView(location)}
                   >
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
                           {location.name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
@@ -287,12 +335,21 @@ export default function LocationsManagementPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Detailed Description *
                     </label>
-                    <textarea
+                    <MarkdownEditor
                       value={formData.detail || ""}
-                      onChange={(e) => setFormData({ ...formData, detail: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, detail: value })}
                       rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      required
+                      label="Details"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <MarkdownEditor
+                      value={(formData as any).gm_notes || ""}
+                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      rows={4}
+                      label="GM Notes"
                     />
                   </div>
 
@@ -301,13 +358,28 @@ export default function LocationsManagementPage() {
                       Map Image URL
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       value={formData.mapImg || ""}
                       onChange={(e) => setFormData({ ...formData, mapImg: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                       placeholder="https://example.com/map.jpg"
                     />
                   </div>
+
+                  {/* Interactive Map Editor */}
+                  {formData.mapImg && (
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Map Hover Area Editor</h3>
+                      <MapAreaEditor
+                        imageUrl={formData.mapImg}
+                        x={typeof formData.x === 'number' ? formData.x : 0}
+                        y={typeof formData.y === 'number' ? formData.y : 0}
+                        width={typeof formData.width === 'number' ? formData.width : 20}
+                        height={typeof formData.height === 'number' ? formData.height : 12}
+                        onChange={(next) => setFormData({ ...formData, ...next })}
+                      />
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
@@ -424,12 +496,18 @@ export default function LocationsManagementPage() {
                   
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
-                    <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedLocation.teaser}</p>
+                    <div
+                      className="mt-1 prose dark:prose-invert max-w-none prose-sm break-words"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.teaser || '', true) }}
+                    />
                   </div>
                   
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Details</h3>
-                    <div className="mt-1 text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedLocation.detail}</div>
+                    <div
+                      className="mt-1 prose dark:prose-invert max-w-none prose-sm break-words"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.detail || '', true) }}
+                    />
                   </div>
 
                   {(selectedLocation.x !== undefined || selectedLocation.y !== undefined) && (
@@ -471,6 +549,91 @@ export default function LocationsManagementPage() {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function MapAreaEditor({
+  imageUrl,
+  x,
+  y,
+  width,
+  height,
+  onChange,
+}: {
+  imageUrl: string;
+  x: number; // percent
+  y: number; // percent
+  width: number; // percent
+  height: number; // percent
+  onChange: (v: { x: number; y: number; width: number; height: number }) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [dragging, setDragging] = useState<null | { type: 'move' | 'resize'; startX: number; startY: number; startRect: { x: number; y: number; w: number; h: number } }>(null);
+
+  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+
+  const onMouseDown = (e: React.MouseEvent, type: 'move' | 'resize') => {
+    e.preventDefault();
+    setDragging({
+      type,
+      startX: e.clientX,
+      startY: e.clientY,
+      startRect: { x, y, w: width, h: height },
+    });
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragging) return;
+    const dxPx = e.clientX - dragging.startX;
+    const dyPx = e.clientY - dragging.startY;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const dxPct = (dxPx / rect.width) * 100;
+    const dyPct = (dyPx / rect.height) * 100;
+
+    if (dragging.type === 'move') {
+      const nx = clamp(dragging.startRect.x + dxPct, 0, 100 - dragging.startRect.w);
+      const ny = clamp(dragging.startRect.y + dyPct, 0, 100 - dragging.startRect.h);
+      onChange({ x: nx, y: ny, width, height });
+    } else {
+      const nw = clamp(dragging.startRect.w + dxPct, 2, 100 - dragging.startRect.x);
+      const nh = clamp(dragging.startRect.h + dyPct, 2, 100 - dragging.startRect.y);
+      onChange({ x, y, width: nw, height: nh });
+    }
+  };
+
+  const onMouseUp = () => setDragging(null);
+
+  return (
+    <div
+      className="relative w-full max-w-xl select-none"
+      ref={containerRef}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+    >
+      {/* Map image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imageUrl} alt="Map" className="w-full h-auto rounded" />
+
+      {/* Hover area rect */}
+      <div
+        className="absolute border-2 border-blue-500/80 bg-blue-500/10 cursor-move"
+        style={{ left: `${x}%`, top: `${y}%`, width: `${width}%`, height: `${height}%` }}
+        onMouseDown={(e) => onMouseDown(e, 'move')}
+      >
+        {/* Resize handle */}
+        <div
+          className="absolute right-0 bottom-0 translate-x-1/2 translate-y-1/2 w-4 h-4 bg-blue-600 rounded-sm cursor-se-resize"
+          onMouseDown={(e) => onMouseDown(e, 'resize')}
+        />
+      </div>
+
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        Drag the blue rectangle to reposition. Drag the corner to resize.
       </div>
     </div>
   );

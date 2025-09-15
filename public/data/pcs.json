@@ -20,7 +20,7 @@
     "id": "a540f661-08eb-4342-908a-8172d959a39b",
     "hometown": "Tidewater",
     "image": "/images/pcs/oogway.png",
-    "player": null,
+    "player": "ZoJhSq4qKVNtg896LNcpeNgNvsA2",
     "factions": [
       "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
       "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
@@ -38,9 +38,7 @@
     "image": "/images/pcs/shin.png",
     "player": null,
     "factions": [
-      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
-      "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
-      "b5c6d7e8-9012-4f3a-8b7c-1d2e3f4a5b6c"
+      "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b"
     ]
   },
   {
@@ -69,7 +67,7 @@
     "hometown": "Orzammar",
     "image": "/images/pcs/thodian.png",
     "gif": "/images/pcs/thodian.gif",
-    "player": null,
+    "player": "4SPgeXqbIIfcphZNjlAAkgBqM5Y2",
     "factions": [
       "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
       "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
@@ -84,7 +82,7 @@
     "id": "909a254d-b5b4-4688-824d-7ed8f9767d50",
     "hometown": "Stormharbor",
     "image": "/images/pcs/weledor.png",
-    "player": null,
+    "player": "G8bPSK8hJ7bvYBwegQMv4h80qji2",
     "factions": [
       "b2e1e6e2-7c2a-4e1a-8e2b-1c2d3e4f5a6b",
       "e2a1b3c4-5678-4d9f-8a7b-1c2d3e4f5c6d",
@@ -114,7 +112,7 @@
     "hometown": "Caerilfen",
     "image": "/images/pcs/magnolia.png",
     "gif": "/images/pcs/magnolia.gif",
-    "player": null,
+    "player": "25IlSrKaaHPKtmrPeEsjsdxQbcu2",
     "factions": []
   },
   {

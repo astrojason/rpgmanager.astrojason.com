@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
+import { useIsDM } from "@/utils/role";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Location } from "@/types/interfaces";
 
@@ -19,6 +20,7 @@ export default function DetailSidebar({
 }: DetailSidebarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
 
   useEffect(() => {
     if (isOpen) {
@@ -74,6 +76,17 @@ export default function DetailSidebar({
                 __html: parseMarkdown(area.detail),
               }}
             />
+            {isDM && (area as any).gm_notes && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
+                <div
+                  className="sidebar-content"
+                  dangerouslySetInnerHTML={{
+                    __html: parseMarkdown((area as any).gm_notes || ''),
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

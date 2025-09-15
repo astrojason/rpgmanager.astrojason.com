@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
 import { PC, Faction } from "@/types/interfaces";
+import { useIsDM } from "@/utils/role";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 
 export default function PCsPage() {
   const [selectedPC, setSelectedPC] = useState<PC | null>(null);
@@ -67,6 +69,7 @@ export default function PCsPage() {
   const [showFullImage, setShowFullImage] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [fadeGif, setFadeGif] = useState(false);
+  const isDM = useIsDM();
 
   // Switch to gif after 5 seconds if available
   useEffect(() => {
@@ -301,6 +304,7 @@ export default function PCsPage() {
                           }
                           alt={selectedPC.name || selectedPC.nickname || ""}
                           fill
+                          unoptimized
                           style={{
                             objectFit: "cover",
                             objectPosition: "center top",
@@ -516,6 +520,12 @@ export default function PCsPage() {
                       </div>
                     </div>
                   </div>
+                  {isDM && (selectedPC as any).gm_notes && (
+                    <div className="px-6">
+                      <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
+                      <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedPC as any).gm_notes || '', true) }} />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

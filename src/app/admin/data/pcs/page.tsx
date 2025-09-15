@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { 
   PlusIcon, 
@@ -12,7 +13,7 @@ import {
   CheckIcon,
   UserIcon
 } from "@heroicons/react/24/outline";
-import { PC } from "@/types/interfaces";
+import { PC, Faction } from "@/types/interfaces";
 
 interface UserData {
   uid: string;
@@ -23,6 +24,7 @@ interface UserData {
 export default function PCsManagementPage() {
   const [pcs, setPcs] = useState<PC[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
+  const [factions, setFactions] = useState<Faction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -56,6 +58,16 @@ export default function PCsManagementPage() {
         console.error('Failed to load users:', userError);
         // Continue without users data
       }
+      // Load Factions for name mapping and selector
+      try {
+        const factionsResp = await fetch('/data/factions.json');
+        if (factionsResp.ok) {
+          const factionsData = await factionsResp.json();
+          setFactions(Array.isArray(factionsData) ? factionsData : []);
+        }
+      } catch (factionError) {
+        console.error('Failed to load factions:', factionError);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
@@ -70,6 +82,59 @@ export default function PCsManagementPage() {
     pc.class?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     pc.hometown?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getFactionName = (factionId: string) => {
+    const f = factions.find((x) => x.id === factionId);
+    return f ? f.name : factionId;
+  };
+
+  // Arrow key navigation similar to NPCs editor
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      if (!el || !(el as HTMLElement).closest) return false;
+      const node = el as HTMLElement;
+      return !!node.closest('input, textarea, select, [contenteditable="true"]');
+    };
+
+    const moveSelection = (delta: number) => {
+      if (filteredPcs.length === 0) return;
+      let idx = selectedPc ? filteredPcs.findIndex(n => n.id === selectedPc.id) : -1;
+      if (idx === -1) {
+        const nextIdx = delta > 0 ? 0 : filteredPcs.length - 1;
+        const next = filteredPcs[nextIdx];
+        if (next) {
+          setSelectedPc(next);
+          setIsEditing(false);
+          setIsCreating(false);
+          setFormData({});
+          setTimeout(() => {
+            document.querySelector(`[data-pc-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
+          }, 0);
+        }
+        return;
+      }
+      const nextIdx = idx + delta;
+      if (nextIdx < 0 || nextIdx >= filteredPcs.length) return;
+      const next = filteredPcs[nextIdx];
+      if (!next) return;
+      setSelectedPc(next);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setTimeout(() => {
+        document.querySelector(`[data-pc-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (isEditable(e.target)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [filteredPcs, selectedPc, setSelectedPc, setIsEditing, setIsCreating]);
 
   const getUserForPc = (pc: PC) => {
     if (!pc.player) return null;
@@ -86,7 +151,8 @@ export default function PCsManagementPage() {
       race: "",
       hometown: "",
       status: "active",
-      class: ""
+      class: "",
+      factions: []
     });
   };
 
@@ -252,6 +318,7 @@ export default function PCsManagementPage() {
                 {filteredPcs.map((pc) => (
                   <div
                     key={pc.id}
+                    data-pc-id={pc.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedPc?.id === pc.id
                         ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
@@ -260,19 +327,19 @@ export default function PCsManagementPage() {
                     onClick={() => handleView(pc)}
                   >
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
                           {pc.name}
                         </div>
                         {pc.nickname && (
-                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                          <div className="text-sm text-gray-600 dark:text-gray-300 truncate">
                             &ldquo;{pc.nickname}&rdquo;
                           </div>
                         )}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {pc.race} {pc.class}
                         </div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500">
+                        <div className="text-xs text-gray-400 dark:text-gray-500 truncate">
                           From: {pc.hometown}
                         </div>
                         {pc.player && (
@@ -428,18 +495,29 @@ export default function PCsManagementPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Factions (comma-separated)
+                      Factions
                     </label>
-                    <input
-                      type="text"
-                      value={formData.factions?.join(", ") || ""}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        factions: e.target.value.split(",").map(f => f.trim()).filter(f => f)
+                    <div className="mt-1 max-h-40 overflow-y-auto p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {factions.map((f) => {
+                        const checked = (formData.factions || []).includes(f.id);
+                        return (
+                          <label key={f.id} className="inline-flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) => {
+                                const next = new Set(formData.factions || []);
+                                if (e.target.checked) next.add(f.id);
+                                else next.delete(f.id);
+                                setFormData({ ...formData, factions: Array.from(next) });
+                              }}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span>{f.name}</span>
+                          </label>
+                        );
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="e.g., The Stormseekers, Merchants Guild"
-                    />
+                    </div>
                   </div>
 
                   <div>
@@ -447,7 +525,7 @@ export default function PCsManagementPage() {
                       Character Image URL
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       value={formData.image || ""}
                       onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -460,11 +538,21 @@ export default function PCsManagementPage() {
                       Character GIF URL
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       value={formData.gif || ""}
                       onChange={(e) => setFormData({ ...formData, gif: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                       placeholder="https://example.com/character.gif"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <MarkdownEditor
+                      value={(formData as any).gm_notes || ""}
+                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      rows={6}
+                      label="GM Notes"
                     />
                   </div>
 
@@ -538,7 +626,7 @@ export default function PCsManagementPage() {
                         <div className="mt-2">
                           {selectedPc.factions.map((faction, index) => (
                             <span key={index} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2 mb-1">
-                              {faction}
+                              {getFactionName(faction)}
                             </span>
                           ))}
                         </div>
@@ -568,6 +656,7 @@ export default function PCsManagementPage() {
                           alt={`${selectedPc.name || 'PC'} GIF`}
                           width={128}
                           height={128}
+                          unoptimized
                           className="w-32 h-32 object-cover rounded-lg"
                         />
                       </div>

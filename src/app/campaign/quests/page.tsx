@@ -7,6 +7,9 @@ import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, UserNote } from "@/types/interfaces";
+import { useIsAdmin } from "@/utils/adminCheck";
+import { useIsDM } from "@/utils/role";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 
 export default function QuestsPage() {
@@ -18,6 +21,10 @@ export default function QuestsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteContent, setEditingNoteContent] = useState("");
+  const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
 
   // Authentication state
   useEffect(() => {
@@ -110,6 +117,62 @@ export default function QuestsPage() {
     } catch (error) {
       console.error('Error adding note:', error);
       alert('Failed to add note. Please try again.');
+    }
+  };
+
+  const canEditNote = (note: UserNote) => {
+    const uid = user?.uid;
+    return !!uid && (isAdmin || uid === note.author);
+  };
+
+  const handleStartEditNote = (note: UserNote) => {
+    if (!canEditNote(note)) return;
+    setEditingNoteId(note.id);
+    setEditingNoteContent(note.content);
+  };
+
+  const handleSaveEditNote = async (questId: string, noteId: string) => {
+    if (!user) return;
+    try {
+      const quest = questsData.find((q) => q.id === questId);
+      if (!quest) throw new Error('Quest not found');
+      const notes = normalizeQuestNotes(quest).map((n) =>
+        n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: user.uid } : n
+      );
+      const updatedQuest = { ...quest, notes };
+      const response = await fetch('/api/data/quests', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedQuest),
+      });
+      if (!response.ok) throw new Error('Failed to update note');
+      const updatedQuests = questsData.map(q => q.id === questId ? updatedQuest : q);
+      setQuestsData(updatedQuests);
+      setEditingNoteId(null);
+      setEditingNoteContent("");
+    } catch (e) {
+      console.error('Error updating note:', e);
+      alert('Failed to update note');
+    }
+  };
+
+  const handleDeleteNote = async (questId: string, noteId: string) => {
+    try {
+      const quest = questsData.find((q) => q.id === questId);
+      if (!quest) throw new Error('Quest not found');
+      const notes = normalizeQuestNotes(quest).filter((n) => n.id !== noteId);
+      const updatedQuest = { ...quest, notes };
+      const response = await fetch('/api/data/quests', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedQuest),
+      });
+      if (!response.ok) throw new Error('Failed to delete note');
+      const updatedQuests = questsData.map(q => q.id === questId ? updatedQuest : q);
+      setQuestsData(updatedQuests);
+    } catch (e) {
+      console.error('Error deleting note:', e);
+      alert('Failed to delete note');
     }
   };
 
@@ -227,22 +290,60 @@ export default function QuestsPage() {
                     </h3>
                     <div className="space-y-3">
                       {normalizeQuestNotes(quest).map((note) => (
-                        <div
-                          key={note.id}
-                          className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
-                        >
-                          <div className="prose prose-sm dark:prose-invert max-w-none mb-2">
-                            <ReactMarkdown>{note.content}</ReactMarkdown>
-                          </div>
-                          {!isLegacyNote(note) && (
-                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
-                              <span>{formatNoteTimestamp(note)}</span>
-                              <AuthorDisplay uid={note.author} />
-                            </div>
+                        <div key={note.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          {editingNoteId === note.id ? (
+                            <>
+                              <MarkdownEditor value={editingNoteContent} onChange={setEditingNoteContent} />
+                              <div className="flex justify-end gap-2 mt-2">
+                                <button
+                                  onClick={() => { setEditingNoteId(null); setEditingNoteContent(''); }}
+                                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleSaveEditNote(quest.id, note.id)}
+                                  className="px-3 py-1 text-sm bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="prose prose-sm dark:prose-invert max-w-none mb-2">
+                                <ReactMarkdown>{note.content}</ReactMarkdown>
+                              </div>
+                              {!isLegacyNote(note) && (
+                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                  <span>{formatNoteTimestamp(note)}</span>
+                                  <div className="flex items-center gap-2">
+                                    <AuthorDisplay uid={note.author} />
+                                    {canEditNote(note) && (
+                                      <>
+                                        <button onClick={() => handleStartEditNote(note)} className="text-xs text-slate-600 dark:text-slate-300 hover:underline">
+                                          Edit
+                                        </button>
+                                        <button onClick={() => handleDeleteNote(quest.id, note.id)} className="text-xs text-rose-600 dark:text-rose-300 hover:underline">
+                                          Delete
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {isDM && (quest as any).gm_notes && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
+                    <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((quest as any).gm_notes || '', true) }} />
                   </div>
                 )}
 
@@ -269,7 +370,8 @@ export default function QuestsPage() {
                         <MarkdownEditor
                           value={newNoteContent}
                           onChange={setNewNoteContent}
-                          placeholder="Add a note about this quest..."
+                          placeholder="Add Note"
+                          label="Notes"
                         />
                         <div className="flex justify-end gap-2 mt-2">
                           <button

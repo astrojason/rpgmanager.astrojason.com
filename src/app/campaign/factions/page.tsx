@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
+import { useIsDM } from "@/utils/role";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Faction, NPC, PC } from "@/types/interfaces";
 
 export default function FactionsPage() {
@@ -19,6 +21,7 @@ export default function FactionsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
+  const isDM = useIsDM();
   
   // Track this page visit
   usePageTracking();
@@ -289,33 +292,27 @@ export default function FactionsPage() {
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                          Description
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                          {selectedFaction.description}
-                        </p>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                        <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.description || '', true) }} />
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                          Goals & Objectives
-                        </h3>
-                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                          {selectedFaction.goals}
-                        </p>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Goals & Objectives</h3>
+                        <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.goals || '', true) }} />
                       </div>
 
                       {selectedFaction.background && (
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                            Background
-                          </h3>
-                          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                            {selectedFaction.background}
-                          </p>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Background</h3>
+                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.background || '', true) }} />
+                        </div>
+                      )}
+                      {isDM && (selectedFaction as any).gm_notes && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
+                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedFaction as any).gm_notes || '', true) }} />
                         </div>
                       )}
                     </div>

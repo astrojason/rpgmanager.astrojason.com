@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
+import MarkdownEditor from '@/components/MarkdownEditor';
 import UserNotesEditor from '@/components/UserNotesEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, UserNote } from '@/types/interfaces';
@@ -68,6 +69,51 @@ export default function QuestsManagementPage() {
       notesText.toLowerCase().includes(searchLower) ||
       quest.status?.toLowerCase().includes(searchLower);
   });
+
+  // Arrow key navigation similar to NPCs editor
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      if (!el || !(el as HTMLElement).closest) return false;
+      const node = el as HTMLElement;
+      return !!node.closest('input, textarea, select, [contenteditable="true"]');
+    };
+    const moveSelection = (delta: number) => {
+      if (filteredQuests.length === 0) return;
+      let idx = selectedQuest ? filteredQuests.findIndex(n => n.id === selectedQuest.id) : -1;
+      if (idx === -1) {
+        const nextIdx = delta > 0 ? 0 : filteredQuests.length - 1;
+        const next = filteredQuests[nextIdx];
+        if (next) {
+          setSelectedQuest(next);
+          setIsEditing(false);
+          setIsCreating(false);
+          setFormData({});
+          setTimeout(() => {
+            document.querySelector(`[data-quest-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
+          }, 0);
+        }
+        return;
+      }
+      const nextIdx = idx + delta;
+      if (nextIdx < 0 || nextIdx >= filteredQuests.length) return;
+      const next = filteredQuests[nextIdx];
+      if (!next) return;
+      setSelectedQuest(next);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setTimeout(() => {
+        document.querySelector(`[data-quest-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (isEditable(e.target)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [filteredQuests, selectedQuest, setSelectedQuest, setIsEditing, setIsCreating]);
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -255,6 +301,7 @@ export default function QuestsManagementPage() {
                 {filteredQuests.map((quest) => (
                   <div
                     key={quest.id}
+                    data-quest-id={quest.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedQuest?.id === quest.id
                         ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
@@ -394,6 +441,16 @@ export default function QuestsManagementPage() {
                       <option value="failed">Failed</option>
                       <option value="onhold">On Hold</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <MarkdownEditor
+                      value={(formData as any).gm_notes || ""}
+                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      rows={4}
+                      label="GM Notes"
+                    />
                   </div>
 
                   <div className="flex items-center justify-end space-x-3 pt-4">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { renderMarkdownWithLinks } from '@/utils/markdown';
 import { EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 interface MarkdownEditorProps {
@@ -8,6 +8,7 @@ interface MarkdownEditorProps {
   placeholder?: string;
   rows?: number;
   className?: string;
+  label?: string;
 }
 
 export default function MarkdownEditor({ 
@@ -15,7 +16,8 @@ export default function MarkdownEditor({
   onChange, 
   placeholder = "Enter markdown content...",
   rows = 8,
-  className = ""
+  className = "",
+  label = "Notes",
 }: MarkdownEditorProps) {
   const [isPreview, setIsPreview] = useState(false);
 
@@ -25,7 +27,7 @@ export default function MarkdownEditor({
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-t-md">
         <div className="flex items-center space-x-4">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Quest Notes
+            {label}
           </span>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             Supports Markdown formatting
@@ -62,15 +64,11 @@ export default function MarkdownEditor({
       {/* Content Area */}
       <div className="relative">
         {isPreview ? (
-          <div className={`p-3 min-h-[${rows * 1.5}rem]`}>
+          <div className="p-3" style={{ minHeight: rows * 24 }}>
             {value.trim() ? (
-              <div className="prose dark:prose-invert max-w-none prose-sm">
-                <ReactMarkdown>{value}</ReactMarkdown>
-              </div>
+              <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(value, true) }} />
             ) : (
-              <div className="text-gray-500 dark:text-gray-400 italic">
-                No content to preview
-              </div>
+              <div className="text-gray-500 dark:text-gray-400 italic">No content to preview</div>
             )}
           </div>
         ) : (

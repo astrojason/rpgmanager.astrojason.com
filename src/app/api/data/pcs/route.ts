@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+// Ensure Node.js runtime and disable caching for fresh reads/writes
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Generic interface for items with id
 interface DataItem {
     id: string;

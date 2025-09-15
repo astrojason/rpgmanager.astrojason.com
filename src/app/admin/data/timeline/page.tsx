@@ -9,6 +9,8 @@ import {
   XMarkIcon,
   CheckIcon
 } from "@heroicons/react/24/outline";
+import MarkdownEditor from "@/components/MarkdownEditor";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 
 interface TimelineEvent {
   id: string;
@@ -52,6 +54,51 @@ export default function TimelineManagementPage() {
     event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.date?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Arrow key navigation similar to NPCs editor
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      if (!el || !(el as HTMLElement).closest) return false;
+      const node = el as HTMLElement;
+      return !!node.closest('input, textarea, select, [contenteditable="true"]');
+    };
+    const moveSelection = (delta: number) => {
+      if (filteredEvents.length === 0) return;
+      let idx = selectedEvent ? filteredEvents.findIndex(n => n.id === selectedEvent.id) : -1;
+      if (idx === -1) {
+        const nextIdx = delta > 0 ? 0 : filteredEvents.length - 1;
+        const next = filteredEvents[nextIdx];
+        if (next) {
+          setSelectedEvent(next);
+          setIsEditing(false);
+          setIsCreating(false);
+          setFormData({});
+          setTimeout(() => {
+            document.querySelector(`[data-event-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
+          }, 0);
+        }
+        return;
+      }
+      const nextIdx = idx + delta;
+      if (nextIdx < 0 || nextIdx >= filteredEvents.length) return;
+      const next = filteredEvents[nextIdx];
+      if (!next) return;
+      setSelectedEvent(next);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setTimeout(() => {
+        document.querySelector(`[data-event-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (isEditable(e.target)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [filteredEvents, selectedEvent, setSelectedEvent, setIsEditing, setIsCreating]);
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -193,6 +240,7 @@ export default function TimelineManagementPage() {
                 {filteredEvents.map((event) => (
                   <div
                     key={event.id}
+                    data-event-id={event.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedEvent?.id === event.id
                         ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
@@ -201,11 +249,11 @@ export default function TimelineManagementPage() {
                     onClick={() => handleView(event)}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
                           {event.title}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {event.date}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
@@ -294,15 +342,22 @@ export default function TimelineManagementPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Description *
-                    </label>
-                    <textarea
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description *</label>
+                    <MarkdownEditor
                       value={formData.description || ""}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onChange={(value) => setFormData({ ...formData, description: value })}
                       rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      required
+                      label="Description"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <MarkdownEditor
+                      value={(formData as any).gm_notes || ""}
+                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      rows={4}
+                      label="GM Notes"
                     />
                   </div>
 
@@ -367,7 +422,7 @@ export default function TimelineManagementPage() {
                   
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
-                    <div className="mt-1 text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedEvent.description}</div>
+                    <div className="mt-1 prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedEvent.description || '', true) }} />
                   </div>
                 </div>
               </div>

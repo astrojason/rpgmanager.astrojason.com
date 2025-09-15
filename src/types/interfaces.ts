@@ -9,6 +9,7 @@ export interface Location {
   height?: number; // percentage
   teaser: string;
   detail: string;
+  gm_notes?: string;
   isEditing?: boolean; // Optional field for admin use
   locations?: Location[];
 }
@@ -56,6 +57,7 @@ export interface NPC {
   nameHidden?: boolean;
   hide_name?: boolean; // legacy/alt flag in data
   notes?: UserNote[]; // Reuse the same note structure as quests
+  gm_notes?: string;
 }
 
 export interface PC {
@@ -70,6 +72,7 @@ export interface PC {
   class: string;
   gif?: string;
   player?: string | null; // UUID of the user who plays this character
+  gm_notes?: string;
 }
 export interface Faction {
   id: string;
@@ -87,6 +90,7 @@ export interface Faction {
     description?: string;
   }[];
   image?: string;
+  gm_notes?: string;
 }
 
 export interface CalendarWeekday {
@@ -171,10 +175,14 @@ export interface Quest {
   name: string;
   notes: UserNote[] | string[]; // Support legacy string format
   status: string;
+  gm_notes?: string;
 }
 
 export interface SessionRecap {
   date: string;
   title: string;
   recap: string;
+  id?: string; // unique id for editing
+  author?: string; // uid of creator
+  notes?: UserNote[];
 }

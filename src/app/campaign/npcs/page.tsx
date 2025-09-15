@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
+import { useIsDM } from "@/utils/role";
 import Image from "next/image";
 import { NPC, Faction, UserNote } from "@/types/interfaces";
+import MarkdownEditor from "@/components/MarkdownEditor";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -25,6 +28,7 @@ export default function NPCsPage() {
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
   const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
   
   // Track this page visit
   usePageTracking();
@@ -388,14 +392,12 @@ export default function NPCsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Description
-                  </label>
-                  <textarea
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                  <MarkdownEditor
                     value={editingNPC.description || ''}
-                    onChange={(e) => setEditingNPC({...editingNPC, description: e.target.value})}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onChange={(value) => setEditingNPC({ ...editingNPC, description: value })}
+                    rows={6}
+                    label="Description"
                   />
                 </div>
 
@@ -412,28 +414,22 @@ export default function NPCsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Background
-                  </label>
-                  <textarea
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background</label>
+                  <MarkdownEditor
                     value={editingNPC.background || ''}
-                    onChange={(e) => setEditingNPC({...editingNPC, background: e.target.value})}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Character background and history..."
+                    onChange={(value) => setEditingNPC({ ...editingNPC, background: value })}
+                    rows={6}
+                    label="Background"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Personality
-                  </label>
-                  <textarea
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Personality</label>
+                  <MarkdownEditor
                     value={editingNPC.personality || ''}
-                    onChange={(e) => setEditingNPC({...editingNPC, personality: e.target.value})}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Character personality traits and quirks..."
+                    onChange={(value) => setEditingNPC({ ...editingNPC, personality: value })}
+                    rows={6}
+                    label="Personality"
                   />
                 </div>
 
@@ -443,6 +439,7 @@ export default function NPCsPage() {
                     notes={editingNPC.notes || []}
                     onChange={(updatedNotes) => setEditingNPC({...editingNPC, notes: updatedNotes})}
                     currentUser={user}
+                    isAdmin={isAdmin}
                     className="mt-4"
                   />
                 </div>                <div className="flex items-center space-x-4">
@@ -792,22 +789,20 @@ export default function NPCsPage() {
                       <div className="space-y-4">
                         {selectedNPC.background && (
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                              Background
-                            </h3>
-                            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                              {selectedNPC.background}
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Background</h3>
+                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.background || '', isAdmin) }} />
                           </div>
                         )}
                         {selectedNPC.personality && (
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                              Personality
-                            </h3>
-                            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                              {selectedNPC.personality}
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Personality</h3>
+                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.personality || '', isAdmin) }} />
+                          </div>
+                        )}
+                        {isDM && (selectedNPC as any).gm_notes && (
+                          <div>
+                            <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
+                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedNPC as any).gm_notes || '', true) }} />
                           </div>
                         )}
                         
@@ -817,6 +812,7 @@ export default function NPCsPage() {
                             notes={selectedNPC.notes || []}
                             onChange={(updatedNotes) => handleUpdateNPCNotes(selectedNPC.id, updatedNotes)}
                             currentUser={user}
+                            isAdmin={isAdmin}
                             className="mt-4"
                           />
                         </div>

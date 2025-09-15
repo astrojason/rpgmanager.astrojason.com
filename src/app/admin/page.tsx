@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   UserGroupIcon,
   UsersIcon,
@@ -92,6 +93,42 @@ const adminTools = [
 ];
 
 export default function AdminPage() {
+  const [counts, setCounts] = useState<{ npcs?: number; quests?: number; locations?: number; factions?: number }>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCounts() {
+      try {
+        const [npcsRes, questsRes, locationsRes, factionsRes] = await Promise.all([
+          fetch('/api/data/npcs', { cache: 'no-store' }),
+          fetch('/api/data/quests', { cache: 'no-store' }),
+          fetch('/api/data/locations', { cache: 'no-store' }),
+          fetch('/api/data/factions', { cache: 'no-store' }),
+        ]);
+
+        const [npcs, quests, locations, factions] = await Promise.all([
+          npcsRes.ok ? npcsRes.json() : Promise.resolve([]),
+          questsRes.ok ? questsRes.json() : Promise.resolve([]),
+          locationsRes.ok ? locationsRes.json() : Promise.resolve([]),
+          factionsRes.ok ? factionsRes.json() : Promise.resolve([]),
+        ]);
+
+        if (!cancelled) {
+          setCounts({
+            npcs: Array.isArray(npcs) ? npcs.length : 0,
+            quests: Array.isArray(quests) ? quests.length : 0,
+            locations: Array.isArray(locations) ? locations.length : 0,
+            factions: Array.isArray(factions) ? factions.length : 0,
+          });
+        }
+      } catch (_e) {
+        if (!cancelled) setCounts((c) => ({ ...c }));
+      }
+    }
+    loadCounts();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="space-y-8">
       <header>
@@ -179,7 +216,7 @@ export default function AdminPage() {
             <div className="flex items-center">
               <UserGroupIcon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">--</p>
+                <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{counts.npcs ?? '--'}</p>
                 <p className="text-sm text-slate-600 dark:text-slate-400">NPCs</p>
               </div>
             </div>
@@ -189,7 +226,7 @@ export default function AdminPage() {
             <div className="flex items-center">
               <ClipboardDocumentListIcon className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-emerald-900 dark:text-emerald-100">--</p>
+                <p className="text-2xl font-semibold text-emerald-900 dark:text-emerald-100">{counts.quests ?? '--'}</p>
                 <p className="text-sm text-emerald-600 dark:text-emerald-400">Quests</p>
               </div>
             </div>
@@ -199,7 +236,7 @@ export default function AdminPage() {
             <div className="flex items-center">
               <MapPinIcon className="w-8 h-8 text-stone-600 dark:text-stone-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-stone-900 dark:text-stone-100">--</p>
+                <p className="text-2xl font-semibold text-stone-900 dark:text-stone-100">{counts.locations ?? '--'}</p>
                 <p className="text-sm text-stone-600 dark:text-stone-400">Locations</p>
               </div>
             </div>
@@ -209,7 +246,7 @@ export default function AdminPage() {
             <div className="flex items-center">
               <ShieldCheckIcon className="w-8 h-8 text-amber-600 dark:text-amber-400" />
               <div className="ml-4">
-                <p className="text-2xl font-semibold text-amber-900 dark:text-amber-100">--</p>
+                <p className="text-2xl font-semibold text-amber-900 dark:text-amber-100">{counts.factions ?? '--'}</p>
                 <p className="text-sm text-amber-600 dark:text-amber-400">Factions</p>
               </div>
             </div>

@@ -105,7 +105,7 @@
     "race": "Orc",
     "gender": "Male",
     "location": "Tidewater",
-    "status": "Deceased",
+    "status": "dead",
     "factions": [
       "c3f2a7b1-8d4e-4b2c-9f1a-2b3c4d5e6f7a"
     ],
@@ -948,17 +948,18 @@
   {
     "id": "631c61e6-966e-435b-a7b2-2988dd2568c0",
     "name": "Aban",
-    "pronunciation": "",
-    "race": "",
-    "gender": "",
+    "pronunciation": "AH-ban",
+    "race": "Human",
+    "gender": "male",
     "location": "Sandhaven",
     "status": "Alive",
     "factions": [],
-    "description": "",
+    "description": "Elderly survivor in Sandhaven",
     "image": "",
-    "aka": [],
+    "aka": "",
     "display_name": "Aban",
-    "hide_name": false
+    "hide_name": false,
+    "gm_notes": "This is a test GM note"
   },
   {
     "id": "23e8eff9-6ec0-45c9-b9b2-088e7cb82a1e",
@@ -1008,17 +1009,17 @@
   {
     "id": "6e6bfb31-0dd6-4422-8cc2-7d24f2c86075",
     "name": "Zafir al-Nahil",
-    "pronunciation": "",
-    "race": "",
-    "gender": "",
+    "pronunciation": "Za-FEER al-na-HEEL",
+    "race": "Human",
+    "gender": "male",
     "location": "Sandhaven",
     "status": "Alive",
-    "factions": [],
+    "factions": [
+      "d4a3b8c2-9e5f-4c3d-8a2b-3c4d5e6f7a8b"
+    ],
     "description": "",
     "image": "",
-    "aka": [
-      "Zafir"
-    ],
+    "aka": "Zafir",
     "display_name": "Zafir al-Nahil",
     "hide_name": false
   },
@@ -1039,18 +1040,16 @@
   },
   {
     "id": "f78ae051-ef62-4635-a66e-064075b4080f",
-    "name": "Aurel Sunshield",
-    "pronunciation": "",
-    "race": "",
-    "gender": "",
+    "name": "Aurel",
+    "pronunciation": "Aw-REHL",
+    "race": "Human",
+    "gender": "female",
     "location": "Sandhaven",
     "status": "Alive",
     "factions": [],
-    "description": "",
+    "description": "14 year old leader of the dust rats",
     "image": "",
-    "aka": [
-      "Aurel"
-    ],
+    "aka": "Aurel",
     "display_name": "Aurel Sunshield",
     "hide_name": false
   },
@@ -1101,38 +1100,17 @@
   },
   {
     "id": "fdd76231-2ae8-432d-bcce-f0f34c4c4439",
-    "name": "Xylos the Corrupter",
-    "pronunciation": "",
-    "race": "",
-    "gender": "",
-    "location": "",
+    "name": "Xylos",
+    "pronunciation": "ZAI-los",
+    "race": "Elf",
+    "gender": "male",
+    "location": "The Waystation Between Worlds",
     "status": "Alive",
     "factions": [],
     "description": "",
     "image": "",
-    "aka": [
-      "Xylos",
-      "The Corrupter",
-      "The Corruptor"
-    ],
-    "display_name": "Xylos the Corrupter",
-    "hide_name": false
-  },
-  {
-    "id": "21d42421-2383-4e45-9596-ee3d662424d1",
-    "name": "Silene Varess",
-    "pronunciation": "",
-    "race": "",
-    "gender": "",
-    "location": "",
-    "status": "Alive",
-    "factions": [],
-    "description": "",
-    "image": "",
-    "aka": [
-      "Silene"
-    ],
-    "display_name": "Silene Varess",
+    "aka": "The Caretaker, Oogway, Zorron",
+    "display_name": "Xylos",
     "hide_name": false
   },
   {

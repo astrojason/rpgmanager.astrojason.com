@@ -17,26 +17,37 @@ interface UserNotesEditorProps {
   onChange: (notes: UserNote[]) => void;
   className?: string;
   currentUser?: User | null;
+  isAdmin?: boolean;
 }
 
 export default function UserNotesEditor({ 
   notes, 
   onChange, 
   className = "",
-  currentUser
+  currentUser,
+  isAdmin = false,
 }: UserNotesEditorProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
 
+  const canEdit = (note: UserNote) => {
+    const uid = currentUser?.uid;
+    return !!uid && (isAdmin || uid === note.author);
+  };
+
   const handleStartEdit = (index: number) => {
+    const note = notes[index];
+    if (!currentUser || !canEdit(note)) return;
     setEditingIndex(index);
-    setEditingContent(notes[index].content);
+    setEditingContent(note.content);
   };
 
   const handleSaveEdit = () => {
     if (editingIndex !== null && currentUser) {
+      const note = notes[editingIndex];
+      if (!canEdit(note)) return;
       const updatedNotes = [...notes];
       updatedNotes[editingIndex] = {
         ...updatedNotes[editingIndex],
@@ -56,6 +67,8 @@ export default function UserNotesEditor({
   };
 
   const handleDeleteNote = (index: number) => {
+    const note = notes[index];
+    if (!currentUser || !canEdit(note)) return;
     if (confirm("Are you sure you want to delete this note?")) {
       const updatedNotes = notes.filter((_, i) => i !== index);
       onChange(updatedNotes);
@@ -89,7 +102,7 @@ export default function UserNotesEditor({
         </label>
         <button
           type="button"
-          onClick={() => setIsAddingNote(true)}
+          onClick={() => currentUser && setIsAddingNote(true)}
           className="flex items-center px-3 py-1.5 text-sm bg-slate-600 text-white rounded hover:bg-slate-700 transition-colors"
         >
           <PlusIcon className="w-4 h-4 mr-1" />
@@ -126,7 +139,7 @@ export default function UserNotesEditor({
                         <XMarkIcon className="w-4 h-4" />
                       </button>
                     </>
-                  ) : (
+                  ) : canEdit(note) ? (
                     <>
                       <button
                         type="button"
@@ -145,7 +158,7 @@ export default function UserNotesEditor({
                         <TrashIcon className="w-4 h-4" />
                       </button>
                     </>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -155,8 +168,9 @@ export default function UserNotesEditor({
                 <MarkdownEditor
                   value={editingContent}
                   onChange={setEditingContent}
-                  placeholder="Edit your note using Markdown..."
+                  placeholder="Edit Note"
                   rows={6}
+                  label="Notes"
                 />
               ) : (
                 <div className="prose dark:prose-invert max-w-none prose-sm mb-2">
@@ -207,8 +221,9 @@ export default function UserNotesEditor({
             <MarkdownEditor
               value={newNote}
               onChange={setNewNote}
-              placeholder="Enter your new note using Markdown..."
+              placeholder="Add Note"
               rows={6}
+              label="Notes"
             />
           </div>
         </div>
