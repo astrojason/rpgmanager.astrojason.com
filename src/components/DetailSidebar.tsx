@@ -76,13 +76,13 @@ export default function DetailSidebar({
                 __html: parseMarkdown(area.detail),
               }}
             />
-            {isDM && (area as any).gm_notes && (
+            {isDM && area.gm_notes && (
               <div className="mt-6">
                 <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
                 <div
                   className="sidebar-content"
                   dangerouslySetInnerHTML={{
-                    __html: parseMarkdown((area as any).gm_notes || ''),
+                    __html: parseMarkdown(area.gm_notes || ''),
                   }}
                 />
               </div>

@@ -17,7 +17,8 @@ export async function GET() {
         const used = new Set<string>();
         for (const r of data) if (r.id) used.add(r.id);
         const genUUID = () => {
-            const g = (globalThis as any).crypto?.randomUUID?.bind((globalThis as any).crypto);
+            const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
+            const g = gt.crypto?.randomUUID?.bind(gt.crypto);
             if (g) return g();
             const rnd = (n = 16) => Array.from({ length: n }, () => (Math.random() * 256) | 0);
             const bytes = rnd(16);
@@ -59,7 +60,8 @@ export async function POST(request: NextRequest) {
         const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
         const recaps: SessionRecap[] = JSON.parse(fileContents);
         if (!newRecap.id) {
-            const g = (globalThis as any).crypto?.randomUUID?.bind((globalThis as any).crypto);
+            const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
+            const g = gt.crypto?.randomUUID?.bind(gt.crypto);
             newRecap.id = g ? g() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         }
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];

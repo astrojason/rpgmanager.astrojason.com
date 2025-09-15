@@ -520,10 +520,10 @@ export default function PCsPage() {
                       </div>
                     </div>
                   </div>
-                  {isDM && (selectedPC as any).gm_notes && (
+                  {isDM && selectedPC.gm_notes && (
                     <div className="px-6">
                       <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                      <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedPC as any).gm_notes || '', true) }} />
+                      <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedPC.gm_notes || '', true) }} />
                     </div>
                   )}
                 </div>

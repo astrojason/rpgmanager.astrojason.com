@@ -60,7 +60,7 @@ export default function FactionsManagementPage() {
     };
     const moveSelection = (delta: number) => {
       if (filteredFactions.length === 0) return;
-      let idx = selectedFaction ? filteredFactions.findIndex(n => n.id === selectedFaction.id) : -1;
+      const idx = selectedFaction ? filteredFactions.findIndex(n => n.id === selectedFaction.id) : -1;
       if (idx === -1) {
         const nextIdx = delta > 0 ? 0 : filteredFactions.length - 1;
         const next = filteredFactions[nextIdx];
@@ -405,8 +405,8 @@ export default function FactionsManagementPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
                     <MarkdownEditor
-                      value={(formData as any).gm_notes || ""}
-                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      value={formData.gm_notes || ""}
+                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
                     />

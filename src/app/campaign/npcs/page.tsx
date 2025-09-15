@@ -107,10 +107,10 @@ export default function NPCsPage() {
   }, [searchParams, visibleNPCs, selectedNPC]);
 
   const [showFullImage, setShowFullImage] = useState(false);
-  const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || (npc as any).hide_name);
+  const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || npc.hide_name);
   const displayName = (npc: NPC) =>
     isNameHidden(npc)
-      ? ((npc as any).display_name as string) || npc.aka || ''
+      ? npc.display_name || npc.aka || ''
       : npc.name || npc.aka || '';
 
   // Filter NPCs based on search criteria
@@ -122,7 +122,7 @@ export default function NPCsPage() {
     const matchesSearch =
       term === '' ||
       (allowRealName && Boolean(npc.name) && npc.name!.toLowerCase().includes(term)) ||
-      (isNameHidden(npc) && Boolean((npc as any).display_name) && ((npc as any).display_name as string).toLowerCase().includes(term)) ||
+      (isNameHidden(npc) && Boolean(npc.display_name) && (npc.display_name as string).toLowerCase().includes(term)) ||
       (Boolean(npc.aka) && (npc.aka as string).toLowerCase().includes(term)) ||
       (Boolean(npc.race) && npc.race!.toLowerCase().includes(term)) ||
       (Boolean(npc.location) && npc.location!.toLowerCase().includes(term)) ||
@@ -385,7 +385,7 @@ export default function NPCsPage() {
                   </label>
                   <input
                     type="text"
-                    value={(editingNPC as any).display_name || ''}
+                    value={editingNPC.display_name || ''}
                     onChange={(e) => setEditingNPC({ ...editingNPC, display_name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
@@ -799,10 +799,10 @@ export default function NPCsPage() {
                             <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.personality || '', isAdmin) }} />
                           </div>
                         )}
-                        {isDM && (selectedNPC as any).gm_notes && (
+                        {isDM && selectedNPC.gm_notes && (
                           <div>
                             <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedNPC as any).gm_notes || '', true) }} />
+                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.gm_notes || '', true) }} />
                           </div>
                         )}
                         

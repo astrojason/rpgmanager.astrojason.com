@@ -309,10 +309,10 @@ export default function FactionsPage() {
                           <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.background || '', true) }} />
                         </div>
                       )}
-                      {isDM && (selectedFaction as any).gm_notes && (
+                      {isDM && selectedFaction.gm_notes && (
                         <div>
                           <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((selectedFaction as any).gm_notes || '', true) }} />
+                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.gm_notes || '', true) }} />
                         </div>
                       )}
                     </div>

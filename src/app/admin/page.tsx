@@ -121,7 +121,7 @@ export default function AdminPage() {
             factions: Array.isArray(factions) ? factions.length : 0,
           });
         }
-      } catch (_e) {
+      } catch {
         if (!cancelled) setCounts((c) => ({ ...c }));
       }
     }

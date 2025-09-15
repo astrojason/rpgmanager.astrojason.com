@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -98,7 +98,7 @@ export default function PCsManagementPage() {
 
     const moveSelection = (delta: number) => {
       if (filteredPcs.length === 0) return;
-      let idx = selectedPc ? filteredPcs.findIndex(n => n.id === selectedPc.id) : -1;
+      const idx = selectedPc ? filteredPcs.findIndex(n => n.id === selectedPc.id) : -1;
       if (idx === -1) {
         const nextIdx = delta > 0 ? 0 : filteredPcs.length - 1;
         const next = filteredPcs[nextIdx];
@@ -549,8 +549,8 @@ export default function PCsManagementPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
                     <MarkdownEditor
-                      value={(formData as any).gm_notes || ""}
-                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      value={formData.gm_notes || ""}
+                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={6}
                       label="GM Notes"
                     />

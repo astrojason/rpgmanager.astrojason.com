@@ -114,7 +114,7 @@ export default function NPCsManagementPage() {
     const moveSelection = (delta: number) => {
       if (sortedNpcs.length === 0) return;
       // Determine current index within the sorted list
-      let idx = selectedNpc ? sortedNpcs.findIndex(n => n.id === selectedNpc.id) : -1;
+      const idx = selectedNpc ? sortedNpcs.findIndex(n => n.id === selectedNpc.id) : -1;
       if (idx === -1) {
         // If nothing selected, pick first/last depending on direction
         const nextIdx = delta > 0 ? 0 : sortedNpcs.length - 1;
@@ -351,8 +351,8 @@ export default function NPCsManagementPage() {
     const init: Record<string, 'left' | 'right'> = {};
     const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','personality','image'];
     for (const k of fields) {
-      const left = (selectedNpc as any)[k];
-      const right = (mergeCandidate as any)[k];
+      const left = selectedNpc[k];
+      const right = mergeCandidate[k];
       init[k as string] = left ? 'left' : (right ? 'right' : 'left');
     }
     setMergeChoice(init);
@@ -362,11 +362,11 @@ export default function NPCsManagementPage() {
 
   const previewMerged: NPC | null = useMemo(() => {
     if (!selectedNpc || !mergeCandidate) return null;
-    const merged: any = { ...selectedNpc };
+    const merged: NPC = { ...(selectedNpc as NPC) } as NPC;
     const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','personality','image'];
     for (const k of fields) {
       const choice = mergeChoice[k as string] || 'left';
-      merged[k] = choice === 'left' ? (selectedNpc as any)[k] : (mergeCandidate as any)[k];
+      (merged as Record<keyof NPC, unknown>)[k] = choice === 'left' ? selectedNpc[k] : mergeCandidate[k];
     }
     // arrays
     const leftF = new Set([...(selectedNpc.factions || [])]);
@@ -616,7 +616,7 @@ export default function NPCsManagementPage() {
                     </label>
                     <input
                       type="text"
-                      value={(formData as any).display_name || ""}
+                      value={formData.display_name || ""}
                       onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                       placeholder="Public-facing name"
@@ -756,8 +756,8 @@ export default function NPCsManagementPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
                     <MarkdownEditor
-                      value={(formData as any).gm_notes || ""}
-                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      value={formData.gm_notes || ""}
+                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={6}
                       label="GM Notes"
                     />
@@ -953,7 +953,7 @@ export default function NPCsManagementPage() {
               <button onClick={() => setIsMerging(false)} className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700">Close</button>
             </div>
             <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Merge "{selectedNpc.name}" with:</label>
+              <label className="block text-sm font-medium mb-1">Merge &quot;{selectedNpc.name}&quot; with:</label>
               <select
                 value={mergeWithId}
                 onChange={(e) => setMergeWithId(e.target.value)}

@@ -18,6 +18,7 @@ interface TimelineEvent {
   date: string;
   description: string;
   category?: string;
+  gm_notes?: string;
 }
 
 export default function TimelineManagementPage() {
@@ -64,7 +65,7 @@ export default function TimelineManagementPage() {
     };
     const moveSelection = (delta: number) => {
       if (filteredEvents.length === 0) return;
-      let idx = selectedEvent ? filteredEvents.findIndex(n => n.id === selectedEvent.id) : -1;
+      const idx = selectedEvent ? filteredEvents.findIndex(n => n.id === selectedEvent.id) : -1;
       if (idx === -1) {
         const nextIdx = delta > 0 ? 0 : filteredEvents.length - 1;
         const next = filteredEvents[nextIdx];
@@ -354,8 +355,8 @@ export default function TimelineManagementPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
                     <MarkdownEditor
-                      value={(formData as any).gm_notes || ""}
-                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      value={formData.gm_notes || ""}
+                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
                     />

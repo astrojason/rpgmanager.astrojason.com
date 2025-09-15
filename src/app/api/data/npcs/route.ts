@@ -13,8 +13,8 @@ function isNumericId(id: unknown): boolean {
 
 function genUUID(): string {
     // Use crypto.randomUUID if available
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const g = (globalThis as any).crypto?.randomUUID?.bind((globalThis as any).crypto);
+    const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
+    const g = gt.crypto?.randomUUID?.bind(gt.crypto);
     if (g) return g();
     // Fallback: simple v4-like generator
     const rnd = (n = 16) => Array.from({ length: n }, () => (Math.random() * 256) | 0);
@@ -32,18 +32,18 @@ function genUUID(): string {
     );
 }
 
-function normalizeAka(npc: any): any {
-    const out = { ...npc };
+function normalizeAka<T extends { aka?: unknown }>(npc: T): T {
+    const out = { ...npc } as T & { aka?: unknown };
     if (Array.isArray(out.aka)) {
-        out.aka = out.aka.join(', ');
+        (out as unknown as { aka?: string }).aka = (out.aka as unknown[]).join(', ');
     }
-    return out;
+    return out as T;
 }
 
 export async function GET() {
     try {
         const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        let data = JSON.parse(fileContents);
+        const data = JSON.parse(fileContents);
 
         // Auto-migrate numeric IDs to UUIDs
         let mutated = false;
@@ -67,7 +67,7 @@ export async function GET() {
         }
 
         // Normalize aka to string for client compatibility
-        const normalized = Array.isArray(data) ? data.map((n: any) => normalizeAka(n)) : data;
+        const normalized = Array.isArray(data) ? data.map((n: unknown) => normalizeAka(n as { aka?: unknown })) : data;
         return NextResponse.json(normalized);
     } catch (error) {
         console.error('Error reading NPCs file:', error);

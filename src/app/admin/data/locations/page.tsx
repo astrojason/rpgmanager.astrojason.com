@@ -58,7 +58,7 @@ export default function LocationsManagementPage() {
     };
     const moveSelection = (delta: number) => {
       if (filteredLocations.length === 0) return;
-      let idx = selectedLocation ? filteredLocations.findIndex(n => n.id === selectedLocation.id) : -1;
+      const idx = selectedLocation ? filteredLocations.findIndex(n => n.id === selectedLocation.id) : -1;
       if (idx === -1) {
         const nextIdx = delta > 0 ? 0 : filteredLocations.length - 1;
         const next = filteredLocations[nextIdx];
@@ -346,8 +346,8 @@ export default function LocationsManagementPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
                     <MarkdownEditor
-                      value={(formData as any).gm_notes || ""}
-                      onChange={(value) => setFormData({ ...formData, gm_notes: value as any })}
+                      value={formData.gm_notes || ""}
+                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
                     />
