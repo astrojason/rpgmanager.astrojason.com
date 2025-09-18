@@ -32,7 +32,7 @@ export default function LocationsManagementPage() {
   const loadLocations = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/locations.json');
+      const response = await fetch('/api/data/locations');
       if (!response.ok) throw new Error('Failed to load Locations');
       const data = await response.json();
       setLocations(Array.isArray(data) ? data : []);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -22,140 +22,114 @@ import {
 } from "@heroicons/react/24/outline";
 import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
 import SignOutButton from "@/components/SignOutButton";
-import { auth } from "@/firebase/client";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { useIsAdmin } from '@/utils/adminCheck';
 
-const navigationItems: NavigationItem[] = [
-  {
-    id: "campaign-home",
-    name: "Campaign Home",
-    icon: HomeIcon,
-    href: "/campaign",
-    description: "Main campaign dashboard",
-  },
-  {
-    id: "next-session",
-    name: "Next Session",
-    icon: CalendarDaysIcon,
-    href: "/campaign/next-session",
-    description: "Upcoming session details",
-  },
-  {
-    id: "locations",
-    name: "Locations",
-    icon: MapPinIcon,
-    href: "/campaign/locations",
-    description: "Towns, cities, landmarks",
-  },
-  {
-    id: "calendar",
-    name: "Calendar",
-    icon: AcademicCapIcon,
-    href: "/campaign/calendar",
-    description: "World calendar and events",
-  },
-  {
-    id: "timeline",
-    name: "Timeline",
-    icon: ChevronRightIcon,
-    href: "/campaign/timeline",
-    description: "Campaign timeline of major events",
-  },
-  {
-    id: "npcs",
-    name: "NPCs",
-    icon: UserGroupIcon,
-    href: "/campaign/npcs",
-    description: "Characters, merchants, quest givers",
-  },
-  {
-    id: "pcs",
-    name: "PCs",
-    icon: UsersIcon,
-    href: "/campaign/pcs",
-    description: "Player characters",
-  },
-  {
-    id: "factions",
-    name: "Factions",
-    icon: ShieldCheckIcon,
-    href: "/campaign/factions",
-    description: "Organizations, guilds, political groups",
-  },
-  {
-    id: "quests",
-    name: "Quests",
-    icon: ClipboardDocumentListIcon,
-    href: "/campaign/quests",
-    description: "Active, completed, available quests",
-  },
-  {
-    id: "items",
-    name: "Items",
-    icon: CubeIcon,
-    href: "/campaign/items",
-    description: "Weapons, armor, artifacts, consumables",
-  },
-  {
-    id: "lore",
-    name: "Lore",
-    icon: BookOpenIcon,
-    href: "/campaign/lore",
-    description: "History, stories, world building",
-  },
-  {
-    id: "deities",
-    name: "Deities",
-    icon: SparklesIcon,
-    href: "/campaign/deities",
-    description: "Gods, pantheons, divine powers",
-  },
-  {
-    id: "recaps",
-    name: "Recaps",
-    icon: DocumentTextIcon,
-    href: "/campaign/recaps",
-    description: "Session summaries, campaign notes",
-  },
-  {
-    id: "pronunciations",
-    name: "Pronunciations",
-    icon: AcademicCapIcon,
-    href: "/campaign/pronunciations",
-    description: "Name pronunciation guide",
-  },
-];
-
-export default function SideNavigation({
-  className = "",
-}: SideNavigationProps) {
+export default function SideNavigation(props: SideNavigationProps) {
+  const className = props.className || "";
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
+  const isAdmin = useIsAdmin();
 
-  useEffect(() => {
-    if (!auth) return;
-    
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        try {
-          // Get user's ID token to check custom claims
-          const tokenResult = await user.getIdTokenResult();
-          const userRole = tokenResult.claims.role as string || null;
-          setIsAdmin(userRole === 'admin');
-        } catch (error) {
-          console.error('Error checking user role:', error);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const navigationItems: NavigationItem[] = [
+    {
+      id: "campaign-home",
+      name: "Campaign Home",
+      icon: HomeIcon,
+      href: "/campaign",
+      description: "Main campaign dashboard",
+    },
+    {
+      id: "next-session",
+      name: "Next Session",
+      icon: CalendarDaysIcon,
+      href: "/campaign/next-session",
+      description: "Upcoming session details",
+    },
+    {
+      id: "locations",
+      name: "Locations",
+      icon: MapPinIcon,
+      href: "/campaign/locations",
+      description: "Towns, cities, landmarks",
+    },
+    {
+      id: "calendar",
+      name: "Calendar",
+      icon: AcademicCapIcon,
+      href: "/campaign/calendar",
+      description: "World calendar and events",
+    },
+    {
+      id: "timeline",
+      name: "Timeline",
+      icon: ChevronRightIcon,
+      href: "/campaign/timeline",
+      description: "Campaign timeline of major events",
+    },
+    {
+      id: "npcs",
+      name: "NPCs",
+      icon: UserGroupIcon,
+      href: "/campaign/npcs",
+      description: "Characters, merchants, quest givers",
+    },
+    {
+      id: "pcs",
+      name: "PCs",
+      icon: UsersIcon,
+      href: "/campaign/pcs",
+      description: "Player characters",
+    },
+    {
+      id: "factions",
+      name: "Factions",
+      icon: ShieldCheckIcon,
+      href: "/campaign/factions",
+      description: "Organizations, guilds, political groups",
+    },
+    {
+      id: "quests",
+      name: "Quests",
+      icon: ClipboardDocumentListIcon,
+      href: "/campaign/quests",
+      description: "Active, completed, available quests",
+    },
+    {
+      id: "items",
+      name: "Items",
+      icon: CubeIcon,
+      href: "/campaign/items",
+      description: "Weapons, armor, artifacts, consumables",
+    },
+    {
+      id: "lore",
+      name: "Lore",
+      icon: BookOpenIcon,
+      href: "/campaign/lore",
+      description: "History, stories, world building",
+    },
+    {
+      id: "deities",
+      name: "Deities",
+      icon: SparklesIcon,
+      href: "/campaign/deities",
+      description: "Gods, pantheons, divine powers",
+    },
+    {
+      id: "recaps",
+      name: "Recaps",
+      icon: DocumentTextIcon,
+      href: "/campaign/recaps",
+      description: "Session summaries, campaign notes",
+    },
+    {
+      id: "pronunciations",
+      name: "Pronunciations",
+      icon: AcademicCapIcon,
+      href: "/campaign/pronunciations",
+      description: "Name pronunciation guide",
+    },
+  ];
 
   const toggleCollapsed = () => {
     setIsCollapsed(!isCollapsed);
@@ -191,39 +165,25 @@ export default function SideNavigation({
           {navigationItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = pathname === item.href;
-            const isNPCs = item.id === "npcs";
-            const isLocations = item.id === "locations";
-            const isFactions = item.id === "factions";
-            const isPronunciations = item.id === "pronunciations";
-            const isQuests = item.id === "quests";
-            const isPCs = item.id === "pcs";
-            const isCampaignHome = item.id === "campaign-home";
-            const isNextSession = item.id === "next-session";
-            // const isTimeline = item.id === "timeline";
-            const isCalendar = item.id === "calendar";
-            const isRecaps = item.id === "recaps";
-            // Disabled pages - coming soon or not yet implemented
             const isDisabled = [
               "items",
               "lore",
               "deities",
               "timeline"
             ].includes(item.id);
-
-            if (
-              isCampaignHome ||
-              isNextSession ||
-              isNPCs ||
-              isLocations ||
-              isFactions ||
-              isPronunciations ||
-              isQuests ||
-              isPCs ||
-              // isTimeline ||
-              isCalendar ||
-              isRecaps
-            ) {
-              // Available pages
+            const isAvailable = [
+              "campaign-home",
+              "next-session",
+              "npcs",
+              "locations",
+              "factions",
+              "pronunciations",
+              "quests",
+              "pcs",
+              "calendar",
+              "recaps"
+            ].includes(item.id);
+            if (isAvailable) {
               return (
                 <li key={item.id}>
                   <Link
@@ -247,7 +207,6 @@ export default function SideNavigation({
                 </li>
               );
             } else if (isDisabled) {
-              // Disabled pages - not yet implemented
               return (
                 <li key={item.id}>
                   <button
@@ -268,7 +227,6 @@ export default function SideNavigation({
                 </li>
               );
             } else {
-              // Other pages are disabled/not yet implemented
               return (
                 <li key={item.id}>
                   <button
@@ -292,8 +250,8 @@ export default function SideNavigation({
           })}
         </ul>
 
-        {/* Admin Section - Only show if user is authenticated and has admin role */}
-        {user && isAdmin && (
+        {/* Admin Section - Only show if impersonated or real user is admin */}
+        {isAdmin && (
           <>
             <hr className="my-4 border-gray-700" />
             <ul className="space-y-2">

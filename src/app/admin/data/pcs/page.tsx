@@ -43,7 +43,7 @@ export default function PCsManagementPage() {
     setLoading(true);
     try {
       // Load PCs
-      const pcsResponse = await fetch('/data/pcs.json');
+      const pcsResponse = await fetch('/api/data/pcs');
       if (!pcsResponse.ok) throw new Error('Failed to load PCs');
       const pcsData = await pcsResponse.json();
       setPcs(Array.isArray(pcsData) ? pcsData : []);
@@ -60,7 +60,7 @@ export default function PCsManagementPage() {
       }
       // Load Factions for name mapping and selector
       try {
-        const factionsResp = await fetch('/data/factions.json');
+        const factionsResp = await fetch('/api/data/factions');
         if (factionsResp.ok) {
           const factionsData = await factionsResp.json();
           setFactions(Array.isArray(factionsData) ? factionsData : []);

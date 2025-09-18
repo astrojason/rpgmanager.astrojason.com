@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { getDb } from '@/lib/turso';
+import { ensureSchema } from '@/lib/schema';
 
 // Generic interface for items with id
-interface DataItem {
-    id: string;
-    [key: string]: unknown;
-}
-
-const DATA_FILE_PATH = path.join(process.cwd(), 'public', 'data', 'quests.json');
+const TABLE = 'quests';
 
 export async function GET() {
     try {
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const data = JSON.parse(fileContents);
+        await ensureSchema();
+        const db = getDb();
+        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, name TEXT, notes TEXT, status TEXT, gm_notes TEXT)`);
+        const res = await db.execute(`SELECT * FROM ${TABLE}`);
+        const data = res.rows.map((r: Record<string, unknown>) => ({
+            id: String(r.id),
+            name: r.name !== undefined ? String(r.name) : '',
+            notes: r.notes ? JSON.parse(String(r.notes)) : [],
+            status: r.status !== undefined ? String(r.status) : 'active',
+            gm_notes: r.gm_notes !== undefined ? String(r.gm_notes) : undefined
+        }));
         return NextResponse.json(data);
     } catch (error) {
         console.error('Error reading Quests file:', error);
@@ -23,12 +27,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
     try {
-        const newQuest = await request.json();
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const quests = JSON.parse(fileContents);
-        quests.push(newQuest);
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(quests, null, 2));
-        return NextResponse.json({ success: true, data: newQuest });
+        await ensureSchema();
+        const db = getDb();
+        const q = await request.json();
+        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes) VALUES (?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null] });
+        const newId = Number(res.lastInsertRowid ?? 0);
+        return NextResponse.json({ success: true, data: { ...q, id: String(newId) } });
     } catch (error) {
         console.error('Error creating Quest:', error);
         return NextResponse.json({ error: 'Failed to create Quest' }, { status: 500 });
@@ -37,16 +41,12 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        const updatedQuest = await request.json();
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const quests = JSON.parse(fileContents);
-        const index = quests.findIndex((quest: DataItem) => quest.id === updatedQuest.id);
-        if (index === -1) {
-            return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
-        }
-        quests[index] = updatedQuest;
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(quests, null, 2));
-        return NextResponse.json({ success: true, data: updatedQuest });
+        await ensureSchema();
+        const db = getDb();
+        const q = await request.json();
+        const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, Number(q.id)] });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+        return NextResponse.json({ success: true, data: q });
     } catch (error) {
         console.error('Error updating Quest:', error);
         return NextResponse.json({ error: 'Failed to update Quest' }, { status: 500 });
@@ -55,18 +55,13 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+        await ensureSchema();
+        const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-        if (!id) {
-            return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
-        }
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const quests = JSON.parse(fileContents);
-        const filteredQuests = quests.filter((quest: DataItem) => quest.id !== id);
-        if (filteredQuests.length === quests.length) {
-            return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
-        }
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(filteredQuests, null, 2));
+        if (!id) return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
+        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting Quest:', error);

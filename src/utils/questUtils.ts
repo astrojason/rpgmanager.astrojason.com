@@ -10,7 +10,7 @@ async function loadPcsCache(): Promise<PC[]> {
     }
 
     try {
-        const response = await fetch('/data/pcs.json');
+        const response = await fetch('/api/data/pcs');
         if (response.ok) {
             pcsCache = await response.json();
             return pcsCache || [];

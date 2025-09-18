@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { getDb } from '@/lib/turso';
+import { ensureSchema } from '@/lib/schema';
 import { SessionRecap } from '@/types/interfaces';
 
 // Interface for session recap data
 // Note: extended SessionRecap interface is imported
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'public', 'data', 'session_recaps.json');
+const TABLE = 'session_recaps';
 
 export async function GET() {
     try {
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const data: SessionRecap[] = JSON.parse(fileContents);
+        await ensureSchema();
+        const db = getDb();
+        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, date TEXT, title TEXT, recap TEXT, author TEXT, notes TEXT)`);
+        const res = await db.execute(`SELECT * FROM ${TABLE}`);
+        const data: SessionRecap[] = res.rows.map((r: Record<string, unknown>) => ({
+            id: String(r.id),
+            date: r.date !== undefined ? String(r.date) : '',
+            title: r.title !== undefined ? String(r.title) : '',
+            recap: r.recap !== undefined ? String(r.recap) : '',
+            author: r.author !== undefined ? String(r.author) : undefined,
+            notes: r.notes ? JSON.parse(String(r.notes)) : []
+        }));
         // Auto-migrate: add ids and defaults
         let mutated = false;
         const used = new Set<string>();
@@ -45,7 +55,26 @@ export async function GET() {
             }
         }
         if (mutated) {
-            await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2));
+            const tx = await db.transaction('write');
+            try {
+                await tx.execute(`DELETE FROM ${TABLE}`);
+                for (const r of data) {
+                    const id = r.id ?? '';
+                    const date = r.date ?? '';
+                    const title = r.title ?? '';
+                    const recap = r.recap ?? '';
+                    const author = typeof r.author === 'string' ? r.author : null;
+                    const notes = JSON.stringify(r.notes ?? []);
+                    await tx.execute({
+                        sql: `INSERT INTO ${TABLE} (id,date,title,recap,author,notes) VALUES (?,?,?,?,?,?)`,
+                        args: [id, date, title, recap, author, notes]
+                    });
+                }
+                await tx.commit();
+            } catch (e) {
+                await tx.rollback();
+                throw e;
+            }
         }
         return NextResponse.json(data);
     } catch (error) {
@@ -56,18 +85,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
     try {
+        await ensureSchema();
+        const db = getDb();
         const newRecap: SessionRecap = await request.json();
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const recaps: SessionRecap[] = JSON.parse(fileContents);
-        if (!newRecap.id) {
-            const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
-            const g = gt.crypto?.randomUUID?.bind(gt.crypto);
-            newRecap.id = g ? g() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        }
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
-        recaps.push(newRecap);
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(recaps, null, 2));
-        return NextResponse.json({ success: true, data: newRecap });
+        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (date,title,recap,author,notes) VALUES (?,?,?,?,?)`, args: [newRecap.date, newRecap.title, newRecap.recap, newRecap.author ?? null, JSON.stringify(newRecap.notes ?? [])] });
+        const newId = Number(res.lastInsertRowid ?? 0);
+        return NextResponse.json({ success: true, data: { ...newRecap, id: String(newId) } });
     } catch (error) {
         console.error('Error creating Session Recap:', error);
         return NextResponse.json({ error: 'Failed to create Session Recap' }, { status: 500 });
@@ -76,21 +100,30 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
+        await ensureSchema();
+        const db = getDb();
         const updatedRecap: SessionRecap = await request.json();
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const recaps: SessionRecap[] = JSON.parse(fileContents);
+        // Load all recaps to find the one to update
+        const res = await db.execute(`SELECT * FROM ${TABLE}`);
+        const recaps: SessionRecap[] = res.rows.map((r: Record<string, unknown>) => ({
+            id: String(r.id),
+            date: r.date !== undefined ? String(r.date) : '',
+            title: r.title !== undefined ? String(r.title) : '',
+            recap: r.recap !== undefined ? String(r.recap) : '',
+            author: r.author !== undefined ? String(r.author) : undefined,
+            notes: r.notes ? JSON.parse(String(r.notes)) : []
+        }));
         let index = -1;
         if (updatedRecap.id) {
-            index = recaps.findIndex((recap) => recap.id === updatedRecap.id);
+            index = recaps.findIndex((recap: SessionRecap) => recap.id === updatedRecap.id);
         }
         if (index === -1) {
-            index = recaps.findIndex((recap) => recap.date === updatedRecap.date && recap.title === updatedRecap.title);
+            index = recaps.findIndex((recap: SessionRecap) => recap.date === updatedRecap.date && recap.title === updatedRecap.title);
         }
         if (index === -1) {
             return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         }
-        recaps[index] = { ...recaps[index], ...updatedRecap };
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(recaps, null, 2));
+        await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=? WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), Number(updatedRecap.id)] });
         return NextResponse.json({ success: true, data: updatedRecap });
     } catch (error) {
         console.error('Error updating Session Recap:', error);
@@ -100,19 +133,13 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+        await ensureSchema();
+        const db = getDb();
         const { searchParams } = new URL(request.url);
-        const date = searchParams.get('date');
-        const title = searchParams.get('title');
-        if (!date || !title) {
-            return NextResponse.json({ error: 'Date and title are required' }, { status: 400 });
-        }
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const recaps = JSON.parse(fileContents);
-        const filteredRecaps = recaps.filter((recap: SessionRecap) => !(recap.date === date && recap.title === title));
-        if (filteredRecaps.length === recaps.length) {
-            return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
-        }
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(filteredRecaps, null, 2));
+        const id = searchParams.get('id');
+        if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting Session Recap:', error);

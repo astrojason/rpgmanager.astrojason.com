@@ -30,7 +30,7 @@ export default function CalendarManagementPage() {
   const loadCalendar = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/calendar.json');
+      const response = await fetch('/api/data/calendar');
       if (!response.ok) throw new Error('Failed to load calendar');
       const data = await response.json();
       setCalendarData(data);

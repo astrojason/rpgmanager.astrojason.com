@@ -54,7 +54,7 @@ export default function UserManagementPage() {
       const userData = result.data as UserData[];
       
       // Load PCs to get character assignments
-      const pcsResponse = await fetch('/data/pcs.json');
+      const pcsResponse = await fetch('/api/data/pcs');
       if (pcsResponse.ok) {
         const pcsData = await pcsResponse.json();
         setPcs(pcsData);

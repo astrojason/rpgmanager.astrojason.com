@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { auth } from "@/firebase/client";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
@@ -16,7 +15,7 @@ export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [questsData, setQuestsData] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const userId = useEffectiveUserId();
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [editingNote, setEditingNote] = useState<string | null>(null);
@@ -26,16 +25,7 @@ export default function QuestsPage() {
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
 
-  // Authentication state
-  useEffect(() => {
-    if (!auth) return;
-    
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // userId is now always the effective (impersonated or real) user
 
   // Load quests data
   useEffect(() => {
@@ -74,7 +64,7 @@ export default function QuestsPage() {
   const uniqueStatuses = [...new Set(questsData.map(quest => quest.status))];
 
   const handleAddNote = async (questId: string) => {
-    if (!questId || !newNoteContent.trim() || !user) return;
+  if (!questId || !newNoteContent.trim() || !userId) return;
     
     try {
       const quest = questsData.find(q => q.id === questId);
@@ -84,7 +74,7 @@ export default function QuestsPage() {
         id: `note-${Date.now()}`,
         content: newNoteContent.trim(),
         timestamp: new Date().toISOString(),
-        author: user.uid
+  author: userId
       };
 
       // Normalize existing notes and add the new one
@@ -121,7 +111,7 @@ export default function QuestsPage() {
   };
 
   const canEditNote = (note: UserNote) => {
-    const uid = user?.uid;
+  const uid = userId;
     return !!uid && (isAdmin || uid === note.author);
   };
 
@@ -132,12 +122,12 @@ export default function QuestsPage() {
   };
 
   const handleSaveEditNote = async (questId: string, noteId: string) => {
-    if (!user) return;
+  if (!userId) return;
     try {
       const quest = questsData.find((q) => q.id === questId);
       if (!quest) throw new Error('Quest not found');
       const notes = normalizeQuestNotes(quest).map((n) =>
-        n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: user.uid } : n
+  n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: userId } : n
       );
       const updatedQuest = { ...quest, notes };
       const response = await fetch('/api/data/quests', {
@@ -318,7 +308,7 @@ export default function QuestsPage() {
                                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                                   <span>{formatNoteTimestamp(note)}</span>
                                   <div className="flex items-center gap-2">
-                                    <AuthorDisplay uid={note.author} />
+                                    <AuthorDisplay uid={note.author} useImpersonation={true} />
                                     {canEditNote(note) && (
                                       <>
                                         <button onClick={() => handleStartEditNote(note)} className="text-xs text-slate-600 dark:text-slate-300 hover:underline">
@@ -348,7 +338,7 @@ export default function QuestsPage() {
                 )}
 
                 {/* Add Note Section for Authenticated Users */}
-                {user && (
+                {userId && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                     <button
                       onClick={() => {

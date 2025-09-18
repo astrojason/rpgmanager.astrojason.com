@@ -33,7 +33,7 @@ export default function FactionsManagementPage() {
   const loadFactions = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/factions.json');
+      const response = await fetch('/api/data/factions');
       if (!response.ok) throw new Error('Failed to load Factions');
       const data = await response.json();
       setFactions(Array.isArray(data) ? data : []);

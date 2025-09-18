@@ -16,7 +16,7 @@ interface UserNotesEditorProps {
   notes: UserNote[];
   onChange: (notes: UserNote[]) => void;
   className?: string;
-  currentUser?: User | null;
+  currentUser?: User | string | null;
   isAdmin?: boolean;
 }
 
@@ -27,25 +27,31 @@ export default function UserNotesEditor({
   currentUser,
   isAdmin = false,
 }: UserNotesEditorProps) {
+  const getUid = () => {
+    if (!currentUser) return undefined;
+    if (typeof currentUser === 'string') return currentUser;
+    return currentUser.uid;
+  };
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
 
   const canEdit = (note: UserNote) => {
-    const uid = currentUser?.uid;
+    const uid = getUid();
     return !!uid && (isAdmin || uid === note.author);
   };
 
   const handleStartEdit = (index: number) => {
     const note = notes[index];
-    if (!currentUser || !canEdit(note)) return;
+    if (!getUid() || !canEdit(note)) return;
     setEditingIndex(index);
     setEditingContent(note.content);
   };
 
   const handleSaveEdit = () => {
-    if (editingIndex !== null && currentUser) {
+    const uid = getUid();
+    if (editingIndex !== null && uid) {
       const note = notes[editingIndex];
       if (!canEdit(note)) return;
       const updatedNotes = [...notes];
@@ -53,7 +59,7 @@ export default function UserNotesEditor({
         ...updatedNotes[editingIndex],
         content: editingContent,
         timestamp: new Date().toISOString(),
-        author: currentUser.uid
+        author: uid
       };
       onChange(updatedNotes);
       setEditingIndex(null);
@@ -68,7 +74,7 @@ export default function UserNotesEditor({
 
   const handleDeleteNote = (index: number) => {
     const note = notes[index];
-    if (!currentUser || !canEdit(note)) return;
+    if (!getUid() || !canEdit(note)) return;
     if (confirm("Are you sure you want to delete this note?")) {
       const updatedNotes = notes.filter((_, i) => i !== index);
       onChange(updatedNotes);
@@ -76,12 +82,13 @@ export default function UserNotesEditor({
   };
 
   const handleAddNote = () => {
-    if (newNote.trim() && currentUser) {
+    const uid = getUid();
+    if (newNote.trim() && uid) {
       const newUserNote: UserNote = {
         id: `note-${Date.now()}`,
         content: newNote.trim(),
         timestamp: new Date().toISOString(),
-        author: currentUser.uid
+        author: uid
       };
       onChange([...notes, newUserNote]);
       setNewNote("");
@@ -180,7 +187,7 @@ export default function UserNotesEditor({
               {!editingIndex && note.timestamp && (
                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                   <span>{new Date(note.timestamp).toLocaleString()}</span>
-                  <AuthorDisplay uid={note.author} />
+                  <AuthorDisplay uid={note.author} useImpersonation={true} />
                 </div>
               )}
             </div>

@@ -1,98 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { NPC } from '@/types/interfaces';
+import { getDb } from '@/lib/turso';
+import { ensureSchema } from '@/lib/schema';
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'public', 'data', 'npcs.json');
+const TABLE = 'npcs';
+const JUNCTION = 'npc_factions';
 
-function isNumericId(id: unknown): boolean {
-    if (typeof id === 'number') return true;
-    if (typeof id === 'string') return /^\d+$/.test(id.trim());
-    return false;
-}
-
-function genUUID(): string {
-    // Use crypto.randomUUID if available
-    const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
-    const g = gt.crypto?.randomUUID?.bind(gt.crypto);
-    if (g) return g();
-    // Fallback: simple v4-like generator
-    const rnd = (n = 16) => Array.from({ length: n }, () => (Math.random() * 256) | 0);
-    const bytes = rnd(16);
-    // Set version and variant bits
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = bytes.map((b) => b.toString(16).padStart(2, '0'));
-    return (
-        hex.slice(0, 4).join('') + '-' +
-        hex.slice(4, 6).join('') + '-' +
-        hex.slice(6, 8).join('') + '-' +
-        hex.slice(8, 10).join('') + '-' +
-        hex.slice(10, 16).join('')
-    );
-}
-
-function normalizeAka<T extends { aka?: unknown }>(npc: T): T {
-    const out = { ...npc } as T & { aka?: unknown };
-    if (Array.isArray(out.aka)) {
-        (out as unknown as { aka?: string }).aka = (out.aka as unknown[]).join(', ');
-    }
-    return out as T;
+function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
+    return {
+        id: String(row.id),
+        name: row.name !== undefined ? String(row.name) : undefined,
+        aka: row.aka !== undefined ? String(row.aka) : undefined,
+        display_name: row.display_name !== undefined ? String(row.display_name) : undefined,
+        pronunciation: row.pronunciation !== undefined ? String(row.pronunciation) : '',
+        race: row.race !== undefined ? String(row.race) : '',
+        gender: row.gender !== undefined ? String(row.gender) : '',
+        location: row.location !== undefined ? String(row.location) : '',
+        status: row.status !== undefined ? String(row.status) : '',
+        factions,
+        description: row.description !== undefined ? String(row.description) : '',
+        background: row.background !== undefined ? String(row.background) : undefined,
+        personality: row.personality !== undefined ? String(row.personality) : undefined,
+        image: row.image !== undefined ? String(row.image) : undefined,
+        hidden: row.hidden ? true : false,
+        nameHidden: row.nameHidden ? true : false,
+        hide_name: row.hide_name ? true : false,
+        notes: row.notes ? JSON.parse(String(row.notes)) : [],
+        gm_notes: row.gm_notes !== undefined ? String(row.gm_notes) : undefined,
+    };
 }
 
 export async function GET() {
     try {
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const data = JSON.parse(fileContents);
-
-        // Auto-migrate numeric IDs to UUIDs
-        let mutated = false;
-        const used = new Set<string>();
-        for (const npc of data) {
-            if (typeof npc.id === 'string') used.add(npc.id);
+        await ensureSchema();
+        const db = getDb();
+        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
+          id INTEGER PRIMARY KEY,
+          name TEXT, aka TEXT, display_name TEXT,
+          pronunciation TEXT, race TEXT, gender TEXT,
+          location TEXT, status TEXT,
+          description TEXT, background TEXT, personality TEXT,
+          image TEXT,
+          hidden INTEGER, nameHidden INTEGER, hide_name INTEGER,
+          notes TEXT, gm_notes TEXT
+        )`);
+        await db.execute(`CREATE TABLE IF NOT EXISTS ${JUNCTION} (npc_id INTEGER NOT NULL, faction_id INTEGER NOT NULL, PRIMARY KEY(npc_id,faction_id))`);
+        const base = await db.execute(`SELECT * FROM ${TABLE}`);
+        const jf = await db.execute(`SELECT npc_id, faction_id FROM ${JUNCTION}`);
+        const map = new Map<number, string[]>();
+        for (const r of jf.rows as unknown[]) {
+            const row = r as Record<string, unknown>;
+            const nid = Number(row.npc_id);
+            const fid = String(row.faction_id);
+            if (!map.has(nid)) map.set(nid, []);
+            map.get(nid)!.push(fid);
         }
-        for (const npc of data) {
-            if (isNumericId(npc.id)) {
-                let uuid: string;
-                do {
-                    uuid = genUUID();
-                } while (used.has(uuid));
-                used.add(uuid);
-                npc.id = uuid;
-                mutated = true;
-            }
-        }
-        if (mutated) {
-            await fs.writeFile(DATA_FILE_PATH, JSON.stringify(data, null, 2));
-        }
-
-        // Normalize aka to string for client compatibility
-        const normalized = Array.isArray(data) ? data.map((n: unknown) => normalizeAka(n as { aka?: unknown })) : data;
-        return NextResponse.json(normalized);
+        const out: NPC[] = [];
+        for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? []));
+        return NextResponse.json(out);
     } catch (error) {
-        console.error('Error reading NPCs file:', error);
+        console.error('Error loading NPCs:', error);
         return NextResponse.json({ error: 'Failed to load NPCs' }, { status: 500 });
     }
 }
 
 export async function POST(request: NextRequest) {
     try {
-        const newNPC = await request.json();
-
-        // Read current data
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const npcs = JSON.parse(fileContents);
-
-        // Add new NPC
-        if (!newNPC.id) {
-            newNPC.id = genUUID();
+        await ensureSchema();
+        const db = getDb();
+        const body: NPC = await request.json();
+        const factions = Array.isArray(body.factions) ? body.factions : [];
+        const tx = await db.transaction('write');
+        try {
+            const res = await tx.execute({
+                sql: `INSERT INTO ${TABLE} (name,aka,display_name,pronunciation,race,gender,location,status,description,background,personality,image,hidden,nameHidden,hide_name,notes,gm_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                args: [
+                    body.name ?? null,
+                    (Array.isArray(body.aka) ? (body.aka as unknown as string[])?.join(', ') : body.aka) ?? null,
+                    body.display_name ?? null,
+                    body.pronunciation ?? null,
+                    body.race ?? null,
+                    body.gender ?? null,
+                    body.location ?? null,
+                    body.status ?? null,
+                    body.description ?? null,
+                    body.background ?? null,
+                    body.personality ?? null,
+                    body.image ?? null,
+                    body.hidden ? 1 : 0,
+                    body.nameHidden ? 1 : 0,
+                    body.hide_name ? 1 : 0,
+                    JSON.stringify(body.notes ?? []),
+                    body.gm_notes ?? null,
+                ],
+            });
+            const newId = Number(res.lastInsertRowid ?? 0);
+            for (const fid of factions) {
+                await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES (?,?)`, args: [newId, Number(fid)] });
+            }
+            await tx.commit();
+            return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
+        } catch (e) {
+            await tx.rollback();
+            throw e;
         }
-        npcs.push(newNPC);
-
-        // Write back to file
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(npcs, null, 2));
-
-        return NextResponse.json({ success: true, data: newNPC });
     } catch (error) {
         console.error('Error creating NPC:', error);
         return NextResponse.json({ error: 'Failed to create NPC' }, { status: 500 });
@@ -101,24 +112,48 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        const updatedNPC = await request.json();
-
-        // Read current data
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const npcs = JSON.parse(fileContents);
-
-        // Find and update NPC
-        const index = npcs.findIndex((npc: NPC) => npc.id === updatedNPC.id);
-        if (index === -1) {
-            return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
+        await ensureSchema();
+        const db = getDb();
+        const body: NPC = await request.json();
+        const idNum = Number(body.id);
+        const factions = Array.isArray(body.factions) ? body.factions : [];
+        const tx = await db.transaction('write');
+        try {
+            const res = await tx.execute({
+                sql: `UPDATE ${TABLE} SET name=?,aka=?,display_name=?,pronunciation=?,race=?,gender=?,location=?,status=?,description=?,background=?,personality=?,image=?,hidden=?,nameHidden=?,hide_name=?,notes=?,gm_notes=? WHERE id=?`,
+                args: [
+                    body.name ?? null,
+                    (Array.isArray(body.aka) ? (body.aka as unknown as string[])?.join(', ') : body.aka) ?? null,
+                    body.display_name ?? null,
+                    body.pronunciation ?? null,
+                    body.race ?? null,
+                    body.gender ?? null,
+                    body.location ?? null,
+                    body.status ?? null,
+                    body.description ?? null,
+                    body.background ?? null,
+                    body.personality ?? null,
+                    body.image ?? null,
+                    body.hidden ? 1 : 0,
+                    body.nameHidden ? 1 : 0,
+                    body.hide_name ? 1 : 0,
+                    JSON.stringify(body.notes ?? []),
+                    body.gm_notes ?? null,
+                    idNum,
+                ],
+            });
+            if ((res.rowsAffected ?? 0) === 0) {
+                await tx.rollback();
+                return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
+            }
+            await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE npc_id=?`, args: [idNum] });
+            for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES (?,?)`, args: [idNum, Number(fid)] });
+            await tx.commit();
+            return NextResponse.json({ success: true, data: body });
+        } catch (e) {
+            await tx.rollback();
+            throw e;
         }
-
-        npcs[index] = updatedNPC;
-
-        // Write back to file
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(npcs, null, 2));
-
-        return NextResponse.json({ success: true, data: updatedNPC });
     } catch (error) {
         console.error('Error updating NPC:', error);
         return NextResponse.json({ error: 'Failed to update NPC' }, { status: 500 });
@@ -127,27 +162,14 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+        await ensureSchema();
+        const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-
-        if (!id) {
-            return NextResponse.json({ error: 'NPC ID is required' }, { status: 400 });
-        }
-
-        // Read current data
-        const fileContents = await fs.readFile(DATA_FILE_PATH, 'utf8');
-        const npcs = JSON.parse(fileContents);
-
-        // Filter out the NPC to delete
-        const filteredNPCs = npcs.filter((npc: NPC) => npc.id !== id);
-
-        if (filteredNPCs.length === npcs.length) {
-            return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
-        }
-
-        // Write back to file
-        await fs.writeFile(DATA_FILE_PATH, JSON.stringify(filteredNPCs, null, 2));
-
+        if (!id) return NextResponse.json({ error: 'NPC ID is required' }, { status: 400 });
+        const idNum = Number(id);
+        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting NPC:', error);

@@ -27,8 +27,8 @@ export default function PCsPage() {
     const loadData = async () => {
       try {
         const [pcsResponse, factionResponse] = await Promise.all([
-          fetch('/data/pcs.json'),
-          fetch('/data/factions.json')
+          fetch('/api/data/pcs'),
+          fetch('/api/data/factions')
         ]);
 
         if (!pcsResponse.ok || !factionResponse.ok) {

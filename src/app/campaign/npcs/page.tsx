@@ -10,8 +10,7 @@ import { NPC, Faction, UserNote } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
-import { auth } from "@/firebase/client";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
@@ -23,7 +22,7 @@ export default function NPCsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const userId = useEffectiveUserId();
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
@@ -55,13 +54,7 @@ export default function NPCsPage() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
+
 
   // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
@@ -438,7 +431,7 @@ export default function NPCsPage() {
                   <UserNotesEditor
                     notes={editingNPC.notes || []}
                     onChange={(updatedNotes) => setEditingNPC({...editingNPC, notes: updatedNotes})}
-                    currentUser={user}
+                    currentUser={userId}
                     isAdmin={isAdmin}
                     className="mt-4"
                   />
@@ -811,7 +804,7 @@ export default function NPCsPage() {
                           <UserNotesEditor
                             notes={selectedNPC.notes || []}
                             onChange={(updatedNotes) => handleUpdateNPCNotes(selectedNPC.id, updatedNotes)}
-                            currentUser={user}
+                            currentUser={userId}
                             isAdmin={isAdmin}
                             className="mt-4"
                           />

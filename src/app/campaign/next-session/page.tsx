@@ -236,22 +236,122 @@ export default function NextSessionPage() {
             </div>
 
             {/* Admin Controls */}
-            {isClient && isAdmin && (
+            {isAdmin && (
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div className="flex gap-4">
-                  <button className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-md transition-colors">
+                  <button
+                    className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-md transition-colors"
+                    onClick={async () => {
+                      if (!sessionData) return;
+                      const agenda = prompt('Edit session agenda:', sessionData.agenda || '');
+                      if (agenda === null) return;
+                      const notes = prompt('Edit session notes:', sessionData.notes || '');
+                      if (notes === null) return;
+                      const updatedData = {
+                        ...sessionData,
+                        agenda,
+                        notes,
+                        lastUpdated: new Date().toISOString().split('T')[0],
+                      };
+                      try {
+                        const response = await fetch('/api/data/next-session', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(updatedData),
+                        });
+                        if (response.ok) {
+                          setSessionData(updatedData);
+                        }
+                      } catch (error) {
+                        console.error('Error editing session:', error);
+                      }
+                    }}
+                  >
                     ✏️ Edit Session Info
                   </button>
                   {sessionData.isSkipped ? (
-                    <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors">
+                    <button
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors"
+                      onClick={async () => {
+                        if (!sessionData) return;
+                        const updatedData = {
+                          ...sessionData,
+                          isSkipped: false,
+                          skipReason: '',
+                          lastUpdated: new Date().toISOString().split('T')[0],
+                        };
+                        try {
+                          const response = await fetch('/api/data/next-session', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatedData),
+                          });
+                          if (response.ok) {
+                            setSessionData(updatedData);
+                          }
+                        } catch (error) {
+                          console.error('Error resuming session:', error);
+                        }
+                      }}
+                    >
                       ▶️ Un-skip Session
                     </button>
                   ) : (
-                    <button className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors">
+                    <button
+                      className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors"
+                      onClick={async () => {
+                        if (!sessionData) return;
+                        const reason = prompt('Reason for skipping this session (optional):', sessionData.skipReason || '');
+                        if (reason === null) return;
+                        const updatedData = {
+                          ...sessionData,
+                          isSkipped: true,
+                          skipReason: reason,
+                          lastUpdated: new Date().toISOString().split('T')[0],
+                        };
+                        try {
+                          const response = await fetch('/api/data/next-session', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatedData),
+                          });
+                          if (response.ok) {
+                            setSessionData(updatedData);
+                          }
+                        } catch (error) {
+                          console.error('Error skipping session:', error);
+                        }
+                      }}
+                    >
                       ⏸️ Mark as Skipped
                     </button>
                   )}
-                  <button className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors">
+                  <button
+                    className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-md transition-colors"
+                    onClick={async () => {
+                      if (!sessionData) return;
+                      // Advance to next week: increment date by 7 days
+                      const currentDate = new Date(sessionData.date);
+                      currentDate.setDate(currentDate.getDate() + 7);
+                      const updatedData = {
+                        ...sessionData,
+                        date: currentDate.toISOString().split('T')[0],
+                        lastUpdated: new Date().toISOString().split('T')[0],
+                      };
+                      try {
+                        const response = await fetch('/api/data/next-session', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(updatedData),
+                        });
+                        if (response.ok) {
+                          setSessionData(updatedData);
+                        }
+                      } catch (error) {
+                        console.error('Error advancing session:', error);
+                      }
+                    }}
+                  >
                     ➡️ Advance to Next Week
                   </button>
                 </div>

@@ -30,7 +30,7 @@ export default function RecapsManagementPage() {
   const loadRecaps = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/session_recaps.json');
+      const response = await fetch('/api/data/session-recaps');
       if (!response.ok) throw new Error('Failed to load session recaps');
       const data = await response.json();
       setRecaps(Array.isArray(data) ? data : []);

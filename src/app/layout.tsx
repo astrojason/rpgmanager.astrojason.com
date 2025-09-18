@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import SideNavigation from "@/components/SideNavigation";
 import "./globals.css";
-import { Suspense } from "react";
+import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: "RPG Manager",
@@ -15,15 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body
-        className="antialiased h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors"
-      >
-        <div className="flex min-h-dvh w-full">
-          <SideNavigation className="flex-shrink-0" />
-          <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-800">
-            <Suspense>{children}</Suspense>
-          </main>
-        </div>
+      <body className="antialiased h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

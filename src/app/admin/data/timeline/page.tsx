@@ -39,7 +39,7 @@ export default function TimelineManagementPage() {
   const loadEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/data/timeline.json');
+      const response = await fetch('/api/data/timeline');
       if (!response.ok) throw new Error('Failed to load Timeline');
       const data = await response.json();
       setEvents(Array.isArray(data) ? data : []);
