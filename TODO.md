@@ -1,0 +1,1 @@
+- [x] next session calculation should show the next upcoming session, defaulting to the next Sunday at 7pm Pacific if there are no skipped sessions

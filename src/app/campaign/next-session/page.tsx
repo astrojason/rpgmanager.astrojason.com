@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useIsAdmin } from "@/utils/adminCheck";
 import Link from "next/link";
+import {
+  daysUntil as calculateDaysUntil,
+  determineUpcomingSessionDate,
+  formatSessionDate,
+  parseSessionDate,
+} from "@/utils/nextSession";
 
 interface NextSessionData {
   date: string;
@@ -19,9 +25,15 @@ interface NextSessionData {
 export default function NextSessionPage() {
   const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [daysUntil, setDaysUntil] = useState<number>(0);
+  const [daysUntil, setDaysUntil] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
+
+  const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
+  const upcomingSessionDate = useMemo(
+    () => determineUpcomingSessionDate(sessionData, new Date()),
+    [sessionData]
+  );
 
   // Load session data on mount
   useEffect(() => {
@@ -44,26 +56,26 @@ export default function NextSessionPage() {
 
   // Ensure this only runs on client side to prevent hydration mismatch
   useEffect(() => {
-    if (!sessionData) return;
-    setIsClient(true);
-    
-    // Calculate days until next session on client side only
-    const today = new Date();
-    const nextSession = new Date(sessionData.date);
-    const calculatedDays = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    setDaysUntil(calculatedDays);
-  }, [sessionData]);
+    if (!sessionData) {
+      setDaysUntil(null);
+      return;
+    }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    return `${formattedDate} at 7:00 PM Pacific`;
-  };
+    setIsClient(true);
+
+    const computed = calculateDaysUntil(upcomingSessionDate, new Date());
+    setDaysUntil(computed);
+  }, [sessionData, upcomingSessionDate]);
+
+  const formatDate = (date: Date | null) => formatSessionDate(date);
+
+  const daysUntilLabel = useMemo(() => {
+    if (!isClient) return "...";
+    if (daysUntil === null) return "TBD";
+    if (daysUntil === 0) return "Today!";
+    if (daysUntil === 1) return "Tomorrow";
+    return `${daysUntil} days`;
+  }, [daysUntil, isClient]);
 
   // Show loading state
   if (loading) {
@@ -115,15 +127,14 @@ export default function NextSessionPage() {
                 <p className={`text-lg ${
                   sessionData.isSkipped ? 'text-stone-200' : 'text-slate-100'
                 }`}>
-                  {formatDate(sessionData.date)}
+                  {sessionData.isSkipped
+                    ? formatDate(storedSessionDate)
+                    : formatDate(upcomingSessionDate ?? storedSessionDate)}
                 </p>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold">
-                  {sessionData.isSkipped 
-                    ? '⏸️' 
-                    : !isClient ? "..." : daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`
-                  }
+                  {sessionData.isSkipped ? '⏸️' : daysUntilLabel}
                 </div>
                 <div className={sessionData.isSkipped ? 'text-stone-200' : 'text-slate-100'}>
                   {sessionData.isSkipped ? 'No session' : 'to go'}
@@ -179,7 +190,7 @@ export default function NextSessionPage() {
                       📅 Session Details
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 mb-1">
-                      <strong>Date:</strong> {formatDate(sessionData.date)}
+                      <strong>Date:</strong> {formatDate(upcomingSessionDate ?? storedSessionDate)}
                     </p>
                   </div>
 

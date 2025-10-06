@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useIsAdmin } from "@/utils/adminCheck";
+import {
+  daysUntil as calculateDaysUntil,
+  determineUpcomingSessionDate,
+  formatSessionDate,
+  parseSessionDate,
+} from "@/utils/nextSession";
 
 interface NextSessionData {
   date: string;
@@ -93,6 +99,24 @@ export default function NextSessionCard() {
     }
   };
 
+  const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
+  const upcomingSessionDate = useMemo(
+    () => determineUpcomingSessionDate(sessionData, new Date()),
+    [sessionData]
+  );
+  const daysUntil = useMemo(
+    () => calculateDaysUntil(upcomingSessionDate, new Date()),
+    [upcomingSessionDate]
+  );
+  const isSkipped = sessionData?.isSkipped ?? false;
+  const daysUntilLabel = useMemo(() => {
+    if (isSkipped) return null;
+    if (daysUntil === null) return "TBD";
+    if (daysUntil === 0) return "Today!";
+    if (daysUntil === 1) return "Tomorrow";
+    return `${daysUntil} days`;
+  }, [daysUntil, isSkipped]);
+
   // Show loading state
   if (loading) {
     return (
@@ -116,24 +140,8 @@ export default function NextSessionCard() {
     );
   }
 
-  // Calculate days until next session
-  const today = new Date();
-  const nextSession = new Date(sessionData.date);
-  const daysUntil = Math.ceil((nextSession.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    return `${formattedDate} at 7:00 PM Pacific`;
-  };
-
   // Don't render if session is skipped
-  if (sessionData.isSkipped) {
+  if (isSkipped) {
     return (
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-300 dark:border-gray-600 rounded-lg p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
@@ -142,7 +150,7 @@ export default function NextSessionCard() {
           </h2>
           <div className="flex items-center gap-3">
             <div className="text-sm font-semibold px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-              {formatDate(sessionData.date)}
+              {formatSessionDate(storedSessionDate)}
             </div>
             {isAdmin && (
               <button 
@@ -183,7 +191,7 @@ export default function NextSessionCard() {
         </h2>
         <div className="flex items-center gap-3">
           <div className="text-sm font-semibold px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full">
-            {daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow" : `${daysUntil} days`}
+            {daysUntilLabel}
           </div>
           {isAdmin && (
             <button 
@@ -200,7 +208,7 @@ export default function NextSessionCard() {
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">📅 When</h3>
-            <p className="text-slate-600 dark:text-slate-400">{formatDate(sessionData.date)}</p>
+            <p className="text-slate-600 dark:text-slate-400">{formatSessionDate(upcomingSessionDate ?? storedSessionDate)}</p>
           </div>
 
           <div>
