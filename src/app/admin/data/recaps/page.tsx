@@ -73,34 +73,75 @@ export default function RecapsManagementPage() {
   };
 
   const handleSave = async () => {
-    try {
-      if (!formData.title || !formData.recap || !formData.date) {
-        setError("Please fill in all required fields (Date, Title, Recap)");
-        return;
-      }
+    setError("");
+    setSuccess("");
 
-      const recapData = formData as SessionRecap;
-      
-      let updatedRecaps;
+    if (!formData.title || !formData.recap || !formData.date) {
+      setError("Please fill in all required fields (Date, Title, Recap)");
+      return;
+    }
+
+    const payload: SessionRecap = {
+      ...(formData as SessionRecap),
+      notes: Array.isArray(formData.notes) ? formData.notes : [],
+    };
+
+    try {
+      let savedRecap: SessionRecap | null = null;
+
       if (isCreating) {
-        updatedRecaps = [...recaps, recapData].sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        const response = await fetch("/api/data/session-recaps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error("Failed to create session recap");
+        const result = await response.json();
+        const responseData = result?.data as SessionRecap | undefined;
+        const mergedNotes = Array.isArray(responseData?.notes) ? responseData.notes : payload.notes;
+        savedRecap = {
+          ...payload,
+          ...(responseData ?? {}),
+          notes: mergedNotes ?? [],
+          id: String(responseData?.id ?? payload.id ?? ""),
+        };
         setSuccess("Session recap created successfully!");
       } else {
-        updatedRecaps = recaps.map(recap => 
-          recap.date === recapData.date ? recapData : recap
-        ).sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        if (!payload.id) {
+          setError("Unable to update recap: missing identifier.");
+          return;
+        }
+        const response = await fetch("/api/data/session-recaps", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error("Failed to update session recap");
+        const result = await response.json();
+        const responseData = result?.data as SessionRecap | undefined;
+        const mergedNotes = Array.isArray(responseData?.notes) ? responseData.notes : payload.notes;
+        savedRecap = {
+          ...payload,
+          ...(responseData ?? {}),
+          notes: mergedNotes ?? [],
+          id: String(responseData?.id ?? payload.id ?? ""),
+        };
         setSuccess("Session recap updated successfully!");
       }
 
-      setRecaps(updatedRecaps);
+      if (!savedRecap) return;
+
+      const identifier = savedRecap.id ?? savedRecap.date;
+      const nextRecaps = [
+        ...recaps.filter((recap) => (recap.id ?? recap.date) !== identifier),
+        savedRecap,
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      setRecaps(nextRecaps);
       setIsCreating(false);
       setIsEditing(false);
-      setSelectedRecap(recapData);
-      
+      setSelectedRecap(savedRecap);
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save session recap");
@@ -109,11 +150,24 @@ export default function RecapsManagementPage() {
 
   const handleDelete = async (recap: SessionRecap) => {
     if (!confirm(`Are you sure you want to delete the recap for "${recap.title}"?`)) return;
-    
+    setError("");
+    setSuccess("");
+
+    if (!recap.id) {
+      setError("Unable to delete recap: missing identifier.");
+      return;
+    }
+
     try {
-      const updatedRecaps = recaps.filter(r => r.date !== recap.date);
+      const targetId = recap.id ?? recap.date;
+      const response = await fetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete session recap");
+
+      const updatedRecaps = recaps.filter((r) => (r.id ?? r.date) !== targetId);
       setRecaps(updatedRecaps);
-      setSelectedRecap(null);
+      setSelectedRecap((current) => ((current && (current.id ?? current.date) === targetId) ? null : current));
       setSuccess("Session recap deleted successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -198,7 +252,7 @@ export default function RecapsManagementPage() {
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredRecaps.map((recap) => (
-                  <div key={recap.date} className="p-4">
+                  <div key={recap.id ?? recap.date} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 cursor-pointer" onClick={() => handleView(recap)}>
                         <h3 className="font-medium text-gray-900 dark:text-gray-100">

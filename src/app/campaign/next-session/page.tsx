@@ -337,6 +337,8 @@ export default function NextSessionPage() {
                         ...sessionData,
                         date: currentDate.toISOString().split('T')[0],
                         lastUpdated: new Date().toISOString().split('T')[0],
+                        isSkipped: false,
+                        skipReason: '',
                       };
                       try {
                         const response = await fetch('/api/data/next-session', {
