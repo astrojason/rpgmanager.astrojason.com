@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 import ImpersonationToolbar from "@/components/ImpersonationToolbar";

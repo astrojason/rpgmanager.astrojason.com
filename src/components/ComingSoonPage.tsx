@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 interface ComingSoonPageProps {
   title: string;
   description: string;

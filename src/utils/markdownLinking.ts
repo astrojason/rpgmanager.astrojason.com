@@ -13,6 +13,13 @@ export function resetLinkMapCache() {
     cachedLinkMap = null;
 }
 
+// Optional helper to pre-seed the link map (handy in tests or preloaded contexts)
+export function seedLinkMap(entries: LinkMapping[]) {
+    cachedLinkMap = new Map(
+        entries.map((entry) => [entry.name.trim().toLowerCase(), entry])
+    );
+}
+
 // Create a mapping of entity names to their destination URLs.
 // Data loading is intentionally omitted here; prefer passing pre-fetched
 // data into a variant of this function in the future if needed.

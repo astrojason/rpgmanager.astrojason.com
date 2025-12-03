@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getDisplayNameForUID } from '@/utils/questUtils';
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 

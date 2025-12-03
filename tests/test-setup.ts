@@ -1,4 +1,6 @@
 import { vi, beforeEach } from 'vitest';
+import React from 'react';
+import '@testing-library/jest-dom';
 
 type FnMock = ReturnType<typeof vi.fn>;
 
@@ -28,6 +30,28 @@ beforeEach(() => {
   ensureSchemaMock.mockReset();
   ensureSchemaMock.mockResolvedValue(undefined);
 });
+
+// Provide a lightweight mock for next/image so component tests can render
+vi.mock('next/image', () => ({
+  default: (props: any) => {
+    const { src, alt, priority: _priority, ...rest } = props;
+    return React.createElement('img', { src: typeof src === 'string' ? src : '', alt, ...rest });
+  },
+}));
+
+vi.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ href, children, ...rest }: any) => React.createElement('a', { href, ...rest }, children),
+}));
+
+// Basic ResizeObserver mock for jsdom environment
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+// @ts-expect-error attach to global for tests
+global.ResizeObserver = ResizeObserver;
 
 declare global {
   // eslint-disable-next-line no-var

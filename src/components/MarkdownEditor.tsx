@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { renderMarkdownWithLinks } from '@/utils/markdown';
 import { EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
@@ -44,6 +44,7 @@ export default function DetailSidebar({
           isVisible ? "opacity-100" : "opacity-0"
         }`}
         onClick={onClose}
+        data-testid="backdrop"
       />
 
       {/* Sidebar */}

@@ -12,7 +12,21 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
-admin.initializeApp();
+const isTest = process.env.NODE_ENV === 'test';
+const testAuthClient = (globalThis as any).__adminAuthMock;
+if (!admin.apps.length) {
+    if (isTest) {
+        admin.initializeApp({
+            projectId: 'test',
+            credential: {
+                getAccessToken: async () => ({ access_token: 'test-token', expires_in: 3600 })
+            } as any
+        });
+    } else {
+        admin.initializeApp();
+    }
+}
+const authClient = (isTest && testAuthClient) ? testAuthClient : admin.auth();
 
 interface SetUserRoleData {
     uid: string;
@@ -21,13 +35,13 @@ interface SetUserRoleData {
 
 // Function to assign default 'player' role to new users
 // Call this from your frontend after user signs up
-export const assignPlayerRole = onCall(async (request) => {
+export const assignPlayerRoleHandler = async (request: any) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'Must be authenticated');
     }
 
     // Check if user already has a role
-    const user = await admin.auth().getUser(request.auth.uid);
+    const user = await authClient.getUser(request.auth.uid);
     const existingRole = user.customClaims?.role;
 
     if (existingRole) {
@@ -36,20 +50,21 @@ export const assignPlayerRole = onCall(async (request) => {
     }
 
     // Assign player role to new user
-    await admin.auth().setCustomUserClaims(request.auth.uid, { role: 'player' });
+    await authClient.setCustomUserClaims(request.auth.uid, { role: 'player' });
     logger.log(`Assigned 'player' role to new user: ${request.auth.uid}`);
 
     return { message: 'Player role assigned successfully' };
-});
+};
+export const assignPlayerRole = onCall(assignPlayerRoleHandler);
 
 // Function to check current user's role and claims
-export const checkMyRole = onCall(async (request) => {
+export const checkMyRoleHandler = async (request: any) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'Must be authenticated');
     }
 
     // Get user data from Firebase Auth
-    const user = await admin.auth().getUser(request.auth.uid);
+    const user = await authClient.getUser(request.auth.uid);
 
     return {
         uid: request.auth.uid,
@@ -60,9 +75,10 @@ export const checkMyRole = onCall(async (request) => {
             role: request.auth.token.role || 'No role in token'
         }
     };
-});
+};
+export const checkMyRole = onCall(checkMyRoleHandler);
 
-export const setUserRole = onCall<SetUserRoleData>(async (request) => {
+export const setUserRoleHandler = async (request: any) => {
     // Check if the caller is an admin
     if (!request.auth || request.auth.token.role !== 'admin') {
         throw new HttpsError('permission-denied', 'Only admins can set roles')
@@ -76,21 +92,22 @@ export const setUserRole = onCall<SetUserRoleData>(async (request) => {
         throw new HttpsError('invalid-argument', 'Invalid role specified');
     }
 
-    await admin.auth().setCustomUserClaims(uid, { role });
+    await authClient.setCustomUserClaims(uid, { role });
 
     logger.log(`Role ${role} set for user ${uid} by ${request.auth.uid}`);
     return { message: `Role ${role} set for user ${uid}` }
-});
+};
+export const setUserRole = onCall<SetUserRoleData>(setUserRoleHandler);
 
 // Function to list all users (admin only)
-export const listUsers = onCall(async (request) => {
+export const listUsersHandler = async (request: any) => {
     // Check if the caller is an admin
     if (!request.auth || request.auth.token.role !== 'admin') {
         throw new HttpsError('permission-denied', 'Only admins can list users');
     }
 
     try {
-        const listUsersResult = await admin.auth().listUsers(1000); // Max 1000 users
+        const listUsersResult = await authClient.listUsers(1000); // Max 1000 users
 
         const users = listUsersResult.users.map(userRecord => ({
             uid: userRecord.uid,
@@ -106,7 +123,8 @@ export const listUsers = onCall(async (request) => {
         logger.error('Error listing users:', error);
         throw new HttpsError('internal', 'Failed to list users');
     }
-});
+};
+export const listUsers = onCall(listUsersHandler);
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript

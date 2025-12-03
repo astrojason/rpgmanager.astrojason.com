@@ -72,6 +72,11 @@ export function getDisplayNameSync(uid: string): string {
     return 'Unknown';
 }
 
+// Helper to reset the cached PCs list (useful in tests or when refetching)
+export function clearPcsCache(): void {
+    pcsCache = null;
+}
+
 export function normalizeQuestNotes(quest: Quest): UserNote[] {
     if (!quest.notes || quest.notes.length === 0) {
         return [];

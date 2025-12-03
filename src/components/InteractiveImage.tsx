@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Location, InteractiveImageProps } from "@/types/interfaces";
 import { renderMarkdown } from "@/utils/markdown";
