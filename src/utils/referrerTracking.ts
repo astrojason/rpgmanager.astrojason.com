@@ -15,48 +15,52 @@ export function useReferrerInfo(): ReferrerInfo {
         // Get the referrer from document.referrer or session storage
         const referrer = document.referrer || sessionStorage.getItem('lastPage') || '';
 
-        // Parse the referrer URL to determine the appropriate back button
-        if (referrer) {
-            try {
-                const referrerUrl = new URL(referrer);
-                const pathname = referrerUrl.pathname;
+        const timer = window.setTimeout(() => {
+            // Parse the referrer URL to determine the appropriate back button
+            if (referrer) {
+                try {
+                    const referrerUrl = new URL(referrer);
+                    const pathname = referrerUrl.pathname;
 
-                if (pathname.includes('/campaign/locations')) {
-                    setReferrerInfo({
-                        label: 'Locations',
-                        url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                    });
-                } else if (pathname.includes('/campaign/factions')) {
-                    setReferrerInfo({
-                        label: 'Factions',
-                        url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                    });
-                } else if (pathname.includes('/campaign/npcs')) {
-                    setReferrerInfo({
-                        label: 'NPCs',
-                        url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                    });
-                } else if (pathname.includes('/campaign/pcs')) {
-                    setReferrerInfo({
-                        label: 'PCs',
-                        url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                    });
-                } else if (pathname.includes('/campaign/recaps')) {
-                    setReferrerInfo({
-                        label: 'Session Recaps',
-                        url: '/campaign/recaps'
-                    });
-                } else if (pathname.includes('/campaign')) {
-                    setReferrerInfo({
-                        label: 'Campaign',
-                        url: '/campaign'
-                    });
+                    if (pathname.includes('/campaign/locations')) {
+                        setReferrerInfo({
+                            label: 'Locations',
+                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
+                        });
+                    } else if (pathname.includes('/campaign/factions')) {
+                        setReferrerInfo({
+                            label: 'Factions',
+                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
+                        });
+                    } else if (pathname.includes('/campaign/npcs')) {
+                        setReferrerInfo({
+                            label: 'NPCs',
+                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
+                        });
+                    } else if (pathname.includes('/campaign/pcs')) {
+                        setReferrerInfo({
+                            label: 'PCs',
+                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
+                        });
+                    } else if (pathname.includes('/campaign/recaps')) {
+                        setReferrerInfo({
+                            label: 'Session Recaps',
+                            url: '/campaign/recaps'
+                        });
+                    } else if (pathname.includes('/campaign')) {
+                        setReferrerInfo({
+                            label: 'Campaign',
+                            url: '/campaign'
+                        });
+                    }
+                } catch {
+                    // Invalid URL, keep default
+                    console.warn('Invalid referrer URL:', referrer);
                 }
-            } catch {
-                // Invalid URL, keep default
-                console.warn('Invalid referrer URL:', referrer);
             }
-        }
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, []);
 
     return referrerInfo;

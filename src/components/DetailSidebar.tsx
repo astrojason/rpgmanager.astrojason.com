@@ -23,13 +23,8 @@ export default function DetailSidebar({
   const isDM = useIsDM();
 
   useEffect(() => {
-    if (isOpen) {
-      // Small delay to ensure the component is mounted before animating
-      const timer = setTimeout(() => setIsVisible(true), 10);
-      return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false);
-    }
+    const timer = setTimeout(() => setIsVisible(isOpen), isOpen ? 10 : 0);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   const parseMarkdown = (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin);

@@ -109,7 +109,7 @@ export const listUsersHandler = async (request: any) => {
     try {
         const listUsersResult = await authClient.listUsers(1000); // Max 1000 users
 
-        const users = listUsersResult.users.map(userRecord => ({
+        const users = listUsersResult.users.map((userRecord: admin.auth.UserRecord) => ({
             uid: userRecord.uid,
             email: userRecord.email || '',
             displayName: userRecord.displayName || '',

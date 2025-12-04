@@ -50,13 +50,11 @@ class ResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error attach to global for tests
-global.ResizeObserver = ResizeObserver;
+// attach to global for tests
+(globalThis as any).ResizeObserver = ResizeObserver;
 
 declare global {
-  // eslint-disable-next-line no-var
   var __mockDb: MockDb;
-  // eslint-disable-next-line no-var
   var __ensureSchemaMock: FnMock;
 }
 

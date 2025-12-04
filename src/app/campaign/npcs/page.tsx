@@ -89,12 +89,16 @@ export default function NPCsPage() {
       }
       
       if (npc) {
-        setSelectedNPC(npc);
-        // Update URL to use query param format for consistency
-        const url = new URL(window.location.href);
-        url.searchParams.set('selected', npc.id);
-        url.hash = ''; // Clear fragment
-        window.history.replaceState({}, '', url.toString());
+        const timer = window.setTimeout(() => {
+          setSelectedNPC(npc);
+          // Update URL to use query param format for consistency
+          const url = new URL(window.location.href);
+          url.searchParams.set('selected', npc.id);
+          url.hash = ''; // Clear fragment
+          window.history.replaceState({}, '', url.toString());
+        }, 0);
+
+        return () => clearTimeout(timer);
       }
     }
   }, [searchParams, visibleNPCs, selectedNPC]);
