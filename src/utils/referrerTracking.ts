@@ -5,62 +5,59 @@ interface ReferrerInfo {
     url: string;
 }
 
+const defaultReferrer: ReferrerInfo = { label: 'Campaign', url: '/campaign' };
+
+function parseReferrer(referrer: string): ReferrerInfo {
+    if (!referrer) return defaultReferrer;
+
+    try {
+        const referrerUrl = new URL(referrer);
+        const pathname = referrerUrl.pathname;
+        const urlWithParams = referrerUrl.pathname + referrerUrl.search;
+
+        if (pathname.includes('/campaign/locations')) {
+            return { label: 'Locations', url: urlWithParams };
+        }
+
+        if (pathname.includes('/campaign/factions')) {
+            return { label: 'Factions', url: urlWithParams };
+        }
+
+        if (pathname.includes('/campaign/npcs')) {
+            return { label: 'NPCs', url: urlWithParams };
+        }
+
+        if (pathname.includes('/campaign/pcs')) {
+            return { label: 'PCs', url: urlWithParams };
+        }
+
+        if (pathname.includes('/campaign/recaps')) {
+            return { label: 'Session Recaps', url: '/campaign/recaps' };
+        }
+
+        if (pathname.includes('/campaign')) {
+            return defaultReferrer;
+        }
+    } catch {
+        console.warn('Invalid referrer URL:', referrer);
+    }
+
+    return defaultReferrer;
+}
+
+function getStoredReferrer() {
+    if (typeof document === 'undefined') return '';
+    return document.referrer || sessionStorage.getItem('lastPage') || '';
+}
+
 export function useReferrerInfo(): ReferrerInfo {
-    const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo>({
-        label: 'Campaign',
-        url: '/campaign'
-    });
+    const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo>(() => parseReferrer(getStoredReferrer()));
 
     useEffect(() => {
-        // Get the referrer from document.referrer or session storage
-        const referrer = document.referrer || sessionStorage.getItem('lastPage') || '';
-
-        const timer = window.setTimeout(() => {
-            // Parse the referrer URL to determine the appropriate back button
-            if (referrer) {
-                try {
-                    const referrerUrl = new URL(referrer);
-                    const pathname = referrerUrl.pathname;
-
-                    if (pathname.includes('/campaign/locations')) {
-                        setReferrerInfo({
-                            label: 'Locations',
-                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                        });
-                    } else if (pathname.includes('/campaign/factions')) {
-                        setReferrerInfo({
-                            label: 'Factions',
-                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                        });
-                    } else if (pathname.includes('/campaign/npcs')) {
-                        setReferrerInfo({
-                            label: 'NPCs',
-                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                        });
-                    } else if (pathname.includes('/campaign/pcs')) {
-                        setReferrerInfo({
-                            label: 'PCs',
-                            url: referrerUrl.pathname + referrerUrl.search // Preserve query params like ?selected=id
-                        });
-                    } else if (pathname.includes('/campaign/recaps')) {
-                        setReferrerInfo({
-                            label: 'Session Recaps',
-                            url: '/campaign/recaps'
-                        });
-                    } else if (pathname.includes('/campaign')) {
-                        setReferrerInfo({
-                            label: 'Campaign',
-                            url: '/campaign'
-                        });
-                    }
-                } catch {
-                    // Invalid URL, keep default
-                    console.warn('Invalid referrer URL:', referrer);
-                }
-            }
-        }, 0);
-
-        return () => clearTimeout(timer);
+        const resolved = parseReferrer(getStoredReferrer());
+        setReferrerInfo((current) =>
+            current.label === resolved.label && current.url === resolved.url ? current : resolved
+        );
     }, []);
 
     return referrerInfo;
