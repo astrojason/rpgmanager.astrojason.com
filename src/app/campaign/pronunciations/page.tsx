@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { NPC, Location, Faction, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 export default function PronunciationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,10 +18,10 @@ export default function PronunciationsPage() {
     const loadData = async () => {
       try {
         const [npcsResponse, locationsResponse, factionsResponse, calendarResponse] = await Promise.all([
-          fetch('/api/data/npcs'),
-          fetch('/api/data/locations'),
-          fetch('/api/data/factions'),
-          fetch('/api/data/calendar')
+          authFetch('/api/data/npcs'),
+          authFetch('/api/data/locations'),
+          authFetch('/api/data/factions'),
+          authFetch('/api/data/calendar')
         ]);
 
         if (npcsResponse.ok && locationsResponse.ok && factionsResponse.ok && calendarResponse.ok) {

@@ -8,6 +8,7 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
 import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
@@ -24,7 +25,7 @@ export default function LocationsPage() {
   useEffect(() => {
     const loadLocations = async () => {
       try {
-        const response = await fetch('/api/data/locations');
+        const response = await authFetch('/api/data/locations');
         if (response.ok) {
           const data = await response.json();
           setLocations(data);

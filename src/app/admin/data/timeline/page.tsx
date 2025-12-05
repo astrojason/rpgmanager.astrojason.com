@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { authFetch } from "@/utils/authFetch";
 
 interface TimelineEvent {
   id: string;
@@ -39,7 +40,7 @@ export default function TimelineManagementPage() {
   const loadEvents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/data/timeline');
+      const response = await authFetch('/api/data/timeline');
       if (!response.ok) throw new Error('Failed to load Timeline');
       const data = await response.json();
       setEvents(Array.isArray(data) ? data : []);

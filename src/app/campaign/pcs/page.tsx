@@ -7,6 +7,7 @@ import Image from "next/image";
 import { PC, Faction } from "@/types/interfaces";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { authFetch } from "@/utils/authFetch";
 
 export default function PCsPage() {
   const [selectedPC, setSelectedPC] = useState<PC | null>(null);
@@ -27,8 +28,8 @@ export default function PCsPage() {
     const loadData = async () => {
       try {
         const [pcsResponse, factionResponse] = await Promise.all([
-          fetch('/api/data/pcs'),
-          fetch('/api/data/factions')
+          authFetch('/api/data/pcs'),
+          authFetch('/api/data/factions')
         ]);
 
         if (!pcsResponse.ok || !factionResponse.ok) {

@@ -10,6 +10,7 @@ import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
+import { authFetch } from "@/utils/authFetch";
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +32,7 @@ export default function QuestsPage() {
   useEffect(() => {
     const loadQuests = async () => {
       try {
-        const response = await fetch('/api/data/quests');
+        const response = await authFetch('/api/data/quests');
         if (!response.ok) throw new Error('Failed to load quests');
         const data = await response.json();
         setQuestsData(data);
@@ -85,7 +86,7 @@ export default function QuestsPage() {
       };
 
       // Save to backend
-      const response = await fetch('/api/data/quests', {
+      const response = await authFetch('/api/data/quests', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ export default function QuestsPage() {
   n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: userId } : n
       );
       const updatedQuest = { ...quest, notes };
-      const response = await fetch('/api/data/quests', {
+      const response = await authFetch('/api/data/quests', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedQuest),
@@ -152,7 +153,7 @@ export default function QuestsPage() {
       if (!quest) throw new Error('Quest not found');
       const notes = normalizeQuestNotes(quest).filter((n) => n.id !== noteId);
       const updatedQuest = { ...quest, notes };
-      const response = await fetch('/api/data/quests', {
+      const response = await authFetch('/api/data/quests', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedQuest),

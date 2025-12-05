@@ -11,6 +11,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
+import { authFetch } from "@/utils/authFetch";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
@@ -37,8 +38,8 @@ export default function NPCsPage() {
     const fetchData = async () => {
       try {
         const [npcsResponse, factionsResponse] = await Promise.all([
-          fetch('/api/data/npcs'),
-          fetch('/api/data/factions')
+          authFetch('/api/data/npcs'),
+          authFetch('/api/data/factions')
         ]);
         const npcs = await npcsResponse.json();
         const factions = await factionsResponse.json();
@@ -146,7 +147,7 @@ export default function NPCsPage() {
       let response;
       if (npcData.id && isEditing) {
         // Update existing NPC
-        response = await fetch('/api/data/npcs', {
+        response = await authFetch('/api/data/npcs', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(npcData),
@@ -157,7 +158,7 @@ export default function NPCsPage() {
           ...npcData,
           id: `npc_${Date.now()}`, // Generate a simple ID
         };
-        response = await fetch('/api/data/npcs', {
+        response = await authFetch('/api/data/npcs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newNPC),
@@ -166,7 +167,7 @@ export default function NPCsPage() {
 
       if (response.ok) {
         // Reload data
-        const npcsResponse = await fetch('/api/data/npcs');
+        const npcsResponse = await authFetch('/api/data/npcs');
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
         
@@ -197,7 +198,7 @@ export default function NPCsPage() {
 
       if (response.ok) {
         // Reload data
-        const npcsResponse = await fetch('/api/data/npcs');
+        const npcsResponse = await authFetch('/api/data/npcs');
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
         if (selectedNPC?.id === npcId) {
@@ -221,7 +222,7 @@ export default function NPCsPage() {
         notes: updatedNotes
       };
 
-      const response = await fetch('/api/data/npcs', {
+      const response = await authFetch('/api/data/npcs', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedNPC),
@@ -229,7 +230,7 @@ export default function NPCsPage() {
 
       if (response.ok) {
         // Reload data
-        const npcsResponse = await fetch('/api/data/npcs');
+        const npcsResponse = await authFetch('/api/data/npcs');
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
         

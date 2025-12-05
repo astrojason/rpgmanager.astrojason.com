@@ -15,6 +15,7 @@ import {
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 export default function NPCsManagementPage() {
   const [npcs, setNpcs] = useState<NPC[]>([]);
@@ -45,8 +46,8 @@ export default function NPCsManagementPage() {
     setLoading(true);
     try {
       const [npcsRes, factionsRes] = await Promise.all([
-        fetch('/api/data/npcs'),
-        fetch('/api/data/factions'),
+        authFetch('/api/data/npcs'),
+        authFetch('/api/data/factions'),
       ]);
       if (!npcsRes.ok) throw new Error('Failed to load NPCs');
       if (!factionsRes.ok) throw new Error('Failed to load factions');
@@ -222,23 +223,23 @@ export default function NPCsManagementPage() {
       let updatedNpcs;
       if (isCreating) {
         // Create via API
-        const response = await fetch('/api/data/npcs', {
+        const response = await authFetch('/api/data/npcs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(npcData),
         });
         if (!response.ok) throw new Error('Failed to create NPC');
-        const re = await fetch('/api/data/npcs');
+        const re = await authFetch('/api/data/npcs');
         updatedNpcs = await re.json();
         setSuccess("NPC created successfully!");
       } else {
-        const response = await fetch('/api/data/npcs', {
+        const response = await authFetch('/api/data/npcs', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(npcData),
         });
         if (!response.ok) throw new Error('Failed to update NPC');
-        const re = await fetch('/api/data/npcs');
+        const re = await authFetch('/api/data/npcs');
         updatedNpcs = await re.json();
         setSuccess("NPC updated successfully!");
       }
@@ -260,7 +261,7 @@ export default function NPCsManagementPage() {
     try {
       const resp = await fetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
       if (!resp.ok) throw new Error('Failed to delete NPC');
-      const re = await fetch('/api/data/npcs');
+      const re = await authFetch('/api/data/npcs');
       const updatedNpcs = await re.json();
       setNpcs(updatedNpcs);
       setSelectedNpc(null);
@@ -386,7 +387,7 @@ export default function NPCsManagementPage() {
       const merged = previewMerged as NPC;
 
       // Save merged target
-      const putResp = await fetch('/api/data/npcs', {
+      const putResp = await authFetch('/api/data/npcs', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(merged),
@@ -396,7 +397,7 @@ export default function NPCsManagementPage() {
       const delResp = await fetch(`/api/data/npcs?id=${encodeURIComponent(mergeCandidate.id)}`, { method: 'DELETE' });
       if (!delResp.ok) throw new Error('Failed to delete merged-from NPC');
       // Reload
-      const re = await fetch('/api/data/npcs');
+      const re = await authFetch('/api/data/npcs');
       const updated = await re.json();
       setNpcs(updated);
       const fresh = updated.find((n: NPC) => n.id === merged.id) || merged;

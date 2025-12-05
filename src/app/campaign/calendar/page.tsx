@@ -6,6 +6,7 @@ import {
   CalendarWeekday,
   CalendarData,
 } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 function getMonthName(
   monthIdx: number,
@@ -43,7 +44,7 @@ export default function CalendarPage() {
   useEffect(() => {
     const loadCalendarData = async () => {
       try {
-        const response = await fetch('/api/data/calendar');
+        const response = await authFetch('/api/data/calendar');
         if (response.ok) {
           const data = await response.json();
           setCalendarData(data);

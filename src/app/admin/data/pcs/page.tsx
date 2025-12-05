@@ -14,6 +14,7 @@ import {
   UserIcon
 } from "@heroicons/react/24/outline";
 import { PC, Faction } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 interface UserData {
   uid: string;
@@ -43,7 +44,7 @@ export default function PCsManagementPage() {
     setLoading(true);
     try {
       // Load PCs
-      const pcsResponse = await fetch('/api/data/pcs');
+      const pcsResponse = await authFetch('/api/data/pcs');
       if (!pcsResponse.ok) throw new Error('Failed to load PCs');
       const pcsData = await pcsResponse.json();
       setPcs(Array.isArray(pcsData) ? pcsData : []);
@@ -60,7 +61,7 @@ export default function PCsManagementPage() {
       }
       // Load Factions for name mapping and selector
       try {
-        const factionsResp = await fetch('/api/data/factions');
+        const factionsResp = await authFetch('/api/data/factions');
         if (factionsResp.ok) {
           const factionsData = await factionsResp.json();
           setFactions(Array.isArray(factionsData) ? factionsData : []);
@@ -183,7 +184,7 @@ export default function PCsManagementPage() {
       let successMessage;
       
       if (isCreating) {
-        response = await fetch('/api/data/pcs', {
+        response = await authFetch('/api/data/pcs', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -192,7 +193,7 @@ export default function PCsManagementPage() {
         });
         successMessage = "PC created successfully!";
       } else {
-        response = await fetch('/api/data/pcs', {
+        response = await authFetch('/api/data/pcs', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

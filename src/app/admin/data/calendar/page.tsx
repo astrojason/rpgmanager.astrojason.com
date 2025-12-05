@@ -10,6 +10,7 @@ import {
   CalendarIcon
 } from "@heroicons/react/24/outline";
 import { CalendarData, CalendarEvent } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 export default function CalendarManagementPage() {
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
@@ -30,7 +31,7 @@ export default function CalendarManagementPage() {
   const loadCalendar = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/data/calendar');
+      const response = await authFetch('/api/data/calendar');
       if (!response.ok) throw new Error('Failed to load calendar');
       const data = await response.json();
       setCalendarData(data);

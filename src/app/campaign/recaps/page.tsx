@@ -8,6 +8,7 @@ import { UserNote } from "@/types/interfaces";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
+import { authFetch } from "@/utils/authFetch";
 
 interface Recap {
   date: string;
@@ -36,7 +37,7 @@ export default function RecapsPage() {
   useEffect(() => {
     const loadRecaps = async () => {
       try {
-        const response = await fetch('/api/data/session-recaps');
+        const response = await authFetch('/api/data/session-recaps');
         if (response.ok) {
           const data = await response.json();
           setAllRecaps(data);
@@ -88,11 +89,11 @@ export default function RecapsPage() {
     if (!user) return;
     try {
       const payload = { ...newRecap, author: user.uid } as Recap;
-      const res = await fetch('/api/data/session-recaps', {
+      const res = await authFetch('/api/data/session-recaps', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to add recap');
-      const data = await (await fetch('/api/data/session-recaps')).json();
+      const data = await (await authFetch('/api/data/session-recaps')).json();
       setAllRecaps(data);
       setShowAddForm(false);
       setNewRecap({ date: "", title: "", recap: "" });
@@ -111,11 +112,11 @@ export default function RecapsPage() {
   const handleSaveEditRecap = async () => {
     if (!editingRecapId) return;
     try {
-      const res = await fetch('/api/data/session-recaps', {
+      const res = await authFetch('/api/data/session-recaps', {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingRecap)
       });
       if (!res.ok) throw new Error('Failed to save recap');
-      const data = await (await fetch('/api/data/session-recaps')).json();
+      const data = await (await authFetch('/api/data/session-recaps')).json();
       setAllRecaps(data);
       setEditingRecapId(null);
       setEditingRecap({});
@@ -128,11 +129,11 @@ export default function RecapsPage() {
   const handleUpdateRecapNotes = async (recap: Recap, updatedNotes: UserNote[]) => {
     try {
       const payload = { ...recap, notes: updatedNotes };
-      const res = await fetch('/api/data/session-recaps', {
+      const res = await authFetch('/api/data/session-recaps', {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to update notes');
-      const data = await (await fetch('/api/data/session-recaps')).json();
+      const data = await (await authFetch('/api/data/session-recaps')).json();
       setAllRecaps(data);
     } catch (e) {
       console.error(e);

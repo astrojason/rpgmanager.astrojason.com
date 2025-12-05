@@ -11,6 +11,7 @@ import {
   XMarkIcon
 } from "@heroicons/react/24/outline";
 import { PC } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 interface UserData {
   uid: string;
@@ -54,7 +55,7 @@ export default function UserManagementPage() {
       const userData = result.data as UserData[];
       
       // Load PCs to get character assignments
-      const pcsResponse = await fetch('/api/data/pcs');
+      const pcsResponse = await authFetch('/api/data/pcs');
       if (pcsResponse.ok) {
         const pcsData = await pcsResponse.json();
         setPcs(pcsData);
@@ -124,7 +125,7 @@ export default function UserManagementPage() {
       });
       
       // Save to API
-      const response = await fetch('/api/data/pcs', {
+      const response = await authFetch('/api/data/pcs', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

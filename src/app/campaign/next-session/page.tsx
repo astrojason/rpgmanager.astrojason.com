@@ -9,6 +9,7 @@ import {
   formatSessionDate,
   parseSessionDate,
 } from "@/utils/nextSession";
+import { authFetch } from "@/utils/authFetch";
 
 interface NextSessionData {
   date: string;
@@ -39,7 +40,7 @@ export default function NextSessionPage() {
   useEffect(() => {
     const loadSessionData = async () => {
       try {
-        const response = await fetch('/api/data/next-session');
+        const response = await authFetch('/api/data/next-session');
         if (response.ok) {
           const data = await response.json();
           setSessionData(data);
@@ -265,7 +266,7 @@ export default function NextSessionPage() {
                         lastUpdated: new Date().toISOString().split('T')[0],
                       };
                       try {
-                        const response = await fetch('/api/data/next-session', {
+                      const response = await authFetch('/api/data/next-session', {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(updatedData),
@@ -292,7 +293,7 @@ export default function NextSessionPage() {
                           lastUpdated: new Date().toISOString().split('T')[0],
                         };
                         try {
-                          const response = await fetch('/api/data/next-session', {
+                          const response = await authFetch('/api/data/next-session', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(updatedData),
@@ -321,7 +322,7 @@ export default function NextSessionPage() {
                           lastUpdated: new Date().toISOString().split('T')[0],
                         };
                         try {
-                          const response = await fetch('/api/data/next-session', {
+                        const response = await authFetch('/api/data/next-session', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(updatedData),
@@ -352,7 +353,7 @@ export default function NextSessionPage() {
                         skipReason: '',
                       };
                       try {
-                        const response = await fetch('/api/data/next-session', {
+                        const response = await authFetch('/api/data/next-session', {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(updatedData),

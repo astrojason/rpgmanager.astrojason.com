@@ -5,19 +5,11 @@
 
 // Firebase-based admin check utility
 export function isUserAdmin(): boolean {
-    // This function is primarily for server-side or immediate checks
-    // For React components, prefer using useIsAdmin hook
-
     if (typeof window === 'undefined') {
-        // Server-side rendering - cannot check Firebase auth
         return false;
     }
-
-    // Fallback to localStorage for immediate synchronous checks
-    // This should be set by the useIsAdmin hook after Firebase auth is verified
-    const isLocalAdmin = localStorage.getItem('isFirebaseAdmin') === 'true';
-
-    return isLocalAdmin;
+    // This is a convenience read; real enforcement happens via token claims.
+    return localStorage.getItem('isFirebaseAdmin') === 'true';
 }
 
 // Hook to use admin status in React components, respects impersonation

@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Faction } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
+import { verifyRequestAuth } from '@/lib/apiAuth';
 
 const TABLE = 'factions';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResult = await verifyRequestAuth(request);
+  if ('errorResponse' in authResult) return authResult.errorResponse;
+
   try {
     await ensureSchema();
     const db = getDb();
@@ -46,6 +50,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
+  if ('errorResponse' in authResult) return authResult.errorResponse;
+
   try {
     await ensureSchema();
     const db = getDb();
@@ -69,6 +76,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
+  if ('errorResponse' in authResult) return authResult.errorResponse;
+
   try {
     await ensureSchema();
     const db = getDb();
@@ -89,6 +99,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
+  if ('errorResponse' in authResult) return authResult.errorResponse;
+
   try {
     await ensureSchema();
     const db = getDb();

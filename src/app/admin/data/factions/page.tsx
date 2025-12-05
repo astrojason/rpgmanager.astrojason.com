@@ -13,6 +13,7 @@ import {
 import { Faction } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { authFetch } from "@/utils/authFetch";
 
 export default function FactionsManagementPage() {
   const [factions, setFactions] = useState<Faction[]>([]);
@@ -33,7 +34,7 @@ export default function FactionsManagementPage() {
   const loadFactions = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/data/factions');
+      const response = await authFetch('/api/data/factions');
       if (!response.ok) throw new Error('Failed to load Factions');
       const data = await response.json();
       setFactions(Array.isArray(data) ? data : []);

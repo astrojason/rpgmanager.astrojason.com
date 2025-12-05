@@ -9,6 +9,7 @@ import UserNotesEditor from '@/components/UserNotesEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
+import { authFetch } from "@/utils/authFetch";
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -48,7 +49,7 @@ export default function QuestsManagementPage() {
   const loadQuests = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/data/quests');
+      const response = await authFetch('/api/data/quests');
       if (!response.ok) throw new Error('Failed to load Quests');
       const data = await response.json();
       setQuests(Array.isArray(data) ? data : []);
@@ -152,7 +153,7 @@ export default function QuestsManagementPage() {
       
       if (isCreating) {
         // Create new quest
-        const response = await fetch('/api/data/quests', {
+        const response = await authFetch('/api/data/quests', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -171,7 +172,7 @@ export default function QuestsManagementPage() {
         setSuccess("Quest created successfully!");
       } else {
         // Update existing quest
-        const response = await fetch('/api/data/quests', {
+        const response = await authFetch('/api/data/quests', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

@@ -4,15 +4,25 @@ import { onAuthStateChanged } from "firebase/auth";
 import ImpersonationToolbar from "@/components/ImpersonationToolbar";
 import { ImpersonationContext } from "@/lib/ImpersonationContext";
 
-// Dummy fetch for users; replace with real API call if available
 async function fetchUsers() {
-  // Example: fetch from /api/users or similar endpoint
-  // Here, just return a static list for demo
-  return [
-    { id: "admin", name: "Admin User" },
-    { id: "user1", name: "Player One" },
-    { id: "user2", name: "Player Two" },
-  ];
+  // Allow configuration via environment instead of hardcoding.
+  const configuredUsers = process.env.NEXT_PUBLIC_IMPERSONATION_USERS;
+  if (!configuredUsers) {
+    if (process.env.NODE_ENV === "test") {
+      return [
+        { id: "admin", name: "Admin User" },
+        { id: "user1", name: "Player One" },
+      ];
+    }
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(configuredUsers);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // ignore parse errors and fall through
+  }
+  return [];
 }
 
 
@@ -52,7 +62,9 @@ export default function ImpersonationToolbarWrapper() {
   };
 
   // Only show on localhost and for real admin (not impersonated)
-  if (typeof window === "undefined" || !realIsAdmin || window.location.hostname !== "localhost") return null;
+  if (typeof window === "undefined" || !realIsAdmin || window.location.hostname !== "localhost" || users.length === 0) {
+    return null;
+  }
 
   return (
     <ImpersonationToolbar

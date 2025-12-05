@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Faction, NPC, PC } from "@/types/interfaces";
+import { authFetch } from "@/utils/authFetch";
 
 export default function FactionsPage() {
   const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
@@ -31,9 +32,9 @@ export default function FactionsPage() {
     const loadData = async () => {
       try {
         const [factionsResponse, npcsResponse, pcsResponse] = await Promise.all([
-          fetch('/api/data/factions'),
-          fetch('/api/data/npcs'),
-          fetch('/api/data/pcs')
+          authFetch('/api/data/factions'),
+          authFetch('/api/data/npcs'),
+          authFetch('/api/data/pcs')
         ]);
 
         if (factionsResponse.ok && npcsResponse.ok && pcsResponse.ok) {

@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
+import { authFetch } from "@/utils/authFetch";
 
 export default function LocationsManagementPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -32,7 +33,7 @@ export default function LocationsManagementPage() {
   const loadLocations = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/data/locations');
+      const response = await authFetch('/api/data/locations');
       if (!response.ok) throw new Error('Failed to load Locations');
       const data = await response.json();
       setLocations(Array.isArray(data) ? data : []);

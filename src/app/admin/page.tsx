@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { authFetch } from "@/utils/authFetch";
 import {
   UserGroupIcon,
   UsersIcon,
@@ -100,10 +101,10 @@ export default function AdminPage() {
     async function loadCounts() {
       try {
         const [npcsRes, questsRes, locationsRes, factionsRes] = await Promise.all([
-          fetch('/api/data/npcs', { cache: 'no-store' }),
-          fetch('/api/data/quests', { cache: 'no-store' }),
-          fetch('/api/data/locations', { cache: 'no-store' }),
-          fetch('/api/data/factions', { cache: 'no-store' }),
+          authFetch('/api/data/npcs', { cache: 'no-store' }),
+          authFetch('/api/data/quests', { cache: 'no-store' }),
+          authFetch('/api/data/locations', { cache: 'no-store' }),
+          authFetch('/api/data/factions', { cache: 'no-store' }),
         ]);
 
         const [npcs, quests, locations, factions] = await Promise.all([
