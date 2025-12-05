@@ -331,7 +331,7 @@ export default function QuestsPage() {
                   </div>
                 )}
 
-                {isDM && (quest as Quest).gm_notes && (
+                {isDM && Boolean((quest as Quest).gm_notes) && (
                   <div className="mt-6">
                     <h3 className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
                     <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks((quest as Quest).gm_notes || '', true) }} />

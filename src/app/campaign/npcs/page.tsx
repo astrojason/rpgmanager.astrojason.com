@@ -111,6 +111,17 @@ export default function NPCsPage() {
       ? npc.display_name || npc.aka || ''
       : npc.name || npc.aka || '';
 
+  const isValidImageSrc = (src?: string | null) => {
+    if (!src) return false;
+    if (src.startsWith("/")) return true;
+    try {
+      new URL(src);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const term = searchTerm.trim().toLowerCase();
@@ -593,7 +604,7 @@ export default function NPCsPage() {
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
-                    {selectedNPC.image ? (
+                    {selectedNPC.image && isValidImageSrc(selectedNPC.image) ? (
                       <div className="w-full h-full rounded-lg overflow-hidden relative">
                         <Image
                           src={selectedNPC.image}
@@ -939,7 +950,7 @@ export default function NPCsPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                      {npc.image ? (
+                      {npc.image && isValidImageSrc(npc.image) ? (
                         <Image
                           src={npc.image}
                           alt={npc.name || npc.aka || ""}
