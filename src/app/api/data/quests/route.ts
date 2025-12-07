@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 // Generic interface for items with id
 const TABLE = 'quests';
@@ -17,10 +18,10 @@ export async function GET(request: NextRequest) {
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const data = res.rows.map((r: Record<string, unknown>) => ({
             id: String(r.id),
-            name: r.name !== undefined ? String(r.name) : '',
+            name: sanitizeText(r.name),
             notes: r.notes ? JSON.parse(String(r.notes)) : [],
-            status: r.status !== undefined ? String(r.status) : 'active',
-            gm_notes: r.gm_notes !== undefined ? String(r.gm_notes) : undefined
+            status: sanitizeText(r.status) || 'active',
+            gm_notes: sanitizeOptionalText(r.gm_notes)
         }));
         return NextResponse.json(data);
     } catch (error) {

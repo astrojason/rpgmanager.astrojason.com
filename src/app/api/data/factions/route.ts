@@ -3,6 +3,7 @@ import { Faction } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 const TABLE = 'factions';
 
@@ -30,17 +31,17 @@ export async function GET(request: NextRequest) {
     const res = await db.execute(`SELECT * FROM ${TABLE}`);
     const data = res.rows.map((r: Record<string, unknown>) => ({
       id: String(r.id),
-      name: String(r.name ?? ''),
-      pronunciation: String(r.pronunciation ?? ''),
-      type: String(r.type ?? ''),
-      description: String(r.description ?? ''),
-      location: String(r.location ?? ''),
-      status: String(r.status ?? ''),
-      goals: String(r.goals ?? ''),
-      background: String(r.background ?? ''),
+      name: sanitizeText(r.name),
+      pronunciation: sanitizeText(r.pronunciation),
+      type: sanitizeText(r.type),
+      description: sanitizeText(r.description),
+      location: sanitizeText(r.location),
+      status: sanitizeText(r.status),
+      goals: sanitizeText(r.goals),
+      background: sanitizeOptionalText(r.background),
       relationships: r.relationships ? JSON.parse(String(r.relationships)) : undefined,
-      image: r.image ? String(r.image) : undefined,
-      gm_notes: r.gm_notes ? String(r.gm_notes) : undefined,
+      image: safeImageSrc(r.image),
+      gm_notes: sanitizeOptionalText(r.gm_notes),
     } as Faction));
     return NextResponse.json(data);
   } catch (error) {

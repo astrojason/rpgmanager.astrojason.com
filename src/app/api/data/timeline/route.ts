@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 // Interface for timeline event data
 interface TimelineEvent { id: string; title: string; date: string; description: string; category?: string; gm_notes?: string }
@@ -18,11 +19,11 @@ export async function GET(request: NextRequest) {
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const data = res.rows.map((r: Record<string, unknown>) => ({
             id: String(r.id),
-            title: r.title !== undefined ? String(r.title) : '',
-            date: r.date !== undefined ? String(r.date) : '',
-            description: r.description !== undefined ? String(r.description) : '',
-            category: r.category !== undefined ? String(r.category) : undefined,
-            gm_notes: r.gm_notes !== undefined ? String(r.gm_notes) : undefined
+            title: sanitizeText(r.title),
+            date: sanitizeText(r.date),
+            description: sanitizeText(r.description),
+            category: sanitizeOptionalText(r.category),
+            gm_notes: sanitizeOptionalText(r.gm_notes)
         }));
         return NextResponse.json(data);
     } catch (error) {

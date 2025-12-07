@@ -53,6 +53,10 @@ export default function UserManagementPage() {
       const listUsers = httpsCallable(functions, 'listUsers');
       const result = await listUsers();
       const userData = result.data as UserData[];
+
+      const normalizeRole = (role: string) => {
+        return role === 'admin' || role === 'dm' || role === 'player' ? role : 'player';
+      };
       
       // Load PCs to get character assignments
       const pcsResponse = await authFetch('/api/data/pcs');
@@ -63,12 +67,13 @@ export default function UserManagementPage() {
         // Map character assignments to users
         const usersWithCharacters = userData.map(user => ({
           ...user,
+          role: normalizeRole(user.role),
           assignedCharacter: pcsData.find((pc: PC) => pc.player === user.uid)?.id || null
         }));
         
         setUsers(usersWithCharacters);
       } else {
-        setUsers(userData);
+        setUsers(userData.map(u => ({ ...u, role: normalizeRole(u.role) })));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load users");
@@ -81,20 +86,23 @@ export default function UserManagementPage() {
     setLoading(true);
     setError("");
     setSuccess("");
+    const normalizedRole = role === 'admin' || role === 'dm' || role === 'player' ? role : 'player';
     
     try {
       const functions = getFunctions();
       const setUserRole = httpsCallable<RoleUpdateData>(functions, 'setUserRole');
-      await setUserRole({ uid, role });
+      await setUserRole({ uid, role: normalizedRole });
       
-      // Update local state
-      setUsers(users.map(user => 
-        user.uid === uid ? { ...user, role } : user
+      // Update local state and ensure we don't drop other edits
+      setUsers((prev) => prev.map(user => 
+        user.uid === uid ? { ...user, role: normalizedRole } : user
       ));
       
       setEditingUser(null);
       setNewRole("");
-      setSuccess(`User role updated to ${role} successfully!`);
+      setSuccess(`User role updated to ${normalizedRole} successfully!`);
+      // Reload from server to reflect updated custom claims
+      loadUsers();
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);

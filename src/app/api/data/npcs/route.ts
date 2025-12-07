@@ -3,6 +3,7 @@ import { NPC } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 const TABLE = 'npcs';
 const JUNCTION = 'npc_factions';
@@ -10,24 +11,24 @@ const JUNCTION = 'npc_factions';
 function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
     return {
         id: String(row.id),
-        name: row.name !== undefined ? String(row.name) : undefined,
-        aka: row.aka !== undefined ? String(row.aka) : undefined,
-        display_name: row.display_name !== undefined ? String(row.display_name) : undefined,
-        pronunciation: row.pronunciation !== undefined ? String(row.pronunciation) : '',
-        race: row.race !== undefined ? String(row.race) : '',
-        gender: row.gender !== undefined ? String(row.gender) : '',
-        location: row.location !== undefined ? String(row.location) : '',
-        status: row.status !== undefined ? String(row.status) : '',
+        name: sanitizeOptionalText(row.name),
+        aka: sanitizeOptionalText(row.aka),
+        display_name: sanitizeOptionalText(row.display_name),
+        pronunciation: sanitizeText(row.pronunciation),
+        race: sanitizeText(row.race),
+        gender: sanitizeText(row.gender),
+        location: sanitizeText(row.location),
+        status: sanitizeText(row.status),
         factions,
-        description: row.description !== undefined ? String(row.description) : '',
-        background: row.background !== undefined ? String(row.background) : undefined,
-        personality: row.personality !== undefined ? String(row.personality) : undefined,
-        image: row.image !== undefined ? String(row.image) : undefined,
+        description: sanitizeText(row.description),
+        background: sanitizeOptionalText(row.background),
+        personality: sanitizeOptionalText(row.personality),
+        image: sanitizeOptionalText(row.image),
         hidden: row.hidden ? true : false,
         nameHidden: row.nameHidden ? true : false,
         hide_name: row.hide_name ? true : false,
         notes: row.notes ? JSON.parse(String(row.notes)) : [],
-        gm_notes: row.gm_notes !== undefined ? String(row.gm_notes) : undefined,
+        gm_notes: sanitizeOptionalText(row.gm_notes),
     };
 }
 

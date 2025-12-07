@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 // Ensure Node.js runtime and disable caching for fresh reads/writes
 export const runtime = 'nodejs';
@@ -14,16 +15,17 @@ const JUNCTION = 'pc_factions';
 function rowToPC(row: Record<string, unknown>, factions: string[]) {
   return {
     id: String(row.id),
-    name: row.name !== undefined ? String(row.name) : '',
-    nickname: row.nickname !== undefined ? String(row.nickname) : undefined,
-    race: row.race !== undefined ? String(row.race) : '',
-    hometown: row.hometown !== undefined ? String(row.hometown) : '',
-    status: row.status !== undefined ? String(row.status) : '',
-    class: row.class !== undefined ? String(row.class) : '',
-    image: row.image !== undefined ? String(row.image) : undefined,
-    gif: row.gif !== undefined ? String(row.gif) : undefined,
-    player: row.player !== undefined ? String(row.player) : null,
-    gm_notes: row.gm_notes !== undefined ? String(row.gm_notes) : undefined,
+    name: sanitizeText(row.name),
+    nickname: sanitizeOptionalText(row.nickname),
+    race: sanitizeText(row.race),
+    hometown: sanitizeText(row.hometown),
+    status: sanitizeText(row.status),
+    class: sanitizeText(row.class),
+    image: sanitizeOptionalText(row.image),
+    gif: sanitizeOptionalText(row.gif),
+    // Keep null instead of stringifying null/undefined so user mapping works
+    player: row.player === null || row.player === undefined ? null : sanitizeText(row.player),
+    gm_notes: sanitizeOptionalText(row.gm_notes),
     factions,
   };
 }

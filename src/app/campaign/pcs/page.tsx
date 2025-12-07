@@ -8,6 +8,7 @@ import { PC, Faction } from "@/types/interfaces";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
+import { safeImageSrc } from "@/utils/sanitize";
 
 export default function PCsPage() {
   const [selectedPC, setSelectedPC] = useState<PC | null>(null);
@@ -71,10 +72,13 @@ export default function PCsPage() {
   const [showGif, setShowGif] = useState(false);
   const [fadeGif, setFadeGif] = useState(false);
   const isDM = useIsDM();
+  const selectedImage = safeImageSrc(selectedPC?.image);
+  const selectedGif = safeImageSrc(selectedPC?.gif);
+  const fallbackPcImage = "/public/images/pcs/magnolia.png";
 
   // Switch to gif after 5 seconds if available
   useEffect(() => {
-    if (selectedPC && selectedPC.gif) {
+    if (selectedPC && selectedGif) {
       setShowGif(false);
       setFadeGif(false);
       const timer = setTimeout(() => {
@@ -86,7 +90,7 @@ export default function PCsPage() {
       setShowGif(false);
       setFadeGif(false);
     }
-  }, [selectedPC]);
+  }, [selectedPC, selectedGif]);
   // Sidebar filter: show only active PCs or all PCs
   const [showActiveOnly, setShowActiveOnly] = useState(true);
 
@@ -146,12 +150,10 @@ export default function PCsPage() {
               onClick={(e) => e.stopPropagation()}
             >
               {selectedPC &&
-                (showGif && selectedPC.gif ? (
+                (showGif && selectedGif ? (
                   <div className="relative w-full h-full">
                     <Image
-                      src={
-                        selectedPC.image ?? "/public/images/pcs/magnolia.png"
-                      }
+                      src={selectedImage ?? fallbackPcImage}
                       alt={selectedPC.name || selectedPC.nickname || ""}
                       fill
                       style={{
@@ -166,13 +168,9 @@ export default function PCsPage() {
                           : "opacity-100"
                       }`}
                     />
-                    {showGif && selectedPC.gif && (
+                    {showGif && selectedGif && (
                       <Image
-                        src={
-                          selectedPC.gif ??
-                          selectedPC.image ??
-                          "/public/images/pcs/magnolia.png"
-                        }
+                        src={selectedGif ?? selectedImage ?? fallbackPcImage}
                         alt={selectedPC.name || selectedPC.nickname || ""}
                         fill
                         style={{
@@ -187,12 +185,10 @@ export default function PCsPage() {
                       />
                     )}
                   </div>
-                ) : selectedPC.image ? (
+                ) : selectedImage ? (
                   <div className="relative w-full h-full">
                     <Image
-                      src={
-                        selectedPC.image ?? "/public/images/pcs/magnolia.png"
-                      }
+                      src={selectedImage ?? fallbackPcImage}
                       alt={selectedPC.name || selectedPC.nickname || ""}
                       width={900}
                       height={600}
@@ -205,13 +201,9 @@ export default function PCsPage() {
                           : "opacity-100"
                       } ${showFullImage ? "scale-100" : "scale-90"}`}
                     />
-                    {showGif && selectedPC.gif && (
+                    {showGif && selectedGif && (
                       <Image
-                        src={
-                          selectedPC.gif ??
-                          selectedPC.image ??
-                          "/public/images/pcs/magnolia.png"
-                        }
+                        src={selectedGif ?? selectedImage ?? fallbackPcImage}
                         alt={selectedPC.name || selectedPC.nickname || ""}
                         width={900}
                         height={600}
@@ -225,7 +217,7 @@ export default function PCsPage() {
                     )}
                   </div>
                 ) : null)}
-              {selectedPC && !selectedPC.image ? (
+              {selectedPC && !selectedImage ? (
                 <div
                   className={`w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-5xl transition-all duration-300 ${
                     showFullImage
@@ -280,13 +272,10 @@ export default function PCsPage() {
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
-                    {showGif && selectedPC.gif ? (
+                    {showGif && selectedGif ? (
                       <div className="relative w-full h-full">
                         <Image
-                          src={
-                            selectedPC.image ??
-                            "/public/images/pcs/magnolia.png"
-                          }
+                          src={selectedImage ?? fallbackPcImage}
                           alt={selectedPC.name || selectedPC.nickname || ""}
                           fill
                           style={{
@@ -298,11 +287,7 @@ export default function PCsPage() {
                           }`}
                         />
                         <Image
-                          src={
-                            selectedPC.gif ??
-                            selectedPC.image ??
-                            "/public/images/pcs/magnolia.png"
-                          }
+                          src={selectedGif ?? selectedImage ?? fallbackPcImage}
                           alt={selectedPC.name || selectedPC.nickname || ""}
                           fill
                           unoptimized
@@ -367,13 +352,10 @@ export default function PCsPage() {
                           </p>
                         </div>
                       </div>
-                    ) : selectedPC.image ? (
+                    ) : selectedImage ? (
                       <div className="relative w-full h-full">
                         <Image
-                          src={
-                            selectedPC.image ??
-                            "/public/images/pcs/magnolia.png"
-                          }
+                          src={selectedImage ?? fallbackPcImage}
                           alt={selectedPC.name || selectedPC.nickname || ""}
                           fill
                           style={{
@@ -632,9 +614,9 @@ export default function PCsPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                      {pc.image ? (
+                      {safeImageSrc(pc.image) ? (
                         <Image
-                          src={pc.image}
+                          src={safeImageSrc(pc.image)!}
                           alt={pc.name || pc.nickname || ""}
                           fill
                           style={{

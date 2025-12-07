@@ -12,6 +12,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 import { authFetch } from "@/utils/authFetch";
+import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
 
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
@@ -105,22 +106,15 @@ export default function NPCsPage() {
   }, [searchParams, visibleNPCs, selectedNPC]);
 
   const [showFullImage, setShowFullImage] = useState(false);
+  const cleanText = (value?: string | null) => sanitizeOptionalText(value) ?? '';
   const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || npc.hide_name);
   const displayName = (npc: NPC) =>
     isNameHidden(npc)
-      ? npc.display_name || npc.aka || ''
-      : npc.name || npc.aka || '';
+      ? cleanText(npc.display_name) || cleanText(npc.aka)
+      : cleanText(npc.name) || cleanText(npc.aka);
 
-  const isValidImageSrc = (src?: string | null) => {
-    if (!src) return false;
-    if (src.startsWith("/")) return true;
-    try {
-      new URL(src);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const hasValidImage = (src?: string | null) => Boolean(safeImageSrc(src));
+  const selectedNpcImage = safeImageSrc(selectedNPC?.image);
 
   // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
@@ -515,9 +509,9 @@ export default function NPCsPage() {
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-              {selectedNPC && selectedNPC.image ? (
+              {selectedNPC && selectedNpcImage ? (
                 <Image
-                  src={selectedNPC.image as string}
+                  src={selectedNpcImage}
                   alt={displayName(selectedNPC) || ""}
                   width={900}
                   height={600}
@@ -529,7 +523,7 @@ export default function NPCsPage() {
                   }`}
                 />
               ) : null}
-              {selectedNPC && !selectedNPC.image ? (
+              {selectedNPC && !selectedNpcImage ? (
                 <div
                   className={`w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-5xl transition-all duration-300 ${
                     showFullImage
@@ -604,10 +598,10 @@ export default function NPCsPage() {
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-96 mb-6">
-                    {selectedNPC.image && isValidImageSrc(selectedNPC.image) ? (
+                    {selectedNpcImage ? (
                       <div className="w-full h-full rounded-lg overflow-hidden relative">
                         <Image
-                          src={selectedNPC.image}
+                          src={selectedNpcImage}
                           alt={displayName(selectedNPC) || ""}
                           fill
                           style={{
@@ -950,9 +944,9 @@ export default function NPCsPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                      {npc.image && isValidImageSrc(npc.image) ? (
+                      {hasValidImage(npc.image) ? (
                         <Image
-                          src={npc.image}
+                          src={safeImageSrc(npc.image)!}
                           alt={npc.name || npc.aka || ""}
                           fill
                           style={{

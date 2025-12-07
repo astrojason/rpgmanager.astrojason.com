@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/client";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, type User } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
+  const [assigningRole, setAssigningRole] = useState(false);
 
   // Redirect authenticated users to campaign landing
   useEffect(() => {
@@ -25,6 +27,22 @@ export default function AuthPage() {
     return () => unsubscribe();
   }, [router]);
 
+  const ensurePlayerRole = async (user: User) => {
+    // Assign the default player role the first time a user signs in
+    try {
+      setAssigningRole(true);
+      const functions = getFunctions();
+      const assignPlayerRole = httpsCallable(functions, "assignPlayerRole");
+      await assignPlayerRole();
+      // Refresh the token so role claims are immediately available to the app
+      await user.getIdToken(true);
+    } catch (err) {
+      console.error("Failed to assign default role", err);
+    } finally {
+      setAssigningRole(false);
+    }
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
@@ -36,9 +54,11 @@ export default function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signin") {
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        if (cred.user) await ensurePlayerRole(cred.user);
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        if (cred.user) await ensurePlayerRole(cred.user);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -57,7 +77,8 @@ export default function AuthPage() {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, provider);
+      if (cred.user) await ensurePlayerRole(cred.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -94,7 +115,7 @@ export default function AuthPage() {
             disabled={loading}
             className="w-full py-2 px-4 bg-slate-600 hover:bg-slate-700 text-white rounded-md font-semibold transition-colors duration-200"
           >
-            {loading ? "Loading..." : mode === "signin" ? "Sign In" : "Sign Up"}
+            {loading || assigningRole ? "Loading..." : mode === "signin" ? "Sign In" : "Sign Up"}
           </button>
         </form>
         <div className="my-4 flex items-center justify-center">

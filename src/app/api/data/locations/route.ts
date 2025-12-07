@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 const TABLE = 'locations';
 
@@ -29,16 +30,16 @@ export async function GET(request: NextRequest) {
     const res = await db.execute(`SELECT * FROM ${TABLE}`);
     const data = res.rows.map((r: Record<string, unknown>) => ({
       id: String(r.id),
-      name: String(r.name ?? ''),
-      pronunciation: r.pronunciation ? String(r.pronunciation) : undefined,
-      mapImg: r.mapImg ? String(r.mapImg) : undefined,
+      name: sanitizeText(r.name),
+      pronunciation: sanitizeOptionalText(r.pronunciation),
+      mapImg: safeImageSrc(r.mapImg),
       x: r.x != null ? Number(r.x) : undefined,
       y: r.y != null ? Number(r.y) : undefined,
       width: r.width != null ? Number(r.width) : undefined,
       height: r.height != null ? Number(r.height) : undefined,
-      teaser: String(r.teaser ?? ''),
-      detail: String(r.detail ?? ''),
-      gm_notes: r.gm_notes ? String(r.gm_notes) : undefined,
+      teaser: sanitizeText(r.teaser),
+      detail: sanitizeText(r.detail),
+      gm_notes: sanitizeOptionalText(r.gm_notes),
       locations: r.locations ? JSON.parse(String(r.locations)) : undefined,
     }));
     return NextResponse.json(data);

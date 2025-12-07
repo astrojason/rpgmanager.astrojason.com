@@ -113,7 +113,8 @@ export const listUsersHandler = async (request: any) => {
             uid: userRecord.uid,
             email: userRecord.email || '',
             displayName: userRecord.displayName || '',
-            role: userRecord.customClaims?.role || 'No role',
+            // Default missing claims to player so the UI shows the expected role
+            role: userRecord.customClaims?.role || 'player',
             lastSignIn: userRecord.metadata.lastSignInTime,
             created: userRecord.metadata.creationTime,
         }));
