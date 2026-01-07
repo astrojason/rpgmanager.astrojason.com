@@ -6,14 +6,14 @@ import { ensureSchema } from '@/lib/schema';
  * Standard API route handler wrapper
  * Handles auth verification and schema initialization
  */
-export async function withApiHandler<T>(
+export async function withApiHandler(
   request: NextRequest,
-  handler: (user: VerifiedUser | null) => Promise<NextResponse<T>>,
+  handler: (user: VerifiedUser | null) => Promise<NextResponse>,
   options?: {
     allowedRoles?: Array<'admin' | 'dm' | 'player'>;
     allowUnauthenticated?: boolean;
   }
-): Promise<NextResponse<T>> {
+): Promise<NextResponse> {
   const authResult = await verifyRequestAuth(request, options);
 
   if ('errorResponse' in authResult) {
@@ -26,7 +26,7 @@ export async function withApiHandler<T>(
   } catch (error) {
     console.error('API handler error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' } as T,
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

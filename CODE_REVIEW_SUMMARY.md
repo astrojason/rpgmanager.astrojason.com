@@ -190,6 +190,9 @@ if (response.ok) {
 2. **src/app/api/data/pcs/route.ts** - Fixed DELETE race condition, fixed faction ID type handling
 3. **src/app/campaign/npcs/page.tsx** - Fixed missing auth token, removed duplicate header
 4. **src/lib/schema.ts** - Fixed faction ID type mismatch (INTEGER → TEXT)
+5. **src/lib/apiHelpers.ts** - Fixed TypeScript generic type issue
+6. **tests/api/npcs.test.ts** - Updated DELETE test to mock transaction properly
+7. **tests/api/pcs.test.ts** - Updated DELETE test to mock transaction properly
 
 ---
 

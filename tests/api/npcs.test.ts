@@ -78,11 +78,29 @@ describe('npcs endpoint', () => {
     const { DELETE } = await import('@/app/api/data/npcs/route');
     const bad = await DELETE(requestWithQuery('http://test/api/npcs') as any);
     expect(bad.status).toBe(400);
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 });
+
+    // Test 404 case - transaction with 0 rows affected
+    const txExecuteMissing = vi.fn()
+      .mockResolvedValueOnce(undefined) // DELETE FROM junction
+      .mockResolvedValueOnce({ rowsAffected: 0 }); // DELETE main table - not found
+    const txCommitMissing = vi.fn();
+    const txRollbackMissing = vi.fn();
+    mockDb.transaction.mockResolvedValueOnce({ execute: txExecuteMissing, commit: txCommitMissing, rollback: txRollbackMissing });
     const missing = await DELETE(requestWithQuery('http://test/api/npcs?id=1') as any);
     expect(missing.status).toBe(404);
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+    expect(txRollbackMissing).toHaveBeenCalled();
+    expect(txCommitMissing).not.toHaveBeenCalled();
+
+    // Test success case - transaction with 1 row affected
+    const txExecuteOk = vi.fn()
+      .mockResolvedValueOnce(undefined) // DELETE FROM junction
+      .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE main table - success
+    const txCommitOk = vi.fn();
+    const txRollbackOk = vi.fn();
+    mockDb.transaction.mockResolvedValueOnce({ execute: txExecuteOk, commit: txCommitOk, rollback: txRollbackOk });
     const ok = await DELETE(requestWithQuery('http://test/api/npcs?id=1') as any);
     expect(ok.status).toBe(200);
+    expect(txCommitOk).toHaveBeenCalled();
+    expect(txRollbackOk).not.toHaveBeenCalled();
   });
 });
