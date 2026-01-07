@@ -85,7 +85,8 @@ export async function POST(request: NextRequest) {
         args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null]
       });
       const newId = Number(res.lastInsertRowid ?? 0);
-      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [newId, Number(fid)] });
+      // faction_id is TEXT in database, keep as string
+      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [newId, fid] });
       await tx.commit();
       return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
     } catch (e) { await tx.rollback(); throw e; }
@@ -113,7 +114,8 @@ export async function PUT(request: NextRequest) {
       });
       if ((res.rowsAffected ?? 0) === 0) { await tx.rollback(); return NextResponse.json({ error: 'PC not found' }, { status: 404 }); }
       await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [idNum] });
-      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [idNum, Number(fid)] });
+      // faction_id is TEXT in database, keep as string
+      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [idNum, fid] });
       await tx.commit();
       return NextResponse.json({ success: true, data: body });
     } catch (e) { await tx.rollback(); throw e; }
@@ -147,7 +149,8 @@ export async function PATCH(request: NextRequest) {
         }
         const useId = Number(pc.id);
         await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [useId] });
-        for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [useId, Number(fid)] });
+        // faction_id is TEXT in database, keep as string
+        for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [useId, fid] });
       }
       await tx.commit();
     } catch (e) { await tx.rollback(); throw e; }
@@ -163,14 +166,33 @@ export async function DELETE(request: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
+    await ensureSchema();
     const db = getDb();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'PC ID is required' }, { status: 400 });
     const idNum = Number(id);
-    const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
-    if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'PC not found' }, { status: 404 });
-    return NextResponse.json({ success: true });
+
+    // Use transaction to ensure junction table records are deleted atomically
+    const tx = await db.transaction('write');
+    try {
+      // Delete junction table entries first
+      await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [idNum] });
+
+      // Then delete the PC
+      const res = await tx.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
+
+      if ((res.rowsAffected ?? 0) === 0) {
+        await tx.rollback();
+        return NextResponse.json({ error: 'PC not found' }, { status: 404 });
+      }
+
+      await tx.commit();
+      return NextResponse.json({ success: true });
+    } catch (e) {
+      await tx.rollback();
+      throw e;
+    }
   } catch (error) {
     console.error('Error deleting PC:', error);
     return NextResponse.json({ error: 'Failed to delete PC' }, { status: 500 });

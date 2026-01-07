@@ -4,9 +4,9 @@ export async function ensureSchema() {
   const db = getDb();
   await db.execute('PRAGMA foreign_keys = ON');
 
-  // Factions
+  // Factions (using TEXT id to match route implementation)
   await db.execute(`CREATE TABLE IF NOT EXISTS factions (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     pronunciation TEXT,
     type TEXT,
@@ -57,17 +57,17 @@ export async function ensureSchema() {
     gm_notes TEXT
   )`);
 
-  // Junctions
+  // Junctions (faction_id is TEXT to match factions table)
   await db.execute(`CREATE TABLE IF NOT EXISTS npc_factions (
     npc_id INTEGER NOT NULL,
-    faction_id INTEGER NOT NULL,
+    faction_id TEXT NOT NULL,
     PRIMARY KEY(npc_id, faction_id),
     FOREIGN KEY(npc_id) REFERENCES npcs(id) ON DELETE CASCADE,
     FOREIGN KEY(faction_id) REFERENCES factions(id) ON DELETE CASCADE
   )`);
   await db.execute(`CREATE TABLE IF NOT EXISTS pc_factions (
     pc_id INTEGER NOT NULL,
-    faction_id INTEGER NOT NULL,
+    faction_id TEXT NOT NULL,
     PRIMARY KEY(pc_id, faction_id),
     FOREIGN KEY(pc_id) REFERENCES pcs(id) ON DELETE CASCADE,
     FOREIGN KEY(faction_id) REFERENCES factions(id) ON DELETE CASCADE

@@ -195,9 +195,9 @@ export default function NPCsPage() {
 
   const handleDeleteNPC = async (npcId: string) => {
     if (!confirm('Are you sure you want to delete this NPC?')) return;
-    
+
     try {
-      const response = await fetch(`/api/data/npcs?id=${npcId}`, {
+      const response = await authFetch(`/api/data/npcs?id=${npcId}`, {
         method: 'DELETE',
       });
 
@@ -701,34 +701,7 @@ export default function NPCsPage() {
                         </div>
                       </div>
                     )}
-                    <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                      <h1 className="text-4xl font-bold mb-1">
-                        {!selectedNPC.name || selectedNPC.nameHidden ? (
-                          <>Unknown</>
-                        ) : (
-                          <>{selectedNPC.name}</>
-                        )}
-                        {selectedNPC.aka && (
-                          <span
-                            className={`text-2xl font-normal opacity-75${
-                              selectedNPC.name ? " ml-2" : ""
-                            }`}
-                          >
-                            &ldquo;{selectedNPC.aka}&rdquo;
-                          </span>
-                        )}
-                      </h1>
-                      {!selectedNPC.nameHidden && (
-                        <p className="text-lg opacity-75 mb-2">
-                          ({selectedNPC.pronunciation})
-                        </p>
-                      )}
-                      <p className="text-lg opacity-90">
-                        {selectedNPC.race} - {selectedNPC.gender}
-                      </p>
-                    </div>
                   </div>
-                  {/* Full Image Modal handled at top-level */}
                   <div className="p-6 space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-4">
