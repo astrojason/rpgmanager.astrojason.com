@@ -336,27 +336,24 @@ export default function CampaignHome() {
         <section className="grim-tome">
           <div className="grim-tome-head">
             <h3 className="grim-tome-title">The Reckoning</h3>
-            <span className="grim-tome-sub">Miriandar · 4th moon</span>
+            <span className="grim-tome-sub">Calantheon · 3rd month</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3, marginBottom: 14 }}>
-            {["Sol","Lun","Mar","Mer","Jov","Ven","Sat"].map((d, i) => (
-              <div key={i} className="grim-mono" style={{ fontSize: 9, letterSpacing: ".10em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid var(--grim-line)" }}>{d}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3, marginBottom: 14 }}>
+            {["Adon","Selū","Rili","Tel'","Pyrt","Neld","Vian","Illu","Bari","Anar"].map((d, i) => (
+              <div key={i} className="grim-mono" style={{ fontSize: 8, letterSpacing: ".04em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid var(--grim-line)" }}>{d}</div>
             ))}
-            {Array.from({ length: 35 }).map((_, i) => {
-              const day = i - 1;
-              const isToday = day === 6;
-              const isSession = day === 11;
-              const valid = day >= 1 && day <= 30;
+            {Array.from({ length: 40 }).map((_, i) => {
+              const day = i + 1;
+              const isToday = day === 36;
               return (
                 <div key={i} style={{
-                  height: 28, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-display)", fontSize: 12,
-                  color: isToday ? "oklch(0.20 0.03 40)" : valid ? "var(--grim-ink-2)" : "var(--grim-ink-4)",
-                  background: isToday ? "var(--grim-ember-2)" : isSession ? "oklch(0.30 0.08 285)" : "transparent",
+                  height: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-display)", fontSize: 11,
+                  color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)",
+                  background: isToday ? "var(--grim-ember-2)" : "transparent",
                   borderRadius: 1, position: "relative"
                 }}>
-                  {valid ? day : ""}
-                  {isSession && <div style={{ position: "absolute", bottom: 1, width: 3, height: 3, borderRadius: "50%", background: "var(--grim-arcane)" }}/>}
+                  {day}
                 </div>
               );
             })}
