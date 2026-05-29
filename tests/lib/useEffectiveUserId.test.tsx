@@ -33,7 +33,7 @@ describe('useEffectiveUserId', () => {
 
   it('falls back to real user id from auth listener when not impersonating', async () => {
     mockUseImpersonation.mockReturnValue({ impersonatedUserId: undefined, setImpersonatedUserId: vi.fn() });
-    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
       cb({ uid: 'real-user' });
       return () => {};
     });

@@ -35,6 +35,7 @@ describe('referrer tracking helpers', () => {
 
     expect(setItem).toHaveBeenCalledWith('lastPage', 'https://app.test/campaign');
     setItem.mockRestore();
+    // @ts-expect-error restoring jsdom location after test override
     window.location = originalLocation;
   });
 });

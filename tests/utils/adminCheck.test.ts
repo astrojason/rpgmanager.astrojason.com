@@ -9,15 +9,12 @@ const originalWindow = global.window;
 const originalLocalStorage = global.localStorage;
 
 afterEach(() => {
-  // @ts-expect-error reset test overrides
   global.window = originalWindow;
-  // @ts-expect-error reset test overrides
   global.localStorage = originalLocalStorage;
 });
 
 describe('admin check utility', () => {
   it('returns false when running server-side', () => {
-    // @ts-expect-error allow deletion for test
     delete (global as any).window;
 
     expect(isUserAdmin()).toBe(false);
@@ -27,10 +24,8 @@ describe('admin check utility', () => {
     const storage = {
       getItem: (key: string) => (key === 'isFirebaseAdmin' ? 'true' : null),
     };
-    // @ts-expect-error provide window mock for test
-    global.window = { localStorage: storage };
-    // @ts-expect-error expose global localStorage like browsers do
-    global.localStorage = storage as any;
+    global.window = { localStorage: storage } as unknown as typeof global.window;
+    global.localStorage = storage as unknown as typeof global.localStorage;
 
     expect(isUserAdmin()).toBe(true);
   });
@@ -39,10 +34,8 @@ describe('admin check utility', () => {
     const storage = {
       getItem: () => null,
     };
-    // @ts-expect-error provide window mock for test
-    global.window = { localStorage: storage };
-    // @ts-expect-error expose global localStorage like browsers do
-    global.localStorage = storage as any;
+    global.window = { localStorage: storage } as unknown as typeof global.window;
+    global.localStorage = storage as unknown as typeof global.localStorage;
 
     expect(isUserAdmin()).toBe(false);
   });

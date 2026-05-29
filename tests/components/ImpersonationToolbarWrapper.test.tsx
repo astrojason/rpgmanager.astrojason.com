@@ -25,6 +25,7 @@ describe('ImpersonationToolbarWrapper', () => {
   });
 
   afterEach(() => {
+    // @ts-expect-error restoring jsdom location after test override
     window.location = originalLocation;
   });
 
@@ -37,7 +38,7 @@ describe('ImpersonationToolbarWrapper', () => {
   }
 
   it('renders toolbar for admin and calls impersonation handlers', async () => {
-    onAuthStateChangedMock.mockImplementation((_auth, cb) => {
+    onAuthStateChangedMock.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
       cb({
         uid: 'real-admin',
         getIdTokenResult: async () => ({ claims: { role: 'admin' } }),
@@ -57,7 +58,7 @@ describe('ImpersonationToolbarWrapper', () => {
   });
 
   it('does not render when user is not admin', async () => {
-    onAuthStateChangedMock.mockImplementation((_auth, cb) => {
+    onAuthStateChangedMock.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
       cb({
         uid: 'player',
         getIdTokenResult: async () => ({ claims: { role: 'player' } }),

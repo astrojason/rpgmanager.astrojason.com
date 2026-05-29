@@ -8,7 +8,7 @@ import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 interface TimelineEvent { id: string; title: string; date: string; description: string; category?: string; gm_notes?: string }
 const TABLE = 'timeline';
 
-export async function GET(request: NextRequest) {
+export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 

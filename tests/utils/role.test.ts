@@ -23,7 +23,7 @@ describe('role utilities', () => {
   });
 
   it('returns role from token claims', async () => {
-    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
       cb({
         getIdTokenResult: async () => ({ claims: { role: 'admin' } }),
       });
@@ -39,7 +39,7 @@ describe('role utilities', () => {
   });
 
   it('handles missing user and returns null role', async () => {
-    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
       cb(null);
       return () => {};
     });

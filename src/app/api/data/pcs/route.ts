@@ -30,7 +30,7 @@ function rowToPC(row: Record<string, unknown>, factions: string[]) {
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ("errorResponse" in authResult) return authResult.errorResponse;
 

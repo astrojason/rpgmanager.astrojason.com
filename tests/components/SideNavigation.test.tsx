@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import SideNavigation from '@/components/SideNavigation';
 
@@ -25,16 +25,10 @@ describe('SideNavigation', () => {
     mockUseIsAdmin.mockReturnValue(false);
   });
 
-  it('highlights active route and toggles collapse', () => {
-    const { getByLabelText, container } = render(<SideNavigation />);
+  it('highlights active route with is-active class', () => {
+    render(<SideNavigation />);
 
-    expect(screen.getByRole('link', { name: /Campaign Home/i })).toHaveClass('bg-slate-600');
-
-    const button = getByLabelText(/Collapse navigation/i);
-    fireEvent.click(button);
-
-    expect(container.firstChild).toHaveClass('w-16');
-    expect(button).toHaveAttribute('aria-label', 'Expand navigation');
+    expect(screen.getByRole('link', { name: /Campaign Home/i })).toHaveClass('is-active');
   });
 
   it('renders admin section only when admin', () => {
@@ -44,9 +38,11 @@ describe('SideNavigation', () => {
     expect(screen.getByRole('link', { name: /Admin/i })).toBeInTheDocument();
   });
 
-  it('disables coming-soon items', () => {
+  it('renders coming-soon items as non-interactive spans with dim class', () => {
     render(<SideNavigation />);
 
-    expect(screen.getByTitle('Items - Coming Soon')).toBeDisabled();
+    const el = screen.getByTitle('Items — coming soon');
+    expect(el.tagName.toLowerCase()).toBe('span');
+    expect(el).toHaveClass('is-dim');
   });
 });

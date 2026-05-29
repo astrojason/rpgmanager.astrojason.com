@@ -11,7 +11,7 @@ vi.mock('firebase-admin', () => ({
     setCustomUserClaims: setCustomUserClaimsMock,
     listUsers: listUsersMock,
   }),
-}), { virtual: true });
+}));
 
 class HttpsError extends Error {
   code: string;
@@ -24,16 +24,16 @@ class HttpsError extends Error {
 vi.mock('firebase-functions/v2/https', () => ({
   onCall: (fn: any) => fn,
   HttpsError,
-}), { virtual: true });
+}));
 
 vi.mock('firebase-functions', () => ({
   setGlobalOptions: vi.fn(),
-}), { virtual: true });
+}));
 
 vi.mock('firebase-functions/logger', () => ({
   log: vi.fn(),
   error: vi.fn(),
-}), { virtual: true });
+}));
 
 describe('cloud functions', () => {
   beforeEach(() => {

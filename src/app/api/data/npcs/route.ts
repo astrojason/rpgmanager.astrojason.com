@@ -32,7 +32,7 @@ function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
     };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ("errorResponse" in authResult) return authResult.errorResponse;
 

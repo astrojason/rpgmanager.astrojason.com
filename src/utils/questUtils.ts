@@ -112,7 +112,7 @@ export function formatNoteTimestamp(note: UserNote): string {
     }
 }
 
-export function migrateQuestToNewFormat(quest: Quest): Quest {
+export function migrateQuestToNewFormat(quest: Quest): Omit<Quest, 'notes'> & { notes: UserNote[] } {
     return {
         ...quest,
         notes: normalizeQuestNotes(quest)

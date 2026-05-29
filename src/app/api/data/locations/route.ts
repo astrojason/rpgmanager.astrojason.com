@@ -6,7 +6,7 @@ import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/saniti
 
 const TABLE = 'locations';
 
-export async function GET(request: NextRequest) {
+export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
