@@ -87,19 +87,32 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
-          {mode === "signin" ? "Sign In" : "Sign Up"}
-        </h2>
-        <form onSubmit={handleEmailAuth} className="space-y-4">
+    <div style={{ minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "36px 56px" }}>
+      <div className="grim-tome is-bordered" style={{ width: "100%", maxWidth: 420 }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div className="grim-page-eyebrow" style={{ marginBottom: 4 }}>Azorian&apos;s Bounty</div>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-gold)", margin: 0, lineHeight: 1 }}>
+            {mode === "signin" ? "A Summoning" : "Inscribe Thyself"}
+          </h2>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", fontStyle: "italic", marginTop: 6 }}>
+            {mode === "signin" ? "The codex awaits the worthy." : "Join the campaign roster."}
+          </div>
+        </div>
+
+        <hr className="grim-rule" style={{ marginBottom: 20 }}/>
+
+        <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            style={{
+              background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15,
+              padding: "10px 14px", outline: "none", borderRadius: 1
+            }}
           />
           <input
             type="password"
@@ -107,37 +120,42 @@ export default function AuthPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            style={{
+              background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15,
+              padding: "10px 14px", outline: "none", borderRadius: 1
+            }}
           />
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-slate-600 hover:bg-slate-700 text-white rounded-md font-semibold transition-colors duration-200"
-          >
-            {loading || assigningRole ? "Loading..." : mode === "signin" ? "Sign In" : "Sign Up"}
+          {error && <div style={{ color: "var(--grim-blood-2)", fontSize: 13, fontFamily: "var(--font-mono)" }}>{error}</div>}
+          <button type="submit" disabled={loading} className="grim-btn is-ember" style={{ justifyContent: "center", padding: "12px 14px", fontSize: 13 }}>
+            {loading || assigningRole ? "Loading..." : mode === "signin" ? "Enter the Codex" : "Sign Up"}
           </button>
         </form>
-        <div className="my-4 flex items-center justify-center">
-          <span className="text-gray-500 dark:text-gray-400 text-sm">or</span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0" }}>
+          <div className="grim-rule" style={{ margin: 0, flex: 1 }}/>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>or</span>
+          <div className="grim-rule" style={{ margin: 0, flex: 1 }}/>
         </div>
+
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full py-2 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-md font-semibold flex items-center justify-center gap-2 transition-colors duration-200"
+          className="grim-btn is-ghost"
+          style={{ width: "100%", justifyContent: "center", gap: 10, padding: "12px 14px" }}
         >
-          <svg className="w-5 h-5" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.85-6.85C35.64 2.36 30.18 0 24 0 14.82 0 6.73 5.48 2.69 13.44l7.98 6.2C12.13 13.13 17.57 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.42c-.54 2.9-2.18 5.36-4.66 7.04l7.19 5.6C43.98 37.13 46.1 31.3 46.1 24.55z"/><path fill="#FBBC05" d="M10.67 28.09c-1.01-2.97-1.01-6.21 0-9.18l-7.98-6.2C.99 16.36 0 20.05 0 24s.99 7.64 2.69 11.29l7.98-6.2z"/><path fill="#EA4335" d="M24 48c6.18 0 11.64-2.04 15.52-5.56l-7.19-5.6c-2.01 1.35-4.59 2.16-8.33 2.16-6.43 0-11.87-3.63-14.33-8.94l-7.98 6.2C6.73 42.52 14.82 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></g></svg>
+          <svg style={{ width: 18, height: 18 }} viewBox="0 0 48 48"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.85-6.85C35.64 2.36 30.18 0 24 0 14.82 0 6.73 5.48 2.69 13.44l7.98 6.2C12.13 13.13 17.57 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.43-4.74H24v9.01h12.42c-.54 2.9-2.18 5.36-4.66 7.04l7.19 5.6C43.98 37.13 46.1 31.3 46.1 24.55z"/><path fill="#FBBC05" d="M10.67 28.09c-1.01-2.97-1.01-6.21 0-9.18l-7.98-6.2C.99 16.36 0 20.05 0 24s.99 7.64 2.69 11.29l7.98-6.2z"/><path fill="#EA4335" d="M24 48c6.18 0 11.64-2.04 15.52-5.56l-7.19-5.6c-2.01 1.35-4.59 2.16-8.33 2.16-6.43 0-11.87-3.63-14.33-8.94l-7.98 6.2C6.73 42.52 14.82 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></g></svg>
           {loading ? "Loading..." : "Continue with Google"}
         </button>
-        <div className="mt-6 text-center">
+
+        <div style={{ marginTop: 16, textAlign: "center" }}>
           <button
             type="button"
-            className="text-slate-600 hover:underline dark:text-slate-400"
+            className="grim-link"
+            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".08em" }}
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           >
-            {mode === "signin"
-              ? "Don't have an account? Sign Up"
-              : "Already have an account? Sign In"}
+            {mode === "signin" ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
           </button>
         </div>
       </div>

@@ -21,7 +21,8 @@ export default function SignOutButton() {
   return (
     <button
       onClick={handleSignOut}
-      className="w-full py-2 px-4 bg-gray-700 hover:bg-gray-800 text-white rounded-md font-semibold transition-colors duration-200 mt-2"
+      className="grim-btn is-ghost"
+      style={{ width: "100%", justifyContent: "center" }}
     >
       Sign Out
     </button>

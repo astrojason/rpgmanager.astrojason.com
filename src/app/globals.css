@@ -221,3 +221,505 @@ body {
   will-change: transform;
   isolation: isolate;
 }
+
+/* ─────────────────────────────────────────────────────────────
+ * Grimoire UI — Deep midnight purples, candlelight gold, ember orange, parchment.
+ * ───────────────────────────────────────────────────────────── */
+
+:root {
+  --grim-bg:        oklch(0.105 0.025 295);
+  --grim-bg-2:      oklch(0.135 0.030 290);
+  --grim-bg-3:      oklch(0.175 0.035 285);
+  --grim-bg-4:      oklch(0.215 0.040 280);
+  --grim-line:      oklch(0.30 0.030 285);
+  --grim-line-2:    oklch(0.40 0.035 285);
+
+  --grim-ink:       oklch(0.94 0.020 85);
+  --grim-ink-2:     oklch(0.78 0.030 85);
+  --grim-ink-3:     oklch(0.58 0.025 85);
+  --grim-ink-4:     oklch(0.42 0.020 85);
+
+  --grim-ember:     oklch(0.72 0.165 48);
+  --grim-ember-2:   oklch(0.82 0.165 62);
+  --grim-gold:      oklch(0.84 0.115 85);
+  --grim-gold-2:    oklch(0.68 0.115 82);
+  --grim-blood:     oklch(0.52 0.180 22);
+  --grim-blood-2:   oklch(0.62 0.180 22);
+  --grim-moss:      oklch(0.55 0.090 145);
+  --grim-bone:      oklch(0.70 0.045 78);
+  --grim-arcane:    oklch(0.65 0.150 285);
+
+  --grim-parchment:    oklch(0.86 0.045 78);
+  --grim-parchment-2:  oklch(0.78 0.060 72);
+  --grim-parchment-ink: oklch(0.25 0.025 50);
+
+  --font-display:   "Pirata One", "UnifrakturMaguntia", serif;
+  --font-head:      "IM Fell English SC", "Cinzel", "EB Garamond", serif;
+  --font-body:      "EB Garamond", "Cormorant Garamond", Georgia, serif;
+  --font-mono:      "JetBrains Mono", ui-monospace, monospace;
+}
+
+.grim-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background:
+    radial-gradient(ellipse 1200px 800px at 80% -10%, oklch(0.30 0.10 30 / 0.18), transparent 60%),
+    radial-gradient(ellipse 900px 600px at 10% 110%, oklch(0.25 0.10 295 / 0.20), transparent 60%),
+    var(--grim-bg);
+  color: var(--grim-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  overflow: hidden;
+  position: relative;
+}
+
+.grim-screen::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.10) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 2px;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+.grim-screen > * { position: relative; z-index: 2; }
+
+.grim-sidebar {
+  flex: 0 0 240px;
+  background: linear-gradient(180deg, oklch(0.12 0.030 290) 0%, oklch(0.09 0.025 295) 100%);
+  border-right: 1px solid var(--grim-line);
+  padding: 22px 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.grim-sidebar::after {
+  content: "";
+  position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+  background: linear-gradient(180deg, transparent, oklch(0.55 0.080 60 / 0.18) 30%, oklch(0.55 0.080 60 / 0.18) 70%, transparent);
+}
+
+.grim-brand {
+  padding: 0 22px 22px;
+  border-bottom: 1px solid var(--grim-line);
+  margin-bottom: 18px;
+}
+
+.grim-brand-mark {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, var(--grim-ember-2), var(--grim-ember) 55%, oklch(0.35 0.10 35) 100%);
+  box-shadow: 0 0 24px oklch(0.72 0.165 48 / 0.45), inset 0 0 8px oklch(0.30 0.05 30 / 0.6), 0 0 0 1px var(--grim-gold-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: oklch(0.20 0.04 40);
+  margin-bottom: 12px;
+}
+
+.grim-brand-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--grim-gold);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.grim-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--grim-ink-3);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.grim-nav-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--grim-ink-4);
+  text-transform: uppercase;
+  padding: 0 24px;
+  margin: 14px 0 8px;
+}
+
+.grim-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 12px;
+}
+
+.grim-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  font-family: var(--font-head);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--grim-ink-2);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+}
+
+.grim-nav-item .grim-nav-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--grim-ink-4);
+  letter-spacing: 0;
+  font-style: italic;
+  margin-top: 1px;
+}
+
+.grim-nav-item:hover {
+  background: var(--grim-bg-3);
+  color: var(--grim-ink);
+}
+
+.grim-nav-item.is-active {
+  background: linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent 80%);
+  color: var(--grim-ember-2);
+}
+
+.grim-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: -12px; top: 4px; bottom: 4px;
+  width: 2px;
+  background: var(--grim-ember);
+  box-shadow: 0 0 8px var(--grim-ember);
+}
+
+.grim-nav-item.is-dim { opacity: 0.45; pointer-events: none; }
+
+.grim-nav-ico {
+  width: 16px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: currentColor;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.grim-nav-body { flex: 1; min-width: 0; line-height: 1.15; }
+
+.grim-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 36px 56px 80px;
+}
+
+.grim-main::-webkit-scrollbar { width: 6px; }
+.grim-main::-webkit-scrollbar-track { background: transparent; }
+.grim-main::-webkit-scrollbar-thumb { background: var(--grim-line-2); border-radius: 999px; }
+
+.grim-page-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grim-ember);
+  margin-bottom: 8px;
+}
+
+.grim-page-title {
+  font-family: var(--font-display);
+  font-size: 64px;
+  color: var(--grim-gold);
+  margin: 0 0 6px;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 32px oklch(0.72 0.165 48 / 0.18);
+}
+
+.grim-page-sub {
+  font-family: var(--font-head);
+  font-size: 14px;
+  color: var(--grim-ink-3);
+  font-style: italic;
+  margin: 0 0 28px;
+}
+
+.grim-tome {
+  position: relative;
+  background: linear-gradient(180deg, oklch(0.175 0.035 285) 0%, oklch(0.145 0.030 290) 100%);
+  border: 1px solid var(--grim-line);
+  border-radius: 2px;
+  padding: 24px 28px;
+  box-shadow: inset 0 1px 0 oklch(0.55 0.080 60 / 0.10), 0 12px 40px oklch(0 0 0 / 0.35);
+}
+
+.grim-tome.is-bordered {
+  border: 1px solid var(--grim-gold-2);
+  background: linear-gradient(180deg, oklch(0.18 0.035 285) 0%, oklch(0.13 0.030 290) 100%);
+}
+
+.grim-tome-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--grim-line);
+  position: relative;
+}
+
+.grim-tome-head::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 64px; height: 1px;
+  background: var(--grim-gold-2);
+}
+
+.grim-tome-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grim-gold);
+  margin: 0;
+}
+
+.grim-tome-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--grim-ink-3);
+}
+
+.grim-parchment {
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 20%, oklch(0.92 0.040 78) 0%, var(--grim-parchment) 60%, var(--grim-parchment-2) 100%);
+  color: var(--grim-parchment-ink);
+  border-radius: 1px;
+  padding: 28px 36px;
+  position: relative;
+  font-family: var(--font-body);
+  box-shadow: inset 0 0 30px oklch(0.40 0.06 50 / 0.20), inset 0 0 0 1px oklch(0.55 0.08 50 / 0.35), 0 8px 22px rgba(0,0,0,0.4);
+}
+
+.grim-parchment::before, .grim-parchment::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; height: 6px;
+  background-image: linear-gradient(180deg, oklch(0.55 0.08 50 / 0.25), transparent);
+  pointer-events: none;
+}
+.grim-parchment::before { top: 0; }
+.grim-parchment::after  { bottom: 0; transform: scaleY(-1); }
+
+.grim-parchment .drop {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 0.85;
+  color: var(--grim-blood);
+  padding: 4px 8px 0 0;
+  margin-top: 4px;
+}
+
+.grim-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border: 1px solid var(--grim-line-2);
+  background: var(--grim-bg-3);
+  color: var(--grim-ink);
+  cursor: pointer;
+  border-radius: 1px;
+  position: relative;
+}
+
+.grim-btn:hover { background: var(--grim-bg-4); border-color: var(--grim-gold-2); color: var(--grim-gold); }
+
+.grim-btn.is-ember {
+  background: linear-gradient(180deg, oklch(0.40 0.12 35), oklch(0.30 0.10 30));
+  border-color: var(--grim-ember);
+  color: oklch(0.95 0.02 80);
+  box-shadow: 0 0 18px oklch(0.72 0.165 48 / 0.25);
+}
+
+.grim-btn.is-blood {
+  background: linear-gradient(180deg, oklch(0.40 0.16 22), oklch(0.30 0.14 22));
+  border-color: var(--grim-blood-2);
+  color: oklch(0.95 0.02 60);
+}
+
+.grim-btn.is-ghost {
+  background: transparent;
+  border-color: var(--grim-line);
+  color: var(--grim-ink-2);
+}
+
+.grim-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-head);
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  padding: 3px 9px;
+  border: 1px solid var(--grim-line-2);
+  border-radius: 999px;
+  color: var(--grim-ink-2);
+  background: oklch(0.18 0.035 285 / 0.6);
+}
+
+.grim-chip.is-alive { color: var(--grim-moss); border-color: oklch(0.55 0.090 145 / 0.55); background: oklch(0.40 0.080 145 / 0.18); }
+.grim-chip.is-dead { color: oklch(0.55 0.04 30); border-color: oklch(0.45 0.05 30 / 0.55); background: oklch(0.30 0.05 30 / 0.18); }
+.grim-chip.is-deceased { color: oklch(0.55 0.04 30); border-color: oklch(0.45 0.05 30 / 0.55); background: oklch(0.30 0.05 30 / 0.18); }
+.grim-chip.is-unknown { color: var(--grim-bone); border-style: dashed; }
+.grim-chip.is-ember { color: var(--grim-ember-2); border-color: oklch(0.72 0.165 48 / 0.55); background: oklch(0.40 0.10 40 / 0.20); }
+.grim-chip.is-arcane { color: var(--grim-arcane); border-color: oklch(0.65 0.150 285 / 0.55); background: oklch(0.40 0.10 285 / 0.18); }
+.grim-chip.is-faction { color: var(--grim-gold); border-color: oklch(0.68 0.115 82 / 0.45); background: oklch(0.40 0.08 80 / 0.15); }
+
+.grim-seal {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, oklch(0.65 0.20 22), oklch(0.42 0.18 22) 55%, oklch(0.30 0.15 22) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  color: oklch(0.90 0.06 60);
+  font-size: 30px;
+  box-shadow: inset -2px -3px 6px oklch(0.25 0.10 22 / 0.6), inset 3px 4px 6px oklch(0.85 0.15 30 / 0.4), 0 6px 18px oklch(0.30 0.12 22 / 0.5), 0 0 0 2px oklch(0.25 0.08 22) inset;
+  position: relative;
+  transform: rotate(-8deg);
+  flex-shrink: 0;
+}
+
+.grim-seal::before {
+  content: "";
+  position: absolute; inset: 6px;
+  border-radius: 50%;
+  border: 1px dashed oklch(0.80 0.10 30 / 0.45);
+}
+
+.grim-flame {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, var(--grim-ember-2), var(--grim-ember));
+  box-shadow: 0 0 10px var(--grim-ember), 0 0 20px oklch(0.72 0.165 48 / 0.6);
+  animation: grim-flicker 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes grim-flicker {
+  0%   { opacity: 0.85; transform: scale(1); }
+  60%  { opacity: 1;    transform: scale(1.08); }
+  100% { opacity: 0.7;  transform: scale(0.95); }
+}
+
+.grim-img-slot {
+  position: relative;
+  background:
+    repeating-linear-gradient(135deg,
+      oklch(0.22 0.04 285) 0,
+      oklch(0.22 0.04 285) 8px,
+      oklch(0.17 0.035 285) 8px,
+      oklch(0.17 0.035 285) 16px);
+  border: 1px solid var(--grim-line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--grim-ink-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.grim-img-slot.is-portrait {
+  background:
+    radial-gradient(circle at 50% 40%, oklch(0.32 0.06 280), oklch(0.18 0.04 285) 70%),
+    repeating-linear-gradient(135deg, oklch(0.22 0.04 285) 0, oklch(0.22 0.04 285) 6px, oklch(0.17 0.035 285) 6px, oklch(0.17 0.035 285) 12px);
+  background-blend-mode: multiply;
+}
+
+.grim-h-script {
+  font-family: var(--font-display);
+  color: var(--grim-gold);
+  font-weight: normal;
+}
+
+.grim-h-section {
+  font-family: var(--font-head);
+  font-size: 13px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--grim-ember-2);
+  margin: 0 0 10px;
+}
+
+.grim-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grim-ink-4);
+}
+
+.grim-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--grim-line-2) 20%, var(--grim-line-2) 80%, transparent);
+  margin: 16px 0;
+  border: 0;
+}
+
+.grim-rule-ornament {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--grim-gold-2);
+}
+
+.grim-rule-ornament::before,
+.grim-rule-ornament::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--grim-gold-2));
+}
+.grim-rule-ornament::after {
+  background: linear-gradient(90deg, var(--grim-gold-2), transparent);
+}
+
+.grim-rule-ornament-glyph {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+}
+
+a.grim-link {
+  color: var(--grim-ember-2);
+  text-decoration: none;
+  border-bottom: 1px dotted oklch(0.72 0.165 48 / 0.5);
+}
+a.grim-link:hover { color: var(--grim-gold); }
+
+.grim-row { display: flex; gap: 12px; align-items: center; }
+.grim-stack { display: flex; flex-direction: column; gap: 12px; }
+.grim-muted { color: var(--grim-ink-3); }
+.grim-dim   { color: var(--grim-ink-4); }
+.grim-mono  { font-family: var(--font-mono); }

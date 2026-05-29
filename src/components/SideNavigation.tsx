@@ -1,292 +1,126 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  MapPinIcon,
-  UserGroupIcon,
-  ClipboardDocumentListIcon,
-  CubeIcon,
-  BookOpenIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  AcademicCapIcon,
-  ShieldCheckIcon,
-  SparklesIcon,
-  DocumentTextIcon,
-  UsersIcon,
-  CogIcon,
-  HomeIcon,
-  CalendarDaysIcon,
-} from "@heroicons/react/24/outline";
-import { NavigationItem, SideNavigationProps } from "@/types/interfaces";
-import SignOutButton from "@/components/SignOutButton";
 import { useIsAdmin } from '@/utils/adminCheck';
+import SignOutButton from "@/components/SignOutButton";
 
-export default function SideNavigation(props: SideNavigationProps) {
-  const className = props.className || "";
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const NAV_ITEMS = [
+  { id: "home",         label: "Campaign Home",     sub: "Dashboard of the Bounty",       icon: "home",    href: "/campaign" },
+  { id: "session",      label: "Next Session",       sub: "Summoning & agenda",            icon: "moon",    href: "/campaign/next-session" },
+  { id: "locations",    label: "Locations",          sub: "Towns, cities, landmarks",      icon: "pin",     href: "/campaign/locations" },
+  { id: "calendar",     label: "Calendar",           sub: "World calendar & events",       icon: "cal",     href: "/campaign/calendar" },
+  { id: "timeline",     label: "Timeline",           sub: "Major events of the realm",     icon: "scroll",  href: "/campaign/timeline",     dim: true },
+  { id: "npcs",         label: "NPCs",               sub: "Characters & merchants",        icon: "skull",   href: "/campaign/npcs" },
+  { id: "pcs",          label: "Player Characters",  sub: "The party",                     icon: "shield",  href: "/campaign/pcs" },
+  { id: "factions",     label: "Factions",           sub: "Guilds, politics, cabals",      icon: "banner",  href: "/campaign/factions" },
+  { id: "quests",       label: "Quests",             sub: "Active, complete, available",   icon: "key",     href: "/campaign/quests" },
+  { id: "items",        label: "Items",              sub: "Weapons, artifacts, charms",    icon: "gem",     href: "/campaign/items",        dim: true },
+  { id: "lore",         label: "Lore",               sub: "History & world building",      icon: "book",    href: "/campaign/lore",         dim: true },
+  { id: "deities",      label: "Deities",            sub: "Gods, pantheons, powers",       icon: "star",    href: "/campaign/deities",      dim: true },
+  { id: "recaps",       label: "Recaps",             sub: "Session summaries",             icon: "feather", href: "/campaign/recaps" },
+  { id: "pronounce",    label: "Pronunciations",     sub: "Name pronunciation guide",      icon: "tongue",  href: "/campaign/pronunciations" },
+];
+
+function NavIcon({ name }: { name: string }) {
+  const common = { width: 16, height: 16, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (name) {
+    case "home":    return <svg {...common}><path d="M2 7l6-5 6 5v7H2V7z"/><path d="M6 14V9h4v5"/></svg>;
+    case "moon":    return <svg {...common}><path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.5 4.5 0 0 0 6.5 6.5z"/></svg>;
+    case "pin":     return <svg {...common}><path d="M8 14s5-4.5 5-8a5 5 0 1 0-10 0c0 3.5 5 8 5 8z"/><circle cx="8" cy="6" r="1.6"/></svg>;
+    case "cal":     return <svg {...common}><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M2 6h12M5 2v3M11 2v3"/></svg>;
+    case "scroll":  return <svg {...common}><path d="M3 3h8v10H4a1 1 0 0 1-1-1V3z"/><path d="M11 3h2v8a2 2 0 0 1-2 2"/></svg>;
+    case "skull":   return <svg {...common}><path d="M3 7a5 5 0 1 1 10 0v3l-1 1v2H4v-2l-1-1V7z"/><circle cx="6" cy="8" r="1"/><circle cx="10" cy="8" r="1"/></svg>;
+    case "shield":  return <svg {...common}><path d="M8 2l5 2v4c0 3-2.5 5.5-5 6-2.5-.5-5-3-5-6V4l5-2z"/></svg>;
+    case "banner":  return <svg {...common}><path d="M3 2h10v9l-5-2-5 2V2z"/></svg>;
+    case "key":     return <svg {...common}><circle cx="5" cy="8" r="3"/><path d="M8 8h6M11 8v2M14 8v2"/></svg>;
+    case "gem":     return <svg {...common}><path d="M3 6l3-4h4l3 4-5 8-5-8z"/><path d="M3 6h10M6 2l-1 4 3 8M10 2l1 4-3 8"/></svg>;
+    case "book":    return <svg {...common}><path d="M3 3h4a2 2 0 0 1 2 2v9a2 2 0 0 0-2-2H3V3z"/><path d="M13 3H9a2 2 0 0 0-2 2v9a2 2 0 0 1 2-2h4V3z"/></svg>;
+    case "star":    return <svg {...common}><path d="M8 2l1.8 3.8 4.2.6-3 3 .7 4.2L8 11.6 4.3 13.6 5 9.4 2 6.4l4.2-.6L8 2z"/></svg>;
+    case "feather": return <svg {...common}><path d="M13 3c-2 0-9 3-9 9v1h1c6 0 9-7 9-9l-2 2M4 13l4-4"/></svg>;
+    case "tongue":  return <svg {...common}><path d="M3 4h10M3 8h7M3 12h10"/></svg>;
+    case "cog":     return <svg {...common}><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></svg>;
+    default:        return null;
+  }
+}
+
+export default function SideNavigation() {
   const pathname = usePathname();
   const isAdmin = useIsAdmin();
 
-  const navigationItems: NavigationItem[] = [
-    {
-      id: "campaign-home",
-      name: "Campaign Home",
-      icon: HomeIcon,
-      href: "/campaign",
-      description: "Main campaign dashboard",
-    },
-    {
-      id: "next-session",
-      name: "Next Session",
-      icon: CalendarDaysIcon,
-      href: "/campaign/next-session",
-      description: "Upcoming session details",
-    },
-    {
-      id: "locations",
-      name: "Locations",
-      icon: MapPinIcon,
-      href: "/campaign/locations",
-      description: "Towns, cities, landmarks",
-    },
-    {
-      id: "calendar",
-      name: "Calendar",
-      icon: AcademicCapIcon,
-      href: "/campaign/calendar",
-      description: "World calendar and events",
-    },
-    {
-      id: "timeline",
-      name: "Timeline",
-      icon: ChevronRightIcon,
-      href: "/campaign/timeline",
-      description: "Campaign timeline of major events",
-    },
-    {
-      id: "npcs",
-      name: "NPCs",
-      icon: UserGroupIcon,
-      href: "/campaign/npcs",
-      description: "Characters, merchants, quest givers",
-    },
-    {
-      id: "pcs",
-      name: "PCs",
-      icon: UsersIcon,
-      href: "/campaign/pcs",
-      description: "Player characters",
-    },
-    {
-      id: "factions",
-      name: "Factions",
-      icon: ShieldCheckIcon,
-      href: "/campaign/factions",
-      description: "Organizations, guilds, political groups",
-    },
-    {
-      id: "quests",
-      name: "Quests",
-      icon: ClipboardDocumentListIcon,
-      href: "/campaign/quests",
-      description: "Active, completed, available quests",
-    },
-    {
-      id: "items",
-      name: "Items",
-      icon: CubeIcon,
-      href: "/campaign/items",
-      description: "Weapons, armor, artifacts, consumables",
-    },
-    {
-      id: "lore",
-      name: "Lore",
-      icon: BookOpenIcon,
-      href: "/campaign/lore",
-      description: "History, stories, world building",
-    },
-    {
-      id: "deities",
-      name: "Deities",
-      icon: SparklesIcon,
-      href: "/campaign/deities",
-      description: "Gods, pantheons, divine powers",
-    },
-    {
-      id: "recaps",
-      name: "Recaps",
-      icon: DocumentTextIcon,
-      href: "/campaign/recaps",
-      description: "Session summaries, campaign notes",
-    },
-    {
-      id: "pronunciations",
-      name: "Pronunciations",
-      icon: AcademicCapIcon,
-      href: "/campaign/pronunciations",
-      description: "Name pronunciation guide",
-    },
-  ];
-
-  const toggleCollapsed = () => {
-    setIsCollapsed(!isCollapsed);
+  const isActive = (href: string) => {
+    if (href === "/campaign") return pathname === "/campaign";
+    return pathname.startsWith(href);
   };
 
   return (
-    <div
-      className={`bg-gray-900 dark:bg-gray-950 text-white transition-all duration-300 ease-in-out border-r border-gray-700 dark:border-gray-800 ${
-        isCollapsed ? "w-16" : "w-64"
-      } ${className}`}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-700">
-        {!isCollapsed && (
-          <h2 className="text-lg font-semibold text-gray-100">Navigation</h2>
-        )}
-        <button
-          onClick={toggleCollapsed}
-          className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
-          aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
-        >
-          {isCollapsed ? (
-            <ChevronRightIcon className="w-5 h-5" />
-          ) : (
-            <ChevronLeftIcon className="w-5 h-5" />
-          )}
-        </button>
+    <aside className="grim-sidebar">
+      <div className="grim-brand">
+        <div className="grim-brand-mark">A</div>
+        <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
+        <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
       </div>
 
-      {/* Navigation Items */}
-      <nav className="flex-1 px-3 py-4">
-        <ul className="space-y-2">
-          {navigationItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = pathname === item.href;
-            const isDisabled = [
-              "items",
-              "lore",
-              "deities",
-              "timeline"
-            ].includes(item.id);
-            const isAvailable = [
-              "campaign-home",
-              "next-session",
-              "npcs",
-              "locations",
-              "factions",
-              "pronunciations",
-              "quests",
-              "pcs",
-              "calendar",
-              "recaps"
-            ].includes(item.id);
-            if (isAvailable) {
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={item.href}
-                    className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-colors group ${
-                      isActive
-                        ? "bg-slate-600 text-white"
-                        : "text-gray-300 hover:text-white hover:bg-gray-800"
-                    }`}
-                  >
-                    <IconComponent className="w-6 h-6 flex-shrink-0" />
-                    {!isCollapsed && (
-                      <div className="ml-3 flex-1 min-w-0">
-                        <div className="text-sm font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-400 truncate">
-                          {item.description}
-                        </div>
-                      </div>
-                    )}
-                  </Link>
-                </li>
-              );
-            } else if (isDisabled) {
-              return (
-                <li key={item.id}>
-                  <button
-                    className="w-full flex items-center px-3 py-3 text-left text-gray-500 cursor-not-allowed opacity-60 rounded-lg group"
-                    disabled
-                    title={`${item.name} - Coming Soon`}
-                  >
-                    <IconComponent className="w-6 h-6 flex-shrink-0" />
-                    {!isCollapsed && (
-                      <div className="ml-3 flex-1 min-w-0">
-                        <div className="text-sm font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-500 truncate">
-                          {item.description}
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                </li>
-              );
-            } else {
-              return (
-                <li key={item.id}>
-                  <button
-                    className="w-full flex items-center px-3 py-3 text-left text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors group cursor-not-allowed opacity-75"
-                    disabled
-                    title={`${item.name} - Coming Soon`}
-                  >
-                    <IconComponent className="w-6 h-6 flex-shrink-0" />
-                    {!isCollapsed && (
-                      <div className="ml-3 flex-1 min-w-0">
-                        <div className="text-sm font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-400 truncate">
-                          {item.description}
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                </li>
-              );
-            }
-          })}
-        </ul>
+      <div className="grim-nav-label">Navigation</div>
+      <nav className="grim-nav">
+        {NAV_ITEMS.map((item) => (
+          item.dim ? (
+            <span
+              key={item.id}
+              className="grim-nav-item is-dim"
+              title={`${item.label} — coming soon`}
+            >
+              <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
+              <span className="grim-nav-body">
+                <div>{item.label}</div>
+                <div className="grim-nav-sub">{item.sub}</div>
+              </span>
+            </span>
+          ) : (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={`grim-nav-item${isActive(item.href) ? " is-active" : ""}`}
+            >
+              <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
+              <span className="grim-nav-body">
+                <div>{item.label}</div>
+                <div className="grim-nav-sub">{item.sub}</div>
+              </span>
+            </Link>
+          )
+        ))}
 
-        {/* Admin Section - Only show if impersonated or real user is admin */}
         {isAdmin && (
-          <>
-            <hr className="my-4 border-gray-700" />
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/admin"
-                  className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-colors group ${
-                    pathname === "/admin"
-                      ? "bg-rose-600 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-gray-800"
-                  }`}
-                >
-                  <CogIcon className="w-6 h-6 flex-shrink-0" />
-                  {!isCollapsed && (
-                    <div className="ml-3 flex-1 min-w-0">
-                      <div className="text-sm font-medium">Admin</div>
-                      <div className="text-xs text-gray-400 truncate">
-                        Administration panel
-                      </div>
-                    </div>
-                  )}
-                </Link>
-              </li>
-            </ul>
-          </>
+          <Link
+            href="/admin"
+            className={`grim-nav-item${pathname === "/admin" ? " is-active" : ""}`}
+            style={{ marginTop: 12, borderTop: "1px solid var(--grim-line)", paddingTop: 12 }}
+          >
+            <span className="grim-nav-ico"><NavIcon name="cog"/></span>
+            <span className="grim-nav-body">
+              <div>Admin</div>
+              <div className="grim-nav-sub">Administration panel</div>
+            </span>
+          </Link>
         )}
       </nav>
 
-      {/* Footer */}
-      {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-gray-700 flex flex-col gap-2">
-          <p className="text-xs text-gray-400 mb-2">More features coming soon</p>
-          <SignOutButton />
+      <div style={{ flex: 1 }}/>
+
+      <div style={{ padding: "16px 22px 8px", borderTop: "1px solid var(--grim-line)", marginTop: 18 }}>
+        <div className="grim-label" style={{ marginBottom: 6 }}>Game Date</div>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1.1 }}>
+          Miriandar 36
         </div>
-      )}
-    </div>
+        <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+          year 427 of the Bounty
+        </div>
+      </div>
+      <div style={{ padding: "8px 22px 16px" }}>
+        <SignOutButton />
+      </div>
+    </aside>
   );
 }
