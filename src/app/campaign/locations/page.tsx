@@ -118,24 +118,17 @@ export default function LocationsPage() {
       <div style={{ display: "grid", gridTemplateColumns: selectedArea ? "1fr 320px" : "1fr", gap: 18, marginBottom: 28, transition: "grid-template-columns 0.2s ease" }}>
 
         {/* Map */}
-        <div style={{ border: "1px solid var(--grim-gold-2)", overflow: "hidden", position: "relative" }}>
-          <InteractiveImage
-            src={mainLocation?.mapImg || "/images/maps/azorians_bounty.jpg"}
-            alt="Azorian's Bounty"
-            width={2048}
-            height={1536}
-            locations={sublocations}
-            onAreaClick={handleAreaClick}
-            selectedLocationId={selectedArea?.id || null}
-            sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 85vw, 1600px"
-            className="max-w-full h-auto"
-          />
-          {/* Map cartouche */}
-          <div style={{ position: "absolute", top: 14, right: 14, padding: "10px 18px", background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-gold-2)", textAlign: "center", maxWidth: 200, backdropFilter: "blur(4px)", pointerEvents: "none" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1 }}>Azorian&apos;s Bounty</div>
-            <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>folio I · the known world</div>
-          </div>
-        </div>
+        <InteractiveImage
+          src={mainLocation?.mapImg || "/images/maps/azorians_bounty.jpg"}
+          alt="Azorian's Bounty"
+          width={2048}
+          height={1536}
+          locations={sublocations}
+          onAreaClick={handleAreaClick}
+          selectedLocationId={selectedArea?.id || null}
+          sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 85vw, 1600px"
+          className="max-w-full h-auto"
+        />
 
         {/* Location detail panel */}
         {selectedArea && (
