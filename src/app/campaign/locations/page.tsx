@@ -2,159 +2,123 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
-import DetailSidebar from "@/components/DetailSidebar";
 import { Location } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 
 export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Track this page visit
+
   usePageTracking();
 
-  // Load location data on mount
   useEffect(() => {
     const loadLocations = async () => {
       try {
-        const response = await authFetch('/api/data/locations');
+        const response = await authFetch("/api/data/locations");
         if (response.ok) {
           const data = await response.json();
           setLocations(data);
         }
       } catch (error) {
-        console.error('Error loading locations:', error);
+        console.error("Error loading locations:", error);
       } finally {
         setLoading(false);
       }
     };
-
     loadLocations();
   }, []);
 
-  // Get the main location (Azorian's Bounty) and its sublocations
   const mainLocation = locations.length > 0 ? locations[0] : null;
   const sublocations = useMemo(() => mainLocation?.locations || [], [mainLocation]);
 
-  // Auto-select location if query param or fragment exists in URL
   useEffect(() => {
     const selected = searchParams.get("selected");
-    const fragment = window.location.hash.slice(1); // Remove the '#'
-    
+    const fragment = window.location.hash.slice(1);
+
     if (selectedArea === null) {
       let location: Location | undefined;
-      
-      // First try to find by query param (ID)
+
       if (selected) {
-        // Search in main location first
-        if (mainLocation && mainLocation.id === selected) {
-          location = mainLocation;
-        }
-        
-        // Then search in sublocations
-        if (!location) {
-          location = sublocations.find((loc: Location) => loc.id === selected);
-        }
+        if (mainLocation && mainLocation.id === selected) location = mainLocation;
+        if (!location) location = sublocations.find((loc: Location) => loc.id === selected);
       }
-      
-      // If no query param match, try to find by fragment (name-based for backwards compatibility)
+
       if (!location && fragment) {
-        // Convert fragment back to original name format
-        const searchName = decodeURIComponent(fragment).replace(/-/g, ' ').toLowerCase();
-        
-        // Search in main location first
-        if (mainLocation && mainLocation.name.toLowerCase() === searchName) {
-          location = mainLocation;
-        }
-        
-        // Then search in sublocations
-        if (!location) {
-          location = sublocations.find((loc: Location) => 
-            loc.name.toLowerCase() === searchName
-          );
-        }
+        const searchName = decodeURIComponent(fragment).replace(/-/g, " ").toLowerCase();
+        if (mainLocation && mainLocation.name.toLowerCase() === searchName) location = mainLocation;
+        if (!location) location = sublocations.find((loc: Location) => loc.name.toLowerCase() === searchName);
       }
-      
+
       if (location) {
         setSelectedArea(location);
-        setIsSidebarOpen(true);
-        // Update URL to use query param format for consistency
         const url = new URL(window.location.href);
-        url.searchParams.set('selected', location.id);
-        url.hash = ''; // Clear fragment
-        window.history.replaceState({}, '', url.toString());
+        url.searchParams.set("selected", location.id);
+        url.hash = "";
+        window.history.replaceState({}, "", url.toString());
       }
     }
   }, [searchParams, mainLocation, sublocations, selectedArea]);
 
-  // Markdown rendering with custom link conversion
-  const parseMarkdown = useMemo(() => {
-    return (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin);
-  }, [isAdmin]);
-
   const handleAreaClick = (area: Location) => {
     setSelectedArea(area);
-    setIsSidebarOpen(true);
-    
-    // Update URL query param to reflect selected area
     const url = new URL(window.location.href);
-    url.searchParams.set('selected', area.id);
-    url.hash = ''; // Clear any existing fragment
-    window.history.replaceState({}, '', url.toString());
+    url.searchParams.set("selected", area.id);
+    url.hash = "";
+    window.history.replaceState({}, "", url.toString());
   };
 
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-    // Clear URL query param when closing sidebar
+  const handleCloseDetail = () => {
+    setSelectedArea(null);
     const url = new URL(window.location.href);
-    url.searchParams.delete('selected');
-    url.hash = '';
-    window.history.replaceState({}, '', url.toString());
-    // Small delay before clearing the selected area to allow for animation
-    setTimeout(() => setSelectedArea(null), 300);
+    url.searchParams.delete("selected");
+    url.hash = "";
+    window.history.replaceState({}, "", url.toString());
   };
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading locations...</span>
+      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the codex&hellip;
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <header className="p-4 z-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Azorian&apos;s Bounty
-          </h2>
-        </div>
-      </header>
+  // isAdmin used for future admin controls
+  void isAdmin;
 
-      <main
-        className={`flex-1 flex flex-col items-center justify-center p-4 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "md:pr-[calc(33.333333%+1rem)]" : ""
-        }`}
-      >
-        <div
-          className={`transition-transform duration-300 ${
-            isSidebarOpen ? "md:scale-90" : "scale-100"
-          }`}
-        >
+  return (
+    <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+
+      {/* Page header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+        <div>
+          <div className="grim-page-eyebrow">Cartographica</div>
+          <h1 className="grim-page-title">Azorian&apos;s Bounty</h1>
+          <p className="grim-page-sub">
+            The known world, mapped in trembling ink.{sublocations.length > 0 ? ` ${sublocations.length} places of note.` : ""}
+          </p>
+        </div>
+        <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+          <div>scale ⋅ 1 league per inch</div>
+          <div style={{ marginTop: 2 }}>scribed by Master · year 427</div>
+        </div>
+      </div>
+
+      {/* Map + detail panel */}
+      <div style={{ display: "grid", gridTemplateColumns: selectedArea ? "1fr 320px" : "1fr", gap: 18, marginBottom: 28, transition: "grid-template-columns 0.2s ease" }}>
+
+        {/* Map */}
+        <div style={{ border: "1px solid var(--grim-gold-2)", overflow: "hidden", position: "relative" }}>
           <InteractiveImage
             src={mainLocation?.mapImg || "/images/maps/azorians_bounty.jpg"}
             alt="Azorian's Bounty"
@@ -163,49 +127,103 @@ export default function LocationsPage() {
             locations={sublocations}
             onAreaClick={handleAreaClick}
             selectedLocationId={selectedArea?.id || null}
-            sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 90vw, (max-width: 1440px) 85vw, 2048px"
+            sizes="(max-width: 480px) 100vw, (max-width: 768px) 95vw, (max-width: 1024px) 85vw, 1600px"
             className="max-w-full h-auto"
           />
+          {/* Map cartouche */}
+          <div style={{ position: "absolute", top: 14, right: 14, padding: "10px 18px", background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-gold-2)", textAlign: "center", maxWidth: 200, backdropFilter: "blur(4px)", pointerEvents: "none" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1 }}>Azorian&apos;s Bounty</div>
+            <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>folio I · the known world</div>
+          </div>
         </div>
 
-        {/* Sublocation List */}
-        <div className="mt-8 w-full max-w-4xl">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-center">
-            Locations
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Location detail panel */}
+        {selectedArea && (
+          <aside style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 0 }}>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Header image slot */}
+              <div style={{ position: "relative", height: 140, background: "var(--grim-bg-3)" }}>
+                <div className="grim-img-slot" style={{ width: "100%", height: "100%", borderRadius: 0 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
+                </div>
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, oklch(0.13 0.030 290 / 0.95))" }} />
+                <div style={{ position: "absolute", bottom: 10, left: 14, right: 36 }}>
+                  <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ember-2)", letterSpacing: ".22em", textTransform: "uppercase" }}>
+                    location
+                  </div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--grim-gold)", lineHeight: 1.1, marginTop: 2 }}>{selectedArea.name}</div>
+                </div>
+                <button
+                  onClick={handleCloseDetail}
+                  style={{ position: "absolute", top: 8, right: 8, background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-line)", color: "var(--grim-ink-3)", cursor: "pointer", padding: "2px 7px", fontFamily: "var(--font-mono)", fontSize: 13, lineHeight: 1 }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ padding: "14px 18px 18px" }}>
+                {selectedArea.pronunciation && (
+                  <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em", marginBottom: 8 }}>
+                    pronounced {selectedArea.pronunciation}
+                  </div>
+                )}
+                <p style={{ fontSize: 13, color: "var(--grim-ink-2)", lineHeight: 1.5, margin: "0 0 12px" }}>
+                  {selectedArea.teaser}
+                </p>
+                <div className="grim-rule" />
+                <button
+                  className="grim-btn is-ember"
+                  style={{ width: "100%", justifyContent: "center" }}
+                  onClick={() => router.push(`/campaign/locations/${selectedArea.id}`)}
+                >
+                  Open the Gazetteer ›
+                </button>
+              </div>
+            </div>
+          </aside>
+        )}
+      </div>
+
+      {/* Location card grid */}
+      {sublocations.length > 0 && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+            <h2 className="grim-h-section">Places of the Bounty</h2>
+            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+              {sublocations.length} locations charted
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
             {sublocations.map((location) => (
               <div
                 key={location.id}
                 onClick={() => router.push(`/campaign/locations/${location.id}`)}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
+                className="grim-tome"
+                style={{
+                  padding: "14px 16px",
+                  cursor: "pointer",
+                  border: `1px solid ${selectedArea?.id === location.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                  transition: "border-color 0.15s ease",
+                }}
               >
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", marginBottom: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {location.name}
-                </h4>
-                <div
-                  className="text-sm text-gray-600 dark:text-gray-300 overflow-hidden"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: "vertical" as const,
-                    overflow: "hidden",
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: parseMarkdown(location.teaser),
-                  }}
-                />
+                </div>
+                {location.pronunciation && (
+                  <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginBottom: 6 }}>
+                    {location.pronunciation}
+                  </div>
+                )}
+                {location.teaser && (
+                  <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                    {location.teaser}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
-      </main>
-
-      <DetailSidebar
-        area={selectedArea}
-        isOpen={isSidebarOpen}
-        onClose={handleCloseSidebar}
-      />
+      )}
     </div>
   );
 }

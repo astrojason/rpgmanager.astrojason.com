@@ -17,6 +17,7 @@ export default function LocationDetailPage() {
   const [location, setLocation] = useState<Location | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [dmMode, setDmMode] = useState(false);
 
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
@@ -32,10 +33,8 @@ export default function LocationDetailPage() {
 
         let found: Location | undefined;
 
-        // Check top-level location rows first
         found = data.find((loc) => String(loc.id) === id);
 
-        // Then check sublocations embedded as JSON in each row
         if (!found) {
           for (const parent of data) {
             if (parent.locations) {
@@ -59,6 +58,10 @@ export default function LocationDetailPage() {
     loadLocation();
   }, [id]);
 
+  useEffect(() => {
+    setDmMode(isDM || isAdmin);
+  }, [isDM, isAdmin]);
+
   const parseMarkdown = useMemo(
     () => (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin),
     [isAdmin]
@@ -66,10 +69,10 @@ export default function LocationDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading location...</span>
+      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the codex&hellip;
         </div>
       </div>
     );
@@ -77,41 +80,132 @@ export default function LocationDetailPage() {
 
   if (notFound || !location) {
     return (
-      <div className="p-8">
-        <button
-          onClick={() => router.push("/campaign/locations")}
-          className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-        >
-          ← Back to Locations
+      <div style={{ padding: "36px 56px 80px" }}>
+        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/locations")}>
+          ‹ Back to the Map
         </button>
-        <p className="text-gray-500 dark:text-gray-400">Location not found.</p>
+        <div style={{ marginTop: 32, textAlign: "center", color: "var(--grim-ink-4)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ not found ~</div>
+          <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this place in the codex</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-900">
-      <button
-        onClick={() => router.push("/campaign/locations")}
-        className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-      >
-        ← Back to Locations
-      </button>
+    <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
 
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{location.name}</h1>
-        {location.pronunciation && (
-          <p className="text-gray-500 dark:text-gray-400 italic mb-6">{location.pronunciation}</p>
-        )}
+      {/* Top bar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+        <div className="grim-row" style={{ gap: 18 }}>
+          <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/locations")}>
+            ‹ Back to the Map
+          </button>
+          <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            codex / locations / {location.name.toLowerCase()}
+          </div>
+        </div>
+        <div className="grim-row" style={{ gap: 8 }}>
+          {(isDM || isAdmin) && (
+            <button
+              className={`grim-btn${dmMode ? " is-ember" : " is-ghost"}`}
+              onClick={() => setDmMode(!dmMode)}
+            >
+              <span className="grim-flame" style={{ width: 6, height: 6 }} />
+              {dmMode ? "DM Sight · ON" : "DM Sight · OFF"}
+            </button>
+          )}
+        </div>
+      </div>
 
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: parseMarkdown(location.detail) }} />
+      {/* Hero — image plate with title overlay */}
+      <section style={{ position: "relative", marginBottom: 28, border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
+        <div className="grim-img-slot" style={{ width: "100%", height: 260, borderRadius: 0 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
+        </div>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, oklch(0.10 0.02 290 / 0.25) 0%, transparent 35%, oklch(0.11 0.025 290 / 0.96) 100%)" }} />
 
-          {isDM && location.gm_notes && (
-            <div className="mt-8 p-4 border border-purple-300 dark:border-purple-700 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-              <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-              <div dangerouslySetInnerHTML={{ __html: parseMarkdown(location.gm_notes) }} />
+        {/* Wax seal */}
+        <div style={{ position: "absolute", top: 18, left: 18 }}>
+          <div className="grim-seal" style={{ width: 52, height: 52, fontSize: 20 }}>✦</div>
+        </div>
+
+        {/* Title block */}
+        <div style={{ position: "absolute", left: 28, right: 28, bottom: 22 }}>
+          <div className="grim-page-eyebrow" style={{ marginBottom: 4 }}>Gazetteer · A Place of the Bounty</div>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--grim-gold)", margin: "0 0 6px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 40px oklch(0.72 0.165 48 / 0.30)" }}>
+            {location.name}
+          </h1>
+          {location.pronunciation && (
+            <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 16, maxWidth: "60ch" }}>
+              pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".08em", color: "var(--grim-ink)" }}>{location.pronunciation}</b>
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* In-character description */}
+      {location.teaser && (
+        <section className="grim-parchment" style={{ marginBottom: 28 }}>
+          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}>
+            {location.teaser}
+          </p>
+        </section>
+      )}
+
+      {/* Two-column body */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 22 }}>
+
+        {/* LEFT — main detail content */}
+        <div className="grim-stack" style={{ gap: 22 }}>
+          {location.detail ? (
+            <section className="grim-tome">
+              <div className="grim-tome-head">
+                <h3 className="grim-tome-title">The Chronicle</h3>
+                <span className="grim-tome-sub">a full account of this place</span>
+              </div>
+              <div
+                className="prose dark:prose-invert max-w-none prose-sm"
+                style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }}
+                dangerouslySetInnerHTML={{ __html: parseMarkdown(location.detail) }}
+              />
+            </section>
+          ) : (
+            <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ uncharted ~</div>
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>
+            </section>
+          )}
+        </div>
+
+        {/* RIGHT — DM marginalia */}
+        <div className="grim-stack" style={{ gap: 22 }}>
+          {(isDM || isAdmin) && (
+            dmMode ? (
+              location.gm_notes ? (
+                <section className="grim-tome" style={{ border: "1px solid var(--grim-arcane)", background: "linear-gradient(180deg, oklch(0.18 0.05 285), oklch(0.13 0.04 290))" }}>
+                  <div className="grim-tome-head" style={{ borderColor: "oklch(0.65 0.150 285 / 0.30)" }}>
+                    <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>★ Master&apos;s Marginalia</h3>
+                    <span className="grim-tome-sub">hidden from the party</span>
+                  </div>
+                  <div
+                    className="prose dark:prose-invert max-w-none prose-sm"
+                    style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, lineHeight: 1.6 }}
+                    dangerouslySetInnerHTML={{ __html: parseMarkdown(location.gm_notes) }}
+                  />
+                </section>
+              ) : isAdmin ? (
+                <section className="grim-tome" style={{ border: "1px dashed oklch(0.65 0.150 285 / 0.5)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no marginalia ~</div>
+                  <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No DM notes for this location</div>
+                </section>
+              ) : null
+            ) : (
+              <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--grim-ink-3)" }}>~ sealed ~</div>
+                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s marginalia hidden</div>
+              </section>
+            )
           )}
         </div>
       </div>
