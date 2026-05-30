@@ -10,245 +10,221 @@ import { NPC, Faction, UserNote } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
-import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
+import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
 
+function statusChipClass(status?: string): string {
+  const s = (status || "").toLowerCase();
+  if (s === "alive") return "grim-chip is-alive";
+  if (s === "deceased" || s === "dead") return "grim-chip is-deceased";
+  return "grim-chip is-unknown";
+}
+
 export default function NPCsPage() {
   const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
+  const [hoveredNPC, setHoveredNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [raceFilter, setRaceFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [npcData, setNpcData] = useState<NPC[]>([]);
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [dmMode, setDmMode] = useState(false);
+
   const userId = useEffectiveUserId();
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
-  
-  // Track this page visit
+
   usePageTracking();
 
-  // Load data on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [npcsResponse, factionsResponse] = await Promise.all([
-          authFetch('/api/data/npcs'),
-          authFetch('/api/data/factions')
+          authFetch("/api/data/npcs"),
+          authFetch("/api/data/factions"),
         ]);
         const npcs = await npcsResponse.json();
         const factions = await factionsResponse.json();
         setNpcData(npcs);
         setFactionData(factions);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } catch {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setDmMode(isDM || isAdmin);
+  }, [isDM, isAdmin]);
 
-
-  // Filter only visible NPCs (not hidden)
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
 
-  // Get back button info - use referrer if available, otherwise default to NPCs
-  const backInfo = selectedNPC ? (
-    referrerInfo.label !== 'NPCs' ? referrerInfo : getDefaultBackInfo('npcs')
-  ) : getDefaultBackInfo('npcs');
+  const backInfo = selectedNPC
+    ? referrerInfo.label !== "NPCs"
+      ? referrerInfo
+      : getDefaultBackInfo("npcs")
+    : getDefaultBackInfo("npcs");
 
-  // Auto-select NPC if query param or fragment exists
+  const cleanText = (value?: string | null) => sanitizeOptionalText(value) ?? "";
+  const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || npc.hide_name);
+  const displayName = (npc: NPC) =>
+    isNameHidden(npc)
+      ? cleanText(npc.display_name) || cleanText(npc.aka)
+      : cleanText(npc.name) || cleanText(npc.aka);
+  const hasValidImage = (src?: string | null) => Boolean(safeImageSrc(src));
+  const selectedNpcImage = safeImageSrc(selectedNPC?.image);
+
+  const getFactionName = (factionId: string) => {
+    const faction = factionData.find((f) => f.id === factionId);
+    return faction ? faction.name : factionId;
+  };
+
   useEffect(() => {
     const selected = searchParams.get("selected");
-    const fragment = window.location.hash.slice(1); // Remove the '#'
-    
+    const fragment = window.location.hash.slice(1);
     if (selectedNPC === null) {
       let npc: NPC | undefined;
-      
-      // First try to find by query param (ID)
-      if (selected) {
-        npc = visibleNPCs.find((n: NPC) => n.id === selected);
-      }
-      
-      // If no query param match, try to find by fragment (name-based)
+      if (selected) npc = visibleNPCs.find((n: NPC) => n.id === selected);
       if (!npc && fragment) {
-        // Convert fragment back to original name format
-        const searchName = fragment.replace(/-/g, ' ').toLowerCase();
+        const searchName = fragment.replace(/-/g, " ").toLowerCase();
         npc = visibleNPCs.find((n: NPC) => {
           const nameMatch = n.name && n.name.toLowerCase() === searchName;
           const akaMatch = n.aka && n.aka.toLowerCase() === searchName;
           return nameMatch || akaMatch;
         });
       }
-      
       if (npc) {
         const timer = window.setTimeout(() => {
           setSelectedNPC(npc);
-          // Update URL to use query param format for consistency
           const url = new URL(window.location.href);
-          url.searchParams.set('selected', npc.id);
-          url.hash = ''; // Clear fragment
-          window.history.replaceState({}, '', url.toString());
+          url.searchParams.set("selected", npc.id);
+          url.hash = "";
+          window.history.replaceState({}, "", url.toString());
         }, 0);
-
         return () => clearTimeout(timer);
       }
     }
   }, [searchParams, visibleNPCs, selectedNPC]);
 
-  const [showFullImage, setShowFullImage] = useState(false);
-  const cleanText = (value?: string | null) => sanitizeOptionalText(value) ?? '';
-  const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || npc.hide_name);
-  const displayName = (npc: NPC) =>
-    isNameHidden(npc)
-      ? cleanText(npc.display_name) || cleanText(npc.aka)
-      : cleanText(npc.name) || cleanText(npc.aka);
-
-  const hasValidImage = (src?: string | null) => Boolean(safeImageSrc(src));
-  const selectedNpcImage = safeImageSrc(selectedNPC?.image);
-
-  // Filter NPCs based on search criteria
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const term = searchTerm.trim().toLowerCase();
-    // Completely hidden are never searchable
-    if (term !== '' && npc.hidden) return false;
+    if (term !== "" && npc.hidden) return false;
     const allowRealName = !isNameHidden(npc);
     const matchesSearch =
-      term === '' ||
+      term === "" ||
       (allowRealName && Boolean(npc.name) && npc.name!.toLowerCase().includes(term)) ||
       (isNameHidden(npc) && Boolean(npc.display_name) && (npc.display_name as string).toLowerCase().includes(term)) ||
       (Boolean(npc.aka) && (npc.aka as string).toLowerCase().includes(term)) ||
       (Boolean(npc.race) && npc.race!.toLowerCase().includes(term)) ||
       (Boolean(npc.location) && npc.location!.toLowerCase().includes(term)) ||
       (Boolean(npc.description) && npc.description!.toLowerCase().includes(term));
-    const matchesRace = !raceFilter || npc.race === raceFilter;
-    return matchesSearch && matchesRace;
+    const s = (npc.status || "").toLowerCase();
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "alive" && s === "alive") ||
+      (statusFilter === "unknown" && s === "unknown") ||
+      (statusFilter === "deceased" && (s === "deceased" || s === "dead"));
+    return matchesSearch && matchesStatus;
   });
-  // Default sort by name (then AKA, then ID)
-  const sortedFilteredNPCs = [...filteredNPCs].sort((a, b) => {
-    const la = displayName(a).toLowerCase() || (a.id || '').toLowerCase();
-    const lb = displayName(b).toLowerCase() || (b.id || '').toLowerCase();
+
+  const sortedNPCs = [...filteredNPCs].sort((a, b) => {
+    const la = displayName(a).toLowerCase() || (a.id || "").toLowerCase();
+    const lb = displayName(b).toLowerCase() || (b.id || "").toLowerCase();
     return la.localeCompare(lb);
   });
 
-  // Helper to get faction name from UUID
-  const getFactionName = (factionId: string) => {
-    const faction = factionData.find((f) => f.id === factionId);
-    return faction ? faction.name : factionId;
-  };
+  const aliveCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "alive").length;
+  const unknownCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "unknown").length;
+  const deceasedCount = visibleNPCs.filter((n) => {
+    const s = (n.status || "").toLowerCase();
+    return s === "deceased" || s === "dead";
+  }).length;
 
-  // CRUD functions for admin functionality
-  const handleSaveNPC = async (npcData: Partial<NPC>) => {
+  const FILTERS = [
+    { id: "all", label: "All Souls", count: visibleNPCs.length },
+    { id: "alive", label: "Alive", count: aliveCount },
+    { id: "unknown", label: "Unknown", count: unknownCount },
+    { id: "deceased", label: "Departed", count: deceasedCount },
+  ];
+
+  const handleSaveNPC = async (data: Partial<NPC>) => {
     try {
       let response;
-      if (npcData.id && isEditing) {
-        // Update existing NPC
-        response = await authFetch('/api/data/npcs', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(npcData),
+      if (data.id && isEditing) {
+        response = await authFetch("/api/data/npcs", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
         });
       } else {
-        // Create new NPC
-        const newNPC = {
-          ...npcData,
-          id: `npc_${Date.now()}`, // Generate a simple ID
-        };
-        response = await authFetch('/api/data/npcs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newNPC),
+        response = await authFetch("/api/data/npcs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...data, id: `npc_${Date.now()}` }),
         });
       }
-
       if (response.ok) {
-        // Reload data
-        const npcsResponse = await authFetch('/api/data/npcs');
+        const npcsResponse = await authFetch("/api/data/npcs");
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
-        
-        // Update selectedNPC if it was the one being edited
-        if (isEditing && selectedNPC && npcData.id === selectedNPC.id) {
-          const updatedNPC = npcs.find((npc: NPC) => npc.id === npcData.id);
-          if (updatedNPC) {
-            setSelectedNPC(updatedNPC);
-          }
+        if (isEditing && selectedNPC && data.id === selectedNPC.id) {
+          const updated = npcs.find((n: NPC) => n.id === data.id);
+          if (updated) setSelectedNPC(updated);
         }
-        
         setIsEditing(false);
         setShowAddForm(false);
         setEditingNPC({});
       }
-    } catch (error) {
-      console.error('Error saving NPC:', error);
+    } catch {
+      /* noop */
     }
   };
 
   const handleDeleteNPC = async (npcId: string) => {
-    if (!confirm('Are you sure you want to delete this NPC?')) return;
-
+    if (!confirm("Are you sure you want to delete this NPC?")) return;
     try {
-      const response = await authFetch(`/api/data/npcs?id=${npcId}`, {
-        method: 'DELETE',
-      });
-
+      const response = await authFetch(`/api/data/npcs?id=${npcId}`, { method: "DELETE" });
       if (response.ok) {
-        // Reload data
-        const npcsResponse = await authFetch('/api/data/npcs');
+        const npcsResponse = await authFetch("/api/data/npcs");
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
-        if (selectedNPC?.id === npcId) {
-          setSelectedNPC(null);
-        }
+        if (selectedNPC?.id === npcId) setSelectedNPC(null);
       }
-    } catch (error) {
-      console.error('Error deleting NPC:', error);
+    } catch {
+      /* noop */
     }
   };
 
   const handleUpdateNPCNotes = async (npcId: string, updatedNotes: UserNote[]) => {
     try {
-      // Find the current NPC data
-      const currentNPC = npcData.find((npc: NPC) => npc.id === npcId);
+      const currentNPC = npcData.find((n: NPC) => n.id === npcId);
       if (!currentNPC) return;
-
-      // Update the NPC with new notes
-      const updatedNPC = {
-        ...currentNPC,
-        notes: updatedNotes
-      };
-
-      const response = await authFetch('/api/data/npcs', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedNPC),
+      const response = await authFetch("/api/data/npcs", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...currentNPC, notes: updatedNotes }),
       });
-
       if (response.ok) {
-        // Reload data
-        const npcsResponse = await authFetch('/api/data/npcs');
+        const npcsResponse = await authFetch("/api/data/npcs");
         const npcs = await npcsResponse.json();
         setNpcData(npcs);
-        
-        // Update selectedNPC if it was the one being updated
-        if (selectedNPC && selectedNPC.id === npcId) {
-          const updatedSelectedNPC = npcs.find((npc: NPC) => npc.id === npcId);
-          if (updatedSelectedNPC) {
-            setSelectedNPC(updatedSelectedNPC);
-          }
+        if (selectedNPC?.id === npcId) {
+          const updated = npcs.find((n: NPC) => n.id === npcId);
+          if (updated) setSelectedNPC(updated);
         }
       }
-    } catch (error) {
-      console.error('Error updating NPC notes:', error);
+    } catch {
+      /* noop */
     }
   };
 
@@ -259,733 +235,586 @@ export default function NPCsPage() {
   };
 
   const startAdding = () => {
-    setEditingNPC({
-      name: '',
-      aka: '',
-      pronunciation: '',
-      race: '',
-      gender: '',
-      description: '',
-      location: '',
-      status: 'Alive',
-      background: '',
-      personality: '',
-      image: '',
-      factions: [],
-      hidden: false,
-      nameHidden: false,
-      notes: [],
-    });
+    setEditingNPC({ name: "", aka: "", pronunciation: "", race: "", gender: "", description: "", location: "", status: "Alive", background: "", personality: "", image: "", factions: [], hidden: false, nameHidden: false, notes: [] });
     setIsEditing(false);
     setShowAddForm(true);
   };
 
-  // Show loading state
+  const clearSelectedNPC = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("selected");
+    window.history.replaceState({}, "", url.pathname + url.search);
+    setTimeout(() => setSelectedNPC(null), 0);
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading NPCs...</span>
+      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the codex&hellip;
+        </div>
       </div>
     );
   }
 
+  const previewNPC = hoveredNPC || sortedNPCs[0] || null;
+
   return (
     <>
-      {/* Add/Edit NPC Modal */}
+      {/* Admin add/edit modal */}
       {showAddForm && isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                {isEditing ? 'Edit NPC' : 'Add New NPC'}
-              </h2>
-              
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                handleSaveNPC(editingNPC);
-              }} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editingNPC.name || ''}
-                      onChange={(e) => setEditingNPC({...editingNPC, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      AKA
-                    </label>
-                    <input
-                      type="text"
-                      value={editingNPC.aka || ''}
-                      onChange={(e) => setEditingNPC({...editingNPC, aka: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Race
-                    </label>
-                    <input
-                      type="text"
-                      value={editingNPC.race || ''}
-                      onChange={(e) => setEditingNPC({...editingNPC, race: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Gender
-                    </label>
-                    <select
-                      value={editingNPC.gender || ''}
-                      onChange={(e) => setEditingNPC({...editingNPC, gender: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Non-binary">Non-binary</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      value={editingNPC.location || ''}
-                      onChange={(e) => setEditingNPC({...editingNPC, location: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Status
-                    </label>
-                    <select
-                      value={editingNPC.status || 'Alive'}
-                      onChange={(e) => setEditingNPC({...editingNPC, status: e.target.value as 'Alive' | 'Deceased' | 'Unknown'})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="Alive">Alive</option>
-                      <option value="Deceased">Deceased</option>
-                      <option value="Unknown">Unknown</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Display Name (shown when name is hidden)
-                  </label>
-                  <input
-                    type="text"
-                    value={editingNPC.display_name || ''}
-                    onChange={(e) => setEditingNPC({ ...editingNPC, display_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                  <MarkdownEditor
-                    value={editingNPC.description || ''}
-                    onChange={(value) => setEditingNPC({ ...editingNPC, description: value })}
-                    rows={6}
-                    label="Description"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Image URL
-                  </label>
-                  <input
-                    type="text"
-                    value={editingNPC.image || ''}
-                    onChange={(e) => setEditingNPC({...editingNPC, image: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background</label>
-                  <MarkdownEditor
-                    value={editingNPC.background || ''}
-                    onChange={(value) => setEditingNPC({ ...editingNPC, background: value })}
-                    rows={6}
-                    label="Background"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Personality</label>
-                  <MarkdownEditor
-                    value={editingNPC.personality || ''}
-                    onChange={(value) => setEditingNPC({ ...editingNPC, personality: value })}
-                    rows={6}
-                    label="Personality"
-                  />
-                </div>
-
-                {/* Notes Section */}
-                <div>
-                  <UserNotesEditor
-                    notes={editingNPC.notes || []}
-                    onChange={(updatedNotes) => setEditingNPC({...editingNPC, notes: updatedNotes})}
-                    currentUser={userId}
-                    isAdmin={isAdmin}
-                    className="mt-4"
-                  />
-                </div>                <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editingNPC.hidden || false}
-                      onChange={(e) => setEditingNPC({...editingNPC, hidden: e.target.checked})}
-                      className="rounded border-gray-300 text-slate-600 focus:ring-slate-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hidden from players</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editingNPC.nameHidden || false}
-                      onChange={(e) => setEditingNPC({...editingNPC, nameHidden: e.target.checked})}
-                      className="rounded border-gray-300 text-slate-600 focus:ring-slate-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Name hidden</span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddForm(false);
-                      setIsEditing(false);
-                      setEditingNPC({});
-                    }}
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 rounded-lg transition-colors duration-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-                  >
-                    {isEditing ? 'Save Changes' : 'Add NPC'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Full Image Modal (top-level, outside main layout) */}
-      {selectedNPC && (
-        <>
-          {/* Animated Modal Overlay */}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "oklch(0 0 0 / 0.75)" }}
+          onClick={() => { setShowAddForm(false); setIsEditing(false); setEditingNPC({}); }}
+        >
           <div
-            className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300 ${
-              showFullImage
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
-            }`}
-            onClick={() => setShowFullImage(false)}
+            style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 640, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className={`relative max-w-3xl w-full transform transition-transform duration-300 ${
-                showFullImage ? "scale-100" : "scale-90"
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {selectedNPC && selectedNpcImage ? (
-                <Image
-                  src={selectedNpcImage}
-                  alt={displayName(selectedNPC) || ""}
-                  width={900}
-                  height={600}
-                  style={{ objectFit: "contain" }}
-                  className={`rounded-lg shadow-2xl transition-all duration-300 ${
-                    showFullImage
-                      ? "opacity-100 scale-100"
-                      : "opacity-0 scale-90"
-                  }`}
-                />
-              ) : null}
-              {selectedNPC && !selectedNpcImage ? (
-                <div
-                  className={`w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-5xl transition-all duration-300 ${
-                    showFullImage
-                      ? "opacity-100 scale-100"
-                      : "opacity-0 scale-90"
-                  }`}
-                >
-                  ?
-                </div>
-              ) : null}
-              <button
-                className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded hover:bg-opacity-80"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFullImage(false);
-                }}
-                aria-label="Close full image"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    <div className="flex bg-gray-100 dark:bg-gray-900 h-dvh min-h-dvh overflow-hidden">
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden">
-          {selectedNPC ? (
-            <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
-              <div className="flex items-center justify-between mb-6">
-                <button
-                  onClick={() => {
-                    // Navigate back to referrer or clear selection
-                    if (referrerInfo.label !== 'NPCs') {
-                      router.push(backInfo.url);
-                    } else {
-                      // Remove 'selected' query param from URL and clear selectedNPC synchronously
-                      const url = new URL(window.location.href);
-                      url.searchParams.delete("selected");
-                      window.history.replaceState(
-                        {},
-                        "",
-                        url.pathname + url.search
-                      );
-                      // Clear selectedNPC immediately after updating URL
-                      setTimeout(() => setSelectedNPC(null), 0);
-                    }
-                  }}
-                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-                >
-                  ← Back to {backInfo.label}
-                </button>
-
-                {/* Admin Actions */}
-                {isAdmin && selectedNPC && (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => startEditing(selectedNPC)}
-                      className="px-4 py-2 bg-stone-600 hover:bg-stone-700 text-white text-sm rounded-lg transition-colors duration-200"
-                    >
-                      Edit NPC
-                    </button>
-                    <button
-                      onClick={() => handleDeleteNPC(selectedNPC.id)}
-                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm rounded-lg transition-colors duration-200"
-                    >
-                      Delete NPC
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                  <div className="relative h-96 mb-6">
-                    {selectedNpcImage ? (
-                      <div className="w-full h-full rounded-lg overflow-hidden relative">
-                        <Image
-                          src={selectedNpcImage}
-                          alt={displayName(selectedNPC) || ""}
-                          fill
-                          style={{
-                            objectFit: "cover",
-                            objectPosition: "center top",
-                          }}
-                          className="rounded-lg transition duration-200"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
-                        {/* Eye Icon Button */}
-                        <button
-                          type="button"
-                          className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowFullImage(true);
-                          }}
-                          aria-label="View full image"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-6 h-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
-                            />
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="3"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            />
-                          </svg>
-                        </button>
-                        <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                          <h1 className="text-4xl font-bold mb-1">
-                            {!selectedNPC.name || selectedNPC.nameHidden ? (
-                              <>Unknown</>
-                            ) : (
-                              <>{selectedNPC.name}</>
-                            )}
-                            {selectedNPC.aka && (
-                              <span
-                                className={`text-2xl font-normal opacity-75${
-                                  selectedNPC.name ? " ml-2" : ""
-                                }`}
-                              >
-                                &ldquo;{selectedNPC.aka}&rdquo;
-                              </span>
-                            )}
-                          </h1>
-                          {!selectedNPC.nameHidden && (
-                            <p className="text-lg opacity-75 mb-2">
-                              ({selectedNPC.pronunciation})
-                            </p>
-                          )}
-                          <p className="text-lg opacity-90">
-                            {selectedNPC.race} - {selectedNPC.gender}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-900 to-blue-400 dark:from-blue-900 dark:to-blue-700 rounded-lg flex items-end">
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
-                        <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                          <h1 className="text-4xl font-bold mb-1">
-                            {!selectedNPC.name || selectedNPC.nameHidden ? (
-                              <>Unknown</>
-                            ) : (
-                              <>{selectedNPC.name}</>
-                            )}
-                            {selectedNPC.aka && (
-                              <span
-                                className={`text-2xl font-normal opacity-75${
-                                  selectedNPC.name ? " ml-2" : ""
-                                }`}
-                              >
-                                &ldquo;{selectedNPC.aka}&rdquo;
-                              </span>
-                            )}
-                          </h1>
-                          {!selectedNPC.nameHidden && (
-                            <p className="text-lg opacity-75 mb-2">
-                              ({selectedNPC.pronunciation})
-                            </p>
-                          )}
-                          <p className="text-lg opacity-90">
-                            {selectedNPC.race} - {selectedNPC.gender}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                            Basic Information
-                          </h3>
-                          <div className="space-y-2">
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Description:</span>{" "}
-                              {selectedNPC.description}
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Location:</span>{" "}
-                              <button className="text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer transition-colors duration-200">
-                                {selectedNPC.location}
-                              </button>
-                            </p>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Status:</span>{" "}
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs ${
-                                  selectedNPC.status === "Alive"
-                                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
-                                    : selectedNPC.status === "Deceased"
-                                    ? "bg-stone-100 text-stone-800 dark:bg-stone-900 dark:text-stone-200"
-                                    : "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200"
-                                }`}
-                              >
-                                {selectedNPC.status}
-                              </span>
-                            </p>
-                            {selectedNPC.factions && (
-                              <div className="text-gray-700 dark:text-gray-300">
-                                <span className="font-medium">Factions:</span>{" "}
-                                <div className="flex flex-row flex-nowrap gap-x-2 gap-y-1 overflow-x-auto whitespace-nowrap mt-1">
-                                  {selectedNPC.factions.map((factionId) => (
-                                    <button
-                                      key={factionId}
-                                      className="inline-block bg-slate-100 dark:bg-slate-900/40 text-slate-800 dark:text-slate-200 px-2 py-1 rounded-full text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-200 whitespace-nowrap border border-slate-200 dark:border-slate-700 mr-1"
-                                      onClick={() => {
-                                        if (factionId) {
-                                          router.push(
-                                            `/factions?selected=${encodeURIComponent(
-                                              factionId
-                                            )}`
-                                          );
-                                        }
-                                      }}
-                                      title={getFactionName(factionId)}
-                                    >
-                                      {getFactionName(factionId)}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        {selectedNPC.background && (
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Background</h3>
-                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.background || '', isAdmin) }} />
-                          </div>
-                        )}
-                        {selectedNPC.personality && (
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Personality</h3>
-                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.personality || '', isAdmin) }} />
-                          </div>
-                        )}
-                        {isDM && selectedNPC.gm_notes && (
-                          <div>
-                            <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                            <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.gm_notes || '', true) }} />
-                          </div>
-                        )}
-                        
-                        {/* NPC Notes Section */}
-                        <div>
-                          <UserNotesEditor
-                            notes={selectedNPC.notes || []}
-                            onChange={(updatedNotes) => handleUpdateNPCNotes(selectedNPC.id, updatedNotes)}
-                            currentUser={userId}
-                            isAdmin={isAdmin}
-                            className="mt-4"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full overflow-y-auto p-8">
-              <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                  Non-Player Characters
-                </h1>
-
-                {/* Admin Controls */}
-                {isAdmin && (
-                  <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                          Admin Mode - You can add, edit, and delete NPCs
-                        </span>
-                      </div>
-                      <button
-                        onClick={startAdding}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
-                      >
-                        + Add New NPC
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {/* Search and Filters */}
-                <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Search NPCs
-                      </label>
-                      <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by name, description, or location..."
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Race
-                      </label>
-                      <select
-                        value={raceFilter}
-                        onChange={(e) => setRaceFilter(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="">All Races</option>
-                        {Array.from(
-                          new Set(visibleNPCs.map((npc: NPC) => npc.race))
-                        )
-                          .sort()
-                          .map((race: string) => (
-                            <option key={race} value={race}>
-                              {race}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Showing {filteredNPCs.length} of {visibleNPCs.length} NPCs
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearchTerm("");
-                        setRaceFilter("");
-                      }}
-                      className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-                    >
-                      Clear Filters
-                    </button>
-                  </div>
-                </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Click on any character in the sidebar to view their detailed
-                  information.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* Right Sidebar - NPCs List */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              NPCs ({sortedFilteredNPCs.length})
+            <h2 style={{ fontFamily: "var(--font-head)", fontSize: 20, color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+              {isEditing ? "Edit Dossier" : "Inscribe New Soul"}
             </h2>
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleSaveNPC(editingNPC); }}
+              style={{ display: "flex", flexDirection: "column", gap: 16 }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { label: "Name", field: "name" as keyof NPC },
+                  { label: "AKA / Alias", field: "aka" as keyof NPC },
+                  { label: "Pronunciation", field: "pronunciation" as keyof NPC },
+                  { label: "Race", field: "race" as keyof NPC },
+                  { label: "Location", field: "location" as keyof NPC },
+                  { label: "Display Name (when name hidden)", field: "display_name" as keyof NPC },
+                  { label: "Image URL", field: "image" as keyof NPC },
+                ].map(({ label, field }) => (
+                  <div key={field} style={field === "image" || field === "display_name" ? { gridColumn: "1 / -1" } : {}}>
+                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                    <input
+                      type="text"
+                      value={(editingNPC[field] as string) || ""}
+                      onChange={(e) => setEditingNPC({ ...editingNPC, [field]: e.target.value })}
+                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                    />
+                  </div>
+                ))}
+                <div>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Gender</label>
+                  <select
+                    value={editingNPC.gender || ""}
+                    onChange={(e) => setEditingNPC({ ...editingNPC, gender: e.target.value })}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
+                  <select
+                    value={editingNPC.status || "Alive"}
+                    onChange={(e) => setEditingNPC({ ...editingNPC, status: e.target.value as "Alive" | "Deceased" | "Unknown" })}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                  >
+                    <option value="Alive">Alive</option>
+                    <option value="Deceased">Deceased</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <MarkdownEditor value={editingNPC.description || ""} onChange={(v) => setEditingNPC({ ...editingNPC, description: v })} rows={4} label="Description" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Background</label>
+                <MarkdownEditor value={editingNPC.background || ""} onChange={(v) => setEditingNPC({ ...editingNPC, background: v })} rows={5} label="Background" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Personality</label>
+                <MarkdownEditor value={editingNPC.personality || ""} onChange={(v) => setEditingNPC({ ...editingNPC, personality: v })} rows={4} label="Personality" />
+              </div>
+              <div>
+                <UserNotesEditor notes={editingNPC.notes || []} onChange={(notes) => setEditingNPC({ ...editingNPC, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" />
+              </div>
+              <div style={{ display: "flex", gap: 20 }}>
+                {[
+                  { label: "Hidden from players", field: "hidden" as keyof NPC },
+                  { label: "Name hidden", field: "nameHidden" as keyof NPC },
+                ].map(({ label, field }) => (
+                  <label key={field} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(editingNPC[field])}
+                      onChange={(e) => setEditingNPC({ ...editingNPC, [field]: e.target.checked })}
+                      style={{ accentColor: "var(--grim-ember)" }}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
+                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowAddForm(false); setIsEditing(false); setEditingNPC({}); }}>Cancel</button>
+                <button type="submit" className="grim-btn is-ember">{isEditing ? "Save Changes" : "Inscribe Soul"}</button>
+              </div>
+            </form>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 space-y-3">
-              {sortedFilteredNPCs.map((npc) => (
-                <div
-                  key={npc.id}
-                  onClick={() => {
-                    // Remove 'selected' query param from URL first
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete("selected");
-                    window.history.replaceState(
-                      {},
-                      "",
-                      url.pathname + url.search
-                    );
-                    setSelectedNPC(npc);
-                  }}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    selectedNPC?.id === npc.id
-                      ? "border-slate-500 bg-slate-50 dark:bg-slate-900/20 dark:border-slate-400"
-                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
-                  }`}
+        </div>
+      )}
+
+      {/* Full image modal */}
+      {selectedNPC && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${showFullImage ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+          style={{ background: "oklch(0 0 0 / 0.85)" }}
+          onClick={() => setShowFullImage(false)}
+        >
+          <div
+            className={`relative max-w-3xl w-full transform transition-transform duration-300 ${showFullImage ? "scale-100" : "scale-90"}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {selectedNpcImage ? (
+              <Image src={selectedNpcImage} alt={displayName(selectedNPC) || ""} width={900} height={600} style={{ objectFit: "contain" }} className={`rounded shadow-2xl transition-all duration-300 ${showFullImage ? "opacity-100 scale-100" : "opacity-0 scale-90"}`} />
+            ) : (
+              <div className={`w-full h-[600px] grim-img-slot is-portrait flex items-center justify-center text-5xl transition-all duration-300 ${showFullImage ? "opacity-100 scale-100" : "opacity-0 scale-90"}`} style={{ color: "var(--grim-ink-4)" }}>?</div>
+            )}
+            <button className="grim-btn is-ghost absolute top-2 right-2" onClick={() => setShowFullImage(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {selectedNPC ? (
+        /* ── NPC DETAIL ── */
+        <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+
+          {/* Top bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+            <div className="grim-row" style={{ gap: 18 }}>
+              <button
+                className="grim-btn is-ghost"
+                onClick={() => {
+                  if (referrerInfo.label !== "NPCs") {
+                    router.push(backInfo.url);
+                  } else {
+                    clearSelectedNPC();
+                  }
+                }}
+              >
+                ‹ Back to the Codex
+              </button>
+              <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+                codex / npcs / {displayName(selectedNPC).toLowerCase()}
+              </div>
+            </div>
+            <div className="grim-row" style={{ gap: 8 }}>
+              {(isDM || isAdmin) && (
+                <button
+                  className={`grim-btn${dmMode ? " is-ember" : " is-ghost"}`}
+                  onClick={() => setDmMode(!dmMode)}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                      {hasValidImage(npc.image) ? (
-                        <Image
-                          src={safeImageSrc(npc.image)!}
-                          alt={npc.name || npc.aka || ""}
-                          fill
-                          style={{
-                            objectFit: "cover",
-                            objectPosition: "center top",
-                          }}
-                          className={
-                            npc.status === "Deceased"
-                              ? "grayscale opacity-75"
-                              : ""
-                          }
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                          <span className="text-lg">?</span>
-                        </div>
-                      )}
-                      {npc.status === "Deceased" && (
-                        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                          <span className="text-white text-lg">💀</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3
-                          className={`font-medium truncate ${
-                            npc.status === "Deceased"
-                              ? "text-gray-500 dark:text-gray-400 line-through"
-                              : "text-gray-900 dark:text-white"
-                          }`}
-                        >
-                          {displayName(npc) || 'Unknown'}
-                        </h3>
-                        {npc.status === "Deceased" && (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
-                            [Deceased]
-                          </span>
-                        )}
-                      </div>
-                      <p
-                        className={`text-sm truncate ${
-                          npc.status === "Deceased"
-                            ? "text-gray-400 dark:text-gray-500"
-                            : "text-gray-600 dark:text-gray-400"
-                        }`}
-                      >
-                        {npc.description} - {npc.gender}
-                      </p>
-                      <p
-                        className={`text-xs truncate ${
-                          npc.status === "Deceased"
-                            ? "text-gray-400 dark:text-gray-600"
-                            : "text-gray-500 dark:text-gray-500"
-                        }`}
-                      >
-                        {npc.location}
-                      </p>
-                    </div>
+                  <span className="grim-flame" style={{ width: 6, height: 6 }} />
+                  {dmMode ? "DM Sight · ON" : "DM Sight · OFF"}
+                </button>
+              )}
+              {isAdmin && (
+                <>
+                  <button className="grim-btn is-ghost" onClick={() => startEditing(selectedNPC)}>Edit</button>
+                  <button className="grim-btn is-blood" onClick={() => handleDeleteNPC(selectedNPC.id)}>Strike</button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Hero — portrait + name + stats */}
+          <section style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 28, marginBottom: 28 }}>
+            {/* Portrait */}
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              {hasValidImage(selectedNPC.image) ? (
+                <div
+                  style={{ width: 280, height: 360, position: "relative", border: "1px solid var(--grim-gold-2)", cursor: "pointer" }}
+                  onClick={() => setShowFullImage(true)}
+                >
+                  <Image
+                    src={safeImageSrc(selectedNPC.image)!}
+                    alt={displayName(selectedNPC) || ""}
+                    fill
+                    style={{ objectFit: "cover", objectPosition: "center top", filter: selectedNPC.status?.toLowerCase() === "deceased" ? "grayscale(0.6)" : "none" }}
+                  />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 70%, oklch(0.10 0.025 290 / 0.5))" }} />
+                  <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, padding: "5px 9px", background: "oklch(0.10 0.02 290 / 0.75)", border: "1px solid var(--grim-gold-2)", display: "flex", justifyContent: "space-between" }}>
+                    <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".18em", color: "var(--grim-gold)", textTransform: "uppercase" }}>portrait · click to enlarge</span>
+                    <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)" }}>↗</span>
                   </div>
                 </div>
+              ) : (
+                <div className="grim-img-slot is-portrait" style={{ width: 280, height: 360, border: "1px solid var(--grim-gold-2)" }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-4)" }}>?</div>
+                    <div style={{ marginTop: 8, fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)" }}>no likeness on file</div>
+                  </div>
+                </div>
+              )}
+              <div style={{ position: "absolute", top: -10, left: -10, transform: "rotate(-5deg)" }}>
+                <div className="grim-seal" style={{ width: 48, height: 48, fontSize: 18 }}>✦</div>
+              </div>
+            </div>
+
+            {/* Name + info */}
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingTop: 4 }}>
+              <div>
+                <div className="grim-page-eyebrow">Dossier of an Encountered Soul</div>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
+                  {displayName(selectedNPC) || "Unknown"}
+                </h1>
+                {!isNameHidden(selectedNPC) && selectedNPC.pronunciation && (
+                  <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 17 }}>
+                    pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{selectedNPC.pronunciation}</b>
+                  </div>
+                )}
+                {selectedNPC.aka && !isNameHidden(selectedNPC) && (
+                  <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--grim-ink-3)", fontSize: 15, marginTop: 3 }}>
+                    known as &ldquo;{selectedNPC.aka}&rdquo;
+                  </div>
+                )}
+
+                <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+                  <span className={statusChipClass(selectedNPC.status)}>{selectedNPC.status || "Unknown"}</span>
+                  {selectedNPC.race && <span className="grim-chip">{selectedNPC.race}{selectedNPC.gender ? ` · ${selectedNPC.gender}` : ""}</span>}
+                  {selectedNPC.factions && selectedNPC.factions.length > 0 && selectedNPC.factions.map((fid) => (
+                    <button
+                      key={fid}
+                      className="grim-chip is-faction"
+                      style={{ cursor: "pointer", border: "1px solid oklch(0.68 0.115 82 / 0.45)" }}
+                      onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(fid)}`)}
+                    >
+                      ⚑ {getFactionName(fid)}
+                    </button>
+                  ))}
+                  {selectedNPC.location && <span className="grim-chip is-arcane">last seen · {selectedNPC.location}</span>}
+                </div>
+              </div>
+
+              {/* Stat strip */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", marginTop: 22, borderTop: "1px solid var(--grim-line)", borderBottom: "1px solid var(--grim-line)", padding: "12px 0" }}>
+                {[
+                  ["Race", selectedNPC.race || "—"],
+                  ["Gender", selectedNPC.gender || "—"],
+                  ["Location", selectedNPC.location || "—"],
+                ].map(([k, v], i) => (
+                  <div key={k} style={{ paddingLeft: i === 0 ? 0 : 16, borderLeft: i === 0 ? "none" : "1px solid var(--grim-line)" }}>
+                    <div className="grim-label">{k}</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1.15, marginTop: 3 }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Description parchment block */}
+          {selectedNPC.description && (
+            <section className="grim-parchment" style={{ marginBottom: 28 }}>
+              <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}>
+                {selectedNPC.description}
+              </p>
+            </section>
+          )}
+
+          {/* Two-column body */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 22 }}>
+
+            {/* Left column */}
+            <div className="grim-stack" style={{ gap: 22 }}>
+              {selectedNPC.background && (
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Background</h3>
+                    <span className="grim-tome-sub">history &amp; origin</span>
+                  </div>
+                  <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.background || "", isAdmin) }} />
+                </section>
+              )}
+              {selectedNPC.personality && (
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Personality</h3>
+                    <span className="grim-tome-sub">manner &amp; disposition</span>
+                  </div>
+                  <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.personality || "", isAdmin) }} />
+                </section>
+              )}
+              {!selectedNPC.background && !selectedNPC.personality && (
+                <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ unwritten ~</div>
+                  <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>
+                </section>
+              )}
+            </div>
+
+            {/* Right column */}
+            <div className="grim-stack" style={{ gap: 22 }}>
+              {/* DM-only notes */}
+              {(isDM || isAdmin) && (
+                dmMode ? (
+                  selectedNPC.gm_notes ? (
+                    <section className="grim-tome" style={{ border: "1px solid var(--grim-arcane)", background: "linear-gradient(180deg, oklch(0.18 0.05 285), oklch(0.13 0.04 290))" }}>
+                      <div className="grim-tome-head" style={{ borderColor: "oklch(0.65 0.150 285 / 0.30)" }}>
+                        <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>★ Master&apos;s Marginalia</h3>
+                        <span className="grim-tome-sub">hidden from the party</span>
+                      </div>
+                      <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNPC.gm_notes || "", true) }} />
+                    </section>
+                  ) : isAdmin ? (
+                    <section className="grim-tome" style={{ border: "1px dashed oklch(0.65 0.150 285 / 0.5)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no marginalia ~</div>
+                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
+                    </section>
+                  ) : null
+                ) : (
+                  <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--grim-ink-3)" }}>~ sealed ~</div>
+                    <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s marginalia hidden</div>
+                  </section>
+                )
+              )}
+
+              {/* User notes */}
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Party Notes</h3>
+                  <span className="grim-tome-sub">field observations</span>
+                </div>
+                <UserNotesEditor
+                  notes={selectedNPC.notes || []}
+                  onChange={(notes) => handleUpdateNPCNotes(selectedNPC.id, notes)}
+                  currentUser={userId}
+                  isAdmin={isAdmin}
+                />
+              </section>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ── NPC LIST ── */
+        <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+
+          {/* Page header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+            <div>
+              <div className="grim-page-eyebrow">Volume the Second</div>
+              <h1 className="grim-page-title">The Bestiary of Souls</h1>
+              <p className="grim-page-sub">{visibleNPCs.length} souls; every face the party has dared remember.</p>
+            </div>
+            {isAdmin && (
+              <div className="grim-row" style={{ gap: 8 }}>
+                <button className="grim-btn is-ember" onClick={startAdding}>+ Inscribe New</button>
+              </div>
+            )}
+          </div>
+
+          {/* Search + status filters */}
+          <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 22 }}>
+            <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Seek a name, a face, a deed…"
+                style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 16, padding: "12px 16px 12px 42px", outline: "none" }}
+              />
+              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18 }}>✦</span>
+            </div>
+            <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", overflow: "hidden" }}>
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setStatusFilter(f.id)}
+                  className={`grim-btn ${statusFilter === f.id ? "is-ember" : "is-ghost"}`}
+                  style={{ padding: "6px 12px", border: `1px solid ${statusFilter === f.id ? "var(--grim-ember)" : "transparent"}`, background: statusFilter === f.id ? undefined : "transparent" }}
+                >
+                  {f.label}
+                  <span className="grim-mono" style={{ fontSize: 10, opacity: 0.7, marginLeft: 2 }}>{f.count}</span>
+                </button>
               ))}
             </div>
+          </section>
+
+          {/* Two-pane: card grid + sticky sidebar */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 22 }}>
+
+            {/* NPC card grid */}
+            <section>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+                <h2 className="grim-h-section">Of those who walk the Bounty</h2>
+                <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+                  sorted alphabetical · {sortedNPCs.length} of {visibleNPCs.length}
+                </div>
+              </div>
+
+              {sortedNPCs.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
+                  <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+                    Adjust thy search or filters
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                  {sortedNPCs.map((npc) => (
+                    <div
+                      key={npc.id}
+                      onMouseEnter={() => setHoveredNPC(npc)}
+                      onMouseLeave={() => setHoveredNPC(null)}
+                      onClick={() => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("selected");
+                        window.history.replaceState({}, "", url.pathname + url.search);
+                        setSelectedNPC(npc);
+                      }}
+                      className="grim-tome"
+                      style={{
+                        padding: 0,
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        border: `1px solid ${hoveredNPC?.id === npc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                        transform: hoveredNPC?.id === npc.id ? "translateY(-2px)" : "none",
+                        transition: "transform 0.15s ease, border-color 0.15s ease",
+                      }}
+                    >
+                      {/* Card portrait */}
+                      <div style={{ position: "relative", height: 120 }}>
+                        {hasValidImage(npc.image) ? (
+                          <Image
+                            src={safeImageSrc(npc.image)!}
+                            alt={displayName(npc) || ""}
+                            fill
+                            style={{ objectFit: "cover", objectPosition: "center top", filter: npc.status?.toLowerCase() === "deceased" ? "grayscale(0.7)" : "none" }}
+                          />
+                        ) : (
+                          <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+                        )}
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, oklch(0.10 0.025 290 / 0.80))" }} />
+                        <div style={{ position: "absolute", top: 7, left: 7 }}>
+                          <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
+                        </div>
+                      </div>
+
+                      {/* Card body */}
+                      <div style={{ padding: "10px 12px 12px" }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {displayName(npc) || "Unknown"}
+                        </div>
+                        <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {npc.race}{npc.gender ? ` · ${npc.gender}` : ""}
+                        </div>
+                        {npc.description && (
+                          <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, minHeight: 30, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                            &ldquo;{npc.description}&rdquo;
+                          </div>
+                        )}
+                        {npc.factions && npc.factions.length > 0 && (
+                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
+                            <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              ⚑ {getFactionName(npc.factions[0])}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Right sidebar: hover preview + tally */}
+            <aside style={{ position: "sticky", top: 0, alignSelf: "flex-start" }}>
+              {/* Hover preview */}
+              <div className="grim-tome" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
+                <div style={{ position: "relative", height: 200 }}>
+                  {previewNPC && hasValidImage(previewNPC.image) ? (
+                    <Image
+                      src={safeImageSrc(previewNPC.image)!}
+                      alt={displayName(previewNPC) || ""}
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "center top", filter: previewNPC.status?.toLowerCase() === "deceased" ? "grayscale(0.6)" : "none" }}
+                    />
+                  ) : (
+                    <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+                  )}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, oklch(0.10 0.025 290 / 0.85))" }} />
+                </div>
+                <div style={{ padding: 16 }}>
+                  {previewNPC ? (
+                    <>
+                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>Ledger Entry</div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-gold)", lineHeight: 1, marginTop: 2 }}>{displayName(previewNPC)}</div>
+                      {previewNPC.pronunciation && !isNameHidden(previewNPC) && (
+                        <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em", marginTop: 3 }}>
+                          ({previewNPC.pronunciation})
+                        </div>
+                      )}
+                      <hr className="grim-rule" />
+                      <div className="grim-stack" style={{ gap: 7, fontSize: 12 }}>
+                        {[
+                          ["Race", previewNPC.race],
+                          ["Status", previewNPC.status],
+                          ["Location", previewNPC.location],
+                          ["Faction", previewNPC.factions?.[0] ? getFactionName(previewNPC.factions[0]) : "—"],
+                        ].map(([k, v], i) => (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 4, borderBottom: i < 3 ? "1px dotted var(--grim-line)" : "none" }}>
+                            <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: 12, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <hr className="grim-rule" />
+                      <button
+                        className="grim-btn is-ember"
+                        style={{ width: "100%", justifyContent: "center" }}
+                        onClick={() => {
+                          const url = new URL(window.location.href);
+                          url.searchParams.delete("selected");
+                          window.history.replaceState({}, "", url.pathname + url.search);
+                          setSelectedNPC(previewNPC);
+                        }}
+                      >
+                        Open Dossier ›
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: "center", padding: "12px 0", color: "var(--grim-ink-4)" }}>
+                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase" }}>Hover to preview</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Tally */}
+              <div className="grim-tome">
+                <h3 className="grim-tome-title" style={{ fontSize: 13, marginBottom: 0 }}>Tally of the Codex</h3>
+                <hr className="grim-rule" style={{ margin: "10px 0 12px" }} />
+                <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
+                  {[
+                    ["Souls inscribed", String(visibleNPCs.length)],
+                    ["Living", String(aliveCount)],
+                    ["Unknown", String(unknownCount)],
+                    ["Departed", String(deceasedCount)],
+                  ].map(([k, v], i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", color: "var(--grim-ink-2)" }}>
+                      <span>{k}</span>
+                      <span style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", fontSize: 16 }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
