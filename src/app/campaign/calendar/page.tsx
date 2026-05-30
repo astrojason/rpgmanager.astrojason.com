@@ -196,6 +196,8 @@ export default function CalendarPage() {
 
   const moonOrdinal = MOON_ORDINALS[viewMonth - 1] || `${viewMonth}th`;
   const tendayCount = tendayWeeks.length;
+  const prevMonthName = months[viewMonth === 1 ? months.length - 1 : viewMonth - 2]?.name || "";
+  const nextMonthName = months[viewMonth === months.length ? 0 : viewMonth]?.name || "";
 
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
@@ -226,11 +228,11 @@ export default function CalendarPage() {
         {/* Month navigation */}
         <div style={{ display: "flex", gap: 6, flexShrink: 0, paddingBottom: 8 }}>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y - 1)} title="Previous year">«</button>
-          <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToPrevMonth} title="Previous moon">‹ Moon</button>
+          <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToPrevMonth} title="Previous month">‹ {prevMonthName}</button>
           <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-gold)", padding: "0 10px", minWidth: 128, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center" }}>
             {monthName} · {viewYear}
           </div>
-          <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToNextMonth} title="Next moon">Moon ›</button>
+          <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToNextMonth} title="Next month">{nextMonthName} ›</button>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y + 1)} title="Next year">»</button>
         </div>
       </div>
