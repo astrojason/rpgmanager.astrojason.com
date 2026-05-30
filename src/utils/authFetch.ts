@@ -2,8 +2,7 @@ import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 
 async function getIdToken(): Promise<string | null> {
-  // In tests, bypass auth entirely to avoid Firebase initialization
-  if (process.env.NODE_ENV === "test") return null;
+  if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") return null;
 
   if (!auth) throw new Error("Authentication is not initialized");
   const clientAuth = auth;

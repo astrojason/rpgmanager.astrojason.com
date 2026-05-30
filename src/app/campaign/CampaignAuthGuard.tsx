@@ -9,8 +9,9 @@ export default function CampaignAuthGuard({ children }: { children: React.ReactN
   const router = useRouter();
 
   useEffect(() => {
+    if (process.env.NODE_ENV === "development") return;
     if (!auth) return;
-    
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.replace("/auth");

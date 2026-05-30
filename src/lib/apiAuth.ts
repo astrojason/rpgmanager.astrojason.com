@@ -26,13 +26,18 @@ function getBearerToken(request?: NextRequest | Request): string | null {
   return token;
 }
 
+const DEV_USER: VerifiedUser = { uid: "dev-user", role: "admin", email: "dev@local" };
+
 export async function verifyRequestAuth(
   request?: NextRequest | Request,
   options: VerifyOptions = {}
 ): Promise<AuthResult> {
-  // Allow tests to bypass auth entirely to keep existing contract while enforcing in real environments
   if (process.env.NODE_ENV === "test") {
     return { user: null };
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return { user: DEV_USER };
   }
 
   const token = getBearerToken(request);
