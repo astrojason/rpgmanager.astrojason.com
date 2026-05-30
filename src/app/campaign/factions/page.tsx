@@ -8,12 +8,37 @@ import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Faction, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import { safeImageSrc } from "@/utils/sanitize";
+
+const FACTION_CRESTS: Record<string, string> = {
+  "Ship Crew": "☾",
+  "Criminal Organization": "⚔",
+  "Political Organization": "✶",
+  "City Watch": "✠",
+  "Spy Network": "◈",
+  "Adventuring Guild": "⚡",
+  "City Guard": "⚓",
+  "Druid Circle": "❧",
+  "Guild": "⚙",
+};
+
+function getFactionCrest(type: string): string {
+  return FACTION_CRESTS[type] || "⚑";
+}
+
+function statusChipClass(status?: string): string {
+  const s = (status || "").toLowerCase();
+  if (s === "active") return "grim-chip is-alive";
+  if (s === "destroyed" || s === "disbanded" || s === "dead") return "grim-chip is-dead";
+  return "grim-chip is-unknown";
+}
 
 export default function FactionsPage() {
   const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
-  const [factionMembers, setFactionMembers] = useState<NPC[] | null>(null);
+  const [factionMembers, setFactionMembers] = useState<NPC[]>([]);
+  const [factionPCs, setFactionPCs] = useState<PC[]>([]);
   const [showFullImage, setShowFullImage] = useState(false);
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [npcData, setNpcData] = useState<NPC[]>([]);
@@ -23,45 +48,58 @@ export default function FactionsPage() {
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
   const isDM = useIsDM();
-  
-  // Track this page visit
+
   usePageTracking();
 
-  // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
         const [factionsResponse, npcsResponse, pcsResponse] = await Promise.all([
-          authFetch('/api/data/factions'),
-          authFetch('/api/data/npcs'),
-          authFetch('/api/data/pcs')
+          authFetch("/api/data/factions"),
+          authFetch("/api/data/npcs"),
+          authFetch("/api/data/pcs"),
         ]);
-
         if (factionsResponse.ok && npcsResponse.ok && pcsResponse.ok) {
           const factions = await factionsResponse.json();
           const npcs = await npcsResponse.json();
           const pcs = await pcsResponse.json();
-
           setFactionData(factions);
           setNpcData(npcs);
           setPcsData(pcs);
         }
-      } catch (error) {
-        console.error('Error loading data:', error);
+      } catch {
+        /* noop */
       } finally {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  // Get back button info - use referrer if available, otherwise default to Factions
-  const backInfo = selectedFaction ? (
-    referrerInfo.label !== 'Factions' ? referrerInfo : getDefaultBackInfo('factions')
-  ) : getDefaultBackInfo('factions');
+  useEffect(() => {
+    const selected = searchParams.get("selected");
+    if (selected) {
+      const faction = factionData.find((f: Faction) => f.id === selected);
+      if (faction) setSelectedFaction(faction);
+    }
+  }, [searchParams, factionData]);
 
-  // Filter factions based on search criteria
+  useEffect(() => {
+    if (!selectedFaction) {
+      setFactionMembers([]);
+      setFactionPCs([]);
+      return;
+    }
+    const members = npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id));
+    members.sort((a, b) => {
+      const la = (a.name || a.aka || a.id || "").toLowerCase();
+      const lb = (b.name || b.aka || b.id || "").toLowerCase();
+      return la.localeCompare(lb);
+    });
+    setFactionMembers(members);
+    setFactionPCs(pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id)));
+  }, [selectedFaction, npcData, pcsData]);
+
   const filteredFactions = factionData.filter((faction: Faction) => {
     const matchesSearch =
       faction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,565 +110,451 @@ export default function FactionsPage() {
     return matchesSearch && matchesType;
   });
 
-  // Auto-select faction if query param exists
-  useEffect(() => {
-    const selected = searchParams.get("selected");
-    if (selected) {
-      const faction = factionData.find((f: Faction) => f.id === selected);
-      if (faction) setSelectedFaction(faction);
-    }
-  }, [searchParams, factionData]);
+  const uniqueTypes = [...new Set(factionData.map((f: Faction) => f.type))].sort();
 
-  const [factionPCs, setFactionPCs] = useState<PC[] | null>(null);
-  useEffect(() => {
-    if (!selectedFaction) return;
-    const members = npcData.filter((npc: NPC) => npc.factions?.includes(selectedFaction.id));
-    members.sort((a: NPC, b: NPC) => {
-      const la = (a.name || a.aka || a.id || '').toLowerCase();
-      const lb = (b.name || b.aka || b.id || '').toLowerCase();
-      return la.localeCompare(lb);
-    });
-    setFactionMembers(members);
-    setFactionPCs(
-      pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id))
-    );
-  }, [selectedFaction, npcData, pcsData]);
+  const backInfo = selectedFaction
+    ? referrerInfo.label !== "Factions"
+      ? referrerInfo
+      : getDefaultBackInfo("factions")
+    : getDefaultBackInfo("factions");
 
-  // Get unique values for filter dropdowns
-  const uniqueTypes = [
-    ...new Set(factionData.map((faction: Faction) => faction.type)),
-  ].sort();
-
-  // Show loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading factions...</span>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Mustering the banners&hellip;
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="flex bg-gray-100 dark:bg-gray-900">
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden">
-        {selectedFaction ? (
-          <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
-            <button
-              onClick={() => {
-                // Navigate back to referrer or clear selection
-                if (referrerInfo.label !== 'Factions') {
-                  router.push(backInfo.url);
-                } else {
-                  setSelectedFaction(null);
-                }
-              }}
-              className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-            >
-              ← Back to {backInfo.label}
-            </button>
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                {/* Header section - show image if available, else fallback to gradient */}
-                <div className="relative mb-6">
-                  {selectedFaction.image ? (
-                    <div className="relative h-56 md:h-72 w-full group">
-                      <Image
-                        src={selectedFaction.image}
-                        alt={selectedFaction.name}
-                        fill
-                        style={{
-                          objectFit: "cover",
-                          objectPosition: "center top",
-                        }}
-                        className="w-full h-full object-cover object-top"
-                        priority
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      {/* Eye Icon Button */}
-                      <button
-                        type="button"
-                        className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center focus:outline-none opacity-80 group-hover:opacity-100 transition"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowFullImage(true);
-                        }}
-                        aria-label="View full image"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={2}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z"
-                          />
-                          <circle
-                            cx="12"
-                            cy="12"
-                            r="3"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                        </svg>
-                      </button>
-                      <div className="absolute bottom-0 left-0 p-8 text-white">
-                        <h1 className="text-4xl font-bold mb-1">
-                          {selectedFaction.name}
-                        </h1>
-                        <p className="text-lg opacity-75 mb-2">
-                          ({selectedFaction.pronunciation})
-                        </p>
-                        <p className="text-lg opacity-90">
-                          {selectedFaction.type} - {selectedFaction.status}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-8 flex items-center justify-center">
-                      <div className="text-white w-full">
-                        <h1 className="text-4xl font-bold mb-1">
-                          {selectedFaction.name}
-                        </h1>
-                        <p className="text-lg opacity-75 mb-2">
-                          ({selectedFaction.pronunciation})
-                        </p>
-                        <p className="text-lg opacity-90">
-                          {selectedFaction.type} - {selectedFaction.status}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+  const factionImage = safeImageSrc(selectedFaction?.image);
+  const totalMembers = factionMembers.length + factionPCs.length;
 
-                {/* Full Image Modal */}
-                {selectedFaction.image && (
-                  <div
-                    className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300 ${
-                      showFullImage
-                        ? "opacity-100 pointer-events-auto"
-                        : "opacity-0 pointer-events-none"
-                    }`}
-                    onClick={() => setShowFullImage(false)}
-                  >
-                    <div
-                      className={`relative max-w-3xl w-full transform transition-transform duration-300 ${
-                        showFullImage ? "scale-100" : "scale-90"
-                      }`}
-                      onClick={(e) => e.stopPropagation()}
+  return (
+    <>
+      {/* Full image modal */}
+      {showFullImage && factionImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "oklch(0 0 0 / 0.85)" }}
+          onClick={() => setShowFullImage(false)}
+        >
+          <div
+            style={{ position: "relative", maxWidth: 900, width: "100%", margin: 16 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={factionImage}
+              alt={selectedFaction?.name || ""}
+              width={900}
+              height={600}
+              style={{ objectFit: "contain", width: "100%", height: "auto" }}
+            />
+            <button
+              className="grim-btn is-ghost"
+              style={{ position: "absolute", top: 8, right: 8 }}
+              onClick={() => setShowFullImage(false)}
+            >
+              ✕ Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Two-pane layout */}
+      <div style={{ height: "100%", display: "grid", gridTemplateColumns: "1fr 320px", overflow: "hidden" }}>
+
+        {/* Left: detail column */}
+        <div style={{ padding: "36px 36px 80px 56px", overflowY: "auto" }}>
+          {selectedFaction ? (
+            <>
+              {/* Back button row */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <button
+                  className="grim-btn is-ghost"
+                  onClick={() => {
+                    if (referrerInfo.label !== "Factions") {
+                      router.push(backInfo.url);
+                    } else {
+                      setSelectedFaction(null);
+                    }
+                  }}
+                >
+                  ‹ {referrerInfo.label !== "Factions" ? `Back to ${backInfo.label}` : "All Banners"}
+                </button>
+              </div>
+
+              {/* Heraldic banner */}
+              <section className="grim-tome is-bordered" style={{ padding: 0, overflow: "hidden", marginBottom: 24 }}>
+                {factionImage ? (
+                  <div style={{ position: "relative", height: 220 }}>
+                    <Image
+                      src={factionImage}
+                      alt={selectedFaction.name}
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "center top" }}
+                      priority
+                    />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, oklch(0.22 0.06 290 / 0.88) 0%, oklch(0.16 0.05 285 / 0.78) 55%, oklch(0.20 0.08 40 / 0.82) 100%)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(135deg, oklch(1 0 0 / 0.02) 0 2px, transparent 2px 7px)", pointerEvents: "none" }} />
+                    <button
+                      className="grim-btn is-ghost"
+                      style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 14, padding: "4px 10px" }}
+                      onClick={() => setShowFullImage(true)}
+                      aria-label="View full image"
                     >
-                      <Image
-                        src={selectedFaction.image}
-                        alt={selectedFaction.name}
-                        width={900}
-                        height={600}
-                        style={{ objectFit: "contain" }}
-                        className={`rounded-lg shadow-2xl transition-all duration-300 ${
-                          showFullImage
-                            ? "opacity-100 scale-100"
-                            : "opacity-0 scale-90"
-                        }`}
-                      />
-                      <button
-                        className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded hover:bg-opacity-80"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowFullImage(false);
-                        }}
-                        aria-label="Close full image"
-                      >
-                        Close
-                      </button>
+                      ⊙
+                    </button>
+                    <div style={{ position: "absolute", inset: 0, padding: "28px 32px", display: "flex", alignItems: "center", gap: 24 }}>
+                      <HeraldCrest type={selectedFaction.type} />
+                      <BannerText faction={selectedFaction} totalMembers={totalMembers} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ position: "relative", padding: "28px 32px", background: "linear-gradient(135deg, oklch(0.22 0.06 290) 0%, oklch(0.16 0.05 285) 55%, oklch(0.20 0.08 40) 100%)" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(135deg, oklch(1 0 0 / 0.02) 0 2px, transparent 2px 7px)", pointerEvents: "none" }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 24, position: "relative" }}>
+                      <HeraldCrest type={selectedFaction.type} />
+                      <BannerText faction={selectedFaction} totalMembers={totalMembers} />
                     </div>
                   </div>
                 )}
-                <div className="p-6 space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                          Basic Information
-                        </h3>
-                        <div className="space-y-2">
-                          <p className="text-gray-700 dark:text-gray-300">
-                            <span className="font-medium">Type:</span>{" "}
-                            {selectedFaction.type}
-                          </p>
-                          <p className="text-gray-700 dark:text-gray-300">
-                            <span className="font-medium">Location:</span>{" "}
-                            <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200">
-                              {selectedFaction.location}
-                            </button>
-                          </p>
-                          <p className="text-gray-700 dark:text-gray-300">
-                            <span className="font-medium">Status:</span>{" "}
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs ${
-                                selectedFaction.status === "Active"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                              }`}
-                            >
-                              {selectedFaction.status}
-                            </span>
-                          </p>
-                          {factionMembers && factionMembers.length > 0 && (
-                            <p className="text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">
-                                Known Members:
-                              </span>{" "}
-                              {(factionMembers?.length || 0) +
-                                (factionPCs?.length || 0)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
+              </section>
 
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-                        <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.description || '', true) }} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Goals & Objectives</h3>
-                        <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.goals || '', true) }} />
-                      </div>
-
-                      {selectedFaction.background && (
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Background</h3>
-                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.background || '', true) }} />
-                        </div>
-                      )}
-                      {isDM && selectedFaction.gm_notes && (
-                        <div>
-                          <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                          <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.gm_notes || '', true) }} />
-                        </div>
-                      )}
-                    </div>
+              {/* Two-column dossier */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+                {/* Charter */}
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Charter</h3>
                   </div>
-
-                  {/* Members Section */}
-                  {factionMembers && factionMembers.length > 0 && (
-                    <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        NPCs ({factionMembers.length})
-                      </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {factionMembers.map((npc: NPC, index: number) => {
-                          return (
-                            <div
-                              key={index}
-                              className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500`}
-                              onClick={() =>
-                                router.push(`/npcs?selected=${npc.id}`)
-                              }
-                            >
-                              <div className="flex items-center space-x-3">
-                                <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                                  {npc.image ? (
-                                    <Image
-                                      src={npc.image}
-                                      alt={npc.name || npc.aka || ""}
-                                      fill
-                                      style={{
-                                        objectFit: "cover",
-                                        objectPosition: "center top",
-                                      }}
-                                      className={
-                                        npc && npc.status === "Deceased"
-                                          ? "grayscale opacity-75"
-                                          : ""
-                                      }
-                                    />
-                                  ) : (
-                                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                                      <span className="text-lg">?</span>
-                                    </div>
-                                  )}
-                                  {npc && npc.status === "Deceased" && (
-                                    <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                                      <span className="text-white text-lg">
-                                        💀
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <h3
-                                      className={`font-medium truncate ${
-                                        npc && npc.status === "Deceased"
-                                          ? "text-gray-500 dark:text-gray-400 line-through"
-                                          : "text-gray-900 dark:text-white"
-                                      }`}
-                                    >
-                                      {!npc.name || npc.nameHidden
-                                        ? npc.aka
-                                          ? `“${npc.aka}”`
-                                          : "Unknown"
-                                        : npc.name}
-                                    </h3>
-                                    {npc && npc.status === "Deceased" && (
-                                      <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
-                                        [Deceased]
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p
-                                    className={`text-sm truncate ${
-                                      npc && npc.status === "Deceased"
-                                        ? "text-gray-400 dark:text-gray-500"
-                                        : "text-gray-600 dark:text-gray-400"
-                                    }`}
-                                  >
-                                    {npc
-                                      ? `${npc.description} - ${npc.gender}`
-                                      : "NPC not found"}
-                                  </p>
-                                  <p
-                                    className={`text-xs truncate ${
-                                      npc && npc.status === "Deceased"
-                                        ? "text-gray-400 dark:text-gray-600"
-                                        : "text-gray-500 dark:text-gray-500"
-                                    }`}
-                                  >
-                                    {npc ? npc.location : ""}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
+                  <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
+                    {(
+                      [
+                        ["Type", selectedFaction.type],
+                        ["Seat", selectedFaction.location],
+                        ["Status", selectedFaction.status],
+                        ["Known Members", String(totalMembers)],
+                      ] as [string, string][]
+                    ).map(([k, v], i) => (
+                      <div
+                        key={i}
+                        style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 3 ? "1px dotted var(--grim-line)" : "none" }}
+                      >
+                        <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                        <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
                       </div>
-                    </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Aims & Ambitions */}
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Aims &amp; Ambitions</h3>
+                  </div>
+                  <div
+                    className="grim-flavor"
+                    style={{ fontSize: 14, color: "var(--grim-ink-2)", marginBottom: 14, lineHeight: 1.6 }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.goals || "", true) }}
+                  />
+                  {selectedFaction.background && (
+                    <>
+                      <div className="grim-label" style={{ marginBottom: 6 }}>Background</div>
+                      <div
+                        style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.background, true) }}
+                      />
+                    </>
                   )}
-                  {/* PCs Section */}
-                  {factionPCs && factionPCs.length > 0 && (
-                    <div className="border-t border-gray-200 dark:border-gray-600 pt-6 mt-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        PCs ({factionPCs.length})
-                      </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {factionPCs.map((pc: PC, index: number) => (
-                          <div
-                            key={index}
-                            className="p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
-                            onClick={() =>
-                              (window.location.href = `/pcs?selected=${pc.id}`)
-                            }
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                                {pc.image ? (
-                                  <Image
-                                    src={pc.image}
-                                    alt={pc.name || pc.nickname || ""}
-                                    fill
-                                    style={{
-                                      objectFit: "cover",
-                                      objectPosition: "center top",
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                                    <span className="text-lg">?</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <h3 className="font-medium truncate text-gray-900 dark:text-white">
-                                    {pc.name}
-                                    {pc.nickname ? ` "${pc.nickname}"` : ""}
-                                  </h3>
-                                </div>
-                                <p className="text-sm truncate text-gray-600 dark:text-gray-400">
-                                  {pc.race} - {pc.class}
-                                </p>
-                                <p className="text-xs truncate text-gray-500 dark:text-gray-500">
-                                  {pc.hometown}
-                                </p>
-                              </div>
-                            </div>
+                  {!selectedFaction.background && selectedFaction.description && (
+                    <>
+                      <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
+                      <div
+                        style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.description, true) }}
+                      />
+                    </>
+                  )}
+                </section>
+              </div>
+
+              {/* GM Notes */}
+              {isDM && selectedFaction.gm_notes && (
+                <section className="grim-tome" style={{ marginBottom: 24, borderColor: "var(--grim-arcane)" }}>
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>GM&apos;s Compendium</h3>
+                  </div>
+                  <div
+                    style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.gm_notes, true) }}
+                  />
+                </section>
+              )}
+
+              {/* Souls of the Banner (NPCs) */}
+              {factionMembers.length > 0 && (
+                <section className="grim-tome" style={{ marginBottom: 24 }}>
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Souls of the Banner</h3>
+                    <span className="grim-tome-sub">{factionMembers.length} known</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+                    {factionMembers.map((npc: NPC, index: number) => (
+                      <MemberCard
+                        key={index}
+                        image={npc.image}
+                        name={!npc.name || npc.nameHidden ? (npc.aka ? `"${npc.aka}"` : "Unknown") : npc.name}
+                        sub={[npc.description, npc.gender, npc.location].filter(Boolean).join(" · ")}
+                        deceased={npc.status === "Deceased"}
+                        onClick={() => router.push(`/campaign/npcs?selected=${npc.id}`)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* PC members */}
+              {factionPCs.length > 0 && (
+                <section className="grim-tome" style={{ marginBottom: 24 }}>
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Player Characters</h3>
+                    <span className="grim-tome-sub">{factionPCs.length} known</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+                    {factionPCs.map((pc: PC, index: number) => (
+                      <MemberCard
+                        key={index}
+                        image={pc.image}
+                        name={pc.name + (pc.nickname ? ` "${pc.nickname}"` : "")}
+                        sub={[pc.race, pc.class, pc.hometown].filter(Boolean).join(" · ")}
+                        onClick={() => router.push(`/campaign/pcs?selected=${pc.id}`)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Relationships */}
+              {selectedFaction.relationships && selectedFaction.relationships.length > 0 && (
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Alliances &amp; Enmities</h3>
+                    <span className="grim-tome-sub">{selectedFaction.relationships.length} recorded</span>
+                  </div>
+                  <div className="grim-stack" style={{ gap: 10 }}>
+                    {selectedFaction.relationships.map((rel, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+                          gap: 16, paddingBottom: 10,
+                          borderBottom: index < selectedFaction.relationships!.length - 1 ? "1px dotted var(--grim-line)" : "none",
+                        }}
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", marginBottom: 4 }}>
+                            {rel.faction}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Relationships Section */}
-                  {selectedFaction.relationships &&
-                    selectedFaction.relationships.length > 0 && (
-                      <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                          Relationships
-                        </h3>
-                        <div className="space-y-3">
-                          {selectedFaction.relationships.map(
-                            (
-                              relationship: {
-                                faction: string;
-                                status: string;
-                                description?: string;
-                              },
-                              index: number
-                            ) => (
-                              <div
-                                key={index}
-                                className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200 font-medium">
-                                    {relationship.faction}
-                                  </button>
-                                  <span
-                                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                      relationship.status === "Allied"
-                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                        : relationship.status === "Hostile"
-                                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    }`}
-                                  >
-                                    {relationship.status}
-                                  </span>
-                                </div>
-                                {relationship.description && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {relationship.description}
-                                  </p>
-                                )}
-                              </div>
-                            )
+                          {rel.description && (
+                            <div style={{ fontSize: 13, color: "var(--grim-ink-3)", lineHeight: 1.5 }}>
+                              {rel.description}
+                            </div>
                           )}
                         </div>
+                        <span
+                          className={`grim-chip ${rel.status === "Allied" ? "is-alive" : rel.status === "Hostile" ? "is-dead" : "is-unknown"}`}
+                          style={{ flexShrink: 0 }}
+                        >
+                          {rel.status}
+                        </span>
                       </div>
-                    )}
-                </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          ) : (
+            /* Empty state */
+            <div style={{ textAlign: "center", padding: "80px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: "var(--grim-gold-2)", marginBottom: 16 }}>⚑</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)" }}>~ choose your allegiance ~</div>
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+                Select a banner from the faction rail
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="h-full overflow-y-auto p-8">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                Factions & Organizations
-              </h1>
-              {/* Search and Filters */}
-              <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Search Factions
-                    </label>
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search by name, description, goals, or location..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Type
-                    </label>
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">All Types</option>
-                      {uniqueTypes.map((type: string) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-between items-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Showing {filteredFactions.length} of {factionData.length}{" "}
-                    factions
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSearchTerm("");
-                      setTypeFilter("");
-                    }}
-                    className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Click on any faction in the sidebar to view detailed
-                information.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Right Sidebar - Factions List */}
-      <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Factions ({filteredFactions.length})
-          </h2>
+          )}
         </div>
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-3">
+
+        {/* Right: Faction rail */}
+        <aside style={{ borderLeft: "1px solid var(--grim-line)", padding: "36px 16px 80px 22px", overflowY: "auto" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+            <h2 className="grim-h-section" style={{ margin: 0 }}>The Banners</h2>
+            <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>
+              {filteredFactions.length}
+            </span>
+          </div>
+
+          {/* Search */}
+          <div style={{ position: "relative", marginBottom: 8 }}>
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search banners…"
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 13, padding: "8px 12px 8px 32px", outline: "none" }}
+            />
+            <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 14 }}>✦</span>
+          </div>
+
+          {/* Type filter */}
+          {uniqueTypes.length > 1 && (
+            <div style={{ marginBottom: 14 }}>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: typeFilter ? "var(--grim-ink)" : "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 12, padding: "7px 10px", outline: "none", cursor: "pointer" }}
+              >
+                <option value="">All Types</option>
+                {uniqueTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Faction cards */}
+          <div className="grim-stack" style={{ gap: 8 }}>
             {filteredFactions.map((faction) => (
               <div
                 key={faction.id}
                 onClick={() => setSelectedFaction(faction)}
-                className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  selectedFaction?.id === faction.id
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
-                    : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
-                }`}
+                className="grim-tome"
+                style={{
+                  padding: "12px 14px", cursor: "pointer",
+                  border: `1px solid ${selectedFaction?.id === faction.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                  background: selectedFaction?.id === faction.id ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.10), var(--grim-bg-3))" : undefined,
+                }}
               >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 dark:text-white truncate">
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 0 }}>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: selectedFaction?.id === faction.id ? "var(--grim-ember-2)" : "var(--grim-gold-2)", flexShrink: 0 }}>
+                      {getFactionCrest(faction.type)}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: 14, color: selectedFaction?.id === faction.id ? "var(--grim-ember-2)" : "var(--grim-ink)", letterSpacing: ".02em", lineHeight: 1.15 }}>
                       {faction.name}
-                    </h3>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        faction.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {faction.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {faction.description}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
-                    <span>{faction.type}</span>
-                    {factionMembers && factionMembers.length > 0 && (
-                      <span>{factionMembers.length} members</span>
-                    )}
-                  </div>
+                  <span className={statusChipClass(faction.status)} style={{ fontSize: 8, padding: "1px 6px", flexShrink: 0 }}>
+                    {faction.status === "Destroyed" || faction.status === "Disbanded" ? "gone" : "active"}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: "var(--grim-ink-3)", lineHeight: 1.4, marginTop: 8 }}>
+                  {faction.description}
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase" }}>
+                    {faction.type}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
+        </aside>
+      </div>
+    </>
+  );
+}
+
+function HeraldCrest({ type }: { type: string }) {
+  return (
+    <div style={{
+      width: 80, height: 96, flexShrink: 0,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-gold)",
+      background: "linear-gradient(180deg, oklch(0.28 0.08 40), oklch(0.18 0.05 35))",
+      border: "1px solid var(--grim-gold-2)",
+      clipPath: "polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)",
+      boxShadow: "inset 0 1px 0 oklch(0.8 0.1 80 / 0.2)",
+    }}>
+      {FACTION_CRESTS[type] || "⚑"}
+    </div>
+  );
+}
+
+function BannerText({ faction, totalMembers }: { faction: Faction; totalMembers: number }) {
+  return (
+    <div>
+      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".24em", color: "var(--grim-gold-2)", textTransform: "uppercase" }}>
+        {faction.type}
+      </div>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, textShadow: "0 0 32px oklch(0 0 0 / 0.4)" }}>
+        {faction.name}
+      </h1>
+      <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", marginBottom: 8 }}>
+        ({faction.pronunciation})
+      </div>
+      <div className="grim-row" style={{ gap: 8, flexWrap: "wrap" }}>
+        <span className={`grim-chip ${faction.status === "Active" ? "is-alive" : "is-dead"}`}>
+          {faction.status}
+        </span>
+        {totalMembers > 0 && (
+          <span className="grim-chip is-faction">{totalMembers} known members</span>
+        )}
+        <span className="grim-chip">{faction.location}</span>
+      </div>
+    </div>
+  );
+}
+
+function MemberCard({
+  image, name, sub, deceased, onClick,
+}: {
+  image?: string;
+  name: string;
+  sub: string;
+  deceased?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: "flex", gap: 12, alignItems: "center",
+        padding: "12px 14px",
+        border: "1px solid var(--grim-line)",
+        background: "oklch(0.14 0.025 290 / 0.6)",
+        cursor: "pointer",
+        transition: "border-color 0.15s",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--grim-gold-2)")}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--grim-line)")}
+    >
+      <div style={{ width: 44, height: 44, borderRadius: "50%", flexShrink: 0, overflow: "hidden", position: "relative", border: "1px solid var(--grim-line-2)" }}>
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            style={{ objectFit: "cover", objectPosition: "center top", filter: deceased ? "grayscale(0.8)" : "none" }}
+          />
+        ) : (
+          <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%", borderRadius: "50%" }} />
+        )}
+      </div>
+      <div style={{ minWidth: 0 }}>
+        <div style={{
+          fontFamily: "var(--font-head)", fontSize: 14,
+          color: deceased ? "var(--grim-ink-3)" : "var(--grim-ink)",
+          letterSpacing: ".02em",
+          textDecoration: deceased ? "line-through" : "none",
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+        }}>
+          {name}
+        </div>
+        <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".10em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {sub}
         </div>
       </div>
     </div>
