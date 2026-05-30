@@ -139,7 +139,7 @@ export default function LocationsPage() {
 
         {/* Location detail panel */}
         {selectedArea && (
-          <aside style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 0 }}>
+          <aside style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 0, position: "sticky", top: 0, alignSelf: "flex-start" }}>
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               {/* Header image slot */}
               <div style={{ position: "relative", height: 140, background: "var(--grim-bg-3)" }}>
