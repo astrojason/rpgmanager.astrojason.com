@@ -319,7 +319,7 @@ export default function NPCsPage() {
                 </div>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
                 {sortedNPCs.map((npc) => (
                   <div
                     key={npc.id}
@@ -331,13 +331,15 @@ export default function NPCsPage() {
                       padding: 0,
                       overflow: "hidden",
                       cursor: "pointer",
+                      display: "grid",
+                      gridTemplateColumns: "40% 1fr",
                       border: `1px solid ${hoveredNPC?.id === npc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
                       transform: hoveredNPC?.id === npc.id ? "translateY(-2px)" : "none",
                       transition: "transform 0.15s ease, border-color 0.15s ease",
                     }}
                   >
-                    {/* Card portrait */}
-                    <div style={{ position: "relative", height: 120 }}>
+                    {/* Left: portrait at 1:1 */}
+                    <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
                       {hasValidImage(npc.image) ? (
                         <Image
                           src={safeImageSrc(npc.image)!}
@@ -348,14 +350,13 @@ export default function NPCsPage() {
                       ) : (
                         <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
                       )}
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 55%, oklch(0.10 0.025 290 / 0.80))" }} />
                       <div style={{ position: "absolute", top: 7, left: 7 }}>
                         <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
                       </div>
                     </div>
 
-                    {/* Card body */}
-                    <div style={{ padding: "10px 12px 12px" }}>
+                    {/* Right: card body */}
+                    <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {displayName(npc) || "Unknown"}
                       </div>
@@ -363,12 +364,12 @@ export default function NPCsPage() {
                         {npc.race}{npc.gender ? ` · ${npc.gender}` : ""}
                       </div>
                       {npc.description && (
-                        <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, minHeight: 30, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                           &ldquo;{npc.description}&rdquo;
                         </div>
                       )}
                       {npc.factions && npc.factions.length > 0 && (
-                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
+                        <div style={{ marginTop: 8, paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
                           <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             ⚑ {getFactionName(npc.factions[0])}
                           </div>

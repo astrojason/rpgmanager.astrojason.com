@@ -161,9 +161,11 @@ export default function PCsPage() {
 
           {selectedPc ? (
             <>
-              {/* Hero portrait banner */}
-              <section style={{ position: "relative", marginBottom: 24, border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
-                <div style={{ position: "relative", width: "100%", height: 320 }}>
+              {/* Portrait + details layout */}
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)", gap: 20, marginBottom: 24, alignItems: "start" }}>
+
+                {/* Left: portrait at 1:1 */}
+                <div style={{ position: "relative", aspectRatio: "1 / 1", border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
                   {selectedImage ? (
                     <>
                       <Image
@@ -183,86 +185,88 @@ export default function PCsPage() {
                           className={`absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
                         />
                       )}
+                      <button
+                        className="grim-btn is-ghost"
+                        style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 18, padding: "4px 10px" }}
+                        onClick={() => setShowFullImage(true)}
+                        aria-label="View full image"
+                      >
+                        ⊙
+                      </button>
                     </>
                   ) : (
                     <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
                   )}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, oklch(0.10 0.025 290 / 0.94))" }} />
-                  {selectedImage && (
-                    <button
-                      className="grim-btn is-ghost"
-                      style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 18, padding: "4px 10px" }}
-                      onClick={() => setShowFullImage(true)}
-                      aria-label="View full image"
-                    >
-                      ⊙
-                    </button>
-                  )}
-                  <div style={{ position: "absolute", bottom: 22, left: 28, right: 28 }}>
+                </div>
+
+                {/* Right: character header + info sections */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+                  {/* Character header */}
+                  <div>
                     <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                      <h2 style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
+                      <h2 style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
                         {selectedPc.name}
                       </h2>
                       {selectedPc.nickname && (
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: 20, color: "var(--grim-ink-2)" }}>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 18, color: "var(--grim-ink-2)" }}>
                           &ldquo;{selectedPc.nickname}&rdquo;
                         </span>
                       )}
                     </div>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: 17, color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 4 }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: 15, color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 4 }}>
                       {selectedPc.race} · {selectedPc.class}
                     </div>
                   </div>
-                </div>
-              </section>
 
-              {/* Info + allegiances */}
-              <div style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 20, marginBottom: 24 }}>
-                <section className="grim-tome">
-                  <div className="grim-tome-head">
-                    <h3 className="grim-tome-title">Of the Person</h3>
-                  </div>
-                  <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
-                    {([
-                      ["Hometown", selectedPc.hometown],
-                      ["Race", selectedPc.race],
-                      ["Calling", selectedPc.class],
-                    ] as [string, string][]).map(([k, v], i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
-                        <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grim-rule" />
-                  <span className={statusChipClass(selectedPc.status)}>
-                    {selectedPc.status === "Deceased" ? "Departed" : selectedPc.status || "Unknown"}
-                  </span>
-                </section>
-
-                <section className="grim-tome">
-                  <div className="grim-tome-head">
-                    <h3 className="grim-tome-title">Sworn Allegiances</h3>
-                  </div>
-                  {selectedPc.factions && selectedPc.factions.length > 0 ? (
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      {selectedPc.factions.map((factionId) => (
-                        <button
-                          key={factionId}
-                          className="grim-chip is-faction"
-                          style={{ cursor: "pointer", fontSize: 12, padding: "5px 12px" }}
-                          onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(factionId)}`)}
-                        >
-                          ⚑ {getFactionName(factionId)}
-                        </button>
+                  {/* Of the Person */}
+                  <section className="grim-tome">
+                    <div className="grim-tome-head">
+                      <h3 className="grim-tome-title">Of the Person</h3>
+                    </div>
+                    <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
+                      {([
+                        ["Hometown", selectedPc.hometown],
+                        ["Race", selectedPc.race],
+                        ["Calling", selectedPc.class],
+                      ] as [string, string][]).map(([k, v], i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
+                          <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                        </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
-                      No recorded allegiances
+                    <div className="grim-rule" />
+                    <span className={statusChipClass(selectedPc.status)}>
+                      {selectedPc.status === "Deceased" ? "Departed" : selectedPc.status || "Unknown"}
+                    </span>
+                  </section>
+
+                  {/* Sworn Allegiances */}
+                  <section className="grim-tome">
+                    <div className="grim-tome-head">
+                      <h3 className="grim-tome-title">Sworn Allegiances</h3>
                     </div>
-                  )}
-                </section>
+                    {selectedPc.factions && selectedPc.factions.length > 0 ? (
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                        {selectedPc.factions.map((factionId) => (
+                          <button
+                            key={factionId}
+                            className="grim-chip is-faction"
+                            style={{ cursor: "pointer", fontSize: 12, padding: "5px 12px" }}
+                            onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(factionId)}`)}
+                          >
+                            ⚑ {getFactionName(factionId)}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
+                        No recorded allegiances
+                      </div>
+                    )}
+                  </section>
+                </div>
               </div>
 
               {/* Open full dossier */}
