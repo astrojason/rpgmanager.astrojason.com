@@ -21,6 +21,7 @@ function statusChipClass(status?: string): string {
 
 export default function NPCsPage() {
   const [hoveredNPC, setHoveredNPC] = useState<NPC | null>(null);
+  const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [npcData, setNpcData] = useState<NPC[]>([]);
@@ -136,7 +137,7 @@ export default function NPCsPage() {
     setShowAddForm(true);
   };
 
-  const previewNPC = hoveredNPC || sortedNPCs[0] || null;
+  const previewNPC = selectedNPC || sortedNPCs[0] || null;
 
   if (loading) {
     return (
@@ -325,7 +326,7 @@ export default function NPCsPage() {
                     key={npc.id}
                     onMouseEnter={() => setHoveredNPC(npc)}
                     onMouseLeave={() => setHoveredNPC(null)}
-                    onClick={() => router.push(`/campaign/npcs/${npc.id}`)}
+                    onClick={() => setSelectedNPC(npc)}
                     className="grim-tome"
                     style={{
                       padding: 0,
@@ -333,7 +334,7 @@ export default function NPCsPage() {
                       cursor: "pointer",
                       display: "grid",
                       gridTemplateColumns: "40% 1fr",
-                      border: `1px solid ${hoveredNPC?.id === npc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                      border: `1px solid ${selectedNPC?.id === npc.id ? "var(--grim-ember)" : hoveredNPC?.id === npc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
                       transform: hoveredNPC?.id === npc.id ? "translateY(-2px)" : "none",
                       transition: "transform 0.15s ease, border-color 0.15s ease",
                     }}

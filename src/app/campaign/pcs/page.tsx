@@ -20,6 +20,7 @@ export default function PCsPage() {
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredPc, setHoveredPc] = useState<PC | null>(null);
+  const [selectedPc, setSelectedPc] = useState<PC | null>(null);
   const [statusFilter, setStatusFilter] = useState("active");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -87,7 +88,7 @@ export default function PCsPage() {
     (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase())
   );
 
-  const previewPc = hoveredPc || sortedPCs[0] || null;
+  const previewPc = selectedPc || sortedPCs[0] || null;
 
   if (loading) {
     return (
@@ -164,7 +165,7 @@ export default function PCsPage() {
                   key={pc.id}
                   onMouseEnter={() => setHoveredPc(pc)}
                   onMouseLeave={() => setHoveredPc(null)}
-                  onClick={() => router.push(`/campaign/pcs/${pc.id}`)}
+                  onClick={() => setSelectedPc(pc)}
                   className="grim-tome"
                   style={{
                     padding: 0,
@@ -172,7 +173,7 @@ export default function PCsPage() {
                     cursor: "pointer",
                     display: "grid",
                     gridTemplateColumns: "40% 1fr",
-                    border: `1px solid ${hoveredPc?.id === pc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                    border: `1px solid ${selectedPc?.id === pc.id ? "var(--grim-ember)" : hoveredPc?.id === pc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
                     transform: hoveredPc?.id === pc.id ? "translateY(-2px)" : "none",
                     transition: "transform 0.15s ease, border-color 0.15s ease",
                   }}
