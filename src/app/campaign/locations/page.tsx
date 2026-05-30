@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { usePageTracking } from "@/utils/referrerTracking";
@@ -16,6 +16,7 @@ export default function LocationsPage() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
+  const router = useRouter();
   const searchParams = useSearchParams();
   
   // Track this page visit
@@ -176,7 +177,7 @@ export default function LocationsPage() {
             {sublocations.map((location) => (
               <div
                 key={location.id}
-                onClick={() => handleAreaClick(location)}
+                onClick={() => router.push(`/campaign/locations/${location.id}`)}
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500"
               >
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
