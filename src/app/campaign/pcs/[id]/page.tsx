@@ -10,6 +10,13 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
 
+function statusChipClass(status?: string): string {
+  const s = (status || "").toLowerCase();
+  if (s === "alive") return "grim-chip is-alive";
+  if (s === "deceased" || s === "dead") return "grim-chip is-deceased";
+  return "grim-chip is-unknown";
+}
+
 export default function PCDetailPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
@@ -54,7 +61,6 @@ export default function PCDetailPage() {
 
   const selectedImage = safeImageSrc(pc?.image);
   const selectedGif = safeImageSrc(pc?.gif);
-  const fallbackPcImage = "/public/images/pcs/magnolia.png";
 
   useEffect(() => {
     if (pc && selectedGif) {
@@ -78,23 +84,27 @@ export default function PCDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading...</span>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the codex&hellip;
+        </div>
       </div>
     );
   }
 
   if (notFound || !pc) {
     return (
-      <div className="p-8">
-        <button
-          onClick={() => router.push("/campaign/pcs")}
-          className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-        >
-          ← Back to PCs
+      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/pcs")} style={{ marginBottom: 24 }}>
+          ← Back to Player Characters
         </button>
-        <p className="text-gray-500 dark:text-gray-400">Character not found.</p>
+        <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)" }}>~ character not found ~</div>
+          <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+            No record in the codex
+          </div>
+        </div>
       </div>
     );
   }
@@ -102,23 +112,24 @@ export default function PCDetailPage() {
   return (
     <>
       {/* Full image modal */}
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 transition-opacity duration-300 ${showFullImage ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-        onClick={() => setShowFullImage(false)}
-      >
+      {showFullImage && selectedImage && (
         <div
-          className={`relative max-w-3xl w-full transform transition-transform duration-300 ${showFullImage ? "scale-100" : "scale-90"}`}
-          onClick={(e) => e.stopPropagation()}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "oklch(0 0 0 / 0.85)" }}
+          onClick={() => setShowFullImage(false)}
         >
-          {selectedImage ? (
-            <div className="relative w-full h-full">
+          <div
+            style={{ position: "relative", maxWidth: 900, width: "100%", margin: 16 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ position: "relative" }}>
               <Image
-                src={selectedImage ?? fallbackPcImage}
+                src={selectedImage}
                 alt={pc.name || pc.nickname || ""}
                 width={900}
                 height={600}
-                style={{ objectFit: "contain" }}
-                className={`rounded-lg shadow-2xl transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"} ${showFullImage ? "scale-100" : "scale-90"}`}
+                style={{ objectFit: "contain", width: "100%", height: "auto" }}
+                className={`transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
               />
               {showGif && selectedGif && (
                 <Image
@@ -126,129 +137,145 @@ export default function PCDetailPage() {
                   alt={pc.name || pc.nickname || ""}
                   width={900}
                   height={600}
-                  style={{ objectFit: "contain" }}
-                  className={`rounded-lg shadow-2xl absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"} ${showFullImage ? "scale-100" : "scale-90"}`}
+                  unoptimized
+                  style={{ objectFit: "contain", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                  className={`transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
                 />
               )}
             </div>
-          ) : (
-            <div className="w-full h-[600px] bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center text-5xl text-gray-500 dark:text-gray-400">?</div>
-          )}
-          <button
-            className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-3 py-1 rounded hover:bg-opacity-80"
-            onClick={(e) => { e.stopPropagation(); setShowFullImage(false); }}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-
-      <div className="h-full overflow-y-auto p-8 bg-white dark:bg-gray-800">
-        <button
-          onClick={() => router.push("/campaign/pcs")}
-          className="mb-6 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-        >
-          ← Back to PCs
-        </button>
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-            <div className="relative h-96 mb-6">
-              {selectedImage ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={selectedImage ?? fallbackPcImage}
-                    alt={pc.name || pc.nickname || ""}
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center top" }}
-                    className={`rounded-lg transition-opacity duration-[3000ms] absolute top-0 left-0 w-full h-full ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
-                  />
-                  {showGif && selectedGif && (
-                    <Image
-                      src={selectedGif}
-                      alt={pc.name || pc.nickname || ""}
-                      fill
-                      unoptimized
-                      style={{ objectFit: "cover", objectPosition: "center top" }}
-                      className={`rounded-lg absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
-                  <button
-                    type="button"
-                    className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-2 flex items-center justify-center"
-                    onClick={() => setShowFullImage(true)}
-                    aria-label="View full image"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
-                      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                  </button>
-                  <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                    <h1 className="text-4xl font-bold mb-1">
-                      {pc.name}
-                      {pc.nickname && <span className={`text-2xl font-normal opacity-75${pc.name ? " ml-2" : ""}`}>&ldquo;{pc.nickname}&rdquo;</span>}
-                    </h1>
-                    <p className="text-lg opacity-90">{pc.race} - {pc.class}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-900 to-blue-400 dark:from-blue-900 dark:to-blue-700 rounded-lg flex items-end relative">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none rounded-lg" />
-                  <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                    <h1 className="text-4xl font-bold mb-1">
-                      {pc.name}
-                      {pc.nickname && <span className={`text-2xl font-normal opacity-75${pc.name ? " ml-2" : ""}`}>&ldquo;{pc.nickname}&rdquo;</span>}
-                    </h1>
-                    <p className="text-lg opacity-90">{pc.race} - {pc.class}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Basic Information</h3>
-                  <div className="space-y-2">
-                    <p className="text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Hometown:</span> {pc.hometown}
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Status:</span>{" "}
-                      <span className={`px-2 py-1 rounded-full text-xs ${pc.status === "Alive" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : pc.status === "Deceased" ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}`}>
-                        {pc.status}
-                      </span>
-                    </p>
-                    {pc.factions && pc.factions.length > 0 && (
-                      <div className="text-gray-700 dark:text-gray-300">
-                        <span className="font-medium">Factions:</span>
-                        <div className="flex flex-row flex-wrap gap-2 mt-1">
-                          {pc.factions.map((factionId: string) => (
-                            <button
-                              key={factionId}
-                              className="inline-block bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200 border border-blue-200 dark:border-blue-700"
-                              onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(factionId)}`)}
-                            >
-                              {getFactionName(factionId)}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {isDM && pc.gm_notes && (
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                  <div className="prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(pc.gm_notes || "", true) }} />
-                </div>
-              )}
-            </div>
+            <button
+              className="grim-btn is-ghost"
+              style={{ position: "absolute", top: 8, right: 8 }}
+              onClick={() => setShowFullImage(false)}
+            >
+              ✕ Close
+            </button>
           </div>
         </div>
+      )}
+
+      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+
+        {/* Back nav */}
+        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/pcs")} style={{ marginBottom: 24 }}>
+          ← Back to Player Characters
+        </button>
+
+        {/* Hero portrait banner */}
+        <section style={{ position: "relative", marginBottom: 28, border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
+          <div style={{ position: "relative", width: "100%", height: 380 }}>
+            {selectedImage ? (
+              <>
+                <Image
+                  src={selectedImage}
+                  alt={pc.name || pc.nickname || ""}
+                  fill
+                  style={{ objectFit: "cover", objectPosition: "center top" }}
+                  className={`transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
+                />
+                {showGif && selectedGif && (
+                  <Image
+                    src={selectedGif}
+                    alt={pc.name || pc.nickname || ""}
+                    fill
+                    unoptimized
+                    style={{ objectFit: "cover", objectPosition: "center top" }}
+                    className={`absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
+                  />
+                )}
+              </>
+            ) : (
+              <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+            )}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, oklch(0.10 0.025 290 / 0.94))" }} />
+            {selectedImage && (
+              <button
+                className="grim-btn is-ghost"
+                style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 18, padding: "4px 10px" }}
+                onClick={() => setShowFullImage(true)}
+                aria-label="View full image"
+              >
+                ⊙
+              </button>
+            )}
+            <div style={{ position: "absolute", bottom: 24, left: 32, right: 32 }}>
+              <div className="grim-page-eyebrow" style={{ marginBottom: 6 }}>Dossier of a Fellow Traveller</div>
+              <div style={{ display: "flex", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
+                  {pc.name}
+                </h1>
+                {pc.nickname && (
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "var(--grim-ink-2)" }}>
+                    &ldquo;{pc.nickname}&rdquo;
+                  </span>
+                )}
+              </div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 18, color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 6 }}>
+                {pc.race} · {pc.class}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Info sections */}
+        <div style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 20, marginBottom: 24 }}>
+          <section className="grim-tome">
+            <div className="grim-tome-head">
+              <h3 className="grim-tome-title">Of the Person</h3>
+            </div>
+            <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
+              {([
+                ["Hometown", pc.hometown],
+                ["Race", pc.race],
+                ["Calling", pc.class],
+              ] as [string, string][]).map(([k, v], i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
+                  <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                  <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                </div>
+              ))}
+            </div>
+            <div className="grim-rule" />
+            <span className={statusChipClass(pc.status)}>
+              {pc.status === "Deceased" ? "Departed" : pc.status || "Unknown"}
+            </span>
+          </section>
+
+          {pc.factions && pc.factions.length > 0 && (
+            <section className="grim-tome">
+              <div className="grim-tome-head">
+                <h3 className="grim-tome-title">Sworn Allegiances</h3>
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {pc.factions.map((factionId) => (
+                  <button
+                    key={factionId}
+                    className="grim-chip is-faction"
+                    style={{ cursor: "pointer", fontSize: 12, padding: "5px 12px" }}
+                    onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(factionId)}`)}
+                  >
+                    ⚑ {getFactionName(factionId)}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* GM Notes (DM only) */}
+        {isDM && pc.gm_notes && (
+          <section className="grim-tome" style={{ border: "1px solid oklch(0.65 0.150 285 / 0.55)", marginBottom: 24 }}>
+            <div className="grim-tome-head">
+              <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>GM Notes</h3>
+              <span className="grim-tome-sub" style={{ color: "var(--grim-arcane)" }}>eyes only</span>
+            </div>
+            <div
+              className="prose dark:prose-invert max-w-none prose-sm"
+              style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(pc.gm_notes || "", true) }}
+            />
+          </section>
+        )}
       </div>
     </>
   );
