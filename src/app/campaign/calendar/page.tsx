@@ -102,6 +102,24 @@ export default function CalendarPage() {
     load();
   }, []);
 
+  // Must be before early returns to satisfy Rules of Hooks
+  const monthEvents = useMemo(() => {
+    if (!calendarData) return [];
+    const { events, static: staticData } = calendarData;
+    const months = staticData.months;
+    const weekdays = staticData.weekdays;
+    const colCount = weekdays.length || 10;
+    const daysInMonth = months[viewMonth - 1]?.length || 40;
+    return events
+      .filter((e) => !e.dmOnly)
+      .map((e) => {
+        const span = eventSpanInMonth(e, viewMonth, viewYear, daysInMonth);
+        if (!span) return null;
+        return { event: e, span, monthLong: span[0] === 1 && span[1] === daysInMonth };
+      })
+      .filter(Boolean) as { event: CalendarEvent; span: [number, number]; monthLong: boolean }[];
+  }, [calendarData, viewMonth, viewYear]);
+
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
@@ -145,17 +163,6 @@ export default function CalendarPage() {
     viewYear === initialCurrent.year &&
     viewMonth === initialCurrent.month &&
     day === initialCurrent.day;
-
-  const monthEvents = useMemo(() => {
-    return events
-      .filter((e) => !e.dmOnly)
-      .map((e) => {
-        const span = eventSpanInMonth(e, viewMonth, viewYear, daysInMonth);
-        if (!span) return null;
-        return { event: e, span, monthLong: span[0] === 1 && span[1] === daysInMonth };
-      })
-      .filter(Boolean) as { event: CalendarEvent; span: [number, number]; monthLong: boolean }[];
-  }, [events, viewMonth, viewYear, daysInMonth]);
 
   function dotsForDay(day: number) {
     return monthEvents
