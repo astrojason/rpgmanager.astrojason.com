@@ -356,10 +356,15 @@ export default function NPCsPage() {
                     </div>
 
                     {/* Right: card body */}
-                    <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {displayName(npc) || "Unknown"}
                       </div>
+                      {npc.pronunciation && !isNameHidden(npc) && (
+                        <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
+                          ({npc.pronunciation})
+                        </div>
+                      )}
                       <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {npc.race}{npc.gender ? ` · ${npc.gender}` : ""}
                       </div>
