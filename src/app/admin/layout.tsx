@@ -5,103 +5,36 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
-import {
-  UsersIcon,
-  CogIcon,
-  UserGroupIcon,
-  ShieldCheckIcon,
-  ClipboardDocumentListIcon,
-  MapPinIcon,
-  ClockIcon,
-  CalendarIcon,
-  DocumentTextIcon,
-  HomeIcon,
-} from "@heroicons/react/24/outline";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-const adminNavItems = [
+const NAV_SECTIONS = [
   {
-    id: "overview",
-    name: "Dashboard",
-    href: "/admin",
-    icon: HomeIcon,
-    description: "Admin overview",
-    section: "main"
+    label: "Codex",
+    items: [
+      { id: "overview", name: "Dashboard", href: "/admin", glyph: "⊕" },
+    ],
   },
   {
-    id: "npcs",
-    name: "NPCs",
-    href: "/admin/data/npcs",
-    icon: UserGroupIcon,
-    description: "Non-Player Characters",
-    section: "data"
+    label: "Tomes of Record",
+    items: [
+      { id: "npcs", name: "NPCs", href: "/admin/data/npcs", glyph: "☥" },
+      { id: "pcs", name: "Player Characters", href: "/admin/data/pcs", glyph: "⚔" },
+      { id: "factions", name: "Factions", href: "/admin/data/factions", glyph: "⚑" },
+      { id: "quests", name: "Quests", href: "/admin/data/quests", glyph: "✦" },
+      { id: "locations", name: "Locations", href: "/admin/data/locations", glyph: "✠" },
+      { id: "timeline", name: "Timeline", href: "/admin/data/timeline", glyph: "☾" },
+    ],
   },
   {
-    id: "pcs",
-    name: "Player Characters",
-    href: "/admin/data/pcs",
-    icon: UsersIcon,
-    description: "Player Characters",
-    section: "data"
-  },
-  {
-    id: "factions",
-    name: "Factions",
-    href: "/admin/data/factions",
-    icon: ShieldCheckIcon,
-    description: "Organizations & Guilds",
-    section: "data"
-  },
-  {
-    id: "quests",
-    name: "Quests",
-    href: "/admin/data/quests",
-    icon: ClipboardDocumentListIcon,
-    description: "Campaign Quests",
-    section: "data"
-  },
-  {
-    id: "locations",
-    name: "Locations",
-    href: "/admin/data/locations",
-    icon: MapPinIcon,
-    description: "Locations & Maps",
-    section: "data"
-  },
-  {
-    id: "timeline",
-    name: "Timeline",
-    href: "/admin/data/timeline",
-    icon: ClockIcon,
-    description: "Timeline Events",
-    section: "data"
-  },
-  {
-    id: "calendar",
-    name: "Calendar",
-    href: "/admin/data/calendar",
-    icon: CalendarIcon,
-    description: "World calendar",
-    section: "tools"
-  },
-  {
-    id: "recaps",
-    name: "Session Recaps",
-    href: "/admin/data/recaps",
-    icon: DocumentTextIcon,
-    description: "Session summaries",
-    section: "tools"
-  },
-  {
-    id: "user-management",
-    name: "User Management",
-    href: "/admin/users",
-    icon: CogIcon,
-    description: "Manage user roles",
-    section: "tools"
+    label: "Instruments",
+    items: [
+      { id: "calendar", name: "Calendar", href: "/admin/data/calendar", glyph: "✠" },
+      { id: "recaps", name: "Session Recaps", href: "/admin/data/recaps", glyph: "☾" },
+      { id: "user-management", name: "User Management", href: "/admin/users", glyph: "⚙" },
+    ],
   },
 ];
 
@@ -113,16 +46,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     if (!auth) return;
-    
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
         try {
-          const tokenResult = await user.getIdTokenResult();
-          const role = tokenResult.claims.role as string || null;
-          setUserRole(role);
-        } catch (error) {
-          console.error('Error checking user role:', error);
+          const tokenResult = await u.getIdTokenResult();
+          setUserRole((tokenResult.claims.role as string) || null);
+        } catch {
           setUserRole(null);
         }
       } else {
@@ -130,218 +60,118 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading admin panel...</p>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the codex&hellip;
         </div>
       </div>
     );
   }
 
-  // Check if user is authenticated
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-            Authentication Required
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Please sign in to access the admin panel.
-          </p>
-          <Link 
-            href="/auth"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-          >
-            Sign In
-          </Link>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
+        <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-ember)", marginBottom: 12 }}>⚔</div>
+          <h2 style={{ fontFamily: "var(--font-head)", fontSize: 22, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)", marginBottom: 8 }}>Passage Denied</h2>
+          <p style={{ fontSize: 15, color: "var(--grim-ink-3)", marginBottom: 24 }}>You must sign in to enter the Scriptorium.</p>
+          <Link href="/auth" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Sign In</Link>
         </div>
       </div>
     );
   }
 
-  // Check if user has admin role
   if (userRole !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 text-red-600 dark:text-red-400">
-            Access Denied
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-2">
-            Admin privileges required to access this area.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
-            Current role: {userRole || 'No role assigned'}
-          </p>
-          <Link 
-            href="/campaign"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-          >
-            Return to Campaign
-          </Link>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
+        <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-blood-2)", marginBottom: 12 }}>✠</div>
+          <h2 style={{ fontFamily: "var(--font-head)", fontSize: 22, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-blood-2)", marginBottom: 8 }}>Forbidden Ward</h2>
+          <p style={{ fontSize: 15, color: "var(--grim-ink-3)", marginBottom: 6 }}>Master&apos;s privileges are required beyond this threshold.</p>
+          <p className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em", marginBottom: 24 }}>Current role: {userRole || 'none'}</p>
+          <Link href="/campaign" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Return to Campaign</Link>
         </div>
       </div>
     );
   }
 
-  // Render admin layout
   return (
-    <div className="h-full flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Admin Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/admin" className="text-xl font-bold text-gray-900 dark:text-white">
-                RPG Manager Admin
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user.email}
-              </span>
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
-                Admin
-              </span>
-              <Link 
-                href="/campaign"
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-              >
-                Back to Campaign
-              </Link>
-            </div>
+    <div style={{ height: "100%", display: "flex", background: "var(--grim-bg)", color: "var(--grim-ink)", fontFamily: "var(--font-body)" }}>
+
+      {/* Admin sidebar */}
+      <aside style={{
+        width: 240, flexShrink: 0,
+        background: "linear-gradient(180deg, oklch(0.12 0.030 290) 0%, oklch(0.09 0.025 295) 100%)",
+        borderRight: "1px solid var(--grim-line)",
+        display: "flex", flexDirection: "column",
+        overflowY: "auto",
+      }}>
+
+        {/* Sidebar header */}
+        <div style={{ padding: "22px 20px 16px", borderBottom: "1px solid var(--grim-line)" }}>
+          <div className="grim-mono" style={{ fontSize: 8, letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
+            The Scriptorium
+          </div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1 }}>
+            Master&apos;s Codex
           </div>
         </div>
-      </header>
 
-      <div className="flex flex-1">
-        {/* Admin Navigation Sidebar */}
-        <div className="w-80 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <nav className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Admin Tools
-            </h3>
-            
-            {/* Dashboard */}
-            <div className="mb-6">
-              {adminNavItems
-                .filter(item => item.section === "main")
-                .map((item) => {
-                  const IconComponent = item.icon;
-                  const isActive = pathname === item.href;
-                  
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className={`flex items-center px-3 py-2 rounded-md text-sm transition-colors ${
-                        isActive
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      <IconComponent className="w-5 h-5 mr-3" />
-                      <div>
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {item.description}
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+        {/* Nav sections */}
+        <nav style={{ flex: 1, padding: "16px 0" }}>
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label} style={{ marginBottom: 20 }}>
+              <div className="grim-mono" style={{ fontSize: 8, letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", padding: "0 20px", marginBottom: 6 }}>
+                {section.label}
+              </div>
+              {section.items.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 10,
+                      padding: "8px 20px",
+                      textDecoration: "none",
+                      color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-3)",
+                      background: isActive ? "oklch(0.40 0.10 40 / 0.12)" : "transparent",
+                      borderLeft: isActive ? "2px solid var(--grim-ember)" : "2px solid transparent",
+                      transition: "color 0.15s, background 0.15s",
+                      fontSize: 14,
+                    }}
+                  >
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: 16, width: 20, textAlign: "center", flexShrink: 0 }}>{item.glyph}</span>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".04em" }}>{item.name}</span>
+                  </Link>
+                );
+              })}
             </div>
+          ))}
+        </nav>
 
-            {/* Data Management */}
-            <div className="mb-6">
-              <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                Data Management
-              </h4>
-              <ul className="space-y-1">
-                {adminNavItems
-                  .filter(item => item.section === "data")
-                  .map((item) => {
-                    const IconComponent = item.icon;
-                    const isActive = pathname === item.href;
-                    
-                    return (
-                      <li key={item.id}>
-                        <Link
-                          href={item.href}
-                          className={`flex items-center px-3 py-2 rounded-md text-sm transition-colors ${
-                            isActive
-                              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          <IconComponent className="w-4 h-4 mr-3" />
-                          <div>
-                            <div className="font-medium">{item.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {item.description}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-              </ul>
-            </div>
-
-            {/* Admin Tools */}
-            <div>
-              <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                Administration
-              </h4>
-              <ul className="space-y-1">
-                {adminNavItems
-                  .filter(item => item.section === "tools")
-                  .map((item) => {
-                    const IconComponent = item.icon;
-                    const isActive = pathname === item.href;
-                    
-                    return (
-                      <li key={item.id}>
-                        <Link
-                          href={item.href}
-                          className={`flex items-center px-3 py-2 rounded-md text-sm transition-colors ${
-                            isActive
-                              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          <IconComponent className="w-4 h-4 mr-3" />
-                          <div>
-                            <div className="font-medium">{item.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {item.description}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-              </ul>
-            </div>
-          </nav>
+        {/* Sidebar footer */}
+        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--grim-line)" }}>
+          <Link
+            href="/campaign"
+            style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--grim-ink-4)", fontSize: 12 }}
+          >
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 14 }}>‹</span>
+            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".16em", textTransform: "uppercase" }}>Back to Campaign</span>
+          </Link>
         </div>
+      </aside>
 
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {children}
-          </div>
-        </div>
-      </div>
+      {/* Main content */}
+      <main style={{ flex: 1, overflowY: "auto" }}>
+        {children}
+      </main>
     </div>
   );
 }

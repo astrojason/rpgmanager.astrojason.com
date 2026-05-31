@@ -3,123 +3,115 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { authFetch } from "@/utils/authFetch";
-import {
-  UserGroupIcon,
-  UsersIcon,
-  ShieldCheckIcon,
-  ClipboardDocumentListIcon,
-  MapPinIcon,
-  ClockIcon,
-  CalendarIcon,
-  DocumentTextIcon,
-  CogIcon,
-} from "@heroicons/react/24/outline";
+import { auth } from "@/firebase/client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
-const dataManagementItems = [
-  {
-    id: "npcs",
-    name: "NPCs",
-    icon: UserGroupIcon,
-    href: "/admin/data/npcs",
-    description: "Manage Non-Player Characters",
-    color: "bg-slate-500"
-  },
-  {
-    id: "pcs",
-    name: "Player Characters",
-    icon: UsersIcon,
-    href: "/admin/data/pcs",
-    description: "Manage Player Characters",
-    color: "bg-emerald-500"
-  },
-  {
-    id: "factions",
-    name: "Factions",
-    icon: ShieldCheckIcon,
-    href: "/admin/data/factions",
-    description: "Manage Organizations & Guilds",
-    color: "bg-stone-500"
-  },
-  {
-    id: "quests",
-    name: "Quests",
-    icon: ClipboardDocumentListIcon,
-    href: "/admin/data/quests",
-    description: "Manage Campaign Quests",
-    color: "bg-amber-600"
-  },
-  {
-    id: "locations",
-    name: "Locations",
-    icon: MapPinIcon,
-    href: "/admin/data/locations",
-    description: "Manage Locations & Maps",
-    color: "bg-teal-600"
-  },
-  {
-    id: "timeline",
-    name: "Timeline",
-    icon: ClockIcon,
-    href: "/admin/data/timeline",
-    description: "Manage Timeline Events",
-    color: "bg-slate-600"
-  },
+const TINT_BG = {
+  ember:  "linear-gradient(180deg, oklch(0.40 0.12 40), oklch(0.25 0.08 35))",
+  arcane: "linear-gradient(180deg, oklch(0.30 0.10 285), oklch(0.20 0.06 290))",
+  blood:  "linear-gradient(180deg, oklch(0.38 0.16 22), oklch(0.25 0.12 22))",
+  gold:   "linear-gradient(180deg, oklch(0.45 0.10 80), oklch(0.30 0.08 78))",
+  moss:   "linear-gradient(180deg, oklch(0.38 0.09 145), oklch(0.24 0.06 145))",
+} as const;
+
+const TINT_BORDER = {
+  ember:  "var(--grim-ember)",
+  arcane: "var(--grim-arcane)",
+  blood:  "var(--grim-blood-2)",
+  gold:   "var(--grim-gold-2)",
+  moss:   "oklch(0.55 0.090 145)",
+} as const;
+
+type Tint = keyof typeof TINT_BG;
+
+interface Counts {
+  npcs?: number;
+  pcs?: number;
+  quests?: number;
+  locations?: number;
+  factions?: number;
+}
+
+const DATA_TOMES: { glyph: string; title: string; sub: string; tint: Tint; href: string; countKey: keyof Counts | null }[] = [
+  { glyph: "☥", title: "NPCs",             sub: "Souls & strangers",      tint: "ember",  href: "/admin/data/npcs",      countKey: "npcs" },
+  { glyph: "⚔", title: "Player Characters", sub: "The fellowship",         tint: "moss",   href: "/admin/data/pcs",       countKey: "pcs" },
+  { glyph: "⚑", title: "Factions",          sub: "Banners & cabals",       tint: "gold",   href: "/admin/data/factions",  countKey: "factions" },
+  { glyph: "✦", title: "Quests",            sub: "Errands & threads",      tint: "ember",  href: "/admin/data/quests",    countKey: "quests" },
+  { glyph: "✠", title: "Locations",         sub: "Towns & landmarks",      tint: "arcane", href: "/admin/data/locations", countKey: "locations" },
+  { glyph: "☾", title: "Timeline",          sub: "Events of the realm",    tint: "arcane", href: "/admin/data/timeline",  countKey: null },
 ];
 
-const adminTools = [
-  {
-    id: "users",
-    name: "User Management",
-    icon: CogIcon,
-    href: "/admin/users",
-    description: "Manage user roles and permissions",
-    color: "bg-rose-600"
-  },
-  {
-    id: "calendar",
-    name: "Calendar Management", 
-    icon: CalendarIcon,
-    href: "/admin/data/calendar",
-    description: "Manage world calendar and events",
-    color: "bg-amber-500"
-  },
-  {
-    id: "recaps",
-    name: "Session Recaps",
-    icon: DocumentTextIcon,
-    href: "/admin/data/recaps", 
-    description: "Manage session summaries",
-    color: "bg-stone-500"
-  }
+const TOOL_TOMES: { glyph: string; title: string; sub: string; tint: Tint; href: string }[] = [
+  { glyph: "⚙", title: "User Management",     sub: "Roles & permissions",       tint: "blood",  href: "/admin/users" },
+  { glyph: "✠", title: "Calendar Management", sub: "World calendar & events",   tint: "gold",   href: "/admin/data/calendar" },
+  { glyph: "☾", title: "Session Recaps",      sub: "Chronicle the sessions",    tint: "arcane", href: "/admin/data/recaps" },
 ];
+
+function AdminTome({ glyph, title, sub, count, tint, href }: {
+  glyph: string; title: string; sub: string; count?: number; tint: Tint; href: string;
+}) {
+  return (
+    <Link href={href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+      <div className="grim-tome" style={{ padding: "20px 22px", cursor: "pointer", display: "flex", gap: 16, alignItems: "center" }}>
+        <div style={{
+          width: 52, height: 52, flexShrink: 0, borderRadius: 1,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "var(--font-display)", fontSize: 30,
+          background: TINT_BG[tint], color: "oklch(0.94 0.05 70)",
+          border: "1px solid " + TINT_BORDER[tint],
+          boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
+        }}>{glyph}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{title}</div>
+          <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{sub}</div>
+        </div>
+        {count != null && (
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-gold)", lineHeight: 1 }}>{count}</div>
+            <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>entries</div>
+          </div>
+        )}
+        <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 20, marginLeft: count != null ? 8 : 0 }}>›</span>
+      </div>
+    </Link>
+  );
+}
 
 export default function AdminPage() {
-  const [counts, setCounts] = useState<{ npcs?: number; quests?: number; locations?: number; factions?: number }>({});
+  const [counts, setCounts] = useState<Counts>({});
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     async function loadCounts() {
       try {
-        const [npcsRes, questsRes, locationsRes, factionsRes] = await Promise.all([
+        const [npcsRes, questsRes, locationsRes, factionsRes, pcsRes] = await Promise.all([
           authFetch('/api/data/npcs', { cache: 'no-store' }),
           authFetch('/api/data/quests', { cache: 'no-store' }),
           authFetch('/api/data/locations', { cache: 'no-store' }),
           authFetch('/api/data/factions', { cache: 'no-store' }),
+          authFetch('/api/data/pcs', { cache: 'no-store' }),
         ]);
-
-        const [npcs, quests, locations, factions] = await Promise.all([
+        const [npcs, quests, locations, factions, pcs] = await Promise.all([
           npcsRes.ok ? npcsRes.json() : Promise.resolve([]),
           questsRes.ok ? questsRes.json() : Promise.resolve([]),
           locationsRes.ok ? locationsRes.json() : Promise.resolve([]),
           factionsRes.ok ? factionsRes.json() : Promise.resolve([]),
+          pcsRes.ok ? pcsRes.json() : Promise.resolve([]),
         ]);
-
         if (!cancelled) {
           setCounts({
-            npcs: Array.isArray(npcs) ? npcs.length : 0,
-            quests: Array.isArray(quests) ? quests.length : 0,
+            npcs:      Array.isArray(npcs)      ? npcs.length      : 0,
+            quests:    Array.isArray(quests)    ? quests.length    : 0,
             locations: Array.isArray(locations) ? locations.length : 0,
-            factions: Array.isArray(factions) ? factions.length : 0,
+            factions:  Array.isArray(factions)  ? factions.length  : 0,
+            pcs:       Array.isArray(pcs)       ? pcs.length       : 0,
           });
         }
       } catch {
@@ -131,129 +123,79 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Admin Dashboard
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Manage campaign data, users, and system settings
-        </p>
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Masthead */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+        <div>
+          <div className="grim-page-eyebrow">Behind the Screen &middot; Master&apos;s hand</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Scriptorium</h1>
+          <p className="grim-page-sub">Tend the tomes of the campaign — souls, banners, errands, and the turning of the world&apos;s calendar.</p>
+        </div>
+        {user && (
+          <div style={{ textAlign: "right", paddingBottom: 6, flexShrink: 0 }}>
+            <div className="grim-label" style={{ marginBottom: 4 }}>Signed in as</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)", lineHeight: 1 }}>The Master</div>
+            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 6, alignItems: "center" }}>
+              <span className="grim-chip is-ember">admin</span>
+              <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>{user.email}</span>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Data Management Section */}
-      <section>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Data Management
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dataManagementItems.map((item) => {
-            const IconComponent = item.icon;
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 group"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`p-3 rounded-lg ${item.color} text-white group-hover:scale-110 transition-transform`}>
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+      {/* Quick overview ledger */}
+      <section className="grim-tome is-bordered" style={{ marginBottom: 30, padding: 0, overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {([
+            { n: counts.npcs,      l: "Souls inscribed", glyph: "☥", tint: "ember"  as Tint },
+            { n: counts.quests,    l: "Errands afoot",   glyph: "✦", tint: "moss"   as Tint },
+            { n: counts.locations, l: "Places mapped",   glyph: "✠", tint: "arcane" as Tint },
+            { n: counts.factions,  l: "Banners raised",  glyph: "⚑", tint: "gold"   as Tint },
+          ] as { n: number | undefined; l: string; glyph: string; tint: Tint }[]).map((s, i) => (
+            <div key={i} style={{ padding: "22px 26px", borderLeft: i > 0 ? "1px solid var(--grim-line)" : "none", background: "linear-gradient(180deg, oklch(0.17 0.035 285), oklch(0.135 0.030 290))" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: TINT_BORDER[s.tint] }}>{s.glyph}</span>
+                <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{s.l}</span>
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: "var(--grim-gold)", lineHeight: 0.9, textShadow: "0 0 28px oklch(0.72 0.165 48 / 0.15)" }}>
+                {s.n ?? <span style={{ fontSize: 24, color: "var(--grim-ink-4)" }}>—</span>}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Admin Tools Section */}
-      <section>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Administration Tools
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {adminTools.map((tool) => {
-            const IconComponent = tool.icon;
-            return (
-              <Link
-                key={tool.id}
-                href={tool.href}
-                className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 group"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`p-3 rounded-lg ${tool.color} text-white group-hover:scale-110 transition-transform`}>
-                    <IconComponent className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 group-hover:text-slate-600 dark:group-hover:text-slate-400 transition-colors">
-                      {tool.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {tool.description}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+      {/* Tomes of Record */}
+      <section style={{ marginBottom: 30 }}>
+        <h2 className="grim-h-section">Tomes of Record</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          {DATA_TOMES.map((t, i) => (
+            <AdminTome
+              key={i}
+              glyph={t.glyph}
+              title={t.title}
+              sub={t.sub}
+              tint={t.tint}
+              href={t.href}
+              count={t.countKey != null ? counts[t.countKey] : undefined}
+            />
+          ))}
         </div>
       </section>
 
-      {/* Quick Stats */}
+      <div style={{ textAlign: "center", padding: "4px 0 10px", color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 28, letterSpacing: ".10em" }}>❦</div>
+
+      {/* Instruments of the Master */}
       <section>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Quick Overview
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 bg-slate-50 dark:bg-slate-900/20 rounded-lg border border-slate-200 dark:border-slate-800">
-            <div className="flex items-center">
-              <UserGroupIcon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{counts.npcs ?? '--'}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">NPCs</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <div className="flex items-center">
-              <ClipboardDocumentListIcon className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-emerald-900 dark:text-emerald-100">{counts.quests ?? '--'}</p>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">Quests</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-6 bg-stone-50 dark:bg-stone-900/20 rounded-lg border border-stone-200 dark:border-stone-800">
-            <div className="flex items-center">
-              <MapPinIcon className="w-8 h-8 text-stone-600 dark:text-stone-400" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-stone-900 dark:text-stone-100">{counts.locations ?? '--'}</p>
-                <p className="text-sm text-stone-600 dark:text-stone-400">Locations</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-6 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <div className="flex items-center">
-              <ShieldCheckIcon className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-amber-900 dark:text-amber-100">{counts.factions ?? '--'}</p>
-                <p className="text-sm text-amber-600 dark:text-amber-400">Factions</p>
-              </div>
-            </div>
-          </div>
+        <h2 className="grim-h-section">Instruments of the Master</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          {TOOL_TOMES.map((t, i) => (
+            <AdminTome key={i} {...t} />
+          ))}
         </div>
       </section>
+
     </div>
   );
 }
