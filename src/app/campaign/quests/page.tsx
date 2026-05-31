@@ -12,13 +12,29 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
 
+const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; glow: boolean }> = {
+  active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  glow: true },
+  rumored:   { chip: "is-arcane", word: "rumored",  rail: "var(--grim-arcane)", glow: true },
+  completed: { chip: "",          word: "closed",   rail: "var(--grim-line-2)", glow: false },
+  complete:  { chip: "",          word: "closed",   rail: "var(--grim-line-2)", glow: false },
+};
+
+function getTone(status: string) {
+  return STATUS_TONE[status] ?? { chip: "is-unknown", word: status, rail: "var(--grim-bone)", glow: false };
+}
+
+const FILTERS = [
+  { id: "all",       label: "All Errands" },
+  { id: "active",    label: "Active" },
+  { id: "completed", label: "Closed" },
+];
+
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [questsData, setQuestsData] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const userId = useEffectiveUserId();
-  const [showActiveOnly, setShowActiveOnly] = useState(true);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [activeFilter, setActiveFilter] = useState("active");
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -26,9 +42,6 @@ export default function QuestsPage() {
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
 
-  // userId is now always the effective (impersonated or real) user
-
-  // Load quests data
   useEffect(() => {
     const loadQuests = async () => {
       try {
@@ -47,62 +60,44 @@ export default function QuestsPage() {
 
   const filteredQuests = questsData.filter((quest) => {
     const matchesSearch =
+      !searchTerm.trim() ||
       quest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       normalizeQuestNotes(quest).some((note) =>
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    // If searching, ignore showActiveOnly and use statusFilter
-    if (searchTerm.trim() !== "" || statusFilter !== "") {
-      const matchesStatus =
-        statusFilter === "" || quest.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    }
-    // Default: only show active quests
-    return matchesSearch && (quest.status === "active" || !showActiveOnly);
+    const matchesFilter =
+      activeFilter === "all" ||
+      quest.status === activeFilter ||
+      (activeFilter === "completed" && (quest.status === "completed" || quest.status === "complete"));
+    return matchesSearch && matchesFilter;
   });
 
-    // Get unique status values for the dropdown
-  const uniqueStatuses = [...new Set(questsData.map(quest => quest.status))];
+  const countFor = (filterId: string) => {
+    if (filterId === "all") return questsData.length;
+    if (filterId === "completed") return questsData.filter(q => q.status === "completed" || q.status === "complete").length;
+    return questsData.filter(q => q.status === filterId).length;
+  };
 
   const handleAddNote = async (questId: string) => {
-  if (!questId || !newNoteContent.trim() || !userId) return;
-    
+    if (!questId || !newNoteContent.trim() || !userId) return;
     try {
       const quest = questsData.find(q => q.id === questId);
       if (!quest) throw new Error('Quest not found');
-
       const newUserNote: UserNote = {
         id: `note-${Date.now()}`,
         content: newNoteContent.trim(),
         timestamp: new Date().toISOString(),
-  author: userId
+        author: userId,
       };
-
-      // Normalize existing notes and add the new one
       const normalizedNotes = normalizeQuestNotes(quest);
-      const updatedQuest = {
-        ...quest,
-        notes: [...normalizedNotes, newUserNote] as UserNote[]
-      };
-
-      // Save to backend
+      const updatedQuest = { ...quest, notes: [...normalizedNotes, newUserNote] as UserNote[] };
       const response = await authFetch('/api/data/quests', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedQuest),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save note');
-      }
-
-      // Update local state
-      const updatedQuests = questsData.map(q => 
-        q.id === questId ? updatedQuest : q
-      );
-      setQuestsData(updatedQuests);
+      if (!response.ok) throw new Error('Failed to save note');
+      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
       setNewNoteContent("");
       setEditingNote(null);
     } catch (error) {
@@ -111,10 +106,7 @@ export default function QuestsPage() {
     }
   };
 
-  const canEditNote = (note: UserNote) => {
-  const uid = userId;
-    return !!uid && (isAdmin || uid === note.author);
-  };
+  const canEditNote = (note: UserNote) => !!userId && (isAdmin || userId === note.author);
 
   const handleStartEditNote = (note: UserNote) => {
     if (!canEditNote(note)) return;
@@ -123,12 +115,12 @@ export default function QuestsPage() {
   };
 
   const handleSaveEditNote = async (questId: string, noteId: string) => {
-  if (!userId) return;
+    if (!userId) return;
     try {
       const quest = questsData.find((q) => q.id === questId);
       if (!quest) throw new Error('Quest not found');
       const notes = normalizeQuestNotes(quest).map((n) =>
-  n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: userId } : n
+        n.id === noteId ? { ...n, content: editingNoteContent, timestamp: new Date().toISOString(), author: userId } : n
       );
       const updatedQuest = { ...quest, notes };
       const response = await authFetch('/api/data/quests', {
@@ -137,8 +129,7 @@ export default function QuestsPage() {
         body: JSON.stringify(updatedQuest),
       });
       if (!response.ok) throw new Error('Failed to update note');
-      const updatedQuests = questsData.map(q => q.id === questId ? updatedQuest : q);
-      setQuestsData(updatedQuests);
+      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
       setEditingNoteId(null);
       setEditingNoteContent("");
     } catch (e) {
@@ -159,8 +150,7 @@ export default function QuestsPage() {
         body: JSON.stringify(updatedQuest),
       });
       if (!response.ok) throw new Error('Failed to delete note');
-      const updatedQuests = questsData.map(q => q.id === questId ? updatedQuest : q);
-      setQuestsData(updatedQuests);
+      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
     } catch (e) {
       console.error('Error deleting note:', e);
       alert('Failed to delete note');
@@ -169,238 +159,252 @@ export default function QuestsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Quests...</span>
-          </div>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the ledger&hellip;
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Quests
-        </h1>
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Search Quests
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name or notes..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="">All Statuses</option>
-                {uniqueStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="mt-4 flex justify-between items-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {filteredQuests.length} of{" "}
-              {(questsData as Quest[]).length} Quests
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setShowActiveOnly((v) => !v);
-                  setStatusFilter("");
-                  setSearchTerm("");
-                }}
-                className="px-4 py-2 text-sm bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-md transition-colors duration-200"
-              >
-                {showActiveOnly ? "Show All Quests" : "Show Only Active"}
-              </button>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("");
-                }}
-                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-6">
-          {filteredQuests.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">No quests found.</p>
-          ) : (
-            filteredQuests.map((quest) => (
-              <div
-                key={quest.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    {quest.name}
-                  </h2>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      quest.status === "active"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : quest.status === "completed"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                    }`}
-                  >
-                    {quest.status.charAt(0).toUpperCase() +
-                      quest.status.slice(1)}
-                  </span>
-                </div>
+    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
 
-                {/* Existing Quest Notes */}
-                {quest.notes && quest.notes.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Notes:
-                    </h3>
-                    <div className="space-y-3">
-                      {normalizeQuestNotes(quest).map((note) => (
-                        <div key={note.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-                          {editingNoteId === note.id ? (
-                            <>
-                              <MarkdownEditor value={editingNoteContent} onChange={setEditingNoteContent} />
-                              <div className="flex justify-end gap-2 mt-2">
-                                <button
-                                  onClick={() => { setEditingNoteId(null); setEditingNoteContent(''); }}
-                                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  onClick={() => handleSaveEditNote(quest.id, note.id)}
-                                  className="px-3 py-1 text-sm bg-emerald-600 text-white rounded hover:bg-emerald-700"
-                                >
-                                  Save
-                                </button>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="prose prose-sm dark:prose-invert max-w-none mb-2">
-                                <ReactMarkdown>{note.content}</ReactMarkdown>
-                              </div>
-                              {!isLegacyNote(note) && (
-                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                  <span>{formatNoteTimestamp(note)}</span>
-                                  <div className="flex items-center gap-2">
-                                    <AuthorDisplay uid={note.author} useImpersonation={true} />
-                                    {canEditNote(note) && (
-                                      <>
-                                        <button onClick={() => handleStartEditNote(note)} className="text-xs text-slate-600 dark:text-slate-300 hover:underline">
-                                          Edit
-                                        </button>
-                                        <button onClick={() => handleDeleteNote(quest.id, note.id)} className="text-xs text-rose-600 dark:text-rose-300 hover:underline">
-                                          Delete
-                                        </button>
-                                      </>
-                                    )}
+      {/* Page header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+        <div>
+          <div className="grim-page-eyebrow">The Campaign Record</div>
+          <h1 className="grim-page-title">The Ledger of Errands</h1>
+          <p className="grim-page-sub">Every thread the party has taken up — those in motion and those laid to rest.</p>
+        </div>
+      </div>
+
+      {/* Search + filter bar */}
+      <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 22 }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Seek an errand by name or note…"
+            style={{
+              width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 16,
+              padding: "12px 16px 12px 42px", outline: "none",
+            }}
+          />
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18, pointerEvents: "none" }}>✦</span>
+        </div>
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)" }}>
+          {FILTERS.map(f => (
+            <button
+              key={f.id}
+              onClick={() => { setActiveFilter(f.id); setSearchTerm(""); }}
+              className={`grim-btn ${activeFilter === f.id ? "is-ember" : "is-ghost"}`}
+              style={{
+                padding: "6px 12px",
+                border: "1px solid " + (activeFilter === f.id ? "var(--grim-ember)" : "transparent"),
+                background: activeFilter === f.id ? undefined : "transparent",
+              }}
+            >
+              {f.label}
+              <span className="grim-mono" style={{ fontSize: 10, opacity: 0.7, marginLeft: 2 }}>{countFor(f.id)}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 14 }}>
+        Showing {filteredQuests.length} of {questsData.length} errands
+      </div>
+
+      {/* Quest cards */}
+      <div className="grim-stack" style={{ gap: 18 }}>
+        {filteredQuests.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no errands found ~</div>
+            <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase" }}>
+              Adjust your filters or search
+            </div>
+          </div>
+        ) : (
+          filteredQuests.map((quest) => {
+            const tone = getTone(quest.status);
+            const notes = normalizeQuestNotes(quest);
+            const isClosed = quest.status === "completed" || quest.status === "complete";
+
+            return (
+              <section
+                key={quest.id}
+                className="grim-tome"
+                style={{ padding: 0, overflow: "hidden", display: "flex" }}
+              >
+                {/* Left color rail */}
+                <div style={{
+                  width: 6, flexShrink: 0,
+                  background: tone.rail,
+                  boxShadow: tone.glow ? `0 0 12px ${tone.rail}` : "none",
+                }} />
+
+                <div style={{ flex: 1, padding: "22px 26px" }}>
+                  {/* Title row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+                    <div>
+                      <h3 style={{
+                        fontFamily: "var(--font-display)", fontSize: 30,
+                        color: "var(--grim-gold)", margin: 0, lineHeight: 1,
+                        textDecoration: isClosed ? "line-through" : "none",
+                        opacity: isClosed ? 0.7 : 1,
+                      }}>
+                        {quest.name}
+                      </h3>
+                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
+                        ⚑ {notes.length} {notes.length === 1 ? "note" : "notes"}
+                      </div>
+                    </div>
+                    <span className={`grim-chip ${tone.chip}`} style={{ flexShrink: 0 }}>{tone.word}</span>
+                  </div>
+
+                  {/* Notes / Marginalia */}
+                  {notes.length > 0 && (
+                    <div style={{ marginTop: 18 }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Marginalia</div>
+                      <div className="grim-stack" style={{ gap: 8 }}>
+                        {notes.map((note) => (
+                          <div
+                            key={note.id}
+                            style={{
+                              padding: "10px 14px",
+                              background: "oklch(0.14 0.025 290 / 0.7)",
+                              border: "1px solid var(--grim-line)",
+                            }}
+                          >
+                            {editingNoteId === note.id ? (
+                              <>
+                                <MarkdownEditor value={editingNoteContent} onChange={setEditingNoteContent} />
+                                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
+                                  <button
+                                    className="grim-btn is-ghost"
+                                    style={{ padding: "4px 10px", fontSize: 11 }}
+                                    onClick={() => { setEditingNoteId(null); setEditingNoteContent(""); }}
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    className="grim-btn is-ember"
+                                    style={{ padding: "4px 10px", fontSize: 11 }}
+                                    onClick={() => handleSaveEditNote(quest.id, note.id)}
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                                <div style={{ fontSize: 14, color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
+                                  {!isLegacyNote(note) && isDM && (
+                                    <span className="grim-chip is-arcane" style={{ fontSize: 9, padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
+                                  )}
+                                  <div className="prose prose-sm dark:prose-invert max-w-none" style={{ display: "inline" }}>
+                                    <ReactMarkdown>{note.content}</ReactMarkdown>
                                   </div>
                                 </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {(() => {
-                  const gmNotes = (quest as Quest).gm_notes;
-                  const hasNotes =
-                    typeof gmNotes === "string" &&
-                    gmNotes.trim() !== "" &&
-                    gmNotes.trim().toLowerCase() !== "null";
-                  if (!isDM || !hasNotes) return null;
-                  return (
-                    <div className="mt-6">
-                      <h3 className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">GM Notes</h3>
-                      <div
-                        className="prose dark:prose-invert max-w-none prose-sm"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes || '', true) }}
-                      />
-                    </div>
-                  );
-                })()}
-
-                {/* Add Note Section for Authenticated Users */}
-                {userId && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <button
-                      onClick={() => {
-                        if (editingNote === quest.id) {
-                          setEditingNote(null);
-                          setNewNoteContent("");
-                        } else {
-                          setEditingNote(quest.id);
-                          setNewNoteContent("");
-                        }
-                      }}
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium"
-                    >
-                      {editingNote === quest.id ? "Cancel" : "Add Note"}
-                    </button>
-
-                    {editingNote === quest.id && (
-                      <div className="mt-3">
-                        <MarkdownEditor
-                          value={newNoteContent}
-                          onChange={setNewNoteContent}
-                          placeholder="Add Note"
-                          label="Notes"
-                        />
-                        <div className="flex justify-end gap-2 mt-2">
-                          <button
-                            onClick={() => {
-                              setEditingNote(null);
-                              setNewNoteContent("");
-                            }}
-                            className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => handleAddNote(quest.id)}
-                            disabled={!newNoteContent.trim()}
-                            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            Add Note
-                          </button>
-                        </div>
+                                <div style={{ display: "flex", gap: 10, flexShrink: 0, paddingTop: 2, alignItems: "center" }}>
+                                  {!isLegacyNote(note) && (
+                                    <>
+                                      <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                                        {formatNoteTimestamp(note)}
+                                      </span>
+                                      <AuthorDisplay uid={note.author} useImpersonation={true} />
+                                    </>
+                                  )}
+                                  {canEditNote(note) && (
+                                    <>
+                                      <a
+                                        className="grim-link"
+                                        style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                                        onClick={() => handleStartEditNote(note)}
+                                      >
+                                        edit
+                                      </a>
+                                      <a
+                                        style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                                        onClick={() => handleDeleteNote(quest.id, note.id)}
+                                      >
+                                        delete
+                                      </a>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+                    </div>
+                  )}
+
+                  {/* GM Notes */}
+                  {(() => {
+                    const gmNotes = quest.gm_notes;
+                    if (!isDM || !gmNotes || typeof gmNotes !== "string" || gmNotes.trim() === "" || gmNotes.trim().toLowerCase() === "null") return null;
+                    return (
+                      <div style={{ marginTop: 18 }}>
+                        <div className="grim-label" style={{ marginBottom: 8, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
+                        <div
+                          className="grim-flavor"
+                          style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
+                          dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes, true) }}
+                        />
+                      </div>
+                    );
+                  })()}
+
+                  {/* Add Note */}
+                  {userId && (
+                    <div style={{ marginTop: 14 }}>
+                      {editingNote === quest.id ? (
+                        <div>
+                          <MarkdownEditor
+                            value={newNoteContent}
+                            onChange={setNewNoteContent}
+                            placeholder="Add a note to the ledger…"
+                            label="New Note"
+                          />
+                          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
+                            <button
+                              className="grim-btn is-ghost"
+                              style={{ padding: "4px 10px", fontSize: 11 }}
+                              onClick={() => { setEditingNote(null); setNewNoteContent(""); }}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              className="grim-btn is-ember"
+                              style={{ padding: "4px 10px", fontSize: 11 }}
+                              onClick={() => handleAddNote(quest.id)}
+                              disabled={!newNoteContent.trim()}
+                            >
+                              Add Note
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <a
+                          className="grim-link"
+                          style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
+                          onClick={() => { setEditingNote(quest.id); setNewNoteContent(""); }}
+                        >
+                          + Add note
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </section>
+            );
+          })
+        )}
       </div>
     </div>
   );
