@@ -324,8 +324,14 @@ body {
 }
 
 .grim-sidebar.is-collapsed .grim-brand {
-  padding: 0 0 18px;
+  padding: 30px 0 18px;
   justify-content: center;
+}
+
+.grim-sidebar.is-collapsed .grim-brand-mark {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
 }
 
 .grim-brand-mark {
