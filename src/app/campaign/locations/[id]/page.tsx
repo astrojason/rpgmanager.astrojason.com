@@ -92,6 +92,10 @@ export default function LocationDetailPage() {
     );
   }
 
+  const subLocations = location.locations ?? [];
+  const teaserFirstChar = location.teaser?.[0] ?? "";
+  const teaserRest = location.teaser?.slice(1) ?? "";
+
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
 
@@ -115,30 +119,38 @@ export default function LocationDetailPage() {
               {dmMode ? "DM Sight · ON" : "DM Sight · OFF"}
             </button>
           )}
+          {isAdmin && (
+            <button className="grim-btn is-ghost" onClick={() => router.push("/admin/data/locations")}>
+              Edit
+            </button>
+          )}
         </div>
       </div>
 
       {/* Hero — image plate with title overlay */}
       <section style={{ position: "relative", marginBottom: 28, border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
-        <div className="grim-img-slot" style={{ width: "100%", height: 260, borderRadius: 0 }}>
+        <div className="grim-img-slot" style={{ width: "100%", height: 300, borderRadius: 0 }}>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 13, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
         </div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, oklch(0.10 0.02 290 / 0.25) 0%, transparent 35%, oklch(0.11 0.025 290 / 0.96) 100%)" }} />
 
         {/* Wax seal */}
         <div style={{ position: "absolute", top: 18, left: 18 }}>
-          <div className="grim-seal" style={{ width: 52, height: 52, fontSize: 20 }}>✦</div>
+          <div className="grim-seal" style={{ width: 56, height: 56, fontSize: 22 }}>✦</div>
         </div>
 
         {/* Title block */}
         <div style={{ position: "absolute", left: 28, right: 28, bottom: 22 }}>
           <div className="grim-page-eyebrow" style={{ marginBottom: 4 }}>Gazetteer · A Place of the Bounty</div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--grim-gold)", margin: "0 0 6px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 40px oklch(0.72 0.165 48 / 0.30)" }}>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 76, color: "var(--grim-gold)", margin: "0 0 6px", lineHeight: 0.88, letterSpacing: ".01em", textShadow: "0 0 40px oklch(0.72 0.165 48 / 0.30)" }}>
             {location.name}
           </h1>
-          {location.pronunciation && (
-            <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 16, maxWidth: "60ch" }}>
-              pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".08em", color: "var(--grim-ink)" }}>{location.pronunciation}</b>
+          {(location.pronunciation || location.teaser) && (
+            <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 17, maxWidth: "60ch" }}>
+              {location.pronunciation && (
+                <>pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".08em", color: "var(--grim-ink)" }}>{location.pronunciation}</b>{location.teaser ? " · " : ""}</>
+              )}
+              {location.teaser}
             </div>
           )}
         </div>
@@ -148,7 +160,8 @@ export default function LocationDetailPage() {
       {location.teaser && (
         <section className="grim-parchment" style={{ marginBottom: 28 }}>
           <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}>
-            {location.teaser}
+            <span className="drop">{teaserFirstChar}</span>
+            {teaserRest}
           </p>
         </section>
       )}
@@ -156,7 +169,7 @@ export default function LocationDetailPage() {
       {/* Two-column body */}
       <div style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 22 }}>
 
-        {/* LEFT — main detail content */}
+        {/* LEFT — main detail content + sub-locations */}
         <div className="grim-stack" style={{ gap: 22 }}>
           {location.detail ? (
             <section className="grim-tome">
@@ -174,6 +187,33 @@ export default function LocationDetailPage() {
             <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ uncharted ~</div>
               <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>
+            </section>
+          )}
+
+          {/* Sub-locations as districts grid */}
+          {subLocations.length > 0 && (
+            <section className="grim-tome">
+              <div className="grim-tome-head">
+                <h3 className="grim-tome-title">Notable Places</h3>
+                <span className="grim-tome-sub">{subLocations.length} place{subLocations.length !== 1 ? "s" : ""} of note</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {subLocations.map((sub) => (
+                  <div
+                    key={sub.id}
+                    onClick={() => router.push(`/campaign/locations/${sub.id}`)}
+                    style={{ padding: "11px 13px", border: "1px solid var(--grim-line)", background: "oklch(0.14 0.025 290 / 0.5)", cursor: "pointer", position: "relative" }}
+                  >
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", letterSpacing: ".03em", marginBottom: 4 }}>{sub.name}</div>
+                    {sub.pronunciation && (
+                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ember-2)", letterSpacing: ".14em", textTransform: "uppercase", marginBottom: 4 }}>{sub.pronunciation}</div>
+                    )}
+                    {sub.teaser && (
+                      <div style={{ fontSize: 12.5, color: "var(--grim-ink-2)", lineHeight: 1.45 }}>{sub.teaser}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </section>
           )}
         </div>
