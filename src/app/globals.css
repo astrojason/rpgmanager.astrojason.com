@@ -317,13 +317,12 @@ body {
 }
 
 .grim-brand {
-  padding: 0 22px 22px;
+  padding: 0 14px 22px;
   border-bottom: 1px solid var(--grim-line);
   margin-bottom: 18px;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  overflow: hidden;
+  align-items: center;
+  gap: 10px;
 }
 
 .grim-sidebar.is-collapsed .grim-brand {
@@ -344,13 +343,13 @@ body {
 }
 
 .grim-brand-text {
-  min-width: 0;
   overflow: hidden;
-  transition: opacity 0.15s ease, width 0.22s ease;
+  max-width: 160px;
+  transition: max-width 0.22s ease, opacity 0.15s ease;
 }
 
 .grim-sidebar.is-collapsed .grim-brand-text {
-  width: 0;
+  max-width: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -379,18 +378,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px; height: 24px;
-  margin: -10px auto 10px;
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  margin-left: auto;
   background: none;
   border: 1px solid var(--grim-line);
   border-radius: 50%;
   color: var(--grim-ink-3);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
-  align-self: center;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
+}
+
+.grim-sidebar.is-collapsed .grim-collapse-btn {
+  margin-left: 0;
 }
 
 .grim-collapse-btn:hover {

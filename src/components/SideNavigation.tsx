@@ -77,16 +77,15 @@ export default function SideNavigation() {
           <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
           <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
         </div>
+        <button
+          className="grim-collapse-btn"
+          onClick={toggle}
+          title={collapsed ? "Expand navigation" : "Collapse navigation"}
+          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+        >
+          <NavIcon name={collapsed ? "chevron-right" : "chevron-left"} />
+        </button>
       </div>
-
-      <button
-        className="grim-collapse-btn"
-        onClick={toggle}
-        title={collapsed ? "Expand navigation" : "Collapse navigation"}
-        aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-      >
-        <NavIcon name={collapsed ? "chevron-right" : "chevron-left"} />
-      </button>
 
       <div className="grim-nav-label">Navigation</div>
       <nav className="grim-nav">
