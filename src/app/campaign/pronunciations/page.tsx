@@ -4,36 +4,65 @@ import { useState, useEffect } from "react";
 import { NPC, Location, Faction, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 
+const FILTERS = [
+  { id: "all",       label: "All Tongues" },
+  { id: "npcs",      label: "Souls" },
+  { id: "locations", label: "Places" },
+  { id: "factions",  label: "Banners" },
+  { id: "months",    label: "Months" },
+  { id: "days",      label: "Days" },
+];
+
+function PronGrid({ items }: { items: Array<{ name: string; pronunciation?: string }> }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ padding: "14px 16px", background: "oklch(0.14 0.025 290 / 0.6)", border: "1px solid var(--grim-line)", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ fontFamily: "var(--font-head)", fontSize: 15, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{item.name}</div>
+          <div className="grim-mono" style={{ fontSize: 13, color: "var(--grim-ember-2)", letterSpacing: ".04em" }}>
+            {item.pronunciation || <span style={{ color: "var(--grim-ink-4)" }}>—</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PronSection({ glyph, title, items }: { glyph: string; title: string; items: Array<{ name: string; pronunciation?: string }> }) {
+  return (
+    <section className="grim-tome" style={{ marginBottom: 22 }}>
+      <div className="grim-tome-head">
+        <h3 className="grim-tome-title">{glyph} {title}</h3>
+        <span className="grim-tome-sub">{items.length} entries</span>
+      </div>
+      <PronGrid items={items} />
+    </section>
+  );
+}
+
 export default function PronunciationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [npcData, setNpcData] = useState<NPC[]>([]);
   const [locationData, setLocationData] = useState<Location[]>([]);
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [npcsResponse, locationsResponse, factionsResponse, calendarResponse] = await Promise.all([
+        const [npcsRes, locsRes, factRes, calRes] = await Promise.all([
           authFetch('/api/data/npcs'),
           authFetch('/api/data/locations'),
           authFetch('/api/data/factions'),
-          authFetch('/api/data/calendar')
+          authFetch('/api/data/calendar'),
         ]);
-
-        if (npcsResponse.ok && locationsResponse.ok && factionsResponse.ok && calendarResponse.ok) {
-          const npcs = await npcsResponse.json();
-          const locations = await locationsResponse.json();
-          const factions = await factionsResponse.json();
-          const calendar = await calendarResponse.json();
-
-          setNpcData(npcs);
-          setLocationData(locations);
-          setFactionData(factions);
-          setCalendarData(calendar);
+        if (npcsRes.ok && locsRes.ok && factRes.ok && calRes.ok) {
+          setNpcData(await npcsRes.json());
+          setLocationData(await locsRes.json());
+          setFactionData(await factRes.json());
+          setCalendarData(await calRes.json());
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -41,347 +70,135 @@ export default function PronunciationsPage() {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading pronunciations...</span>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the appendix&hellip;
         </div>
       </div>
     );
   }
 
-  if (!calendarData) {
-    return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
-            Pronunciation Data Unavailable
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">Unable to load pronunciation information.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Calendar days and months
-  const calendarWeekdays: CalendarWeekday[] = calendarData.static.weekdays;
-  const calendarMonths: CalendarMonth[] = calendarData.static.months;
-
-  // Filter only visible NPCs (not hidden)
-  const visibleNPCs = npcData.filter(
-    (npc: NPC) => !npc.hidden && !npc.nameHidden
-  );
-
-  // Helper to flatten all locations and sublocations
-  const flattenLocations = (
-    data: Location[]
-  ): Array<{ name: string; pronunciation?: string }> => {
+  const flattenLocations = (data: Location[]): Array<{ name: string; pronunciation?: string }> => {
     let result: Array<{ name: string; pronunciation?: string }> = [];
     for (const loc of data) {
       result.push({ name: loc.name, pronunciation: loc.pronunciation });
-      if (Array.isArray(loc.locations)) {
-        result = result.concat(flattenLocations(loc.locations));
-      }
+      if (Array.isArray(loc.locations)) result = result.concat(flattenLocations(loc.locations));
     }
     return result;
   };
 
-  const allLocations = flattenLocations(locationData);
+  const visibleNPCs = npcData
+    .filter((npc) => !npc.hidden && !npc.nameHidden)
+    .map((npc) => ({ name: npc.name || npc.aka || "", pronunciation: npc.pronunciation || "" }))
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-  // Filter data based on search and category, now including months and days
-  const filterPronunciationItems = (
-    items: Array<{ name: string; pronunciation?: string }>
-  ) =>
+  const allLocations = flattenLocations(locationData);
+  const calendarMonths: CalendarMonth[] = calendarData?.static?.months ?? [];
+  const calendarWeekdays: CalendarWeekday[] = calendarData?.static?.weekdays ?? [];
+
+  const filterItems = (items: Array<{ name: string; pronunciation?: string }>) =>
     items.filter(
       (item) =>
+        !searchTerm.trim() ||
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.pronunciation &&
-          item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase()))
+        (item.pronunciation && item.pronunciation.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-  // Map NPCs to { name, pronunciation } for filtering and display
-  const mappedNPCs = visibleNPCs
-    .map((npc: NPC) => ({
-      name: npc.name || npc.aka || "",
-      pronunciation: npc.pronunciation || "",
-    }))
-    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-  const filteredNPCs =
-    selectedCategory === "npcs" || selectedCategory === "all"
-      ? filterPronunciationItems(mappedNPCs)
-      : [];
-  const filteredLocations =
-    selectedCategory === "locations" || selectedCategory === "all"
-      ? filterPronunciationItems(allLocations)
-      : [];
-  const filteredFactions =
-    selectedCategory === "factions" || selectedCategory === "all"
-      ? filterPronunciationItems(factionData)
-      : [];
-  const filteredMonths =
-    selectedCategory === "months" || selectedCategory === "all"
-      ? filterPronunciationItems(calendarMonths)
-      : [];
-  const filteredWeekdays =
-    selectedCategory === "days" || selectedCategory === "all"
-      ? filterPronunciationItems(calendarWeekdays)
-      : [];
+  const filteredNPCs      = (activeFilter === "all" || activeFilter === "npcs")      ? filterItems(visibleNPCs)      : [];
+  const filteredLocations = (activeFilter === "all" || activeFilter === "locations") ? filterItems(allLocations)     : [];
+  const filteredFactions  = (activeFilter === "all" || activeFilter === "factions")  ? filterItems(factionData)      : [];
+  const filteredMonths    = (activeFilter === "all" || activeFilter === "months")    ? filterItems(calendarMonths)   : [];
+  const filteredWeekdays  = (activeFilter === "all" || activeFilter === "days")      ? filterItems(calendarWeekdays) : [];
 
-  const totalResults =
-    filteredNPCs.length +
-    filteredLocations.length +
-    filteredFactions.length +
-    filteredMonths.length +
-    filteredWeekdays.length;
+  const totalResults = filteredNPCs.length + filteredLocations.length + filteredFactions.length + filteredMonths.length + filteredWeekdays.length;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Pronunciation Guide
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
-          A comprehensive guide to pronouncing names, places, and factions in
-          the campaign
-        </p>
+    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
 
-        {/* Search and Filters */}
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Search Pronunciations
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name or pronunciation..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="all">All Categories</option>
-                <option value="npcs">NPCs</option>
-                <option value="locations">Locations</option>
-                <option value="factions">Factions</option>
-                <option value="months">Months of the Year</option>
-                <option value="days">Days of the Week</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-4 flex justify-between items-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {totalResults} pronunciation
-              {totalResults !== 1 ? "s" : ""}
-            </p>
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedCategory("all");
-              }}
-              className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-            >
-              Clear Filters
-            </button>
-          </div>
+      {/* Page header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+        <div>
+          <div className="grim-page-eyebrow">The Appendix of Tongues</div>
+          <h1 className="grim-page-title">How It Is Said</h1>
+          <p className="grim-page-sub">A scrivener&apos;s guide to the names, places, and banners of the Bounty — that no DM stumble mid-sentence.</p>
         </div>
-
-        {/* Results */}
-        <div className="space-y-8">
-          {/* NPCs Section */}
-          {(selectedCategory === "all" || selectedCategory === "npcs") &&
-            filteredNPCs.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <span className="text-blue-600 dark:text-blue-400 mr-2">
-                    👥
-                  </span>
-                  NPCs ({filteredNPCs.length})
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredNPCs.map((npc, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-500 transition-colors duration-200"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium text-gray-900 dark:text-white">
-                          {npc.name}
-                        </h3>
-                      </div>
-                      <p className="text-lg font-mono text-blue-600 dark:text-blue-400 mb-1">
-                        {npc.pronunciation}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          {/* Locations Section */}
-          {(selectedCategory === "all" || selectedCategory === "locations") &&
-            filteredLocations.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <span className="text-green-600 dark:text-green-400 mr-2">
-                    📍
-                  </span>
-                  Locations ({filteredLocations.length})
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredLocations.map((location, index) => (
-                    <div
-                      key={index}
-                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-500 transition-colors duration-200"
-                    >
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                        {location.name}
-                      </h3>
-                      <p className="text-lg font-mono text-green-600 dark:text-green-400">
-                        {location.pronunciation || "—"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          {/* Factions Section */}
-          {(selectedCategory === "all" || selectedCategory === "factions") &&
-            filteredFactions.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                  <span className="text-purple-600 dark:text-purple-400 mr-2">
-                    ⚔️
-                  </span>
-                  Factions ({filteredFactions.length})
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredFactions.map((faction, index) => (
-                    <div
-                      key={index}
-                      className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 transition-colors duration-200"
-                    >
-                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                        {faction.name}
-                      </h3>
-                      <p className="text-lg font-mono text-purple-600 dark:text-purple-400">
-                        {faction.pronunciation}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          {/* No Results */}
-          {totalResults === 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
-                No pronunciations found matching your search criteria.
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("all");
-                }}
-                className="mt-4 px-6 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Show All Pronunciations
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Months of the Year Section */}
-        {filteredMonths.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-8">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-              <span className="text-yellow-600 dark:text-yellow-400 mr-2">
-                📅
-              </span>
-              Months of the Year
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {filteredMonths.map((m, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
-                >
-                  <div className="font-medium text-gray-900 dark:text-white text-lg">
-                    {m.name}
-                  </div>
-                  <div className="text-slate-600 dark:text-slate-400 font-mono text-base">
-                    {m.pronunciation || (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Days of the Week Section */}
-        {filteredWeekdays.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-8">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-              <span className="text-yellow-600 dark:text-yellow-400 mr-2">
-                📆
-              </span>
-              Days of the Week
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {filteredWeekdays.map((wd, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
-                >
-                  <div className="font-medium text-gray-900 dark:text-white text-lg">
-                    {wd.name}
-                  </div>
-                  <div className="text-blue-600 dark:text-blue-400 font-mono text-base">
-                    {wd.pronunciation || (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Quick Reference */}
-        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
-            📚 Quick Reference Tips
-          </h3>
-          <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>• Stressed syllables are shown in ALL CAPS</li>
-            <li>• Hyphenated pronunciations break down syllables</li>
-            <li>• Use the search to quickly find specific names</li>
-            <li>• Deceased characters are marked with 💀</li>
-          </ul>
+        <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+          {totalResults} pronunciations
         </div>
       </div>
+
+      {/* Search + filter bar */}
+      <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 24 }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Sound out a name or place…"
+            style={{
+              width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 16,
+              padding: "12px 16px 12px 42px", outline: "none",
+            }}
+          />
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18, pointerEvents: "none" }}>✦</span>
+        </div>
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)" }}>
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`grim-btn ${activeFilter === f.id ? "is-ember" : "is-ghost"}`}
+              style={{
+                padding: "6px 14px",
+                border: "1px solid " + (activeFilter === f.id ? "var(--grim-ember)" : "transparent"),
+                background: activeFilter === f.id ? undefined : "transparent",
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Sections */}
+      {filteredNPCs.length > 0 && (
+        <PronSection glyph="☥" title="Souls & Strangers" items={filteredNPCs} />
+      )}
+      {filteredLocations.length > 0 && (
+        <PronSection glyph="✠" title="Places of the Realm" items={filteredLocations} />
+      )}
+      {filteredFactions.length > 0 && (
+        <PronSection glyph="⚑" title="Banners & Relics" items={filteredFactions} />
+      )}
+      {filteredMonths.length > 0 && (
+        <PronSection glyph="☽" title="Months of the Realm" items={filteredMonths} />
+      )}
+      {filteredWeekdays.length > 0 && (
+        <PronSection glyph="✦" title="Days of the Tenday" items={filteredWeekdays} />
+      )}
+
+      {/* Empty state */}
+      {totalResults === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no tongues found ~</div>
+          <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 18 }}>
+            Adjust your search or filter
+          </div>
+          <button
+            className="grim-btn is-ghost"
+            style={{ padding: "8px 20px" }}
+            onClick={() => { setSearchTerm(""); setActiveFilter("all"); }}
+          >
+            Show All Pronunciations
+          </button>
+        </div>
+      )}
     </div>
   );
 }
