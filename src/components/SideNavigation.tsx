@@ -71,20 +71,21 @@ export default function SideNavigation() {
 
   return (
     <aside className={`grim-sidebar${collapsed ? " is-collapsed" : ""}`}>
+      <button
+        className="grim-collapse-btn"
+        onClick={toggle}
+        title={collapsed ? "Expand navigation" : "Collapse navigation"}
+        aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+      >
+        <NavIcon name={collapsed ? "chevron-right" : "chevron-left"} />
+      </button>
+
       <div className="grim-brand">
         <div className="grim-brand-mark">A</div>
         <div className="grim-brand-text">
           <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
           <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
         </div>
-        <button
-          className="grim-collapse-btn"
-          onClick={toggle}
-          title={collapsed ? "Expand navigation" : "Collapse navigation"}
-          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-        >
-          <NavIcon name={collapsed ? "chevron-right" : "chevron-left"} />
-        </button>
       </div>
 
       <div className="grim-nav-label">Navigation</div>
