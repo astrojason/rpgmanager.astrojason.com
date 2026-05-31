@@ -723,3 +723,57 @@ a.grim-link:hover { color: var(--grim-gold); }
 .grim-muted { color: var(--grim-ink-3); }
 .grim-dim   { color: var(--grim-ink-4); }
 .grim-mono  { font-family: var(--font-mono); }
+
+/* Chronicle body — rendered markdown with drop cap on first paragraph */
+.grim-chronicle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--grim-ink);
+}
+
+.grim-chronicle p {
+  margin: 0 0 14px 0;
+}
+
+.grim-chronicle p:last-child {
+  margin-bottom: 0;
+}
+
+.grim-chronicle p:first-child::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 52px;
+  line-height: 0.8;
+  color: var(--grim-ember-2);
+  padding: 4px 10px 0 0;
+}
+
+.grim-chronicle a {
+  color: var(--grim-ember-2);
+  text-decoration: none;
+  border-bottom: 1px dotted oklch(0.72 0.165 48 / 0.5);
+}
+
+.grim-chronicle a:hover { color: var(--grim-gold); }
+
+.grim-chronicle strong { color: var(--grim-ink); font-weight: 600; }
+.grim-chronicle em { font-style: italic; color: var(--grim-ink-2); }
+
+.grim-chronicle ul,
+.grim-chronicle ol {
+  margin: 0 0 14px 0;
+  padding-left: 1.5rem;
+}
+
+.grim-chronicle li { margin: 4px 0; }
+
+.grim-chronicle blockquote {
+  border-left: 2px solid var(--grim-line-2);
+  margin: 0 0 14px 0;
+  padding-left: 14px;
+  color: var(--grim-ink-2);
+}
+
+.grim-chronicle::-webkit-scrollbar { width: 4px; }
+.grim-chronicle::-webkit-scrollbar-thumb { background: var(--grim-line-2); border-radius: 999px; }

@@ -22,10 +22,10 @@ interface Recap {
 export default function RecapsPage() {
   const [allRecaps, setAllRecaps] = useState<Recap[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
-  const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [search, setSearch] = useState("");
   const [activeRecap, setActiveRecap] = useState<string | null>(null);
-  const recapRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const recapRefs = useRef<Record<string, HTMLElement | null>>({});
   const isAdmin = useIsAdmin();
   const [user, setUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -33,22 +33,20 @@ export default function RecapsPage() {
   const [editingRecapId, setEditingRecapId] = useState<string | null>(null);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
 
-  // Load recaps data on mount
   useEffect(() => {
     const loadRecaps = async () => {
       try {
-        const response = await authFetch('/api/data/session-recaps');
+        const response = await authFetch("/api/data/session-recaps");
         if (response.ok) {
           const data = await response.json();
           setAllRecaps(data);
         }
       } catch (error) {
-        console.error('Error loading recaps:', error);
+        console.error("Error loading recaps:", error);
       } finally {
         setLoading(false);
       }
     };
-
     loadRecaps();
   }, []);
 
@@ -58,25 +56,30 @@ export default function RecapsPage() {
     return () => unsub();
   }, []);
 
+  // Assign session numbers based on chronological order (oldest = #1)
+  const sessionNumbers = [...allRecaps]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .reduce(
+      (acc, recap, index) => ({ ...acc, [recap.id || recap.date]: index + 1 }),
+      {} as Record<string, number>
+    );
+
   const filteredRecaps = allRecaps
     .filter(
       (recap) =>
         recap.title.toLowerCase().includes(search.toLowerCase()) ||
         recap.recap.toLowerCase().includes(search.toLowerCase())
     )
-    .sort((a, b) => {
-      if (sortOrder === 'desc') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      } else {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-    });
+    .sort((a, b) =>
+      sortOrder === "desc"
+        ? new Date(b.date).getTime() - new Date(a.date).getTime()
+        : new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
 
-  // Scroll to recap when selected in sidebar
-  const handleJumpToRecap = (date: string) => {
-    setActiveRecap(date);
+  const handleJumpToRecap = (key: string) => {
+    setActiveRecap(key);
     setTimeout(() => {
-      recapRefs.current[date]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      recapRefs.current[key]?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
   };
 
@@ -89,17 +92,19 @@ export default function RecapsPage() {
     if (!user) return;
     try {
       const payload = { ...newRecap, author: user.uid } as Recap;
-      const res = await authFetch('/api/data/session-recaps', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      const res = await authFetch("/api/data/session-recaps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to add recap');
-      const data = await (await authFetch('/api/data/session-recaps')).json();
+      if (!res.ok) throw new Error("Failed to add recap");
+      const data = await (await authFetch("/api/data/session-recaps")).json();
       setAllRecaps(data);
       setShowAddForm(false);
       setNewRecap({ date: "", title: "", recap: "" });
     } catch (e) {
       console.error(e);
-      alert('Failed to add recap');
+      alert("Failed to add recap");
     }
   };
 
@@ -112,153 +117,268 @@ export default function RecapsPage() {
   const handleSaveEditRecap = async () => {
     if (!editingRecapId) return;
     try {
-      const res = await authFetch('/api/data/session-recaps', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingRecap)
+      const res = await authFetch("/api/data/session-recaps", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingRecap),
       });
-      if (!res.ok) throw new Error('Failed to save recap');
-      const data = await (await authFetch('/api/data/session-recaps')).json();
+      if (!res.ok) throw new Error("Failed to save recap");
+      const data = await (await authFetch("/api/data/session-recaps")).json();
       setAllRecaps(data);
       setEditingRecapId(null);
       setEditingRecap({});
     } catch (e) {
       console.error(e);
-      alert('Failed to save recap');
+      alert("Failed to save recap");
     }
   };
 
   const handleUpdateRecapNotes = async (recap: Recap, updatedNotes: UserNote[]) => {
     try {
       const payload = { ...recap, notes: updatedNotes };
-      const res = await authFetch('/api/data/session-recaps', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      const res = await authFetch("/api/data/session-recaps", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to update notes');
-      const data = await (await authFetch('/api/data/session-recaps')).json();
+      if (!res.ok) throw new Error("Failed to update notes");
+      const data = await (await authFetch("/api/data/session-recaps")).json();
       setAllRecaps(data);
     } catch (e) {
       console.error(e);
-      alert('Failed to update notes');
+      alert("Failed to update notes");
     }
   };
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading session recaps...</span>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the chronicle&hellip;
         </div>
       </div>
     );
   }
 
+  const totalCount = allRecaps.length;
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
-      {/* Main Content Area */}
-      <div className="flex-1 flex justify-center">
-        <div className="max-w-4xl w-full mx-auto py-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Session Recaps</h1>
-          {/* Search and Sort Controls */}
-          <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search Recaps</label>
-              <input
-                type="text"
-                placeholder="Search recaps..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 0, height: "100%", overflow: "hidden" }}>
+
+      {/* Chronicle column */}
+      <div style={{ overflowY: "auto", padding: "36px 40px 80px 56px" }}>
+
+        {/* Page header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+          <div>
+            <div className="grim-page-eyebrow">The Remembered Road</div>
+            <h1 className="grim-page-title">Chronicle of Sessions</h1>
+            <p className="grim-page-sub">
+              {totalCount} {totalCount === 1 ? "night" : "nights"} of peril, set down in ink while the memory was yet warm.
+            </p>
+          </div>
+        </div>
+
+        {/* Search + sort + add */}
+        <section style={{ display: "flex", gap: 12, marginBottom: 22 }}>
+          <div style={{ position: "relative", flex: 1 }}>
+            <input
+              placeholder="Search the chronicle…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--grim-bg-3)",
+                border: "1px solid var(--grim-line-2)",
+                color: "var(--grim-ink)",
+                fontFamily: "var(--font-body)",
+                fontSize: 16,
+                padding: "12px 16px 12px 42px",
+                outline: "none",
+              }}
+            />
+            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18, pointerEvents: "none" }}>✦</span>
+          </div>
+          <button
+            className="grim-btn is-ghost"
+            onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+          >
+            {sortOrder === "desc" ? "↓ Newest First" : "↑ Oldest First"}
+          </button>
+          {user && (
+            <button
+              className="grim-btn is-ember"
+              onClick={() => setShowAddForm(!showAddForm)}
+            >
+              {showAddForm ? "✕ Cancel" : "+ Inscribe Recap"}
+            </button>
+          )}
+        </section>
+
+        {/* Add recap form */}
+        {showAddForm && (
+          <div className="grim-tome" style={{ marginBottom: 22 }}>
+            <div className="grim-h-section" style={{ marginBottom: 14 }}>New Chronicle Entry</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Date</div>
+                <input
+                  type="date"
+                  value={newRecap.date || ""}
+                  onChange={(e) => setNewRecap({ ...newRecap, date: e.target.value })}
+                  style={{
+                    width: "100%",
+                    background: "var(--grim-bg-4)",
+                    border: "1px solid var(--grim-line-2)",
+                    color: "var(--grim-ink)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: 15,
+                    padding: "10px 14px",
+                    outline: "none",
+                  }}
+                />
+              </div>
+              <div>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Title</div>
+                <input
+                  type="text"
+                  value={newRecap.title || ""}
+                  onChange={(e) => setNewRecap({ ...newRecap, title: e.target.value })}
+                  style={{
+                    width: "100%",
+                    background: "var(--grim-bg-4)",
+                    border: "1px solid var(--grim-line-2)",
+                    color: "var(--grim-ink)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: 15,
+                    padding: "10px 14px",
+                    outline: "none",
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div className="grim-label" style={{ marginBottom: 6 }}>Recap</div>
+              <MarkdownEditor
+                value={newRecap.recap || ""}
+                onChange={(v) => setNewRecap({ ...newRecap, recap: v })}
+                rows={10}
+                label="Recap"
               />
             </div>
-            <div className="flex flex-col gap-2 justify-end items-end">
-              <button
-                onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-                className="px-4 py-2 text-sm bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-md transition-colors duration-200"
-              >
-                Sort: {sortOrder === 'desc' ? 'Newest First' : 'Oldest First'}
-              </button>
-              <button
-                onClick={() => setSearch("")}
-                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-md transition-colors duration-200"
-              >
-                Clear Search
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button onClick={handleAddRecap} className="grim-btn is-ember">
+                Inscribe to Chronicle
               </button>
             </div>
           </div>
-          <div className="space-y-6">
-            {user && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Create New Recap</h2>
-                  <button onClick={() => setShowAddForm(!showAddForm)} className="px-3 py-1 text-sm bg-slate-600 text-white rounded">{showAddForm ? 'Cancel' : 'Add Recap'}</button>
-                </div>
-                {showAddForm && (
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                      <input type="date" value={newRecap.date || ''} onChange={(e) => setNewRecap({ ...newRecap, date: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-                      <input type="text" value={newRecap.title || ''} onChange={(e) => setNewRecap({ ...newRecap, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recap</label>
-                      <MarkdownEditor value={newRecap.recap || ''} onChange={(v) => setNewRecap({ ...newRecap, recap: v })} rows={10} label="Recap" />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end">
-                      <button onClick={handleAddRecap} className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Save Recap</button>
-                    </div>
-                  </div>
-                )}
+        )}
+
+        {/* Recap entries */}
+        <div className="grim-stack" style={{ gap: 22 }}>
+          {filteredRecaps.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>
+                ~ no sessions found ~
               </div>
-            )}
-            {filteredRecaps.length === 0 ? (
-              <p className="text-gray-600 dark:text-gray-400">No recaps found.</p>
-            ) : (
-              filteredRecaps.map((recap) => (
-                <div
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase" }}>
+                Adjust your search
+              </div>
+            </div>
+          ) : (
+            filteredRecaps.map((recap) => {
+              const recapKey = recap.id || recap.date;
+              const sessionNo = sessionNumbers[recapKey];
+              const isActive = activeRecap === recapKey;
+
+              return (
+                <article
                   key={recap.date}
-                  ref={el => {
-                    recapRefs.current[recap.date] = el;
-                  }}
-                  className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700 scroll-mt-24 transition-all duration-200 ${activeRecap === recap.date ? "ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/10" : ""}`}
+                  ref={(el) => { recapRefs.current[recapKey] = el; }}
+                  className={`grim-tome${isActive ? " is-bordered" : ""}`}
                   id={`recap-${recap.date}`}
+                  style={{ scrollMarginTop: 24 }}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="text-sm text-gray-500">{recap.date}</div>
+                  {/* Entry header */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--grim-line)" }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
+                        {sessionNo ? `Session ${sessionNo} · ` : ""}{recap.date}
+                      </div>
                       {editingRecapId === recap.id ? (
-                        <input type="text" value={editingRecap.title as string} onChange={(e) => setEditingRecap({ ...editingRecap, title: e.target.value })} className="mt-1 px-3 py-2 border rounded w-full" />
+                        <input
+                          type="text"
+                          value={editingRecap.title as string}
+                          onChange={(e) => setEditingRecap({ ...editingRecap, title: e.target.value })}
+                          style={{
+                            marginTop: 4,
+                            background: "var(--grim-bg-4)",
+                            border: "1px solid var(--grim-line-2)",
+                            color: "var(--grim-ink)",
+                            fontFamily: "var(--font-display)",
+                            fontSize: 28,
+                            padding: "6px 12px",
+                            outline: "none",
+                            width: "100%",
+                          }}
+                        />
                       ) : (
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{recap.title}</h2>
+                        <h3 style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
+                          {recap.title}
+                        </h3>
                       )}
                     </div>
                     {canEditRecap(recap) && (
-                      <div className="flex gap-2 ml-4">
+                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                         {editingRecapId === recap.id ? (
                           <>
-                            <button onClick={() => { setEditingRecapId(null); setEditingRecap({}); }} className="px-3 py-1 text-sm">Cancel</button>
-                            <button onClick={handleSaveEditRecap} className="px-3 py-1 text-sm bg-emerald-600 text-white rounded">Save</button>
+                            <button
+                              onClick={() => { setEditingRecapId(null); setEditingRecap({}); }}
+                              className="grim-btn is-ghost"
+                              style={{ padding: "6px 12px", fontSize: 11 }}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSaveEditRecap}
+                              className="grim-btn is-ember"
+                              style={{ padding: "6px 12px", fontSize: 11 }}
+                            >
+                              Save
+                            </button>
                           </>
                         ) : (
-                          <button onClick={() => handleStartEditRecap(recap)} className="px-3 py-1 text-sm bg-slate-600 text-white rounded">Edit</button>
+                          <button
+                            onClick={() => handleStartEditRecap(recap)}
+                            className="grim-btn is-ghost"
+                          >
+                            Edit
+                          </button>
                         )}
                       </div>
                     )}
                   </div>
+
+                  {/* Recap body */}
                   {editingRecapId === recap.id ? (
-                    <MarkdownEditor value={(editingRecap.recap as string) || ''} onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })} rows={12} label="Recap" />
+                    <MarkdownEditor
+                      value={(editingRecap.recap as string) || ""}
+                      onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })}
+                      rows={12}
+                      label="Recap"
+                    />
                   ) : (
                     <div
-                      className="prose prose-neutral max-w-none dark:prose-invert"
+                      className="grim-chronicle"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
                     />
                   )}
 
-                  {/* Notes for this recap */}
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  {/* Notes / Marginalia */}
+                  <div className="grim-rule" />
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 10 }}>Marginalia</div>
                     <UserNotesEditor
                       notes={recap.notes || []}
                       onChange={(notes) => handleUpdateRecapNotes(recap, notes)}
@@ -266,36 +386,50 @@ export default function RecapsPage() {
                       isAdmin={isAdmin}
                     />
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                </article>
+              );
+            })
+          )}
         </div>
       </div>
-      {/* Right Sidebar - Recap List (styled like NPCs) */}
-      <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full sticky top-0">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sessions ({filteredRecaps.length})</h2>
+
+      {/* Session rail */}
+      <aside style={{ borderLeft: "1px solid var(--grim-line)", overflowY: "auto", padding: "22px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14, padding: "0 22px" }}>
+          <h2 className="grim-h-section" style={{ margin: 0 }}>The Sessions</h2>
+          <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>
+            {filteredRecaps.length}
+          </span>
         </div>
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-3">
-            {filteredRecaps.map((recap) => (
-              <button
+        <div className="grim-stack" style={{ gap: 4 }}>
+          {filteredRecaps.map((recap) => {
+            const recapKey = recap.id || recap.date;
+            const sessionNo = sessionNumbers[recapKey];
+            const isActive = activeRecap === recapKey;
+            return (
+              <div
                 key={recap.date}
-                onClick={() => handleJumpToRecap(recap.date)}
-                className={`w-full text-left p-3 rounded-lg border transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  activeRecap === recap.date
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
-                    : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
-                }`}
+                onClick={() => handleJumpToRecap(recapKey)}
+                style={{
+                  padding: "10px 22px",
+                  cursor: "pointer",
+                  background: isActive
+                    ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
+                    : "transparent",
+                  borderLeft: "2px solid " + (isActive ? "var(--grim-ember)" : "transparent"),
+                }}
               >
-                <div className="text-xs text-gray-500 mb-1">{recap.date}</div>
-                <div className="font-medium truncate text-gray-900 dark:text-white">{recap.title}</div>
-              </button>
-            ))}
-          </div>
+                <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+                  {recap.date}{sessionNo ? ` · s${sessionNo}` : ""}
+                </div>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".02em", color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.25, marginTop: 2 }}>
+                  {recap.title}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </div>
+      </aside>
     </div>
   );
 }
