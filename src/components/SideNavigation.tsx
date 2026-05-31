@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useIsAdmin } from '@/utils/adminCheck';
@@ -41,6 +41,8 @@ function NavIcon({ name }: { name: string }) {
     case "feather": return <svg {...common}><path d="M13 3c-2 0-9 3-9 9v1h1c6 0 9-7 9-9l-2 2M4 13l4-4"/></svg>;
     case "tongue":  return <svg {...common}><path d="M3 4h10M3 8h7M3 12h10"/></svg>;
     case "cog":     return <svg {...common}><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></svg>;
+    case "chevron-left": return <svg {...common}><path d="M10 12L6 8l4-4"/></svg>;
+    case "chevron-right": return <svg {...common}><path d="M6 12l4-4-4-4"/></svg>;
     default:        return null;
   }
 }
@@ -48,6 +50,19 @@ function NavIcon({ name }: { name: string }) {
 export default function SideNavigation() {
   const pathname = usePathname();
   const isAdmin = useIsAdmin();
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("sidenav-collapsed");
+    if (saved === "true") setCollapsed(true);
+  }, []);
+
+  const toggle = () => {
+    setCollapsed((prev) => {
+      localStorage.setItem("sidenav-collapsed", String(!prev));
+      return !prev;
+    });
+  };
 
   const isActive = (href: string) => {
     if (href === "/campaign") return pathname === "/campaign";
@@ -55,12 +70,23 @@ export default function SideNavigation() {
   };
 
   return (
-    <aside className="grim-sidebar">
+    <aside className={`grim-sidebar${collapsed ? " is-collapsed" : ""}`}>
       <div className="grim-brand">
         <div className="grim-brand-mark">A</div>
-        <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
-        <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
+        <div className="grim-brand-text">
+          <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
+          <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
+        </div>
       </div>
+
+      <button
+        className="grim-collapse-btn"
+        onClick={toggle}
+        title={collapsed ? "Expand navigation" : "Collapse navigation"}
+        aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+      >
+        <NavIcon name={collapsed ? "chevron-right" : "chevron-left"} />
+      </button>
 
       <div className="grim-nav-label">Navigation</div>
       <nav className="grim-nav">
@@ -69,7 +95,7 @@ export default function SideNavigation() {
             <span
               key={item.id}
               className="grim-nav-item is-dim"
-              title={`${item.label} — coming soon`}
+              title={item.label}
             >
               <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
               <span className="grim-nav-body">
@@ -82,6 +108,7 @@ export default function SideNavigation() {
               key={item.id}
               href={item.href}
               className={`grim-nav-item${isActive(item.href) ? " is-active" : ""}`}
+              title={item.label}
             >
               <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
               <span className="grim-nav-body">
@@ -97,6 +124,7 @@ export default function SideNavigation() {
             href="/admin"
             className={`grim-nav-item${pathname === "/admin" ? " is-active" : ""}`}
             style={{ marginTop: 12, borderTop: "1px solid var(--grim-line)", paddingTop: 12 }}
+            title="Admin"
           >
             <span className="grim-nav-ico"><NavIcon name="cog"/></span>
             <span className="grim-nav-body">
@@ -109,7 +137,7 @@ export default function SideNavigation() {
 
       <div style={{ flex: 1 }}/>
 
-      <div style={{ padding: "16px 22px 8px", borderTop: "1px solid var(--grim-line)", marginTop: 18 }}>
+      <div className="grim-sidebar-footer">
         <div className="grim-label" style={{ marginBottom: 6 }}>Game Date</div>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1.1 }}>
           Miriandar 36
@@ -118,7 +146,7 @@ export default function SideNavigation() {
           year 427 of the Bounty
         </div>
       </div>
-      <div style={{ padding: "8px 22px 16px" }}>
+      <div className="grim-sidebar-signout">
         <SignOutButton />
       </div>
     </aside>
