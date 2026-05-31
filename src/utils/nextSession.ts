@@ -124,7 +124,21 @@ export function formatSessionDate(date: Date | null): string {
 
 export function daysUntil(date: Date | null, reference: Date = new Date()): number | null {
   if (!date) return null;
-  const diff = date.getTime() - reference.getTime();
+
+  const toCalendarDay = (d: Date): number => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: PACIFIC_TIMEZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(d);
+    const y = Number(parts.find((p) => p.type === "year")?.value);
+    const m = Number(parts.find((p) => p.type === "month")?.value);
+    const day = Number(parts.find((p) => p.type === "day")?.value);
+    return Date.UTC(y, m - 1, day);
+  };
+
+  const diff = toCalendarDay(date) - toCalendarDay(reference);
   if (diff <= 0) return 0;
-  return Math.ceil(diff / (24 * 60 * 60 * 1000));
+  return Math.round(diff / (24 * 60 * 60 * 1000));
 }
