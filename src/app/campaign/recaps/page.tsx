@@ -4,11 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import UserNotesEditor from "@/components/UserNotesEditor";
+import EntityTagPicker from "@/components/EntityTagPicker";
 import { UserNote } from "@/types/interfaces";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { authFetch } from "@/utils/authFetch";
+import Link from "next/link";
+
+interface EntityItem { id: string; name: string; }
 
 interface Recap {
   date: string;
@@ -17,6 +21,8 @@ interface Recap {
   id?: string;
   author?: string;
   notes?: UserNote[];
+  tagged_npcs?: string[];
+  tagged_locations?: string[];
 }
 
 export default function RecapsPage() {
@@ -29,9 +35,11 @@ export default function RecapsPage() {
   const isAdmin = useIsAdmin();
   const [user, setUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "" });
+  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "", tagged_npcs: [], tagged_locations: [] });
   const [editingRecapId, setEditingRecapId] = useState<string | null>(null);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
+  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
+  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
 
   useEffect(() => {
     const loadRecaps = async () => {
@@ -48,6 +56,12 @@ export default function RecapsPage() {
       }
     };
     loadRecaps();
+    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
+      setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
+    }).catch(() => {});
+    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableLocations(data.map(l => ({ id: String(l.id), name: l.name })));
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -267,6 +281,18 @@ export default function RecapsPage() {
                 label="Recap"
               />
             </div>
+            {isAdmin && (
+              <div style={{ marginBottom: 16 }}>
+                <EntityTagPicker
+                  npcs={availableNPCs}
+                  locations={availableLocations}
+                  selectedNpcs={newRecap.tagged_npcs ?? []}
+                  selectedLocations={newRecap.tagged_locations ?? []}
+                  onNpcsChange={(ids) => setNewRecap({ ...newRecap, tagged_npcs: ids })}
+                  onLocationsChange={(ids) => setNewRecap({ ...newRecap, tagged_locations: ids })}
+                />
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button onClick={handleAddRecap} className="grim-btn is-ember">
                 Inscribe to Chronicle
@@ -362,17 +388,57 @@ export default function RecapsPage() {
 
                   {/* Recap body */}
                   {editingRecapId === recap.id ? (
-                    <MarkdownEditor
-                      value={(editingRecap.recap as string) || ""}
-                      onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })}
-                      rows={12}
-                      label="Recap"
-                    />
+                    <>
+                      <MarkdownEditor
+                        value={(editingRecap.recap as string) || ""}
+                        onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })}
+                        rows={12}
+                        label="Recap"
+                      />
+                      {isAdmin && (
+                        <div style={{ marginTop: 16 }}>
+                          <EntityTagPicker
+                            npcs={availableNPCs}
+                            locations={availableLocations}
+                            selectedNpcs={editingRecap.tagged_npcs ?? []}
+                            selectedLocations={editingRecap.tagged_locations ?? []}
+                            onNpcsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_npcs: ids })}
+                            onLocationsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_locations: ids })}
+                          />
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div
                       className="grim-chronicle"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
                     />
+                  )}
+
+                  {/* Tagged entities */}
+                  {((recap.tagged_npcs && recap.tagged_npcs.length > 0) ||
+                    (recap.tagged_locations && recap.tagged_locations.length > 0)) && (
+                    <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--grim-line)" }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls & Places</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {(recap.tagged_npcs ?? []).map(id => {
+                          const n = availableNPCs.find(x => x.id === id);
+                          return n ? (
+                            <Link key={id} href={`/campaign/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>
+                              {n.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(recap.tagged_locations ?? []).map(id => {
+                          const l = availableLocations.find(x => x.id === id);
+                          return l ? (
+                            <Link key={id} href={`/campaign/locations`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
+                              {l.name}
+                            </Link>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
                   )}
 
                   {/* Notes / Marginalia */}

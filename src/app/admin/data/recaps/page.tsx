@@ -47,11 +47,13 @@ export default function RecapsManagementPage() {
     }
   };
 
-  const filteredRecaps = recaps.filter(recap =>
-    recap.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    recap.recap?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    recap.date?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRecaps = recaps
+    .filter(recap =>
+      recap.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recap.recap?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recap.date?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleCreate = () => {
     setIsCreating(true);
