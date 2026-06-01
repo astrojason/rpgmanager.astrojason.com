@@ -4,17 +4,19 @@ import { ensureSchemaMock, jsonRequest, mockDb, requestWithQuery } from '../test
 describe('quests endpoint', () => {
   it('lists quests with parsed notes', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] }) // CREATE TABLE
       .mockResolvedValueOnce({
         rows: [
           { id: 1, name: 'Quest', notes: JSON.stringify(['step']), status: 'active', gm_notes: 'secret' },
         ],
-      });
+      }) // SELECT * FROM quests
+      .mockResolvedValueOnce({ rows: [] }) // quest_npcs
+      .mockResolvedValueOnce({ rows: [] }); // quest_locations
     const { GET } = await import('@/app/api/data/quests/route');
     const res = await GET();
     expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
-      { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret' },
+      { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [] },
     ]);
   });
 
@@ -38,10 +40,16 @@ describe('quests endpoint', () => {
     const { DELETE } = await import('@/app/api/data/quests/route');
     const badReq = await DELETE(requestWithQuery('http://test/api/quests') as any);
     expect(badReq.status).toBe(400);
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 });
+    mockDb.execute
+      .mockResolvedValueOnce({}) // DELETE quest_npcs
+      .mockResolvedValueOnce({}) // DELETE quest_locations
+      .mockResolvedValueOnce({ rowsAffected: 0 }); // DELETE quest → 404
     const missing = await DELETE(requestWithQuery('http://test/api/quests?id=1') as any);
     expect(missing.status).toBe(404);
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+    mockDb.execute
+      .mockResolvedValueOnce({}) // DELETE quest_npcs
+      .mockResolvedValueOnce({}) // DELETE quest_locations
+      .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE quest → 200
     const ok = await DELETE(requestWithQuery('http://test/api/quests?id=2') as any);
     expect(ok.status).toBe(200);
   });

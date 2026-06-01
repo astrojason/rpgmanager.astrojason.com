@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 import { authFetch } from "@/utils/authFetch";
-import { NPC } from "@/types/interfaces";
+import { NPC, Quest, SessionRecap, UserNote } from "@/types/interfaces";
 import { safeImageSrc } from "@/utils/sanitize";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import {
   formatSessionDate,
   parseSessionDate,
 } from "@/utils/nextSession";
+import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
 
 interface NextSessionData {
   date: string;
@@ -70,6 +71,39 @@ function sigilStyle(tint: string) {
   return { ...base, background: "linear-gradient(180deg, oklch(0.45 0.10 80), oklch(0.30 0.08 78))", border: "1px solid var(--grim-gold-2)" };
 }
 
+function toPlainText(md: string): string {
+  return md
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/#{1,6}\s+/g, '')
+    .replace(/[*_]{1,3}([^*_\n]+)[*_]{1,3}/g, '$1')
+    .replace(/`+[^`\n]*`+/g, '')
+    .replace(/^\s*[-*+>]+\s+/gm, '')
+    .replace(/\n+/g, ' ')
+    .trim();
+}
+
+function questRailState(status: string) {
+  if (status === 'active') return 'ember';
+  if (status === 'onhold') return 'arcane';
+  return 'dim';
+}
+
+function questMeta(status: string) {
+  if (status === 'active') return 'in motion';
+  if (status === 'onhold') return 'stalled';
+  if (status === 'completed') return 'completed';
+  if (status === 'failed') return 'failed';
+  return status;
+}
+
+function questDescription(quest: Quest): string {
+  if (!quest.notes || quest.notes.length === 0) return '';
+  const last = quest.notes[quest.notes.length - 1];
+  const raw = typeof last === 'string' ? last : (last as UserNote).content;
+  return toPlainText(raw).slice(0, 120);
+}
+
 function statusChipClass(status?: string) {
   if (!status) return "grim-chip is-unknown";
   const s = status.toLowerCase();
@@ -90,6 +124,8 @@ export default function CampaignHome() {
   const router = useRouter();
   const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
   const [recentNPCs, setRecentNPCs] = useState<NPC[]>([]);
+  const [activeQuests, setActiveQuests] = useState<Quest[]>([]);
+  const [latestRecap, setLatestRecap] = useState<SessionRecap | null>(null);
 
   useEffect(() => {
     if (!auth) return;
@@ -105,11 +141,24 @@ export default function CampaignHome() {
       .then(d => { if (d) setSessionData(d); })
       .catch(() => {});
 
-    authFetch('/api/data/npcs')
+    Promise.all([
+      authFetch('/api/data/npcs').then(r => r.json()),
+      authFetch('/api/data/session-recaps').then(r => r.json()),
+    ]).then(([npcs, recaps]: [NPC[], SessionRecap[]]) => {
+      const sorted = [...recaps].sort((a, b) => parseInt(b.id || '0') - parseInt(a.id || '0'));
+      if (sorted.length > 0) setLatestRecap(sorted[0]);
+
+      const tagged = getRecentlyTaggedNpcs(sorted, npcs);
+      const visible = tagged.length > 0
+        ? tagged
+        : npcs.filter((n: NPC) => !n.hidden).slice(0, 6);
+      setRecentNPCs(visible);
+    }).catch(() => {});
+
+    authFetch('/api/data/quests')
       .then(r => r.json())
-      .then((npcs: NPC[]) => {
-        const visible = npcs.filter((n: NPC) => !n.hidden).slice(0, 6);
-        setRecentNPCs(visible);
+      .then((quests: Quest[]) => {
+        setActiveQuests(quests.filter((q: Quest) => q.status === 'active').slice(0, 4));
       })
       .catch(() => {});
   }, []);
@@ -218,12 +267,15 @@ export default function CampaignHome() {
               </div>
             </div>
 
-            {sessionData?.notes && (
+            {latestRecap && (
               <div style={{ background: "oklch(0.12 0.025 290)", border: "1px solid var(--grim-line)", padding: "14px 16px", borderRadius: 1 }}>
                 <div className="grim-label" style={{ marginBottom: 6 }}>Where we left the party</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink)", lineHeight: 1.55, fontStyle: "italic" }}>
-                  {sessionData.notes}
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink)", lineHeight: 1.55, fontStyle: "italic", marginBottom: 8 }}>
+                  {toPlainText(latestRecap.recap).slice(0, 220).trimEnd()}…
                 </div>
+                <Link href="/campaign/recaps" className="grim-link" style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".12em", textTransform: "uppercase" }}>
+                  {latestRecap.title} ›
+                </Link>
               </div>
             )}
 
@@ -307,25 +359,28 @@ export default function CampaignHome() {
             <span className="grim-tome-sub">quests in motion</span>
           </div>
           <div className="grim-stack" style={{ gap: 14 }}>
-            {[
-              { t: "The Hellhound Vigil",          meta: "Stormharbor · in motion",      state: "ember",  desc: "Civilians flee toward the city watch; hellish wings still circle." },
-              { t: "The Silent Star's Errand",      meta: "Ailo of the Triton",           state: "arcane", desc: "An odd commission whispered across the docks of Tidewater." },
-              { t: "Echoes in the Whispering Depths", meta: "Temple of the Abyss",        state: "arcane", desc: "Tidewater fishermen report singing beneath the waves." },
-              { t: "The Ironforest Pact",           meta: "Blackbarrow · stalled",        state: "dim",    desc: "Awaiting word from the dwarven envoy at Mount Kragmarr." },
-            ].map((q, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < 3 ? "1px dashed var(--grim-line)" : "none" }}>
-                <div style={{
-                  width: 4, alignSelf: "stretch", marginTop: 4, flexShrink: 0,
-                  background: q.state === "ember" ? "var(--grim-ember)" : q.state === "arcane" ? "var(--grim-arcane)" : "var(--grim-line-2)",
-                  boxShadow: q.state !== "dim" ? `0 0 8px ${q.state === "ember" ? "var(--grim-ember)" : "var(--grim-arcane)"}` : "none"
-                }}/>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".02em", color: "var(--grim-ink)" }}>{q.t}</div>
-                  <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{q.meta}</div>
-                  <div style={{ fontSize: 13, color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{q.desc}</div>
+            {activeQuests.length === 0 ? (
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)", fontStyle: "italic", margin: 0 }}>
+                No threads are in motion.
+              </p>
+            ) : activeQuests.map((q, i) => {
+              const state = questRailState(q.status);
+              const desc = questDescription(q);
+              return (
+                <div key={q.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none" }}>
+                  <div style={{
+                    width: 4, alignSelf: "stretch", marginTop: 4, flexShrink: 0,
+                    background: state === "ember" ? "var(--grim-ember)" : state === "arcane" ? "var(--grim-arcane)" : "var(--grim-line-2)",
+                    boxShadow: state !== "dim" ? `0 0 8px ${state === "ember" ? "var(--grim-ember)" : "var(--grim-arcane)"}` : "none"
+                  }}/>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".02em", color: "var(--grim-ink)" }}>{q.name}</div>
+                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{questMeta(q.status)}</div>
+                    {desc && <div style={{ fontSize: 13, color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{desc}</div>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <Link href="/campaign/quests" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start" }}>
               Unfurl all threads ›
             </Link>

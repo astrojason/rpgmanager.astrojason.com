@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { SessionRecap } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import MarkdownEditor from "@/components/MarkdownEditor";
+import EntityTagPicker from "@/components/EntityTagPicker";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
+import Link from "next/link";
+
+interface EntityItem { id: string; name: string; }
 
 export default function RecapsManagementPage() {
   const [recaps, setRecaps] = useState<SessionRecap[]>([]);
@@ -16,10 +20,17 @@ export default function RecapsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<SessionRecap>>({});
+  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
+  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
 
-  // Load session recaps data
   useEffect(() => {
     loadRecaps();
+    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
+      setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
+    }).catch(() => {});
+    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableLocations(data.map(l => ({ id: String(l.id), name: l.name })));
+    }).catch(() => {});
   }, []);
 
   const loadRecaps = async () => {
@@ -327,6 +338,17 @@ export default function RecapsManagementPage() {
                 />
               </div>
 
+              <div style={{ marginBottom: 20 }}>
+                <EntityTagPicker
+                  npcs={availableNPCs}
+                  locations={availableLocations}
+                  selectedNpcs={formData.tagged_npcs ?? []}
+                  selectedLocations={formData.tagged_locations ?? []}
+                  onNpcsChange={(ids) => setFormData({ ...formData, tagged_npcs: ids })}
+                  onLocationsChange={(ids) => setFormData({ ...formData, tagged_locations: ids })}
+                />
+              </div>
+
               <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
                 <button className="grim-btn is-ghost" onClick={handleCancel}>Cancel</button>
                 <button className="grim-btn is-ember" onClick={handleSave}>Save Recap</button>
@@ -350,6 +372,31 @@ export default function RecapsManagementPage() {
               </div>
 
               <hr className="grim-rule" style={{ marginBottom: 20 }} />
+
+              {((selectedRecap.tagged_npcs && selectedRecap.tagged_npcs.length > 0) ||
+                (selectedRecap.tagged_locations && selectedRecap.tagged_locations.length > 0)) && (
+                <div style={{ marginBottom: 20 }}>
+                  <div className="grim-label" style={{ marginBottom: 8 }}>Tagged Souls & Places</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {(selectedRecap.tagged_npcs ?? []).map(id => {
+                      const n = availableNPCs.find(x => x.id === id);
+                      return n ? (
+                        <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>
+                          {n.name}
+                        </Link>
+                      ) : null;
+                    })}
+                    {(selectedRecap.tagged_locations ?? []).map(id => {
+                      const l = availableLocations.find(x => x.id === id);
+                      return l ? (
+                        <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
+                          {l.name}
+                        </Link>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div
                 className="prose-grim"

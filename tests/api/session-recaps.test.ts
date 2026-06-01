@@ -4,7 +4,7 @@ import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 describe('session recaps endpoint', () => {
   it('lists recaps without mutation', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] }) // CREATE TABLE
       .mockResolvedValueOnce({
         rows: [
           {
@@ -16,7 +16,9 @@ describe('session recaps endpoint', () => {
             notes: JSON.stringify([]),
           },
         ],
-      });
+      }) // SELECT * FROM session_recaps
+      .mockResolvedValueOnce({ rows: [] }) // recap_npcs
+      .mockResolvedValueOnce({ rows: [] }); // recap_locations
 
     const { GET } = await import('@/app/api/data/session-recaps/route');
     const res = await GET();
@@ -28,6 +30,8 @@ describe('session recaps endpoint', () => {
         recap: 'Details',
         author: 'DM',
         notes: [],
+        tagged_npcs: [],
+        tagged_locations: [],
       },
     ]);
   });
@@ -85,7 +89,10 @@ describe('session recaps endpoint', () => {
   });
 
   it('deletes recap by id', async () => {
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+    mockDb.execute
+      .mockResolvedValueOnce({}) // DELETE recap_npcs
+      .mockResolvedValueOnce({}) // DELETE recap_locations
+      .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE session_recaps
     const { DELETE } = await import('@/app/api/data/session-recaps/route');
     const res = await DELETE(requestWithQuery('http://test/api/recaps?id=9') as any);
     expect(res.status).toBe(200);

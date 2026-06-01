@@ -176,6 +176,8 @@ export interface Quest {
   notes: UserNote[] | string[]; // Support legacy string format
   status: string;
   gm_notes?: string;
+  tagged_npcs?: string[];
+  tagged_locations?: string[];
 }
 
 export interface SessionRecap {
@@ -185,4 +187,6 @@ export interface SessionRecap {
   id?: string; // unique id for editing
   author?: string; // uid of creator
   notes?: UserNote[];
+  tagged_npcs?: string[];
+  tagged_locations?: string[];
 }

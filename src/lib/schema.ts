@@ -147,5 +147,27 @@ export async function ensureSchema() {
     isSkipped INTEGER NOT NULL DEFAULT 0,
     skipReason TEXT
   )`);
+
+  // Entity tags — junctions linking recaps/quests to NPCs and locations
+  await db.execute(`CREATE TABLE IF NOT EXISTS recap_npcs (
+    recap_id INTEGER NOT NULL,
+    npc_id INTEGER NOT NULL,
+    PRIMARY KEY(recap_id, npc_id)
+  )`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS recap_locations (
+    recap_id INTEGER NOT NULL,
+    location_id INTEGER NOT NULL,
+    PRIMARY KEY(recap_id, location_id)
+  )`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS quest_npcs (
+    quest_id INTEGER NOT NULL,
+    npc_id INTEGER NOT NULL,
+    PRIMARY KEY(quest_id, npc_id)
+  )`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS quest_locations (
+    quest_id INTEGER NOT NULL,
+    location_id INTEGER NOT NULL,
+    PRIMARY KEY(quest_id, location_id)
+  )`);
 }
 

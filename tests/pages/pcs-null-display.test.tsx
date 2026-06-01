@@ -54,13 +54,13 @@ describe('PCsPage null handling', () => {
 
   it('renders placeholder instead of string "null" values and missing images', async () => {
     const { default: PCsPage } = await import('@/app/campaign/pcs/page');
-    render(<PCsPage />);
+    const { container } = render(<PCsPage />);
 
-    await waitFor(() => expect(screen.getByText('Nullmage')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText('Nullmage')[0]).toBeInTheDocument());
 
-    // Missing/invalid image should fall back to placeholder
+    // Missing/invalid image should fall back to placeholder slot (no <img> alt)
     expect(screen.queryByAltText('Nullmage')).toBeNull();
-    expect(screen.getAllByText('?')[0]).toBeInTheDocument();
+    expect(container.querySelector('.grim-img-slot')).toBeInTheDocument();
 
     // Ensure literal "null" never surfaces
     expect(screen.queryByText(/\bnull\b/i)).toBeNull();

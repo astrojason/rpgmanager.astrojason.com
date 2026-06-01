@@ -7,9 +7,13 @@ import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import UserNotesEditor from '@/components/UserNotesEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
+import EntityTagPicker from '@/components/EntityTagPicker';
 import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
+import Link from "next/link";
+
+interface EntityItem { id: string; name: string; }
 
 export default function QuestsManagementPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -22,6 +26,8 @@ export default function QuestsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Quest>>({});
+  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
+  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
 
   // Authentication state
   useEffect(() => {
@@ -36,6 +42,12 @@ export default function QuestsManagementPage() {
 
   useEffect(() => {
     loadQuests();
+    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
+      setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
+    }).catch(() => {});
+    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableLocations(data.map(l => ({ id: String(l.id), name: l.name })));
+    }).catch(() => {});
   }, []);
 
   const loadQuests = async () => {
@@ -466,13 +478,25 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* GM Notes */}
-                  <div style={{ marginBottom: 28 }}>
+                  <div style={{ marginBottom: 20 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
+                    />
+                  </div>
+
+                  {/* Entity Tags */}
+                  <div style={{ marginBottom: 28 }}>
+                    <EntityTagPicker
+                      npcs={availableNPCs}
+                      locations={availableLocations}
+                      selectedNpcs={formData.tagged_npcs ?? []}
+                      selectedLocations={formData.tagged_locations ?? []}
+                      onNpcsChange={(ids) => setFormData({ ...formData, tagged_npcs: ids })}
+                      onLocationsChange={(ids) => setFormData({ ...formData, tagged_locations: ids })}
                     />
                   </div>
 
@@ -531,6 +555,32 @@ export default function QuestsManagementPage() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Tagged entities */}
+                  {((selectedQuest.tagged_npcs && selectedQuest.tagged_npcs.length > 0) ||
+                    (selectedQuest.tagged_locations && selectedQuest.tagged_locations.length > 0)) && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Tagged Souls & Places</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {(selectedQuest.tagged_npcs ?? []).map(id => {
+                          const n = availableNPCs.find(x => x.id === id);
+                          return n ? (
+                            <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>
+                              {n.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(selectedQuest.tagged_locations ?? []).map(id => {
+                          const l = availableLocations.find(x => x.id === id);
+                          return l ? (
+                            <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
+                              {l.name}
+                            </Link>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Notes */}
                   {selectedQuest.notes && selectedQuest.notes.length > 0 && (

@@ -50,6 +50,7 @@ describe('next session utilities', () => {
     const upcoming = getNextSundayAtPacific(reference);
     const diff = daysUntil(upcoming, reference);
 
-    expect(diff).toBe(7);
+    // reference is Monday May 13; next Sunday is May 19 = 6 calendar days away
+    expect(diff).toBe(6);
   });
 });
