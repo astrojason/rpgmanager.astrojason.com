@@ -1,4 +1,5 @@
 import { Quest, UserNote, PC } from '@/types/interfaces';
+import { authFetch } from '@/utils/authFetch';
 
 // Cache for PCs data
 let pcsCache: PC[] | null = null;
@@ -10,7 +11,7 @@ async function loadPcsCache(): Promise<PC[]> {
     }
 
     try {
-        const response = await fetch('/api/data/pcs');
+        const response = await authFetch('/api/data/pcs');
         if (response.ok) {
             pcsCache = await response.json();
             return pcsCache || [];

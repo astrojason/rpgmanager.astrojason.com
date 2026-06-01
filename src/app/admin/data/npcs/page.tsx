@@ -2,20 +2,28 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  TagIcon,
-  XMarkIcon,
-  CheckIcon
-} from "@heroicons/react/24/outline";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+
+const fieldStyle: React.CSSProperties = {
+  width: "100%",
+  background: "var(--grim-bg-3)",
+  border: "1px solid var(--grim-line-2)",
+  color: "var(--grim-ink)",
+  fontFamily: "var(--font-body)",
+  fontSize: 15,
+  padding: "9px 14px",
+  outline: "none",
+};
+
+function statusChipClass(status: string | undefined): string {
+  if (!status) return "grim-chip is-unknown";
+  if (status === "alive") return "grim-chip is-alive";
+  if (status === "dead" || status === "deceased") return "grim-chip is-dead";
+  return "grim-chip is-unknown";
+}
 
 export default function NPCsManagementPage() {
   const [npcs, setNpcs] = useState<NPC[]>([]);
@@ -219,7 +227,7 @@ export default function NPCsManagementPage() {
       }
 
       const npcData = formData as NPC;
-      
+
       let updatedNpcs;
       if (isCreating) {
         // Create via API
@@ -248,7 +256,7 @@ export default function NPCsManagementPage() {
       setIsCreating(false);
       setIsEditing(false);
       setSelectedNpc(npcData);
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save NPC");
@@ -257,9 +265,9 @@ export default function NPCsManagementPage() {
 
   const handleDelete = async (npc: NPC) => {
     if (!confirm(`Are you sure you want to delete ${npc.name}?`)) return;
-    
+
     try {
-      const resp = await fetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
+      const resp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
       if (!resp.ok) throw new Error('Failed to delete NPC');
       const re = await authFetch('/api/data/npcs');
       const updatedNpcs = await re.json();
@@ -394,7 +402,7 @@ export default function NPCsManagementPage() {
       });
       if (!putResp.ok) throw new Error('Failed to save merged NPC');
       // Delete source
-      const delResp = await fetch(`/api/data/npcs?id=${encodeURIComponent(mergeCandidate.id)}`, { method: 'DELETE' });
+      const delResp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(mergeCandidate.id)}`, { method: 'DELETE' });
       if (!delResp.ok) throw new Error('Failed to delete merged-from NPC');
       // Reload
       const re = await authFetch('/api/data/npcs');
@@ -413,28 +421,31 @@ export default function NPCsManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading NPCs...</span>
+      <div style={{ padding: "36px 48px 80px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+            <span className="grim-flame" />
+            Consulting the codex…
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Page Header */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            NPCs Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage non-player characters, merchants, and quest givers
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen · Souls</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Codex of Souls</h1>
+          <p className="grim-page-sub">Tend the register of NPCs — names, factions, and their fates.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, paddingBottom: 6 }}>
           <button
             onClick={() => startReview(false)}
-            className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-slate-600 hover:bg-slate-700 transition-colors"
+            className="grim-btn"
             title="Go item by item"
           >
             Review
@@ -442,7 +453,7 @@ export default function NPCsManagementPage() {
           {(doneIds.size > 0 || cursorId) && (
             <button
               onClick={() => startReview(true)}
-              className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+              className="grim-btn is-ember"
               title="Resume where you left off"
             >
               Resume
@@ -451,630 +462,590 @@ export default function NPCsManagementPage() {
           {(doneIds.size > 0 || cursorId) && (
             <button
               onClick={resetProgress}
-              className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+              className="grim-btn is-blood"
               title="Clear review progress"
             >
               Reset
             </button>
           )}
-          <button
-            onClick={handleCreate}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-          >
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Create NPC
-          </button>
+          <button className="grim-btn is-ember" onClick={handleCreate}>+ Inscribe Soul</button>
         </div>
       </header>
 
       {/* Status Messages */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div style={{ background: "oklch(0.25 0.12 22 / 0.4)", border: "1px solid var(--grim-blood-2)", color: "oklch(0.85 0.08 30)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
+          {error}
         </div>
       )}
-
       {success && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-          <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
+          {success}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* NPCs List */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                NPCs ({sortedNpcs.length})
-              </h2>
-              <input
-                type="text"
-                placeholder="Search NPCs..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-            <div className="p-4 max-h-96 overflow-y-auto">
-              <div className="space-y-2">
-                {sortedNpcs.map((npc) => (
-                  <div
-                    key={npc.id}
-                    data-npc-id={npc.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedNpc?.id === npc.id
-                        ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
-                        : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                    onClick={() => handleView(npc)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
-                          <span>{npc.name || (typeof npc.aka === 'string' ? npc.aka : '')}</span>
-                          {npc.hidden && (
-                            <EyeSlashIcon
-                              className="w-4 h-4 text-red-500"
-                              title="Hidden from players"
-                            />
-                          )}
-                          {npc.nameHidden && (
-                            <TagIcon
-                              className="w-4 h-4 text-yellow-500"
-                              title="Name hidden from players"
-                            />
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {npc.race} • {npc.location}
-                        </div>
-                        <div className="text-xs text-gray-400 dark:text-gray-500">
-                          Status: {npc.status}
-                        </div>
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+
+        {/* ── Left: NPC list panel ── */}
+        <div>
+          {/* Search */}
+          <div style={{ marginBottom: 8 }}>
+            <input
+              type="text"
+              placeholder="✦ Search souls…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "10px 14px", outline: "none" }}
+            />
+          </div>
+
+          {/* Count label */}
+          <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
+            {sortedNpcs.length} {sortedNpcs.length === 1 ? "soul" : "souls"}
+          </div>
+
+          {/* List */}
+          <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto" }}>
+              {sortedNpcs.map((npc) => (
+                <div
+                  key={npc.id}
+                  data-npc-id={npc.id}
+                  style={{
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    background: selectedNpc?.id === npc.id ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent",
+                    borderLeft: "2px solid " + (selectedNpc?.id === npc.id ? "var(--grim-ember)" : "transparent"),
+                    borderBottom: "1px solid var(--grim-line)",
+                  }}
+                  onClick={() => handleView(npc)}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: selectedNpc?.id === npc.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>{npc.name || (typeof npc.aka === 'string' ? npc.aka : '')}</span>
+                        {npc.hidden && <span title="Hidden from players" style={{ fontSize: 10, color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
+                        {npc.nameHidden && <span title="Name hidden from players" style={{ fontSize: 10, color: "var(--grim-gold-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>NAME?</span>}
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(npc);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(npc);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
+                      {npc.race && (
+                        <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 2 }}>
+                          {npc.race}{npc.status ? ` · ${npc.status}` : ""}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      <a
+                        className="grim-link"
+                        style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                        onClick={(e) => { e.stopPropagation(); handleEdit(npc); }}
+                      >
+                        edit
+                      </a>
+                      <a
+                        style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(npc); }}
+                      >
+                        del
+                      </a>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Detail/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* ── Right: Detail / Edit panel ── */}
+        <div>
           {/* Review mode controls */}
           {reviewMode && selectedNpc && (
-            <div className="flex items-center justify-between mb-3 text-sm">
-              <div className="text-gray-600 dark:text-gray-400">Reviewing {currentIndex + 1} of {npcs.length} • Done: {doneIds.size}</div>
-              <div className="flex gap-2">
-                <button onClick={markDoneAndNext} className="px-3 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700">Mark Done & Next</button>
-                <button onClick={skipToNext} className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">Skip</button>
-                <button onClick={() => setReviewMode(false)} className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">Exit</button>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "10px 14px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--grim-ink-3)" }}>
+                Reviewing {currentIndex + 1} of {npcs.length} · Done: {doneIds.size}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={markDoneAndNext} className="grim-btn is-ember">✓ Done &amp; Next</button>
+                <button onClick={skipToNext} className="grim-btn">Skip</button>
+                <button onClick={() => setReviewMode(false)} className="grim-btn is-ghost">Exit</button>
               </div>
             </div>
           )}
+
           {(isCreating || isEditing) ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {isCreating ? "Create New NPC" : "Edit NPC"}
-                </h2>
+            /* ── Form ── */
+            <div className="grim-tome">
+              <div className="grim-tome-head">
+                <div className="grim-tome-title">{isCreating ? "Inscribe a New Soul" : "Amend the Record"}</div>
               </div>
-              <div className="p-6">
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name || ""}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Also Known As
-                      </label>
-                      <input
-                        type="text"
-                        value={typeof formData.aka === 'string' ? formData.aka : ""}
-                        onChange={(e) => setFormData({ ...formData, aka: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-                  </div>
 
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Display Name (shown when name is hidden)
-                    </label>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Name *</div>
                     <input
                       type="text"
-                      value={formData.display_name || ""}
-                      onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="Public-facing name"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Race *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.race || ""}
-                        onChange={(e) => setFormData({ ...formData, race: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Gender
-                      </label>
-                      <select
-                        value={formData.gender || ""}
-                        onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      >
-                        <option value="">Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="non-binary">Non-binary</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Status
-                      </label>
-                      <select
-                        value={formData.status || "alive"}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      >
-                        <option value="alive">Alive</option>
-                        <option value="dead">Dead</option>
-                        <option value="missing">Missing</option>
-                        <option value="unknown">Unknown</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Factions selector */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Factions
-                    </label>
-                    <div className="mt-1 max-h-40 overflow-y-auto p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {factions.map((f) => {
-                        const checked = (formData.factions || []).includes(f.id);
-                        return (
-                          <label key={f.id} className="inline-flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(e) => {
-                                const next = new Set(formData.factions || []);
-                                if (e.target.checked) next.add(f.id);
-                                else next.delete(f.id);
-                                setFormData({ ...formData, factions: Array.from(next) });
-                              }}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span>{f.name}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Location *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.location || ""}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      value={formData.name || ""}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      style={fieldStyle}
                       required
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Pronunciation
-                    </label>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Also Known As</div>
                     <input
                       type="text"
-                      value={formData.pronunciation || ""}
-                      onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="e.g., ah-LAIR-ah"
+                      value={typeof formData.aka === 'string' ? formData.aka : ""}
+                      onChange={(e) => setFormData({ ...formData, aka: e.target.value })}
+                      style={fieldStyle}
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                    <MarkdownEditor
-                      value={formData.description || ""}
-                      onChange={(value) => setFormData({ ...formData, description: value })}
-                      rows={6}
-                      label="Description"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background</label>
-                    <MarkdownEditor
-                      value={formData.background || ""}
-                      onChange={(value) => setFormData({ ...formData, background: value })}
-                      rows={6}
-                      label="Background"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Personality</label>
-                    <MarkdownEditor
-                      value={formData.personality || ""}
-                      onChange={(value) => setFormData({ ...formData, personality: value })}
-                      rows={6}
-                      label="Personality"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
-                    <MarkdownEditor
-                      value={formData.gm_notes || ""}
-                      onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
-                      rows={6}
-                      label="GM Notes"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Image URL
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.image || ""}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="/images/npcs/example.png"
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.hidden || false}
-                        onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Hidden from players</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.nameHidden || false}
-                        onChange={(e) => setFormData({ ...formData, nameHidden: e.target.checked })}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Name hidden</span>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      <XMarkIcon className="w-4 h-4 mr-2" />
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <CheckIcon className="w-4 h-4 mr-2" />
-                      {isCreating ? "Create NPC" : "Update NPC"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          ) : selectedNpc ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span>{selectedNpc.name || String(selectedNpc.aka || "")}</span>
-                    {selectedNpc.hidden && (
-                      <EyeSlashIcon
-                        className="w-5 h-5 text-red-500"
-                        title="Hidden from players"
-                      />
-                    )}
-                    {selectedNpc.nameHidden && (
-                      <TagIcon
-                        className="w-5 h-5 text-yellow-500"
-                        title="Name hidden from players"
-                      />
-                    )}
-                  </h2>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(selectedNpc)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => { setIsMerging(true); setMergeWithId(""); }}
-                      className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors"
-                    >
-                      Merge
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedNpc)}
-                      className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
-                    >
-                      <TrashIcon className="w-4 h-4 mr-2" />
-                      Delete
-                    </button>
                   </div>
                 </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Display Name (shown when name is hidden)</div>
+                  <input
+                    type="text"
+                    value={formData.display_name || ""}
+                    onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+                    style={fieldStyle}
+                    placeholder="Public-facing name"
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Race *</div>
+                    <input
+                      type="text"
+                      value={formData.race || ""}
+                      onChange={(e) => setFormData({ ...formData, race: e.target.value })}
+                      style={fieldStyle}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Gender</div>
+                    <select
+                      value={formData.gender || ""}
+                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                      style={fieldStyle}
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="non-binary">Non-binary</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Status</div>
+                    <select
+                      value={formData.status || "alive"}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      style={fieldStyle}
+                    >
+                      <option value="alive">Alive</option>
+                      <option value="dead">Dead</option>
+                      <option value="missing">Missing</option>
+                      <option value="unknown">Unknown</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Factions selector */}
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Factions</div>
+                  <div style={{ maxHeight: 160, overflowY: "auto", padding: "10px 14px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px" }}>
+                    {factions.map((f) => {
+                      const checked = (formData.factions || []).includes(f.id);
+                      return (
+                        <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              const next = new Set(formData.factions || []);
+                              if (e.target.checked) next.add(f.id);
+                              else next.delete(f.id);
+                              setFormData({ ...formData, factions: Array.from(next) });
+                            }}
+                          />
+                          <span>{f.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Location *</div>
+                  <input
+                    type="text"
+                    value={formData.location || ""}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    style={fieldStyle}
+                    required
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Pronunciation</div>
+                  <input
+                    type="text"
+                    value={formData.pronunciation || ""}
+                    onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
+                    style={fieldStyle}
+                    placeholder="e.g., ah-LAIR-ah"
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
+                  <MarkdownEditor
+                    value={formData.description || ""}
+                    onChange={(value) => setFormData({ ...formData, description: value })}
+                    rows={6}
+                    label="Description"
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Background</div>
+                  <MarkdownEditor
+                    value={formData.background || ""}
+                    onChange={(value) => setFormData({ ...formData, background: value })}
+                    rows={6}
+                    label="Background"
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Personality</div>
+                  <MarkdownEditor
+                    value={formData.personality || ""}
+                    onChange={(value) => setFormData({ ...formData, personality: value })}
+                    rows={6}
+                    label="Personality"
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>GM Notes</div>
+                  <MarkdownEditor
+                    value={formData.gm_notes || ""}
+                    onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
+                    rows={6}
+                    label="GM Notes"
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Image URL</div>
+                  <input
+                    type="text"
+                    value={formData.image || ""}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    style={fieldStyle}
+                    placeholder="/images/npcs/example.png"
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: 24, marginBottom: 20 }}>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.hidden || false}
+                      onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })}
+                    />
+                    <span>Hidden from players</span>
+                  </label>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.nameHidden || false}
+                      onChange={(e) => setFormData({ ...formData, nameHidden: e.target.checked })}
+                    />
+                    <span>Name hidden</span>
+                  </label>
+                </div>
+
+                <hr className="grim-rule" />
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
+                    ✕ Cancel
+                  </button>
+                  <button type="submit" className="grim-btn is-ember">
+                    ✓ {isCreating ? "Inscribe Soul" : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+          ) : selectedNpc ? (
+            /* ── Detail view ── */
+            <div className="grim-tome">
+              <div className="grim-tome-head">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>
+                    {selectedNpc.name || String(selectedNpc.aka || "")}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                    <span className={statusChipClass(selectedNpc.status)}>{selectedNpc.status || "unknown"}</span>
+                    {selectedNpc.race && <span className="grim-chip">{selectedNpc.race}</span>}
+                    {selectedNpc.hidden && <span className="grim-chip is-blood">Hidden</span>}
+                    {selectedNpc.nameHidden && <span className="grim-chip is-ember">Name Hidden</span>}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button onClick={() => handleEdit(selectedNpc)} className="grim-btn">✎ Edit</button>
+                  <button onClick={() => { setIsMerging(true); setMergeWithId(""); }} className="grim-btn is-arcane" style={{ background: "linear-gradient(180deg, oklch(0.35 0.12 285), oklch(0.25 0.08 290))", borderColor: "var(--grim-arcane)", color: "oklch(0.95 0.02 80)" }}>Merge</button>
+                  <button onClick={() => handleDelete(selectedNpc)} className="grim-btn is-blood">✕ Delete</button>
+                </div>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Basic Info</h3>
-                      <div className="mt-2 space-y-2">
-                        <p><span className="font-medium">Name:</span> {selectedNpc.name}</p>
-                        {selectedNpc.aka && <p><span className="font-medium">AKA:</span> {selectedNpc.aka}</p>}
-                        {selectedNpc.pronunciation && <p><span className="font-medium">Pronunciation:</span> {selectedNpc.pronunciation}</p>}
-                        <p><span className="font-medium">Race:</span> {selectedNpc.race}</p>
-                        <p><span className="font-medium">Gender:</span> {selectedNpc.gender}</p>
-                        <p><span className="font-medium">Location:</span> {selectedNpc.location}</p>
-                        <p><span className="font-medium">Status:</span> <span className={`capitalize ${selectedNpc.status === 'alive' ? 'text-green-600' : selectedNpc.status === 'dead' ? 'text-red-600' : 'text-yellow-600'}`}>{selectedNpc.status}</span></p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                {/* Left column: attributes */}
+                <div>
+                  <h3 className="grim-h-section" style={{ marginBottom: 10 }}>Basic Info</h3>
+                  <div className="grim-stack" style={{ gap: 8 }}>
+                    {selectedNpc.name && (
+                      <div>
+                        <span className="grim-label">Name </span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink)" }}>{selectedNpc.name}</span>
+                      </div>
+                    )}
+                    {selectedNpc.aka && (
+                      <div>
+                        <span className="grim-label">AKA </span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-2)" }}>{String(selectedNpc.aka)}</span>
+                      </div>
+                    )}
+                    {selectedNpc.pronunciation && (
+                      <div>
+                        <span className="grim-label">Pronunciation </span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--grim-ink-3)" }}>{selectedNpc.pronunciation}</span>
+                      </div>
+                    )}
+                    {selectedNpc.gender && (
+                      <div>
+                        <span className="grim-label">Gender </span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-2)" }}>{selectedNpc.gender}</span>
+                      </div>
+                    )}
+                    {selectedNpc.location && (
+                      <div>
+                        <span className="grim-label">Location </span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-2)" }}>{selectedNpc.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedNpc.factions && selectedNpc.factions.length > 0 && (
+                    <div style={{ marginTop: 18 }}>
+                      <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Factions</h3>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {selectedNpc.factions.map((faction, index) => (
+                          <span key={index} className="grim-chip is-faction">{getFactionName(faction)}</span>
+                        ))}
                       </div>
                     </div>
-                    
-                    {selectedNpc.factions && selectedNpc.factions.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Factions</h3>
-                        <div className="mt-2">
-                          {selectedNpc.factions.map((faction, index) => (
-                            <span key={index} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2 mb-1">
-                              {getFactionName(faction)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div>
-                    {selectedNpc.image && (
-                      <div className="mb-4">
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Image</h3>
-                        <Image 
-                          src={selectedNpc.image} 
-                          alt={selectedNpc.name || 'NPC'}
-                          width={128}
-                          height={128}
-                          className="w-32 h-32 object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-                
-                {selectedNpc.description && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
-                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.description || '', true) }} />
-                  </div>
-                )}
-                
-                {selectedNpc.background && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Background</h3>
-                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.background || '', true) }} />
-                  </div>
-                )}
-                
-                {selectedNpc.personality && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Personality</h3>
-                    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.personality || '', true) }} />
-                  </div>
-                )}
 
-                <div className="mt-6 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                  {selectedNpc.hidden && <span className="bg-red-100 text-red-800 px-2 py-1 rounded">Hidden from Players</span>}
-                  {selectedNpc.nameHidden && <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Name Hidden</span>}
+                {/* Right column: image */}
+                <div>
+                  {selectedNpc.image ? (
+                    <div>
+                      <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Portrait</h3>
+                      <Image
+                        src={selectedNpc.image}
+                        alt={selectedNpc.name || 'NPC'}
+                        width={128}
+                        height={128}
+                        style={{ width: 128, height: 128, objectFit: "cover", border: "1px solid var(--grim-line-2)" }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ width: 128, height: 128, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--grim-line)", background: "var(--grim-bg-3)", fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-4)" }}>
+                      ☥
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {selectedNpc.description && (
+                <div style={{ marginTop: 22 }}>
+                  <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Description</h3>
+                  <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.description || '', true) }} />
+                </div>
+              )}
+
+              {selectedNpc.background && (
+                <div style={{ marginTop: 22 }}>
+                  <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Background</h3>
+                  <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.background || '', true) }} />
+                </div>
+              )}
+
+              {selectedNpc.personality && (
+                <div style={{ marginTop: 22 }}>
+                  <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Personality</h3>
+                  <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.personality || '', true) }} />
+                </div>
+              )}
             </div>
+
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <EyeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No NPC selected
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select an NPC from the list to view details, or create a new one.
-              </p>
+            /* ── Empty state ── */
+            <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-ink-3)", marginBottom: 12 }}>☥</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No soul selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: 14 }}>Select a soul from the register to view, or inscribe a new one.</div>
             </div>
           )}
-          {/* Merge UI Modal */}
+
+          {/* ── Merge Modal ── */}
           {isMerging && selectedNpc && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl m-4 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Merge NPCs</h3>
-              <button onClick={() => setIsMerging(false)} className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700">Close</button>
-            </div>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">Merge &quot;{selectedNpc.name}&quot; with:</label>
-              <select
-                value={mergeWithId}
-                onChange={(e) => setMergeWithId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
-              >
-                <option value="">Select NPC…</option>
-                {npcs.filter(n => n.id !== selectedNpc.id).map(n => (
-                  <option key={n.id} value={n.id}>{n.name || n.id}</option>
-                ))}
-              </select>
-            </div>
-            {mergeCandidate && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="border rounded p-3">
-                  <h4 className="font-semibold mb-2">Keep</h4>
-                  <dl className="space-y-1 text-sm">
-                    <dt className="font-medium">Name</dt><dd>{selectedNpc.name}</dd>
-                    <dt className="font-medium">AKA</dt><dd>{String(selectedNpc.aka || "")}</dd>
-                    <dt className="font-medium">Pronunciation</dt><dd>{selectedNpc.pronunciation}</dd>
-                    <dt className="font-medium">Race</dt><dd>{selectedNpc.race}</dd>
-                    <dt className="font-medium">Gender</dt><dd>{selectedNpc.gender}</dd>
-                    <dt className="font-medium">Location</dt><dd>{selectedNpc.location}</dd>
-                    <dt className="font-medium">Status</dt><dd>{selectedNpc.status}</dd>
-                    <dt className="font-medium">Description</dt><dd>{selectedNpc.description}</dd>
-                    <dt className="font-medium">Factions</dt><dd>{(selectedNpc.factions||[]).map(getFactionName).join(', ')}</dd>
-                  </dl>
+            <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "oklch(0 0 0 / 0.65)" }}>
+              <div className="grim-tome" style={{ width: "100%", maxWidth: 900, margin: 16, maxHeight: "90vh", overflowY: "auto" }}>
+                <div className="grim-tome-head">
+                  <div className="grim-tome-title">Merge Souls</div>
+                  <button onClick={() => setIsMerging(false)} className="grim-btn is-ghost">✕ Close</button>
                 </div>
-                <div className="border rounded p-3">
-                  <h4 className="font-semibold mb-2">Choose Per Field</h4>
-                  <div className="space-y-2 text-sm">
-                    {[
-                      ['name','Name'],
-                      ['aka','AKA'],
-                      ['pronunciation','Pronunciation'],
-                      ['race','Race'],
-                      ['gender','Gender'],
-                      ['location','Location'],
-                      ['status','Status'],
-                      ['description','Description'],
-                      ['background','Background'],
-                      ['personality','Personality'],
-                      ['image','Image URL'],
-                    ].map(([key, label]) => (
-                      <div key={key as string} className="flex items-center justify-between gap-2">
-                        <span className="w-36 text-gray-600 dark:text-gray-300">{label as string}</span>
-                        <div className="flex items-center gap-3">
-                          <label className="inline-flex items-center gap-1">
-                            <input
-                              type="radio"
-                              name={`merge-${key}`}
-                              checked={(mergeChoice[key as string] || 'left') === 'left'}
-                              onChange={() => setMergeChoice(prev => ({...prev, [key as string]: 'left'}))}
-                            />
-                            <span>Keep</span>
-                          </label>
-                          <label className="inline-flex items-center gap-1">
-                            <input
-                              type="radio"
-                              name={`merge-${key}`}
-                              checked={(mergeChoice[key as string] || 'left') === 'right'}
-                              onChange={() => setMergeChoice(prev => ({...prev, [key as string]: 'right'}))}
-                            />
-                            <span>Use Other</span>
-                          </label>
-                        </div>
-                      </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Merge &ldquo;{selectedNpc.name}&rdquo; with:</div>
+                  <select
+                    value={mergeWithId}
+                    onChange={(e) => setMergeWithId(e.target.value)}
+                    style={fieldStyle}
+                  >
+                    <option value="">Select NPC…</option>
+                    {npcs.filter(n => n.id !== selectedNpc.id).map(n => (
+                      <option key={n.id} value={n.id}>{n.name || n.id}</option>
                     ))}
-                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" checked={mergeIncludeRightFactions} onChange={(e) => setMergeIncludeRightFactions(e.target.checked)} />
-                        <span>Include factions from other</span>
-                      </label>
+                  </select>
+                </div>
+
+                {mergeCandidate && (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                    {/* Keep (left) */}
+                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Keep</div>
+                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
+                        <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.name}</dd>
+                        <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(selectedNpc.aka || "")}</dd>
+                        <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.pronunciation}</dd>
+                        <dt className="grim-label">Race</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.race}</dd>
+                        <dt className="grim-label">Gender</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.gender}</dd>
+                        <dt className="grim-label">Location</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.location}</dd>
+                        <dt className="grim-label">Status</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.status}</dd>
+                        <dt className="grim-label">Description</dt><dd style={{ margin: 0, color: "var(--grim-ink)", whiteSpace: "pre-wrap", overflow: "hidden", maxHeight: 60 }}>{selectedNpc.description}</dd>
+                        <dt className="grim-label">Factions</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{(selectedNpc.factions||[]).map(getFactionName).join(', ')}</dd>
+                      </dl>
                     </div>
-                    <div>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" checked={mergeIncludeRightNotes} onChange={(e) => setMergeIncludeRightNotes(e.target.checked)} />
-                        <span>Include notes from other</span>
-                      </label>
+
+                    {/* Per-field chooser */}
+                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-ember)", padding: 14 }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Choose Per Field</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+                        {[
+                          ['name','Name'],
+                          ['aka','AKA'],
+                          ['pronunciation','Pronunciation'],
+                          ['race','Race'],
+                          ['gender','Gender'],
+                          ['location','Location'],
+                          ['status','Status'],
+                          ['description','Description'],
+                          ['background','Background'],
+                          ['personality','Personality'],
+                          ['image','Image URL'],
+                        ].map(([key, label]) => (
+                          <div key={key as string} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                            <span style={{ color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", minWidth: 80 }}>{label as string}</span>
+                            <div style={{ display: "flex", gap: 10 }}>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                                <input
+                                  type="radio"
+                                  name={`merge-${key}`}
+                                  checked={(mergeChoice[key as string] || 'left') === 'left'}
+                                  onChange={() => setMergeChoice(prev => ({...prev, [key as string]: 'left'}))}
+                                />
+                                <span>Keep</span>
+                              </label>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                                <input
+                                  type="radio"
+                                  name={`merge-${key}`}
+                                  checked={(mergeChoice[key as string] || 'left') === 'right'}
+                                  onChange={() => setMergeChoice(prev => ({...prev, [key as string]: 'right'}))}
+                                />
+                                <span>Other</span>
+                              </label>
+                            </div>
+                          </div>
+                        ))}
+                        <hr className="grim-rule" style={{ margin: "4px 0" }} />
+                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                          <input type="checkbox" checked={mergeIncludeRightFactions} onChange={(e) => setMergeIncludeRightFactions(e.target.checked)} />
+                          <span>Include factions from other</span>
+                        </label>
+                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                          <input type="checkbox" checked={mergeIncludeRightNotes} onChange={(e) => setMergeIncludeRightNotes(e.target.checked)} />
+                          <span>Include notes from other</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Merge from (right) */}
+                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Merge From</div>
+                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
+                        <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.name}</dd>
+                        <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(mergeCandidate.aka || "")}</dd>
+                        <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.pronunciation}</dd>
+                        <dt className="grim-label">Race</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.race}</dd>
+                        <dt className="grim-label">Gender</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.gender}</dd>
+                        <dt className="grim-label">Location</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.location}</dd>
+                        <dt className="grim-label">Status</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.status}</dd>
+                        <dt className="grim-label">Description</dt><dd style={{ margin: 0, color: "var(--grim-ink)", whiteSpace: "pre-wrap", overflow: "hidden", maxHeight: 60 }}>{mergeCandidate.description}</dd>
+                        <dt className="grim-label">Factions</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{(mergeCandidate.factions||[]).map(getFactionName).join(', ')}</dd>
+                      </dl>
                     </div>
                   </div>
-                </div>
-                <div className="border rounded p-3">
-                  <h4 className="font-semibold mb-2">Merge From</h4>
-                  <dl className="space-y-1 text-sm">
-                    <dt className="font-medium">Name</dt><dd>{mergeCandidate.name}</dd>
-                    <dt className="font-medium">AKA</dt><dd>{String(mergeCandidate.aka || "")}</dd>
-                    <dt className="font-medium">Pronunciation</dt><dd>{mergeCandidate.pronunciation}</dd>
-                    <dt className="font-medium">Race</dt><dd>{mergeCandidate.race}</dd>
-                    <dt className="font-medium">Gender</dt><dd>{mergeCandidate.gender}</dd>
-                    <dt className="font-medium">Location</dt><dd>{mergeCandidate.location}</dd>
-                    <dt className="font-medium">Status</dt><dd>{mergeCandidate.status}</dd>
-                    <dt className="font-medium">Description</dt><dd>{mergeCandidate.description}</dd>
-                    <dt className="font-medium">Factions</dt><dd>{(mergeCandidate.factions||[]).map(getFactionName).join(', ')}</dd>
-                  </dl>
+                )}
+
+                {previewMerged && (
+                  <div style={{ marginTop: 14, padding: "12px 16px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-gold-2)" }}>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Preview</div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)", display: "flex", flexDirection: "column", gap: 3 }}>
+                      <div><span style={{ color: "var(--grim-ink-4)" }}>Name: </span>{previewMerged.name}</div>
+                      {previewMerged.aka && <div><span style={{ color: "var(--grim-ink-4)" }}>AKA: </span>{String(previewMerged.aka)}</div>}
+                      <div><span style={{ color: "var(--grim-ink-4)" }}>Race: </span>{previewMerged.race} · <span style={{ color: "var(--grim-ink-4)" }}>Gender: </span>{previewMerged.gender}</div>
+                      <div><span style={{ color: "var(--grim-ink-4)" }}>Location: </span>{previewMerged.location} · <span style={{ color: "var(--grim-ink-4)" }}>Status: </span>{previewMerged.status}</div>
+                      {previewMerged.description && <div style={{ overflow: "hidden", maxHeight: 40, color: "var(--grim-ink-3)" }}>{previewMerged.description}</div>}
+                      <div><span style={{ color: "var(--grim-ink-4)" }}>Factions: </span>{(previewMerged.factions||[]).map(getFactionName).join(', ')}</div>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16, gap: 10 }}>
+                  <button onClick={() => setIsMerging(false)} className="grim-btn is-ghost">Cancel</button>
+                  <button
+                    disabled={!mergeCandidate}
+                    onClick={performMerge}
+                    className="grim-btn is-ember"
+                    style={{ opacity: !mergeCandidate ? 0.45 : 1 }}
+                  >
+                    ✓ Confirm Merge (keep left, absorb right)
+                  </button>
                 </div>
               </div>
-            )}
-            {previewMerged && (
-              <div className="mt-4 p-3 rounded border border-gray-200 dark:border-gray-700 text-sm">
-                <div className="font-semibold mb-1">Preview</div>
-                <div>Name: {previewMerged.name}</div>
-                {previewMerged.aka && <div>AKA: {String(previewMerged.aka)}</div>}
-                <div>Race: {previewMerged.race} • Gender: {previewMerged.gender}</div>
-                <div>Location: {previewMerged.location} • Status: {previewMerged.status}</div>
-                {previewMerged.description && <div className="line-clamp-2">Desc: {previewMerged.description}</div>}
-                <div>Factions: {(previewMerged.factions||[]).map(getFactionName).join(', ')}</div>
-              </div>
-            )}
-            <div className="flex justify-end mt-4 gap-2">
-              <button
-                disabled={!mergeCandidate}
-                onClick={performMerge}
-                className="px-4 py-2 rounded bg-purple-600 text-white disabled:opacity-50"
-              >
-                Confirm Merge (keep left, absorb right)
-              </button>
             </div>
-          </div>
-        </div>
-      )}
+          )}
         </div>
       </div>
     </div>

@@ -42,6 +42,12 @@ export default function QuestsPage() {
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
 
+  // Quest creation state
+  const [isCreating, setIsCreating] = useState(false);
+  const [newQuestName, setNewQuestName] = useState("");
+  const [newQuestStatus, setNewQuestStatus] = useState("active");
+  const [createError, setCreateError] = useState("");
+
   useEffect(() => {
     const loadQuests = async () => {
       try {
@@ -76,6 +82,39 @@ export default function QuestsPage() {
     if (filterId === "all") return questsData.length;
     if (filterId === "completed") return questsData.filter(q => q.status === "completed" || q.status === "complete").length;
     return questsData.filter(q => q.status === filterId).length;
+  };
+
+  const handleCreateQuest = async () => {
+    if (!newQuestName.trim()) {
+      setCreateError("An errand must have a name.");
+      return;
+    }
+    setCreateError("");
+    try {
+      const payload = { id: `quest-${Date.now()}`, name: newQuestName.trim(), status: newQuestStatus, notes: [] };
+      const response = await authFetch('/api/data/quests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed to create quest');
+      const result = await response.json();
+      const created: Quest = result.data ?? payload;
+      setQuestsData([created, ...questsData]);
+      setIsCreating(false);
+      setNewQuestName("");
+      setNewQuestStatus("active");
+    } catch (error) {
+      console.error('Error creating quest:', error);
+      setCreateError('Failed to create errand. Please try again.');
+    }
+  };
+
+  const handleCancelCreate = () => {
+    setIsCreating(false);
+    setNewQuestName("");
+    setNewQuestStatus("active");
+    setCreateError("");
   };
 
   const handleAddNote = async (questId: string) => {
@@ -178,6 +217,9 @@ export default function QuestsPage() {
           <h1 className="grim-page-title">The Ledger of Errands</h1>
           <p className="grim-page-sub">Every thread the party has taken up — those in motion and those laid to rest.</p>
         </div>
+        {userId && (
+          <button className="grim-btn is-ember" onClick={() => setIsCreating(true)}>+ New Errand</button>
+        )}
       </div>
 
       {/* Search + filter bar */}
@@ -220,6 +262,46 @@ export default function QuestsPage() {
 
       {/* Quest cards */}
       <div className="grim-stack" style={{ gap: 18 }}>
+
+        {/* Inline creation form */}
+        {isCreating && (
+          <section className="grim-tome" style={{ padding: "22px 26px" }}>
+            <div className="grim-label" style={{ marginBottom: 14 }}>New Errand</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Name</div>
+                <input
+                  autoFocus
+                  value={newQuestName}
+                  onChange={(e) => { setNewQuestName(e.target.value); setCreateError(""); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleCreateQuest(); if (e.key === "Escape") handleCancelCreate(); }}
+                  placeholder="Enter errand name…"
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "9px 14px", outline: "none" }}
+                />
+              </div>
+              <div>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Status</div>
+                <select
+                  value={newQuestStatus}
+                  onChange={(e) => setNewQuestStatus(e.target.value)}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "9px 14px", outline: "none" }}
+                >
+                  <option value="active">Active</option>
+                  <option value="rumored">Rumored</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              {createError && (
+                <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
+              )}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4 }}>
+                <button className="grim-btn is-ghost" onClick={handleCancelCreate}>Cancel</button>
+                <button className="grim-btn is-ember" onClick={handleCreateQuest} disabled={!newQuestName.trim()}>Save</button>
+              </div>
+            </div>
+          </section>
+        )}
+
         {filteredQuests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no errands found ~</div>

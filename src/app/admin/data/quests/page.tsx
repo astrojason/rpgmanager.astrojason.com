@@ -10,14 +10,6 @@ import AuthorDisplay from '@/components/AuthorDisplay';
 import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  EyeIcon,
-  XMarkIcon,
-  CheckIcon
-} from "@heroicons/react/24/outline";
 
 export default function QuestsManagementPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -34,7 +26,7 @@ export default function QuestsManagementPage() {
   // Authentication state
   useEffect(() => {
     if (!auth) return;
-    
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
@@ -65,7 +57,7 @@ export default function QuestsManagementPage() {
     const normalizedNotes = normalizeQuestNotes(quest);
     const notesText = normalizedNotes
       .map(note => note.content).join(" ");
-    
+
     return quest.name?.toLowerCase().includes(searchLower) ||
       notesText.toLowerCase().includes(searchLower) ||
       quest.status?.toLowerCase().includes(searchLower);
@@ -150,7 +142,7 @@ export default function QuestsManagementPage() {
       }
 
       const questData = formData as Quest;
-      
+
       if (isCreating) {
         // Create new quest
         const response = await authFetch('/api/data/quests', {
@@ -190,10 +182,10 @@ export default function QuestsManagementPage() {
         setSelectedQuest(result.data);
         setSuccess("Quest updated successfully!");
       }
-      
+
       setIsCreating(false);
       setIsEditing(false);
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Quest");
@@ -202,9 +194,9 @@ export default function QuestsManagementPage() {
 
   const handleDelete = async (quest: Quest) => {
     if (!confirm(`Are you sure you want to delete "${quest.name}"?`)) return;
-    
+
     try {
-      const response = await fetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
+      const response = await authFetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
         method: 'DELETE',
       });
 
@@ -229,197 +221,225 @@ export default function QuestsManagementPage() {
     setError("");
   };
 
-  const getStatusBadge = (status: string) => {
-    const colors = {
-      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      failed: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-      onhold: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+  const getStatusChipClass = (status: string) => {
+    const map: Record<string, string> = {
+      active:    "grim-chip is-ember",
+      completed: "grim-chip",
+      failed:    "grim-chip is-dead",
+      onhold:    "grim-chip is-arcane",
     };
-    return colors[status as keyof typeof colors] || colors.active;
+    return map[status] ?? "grim-chip";
+  };
+
+  const getStatusRail = (status: string) => {
+    const map: Record<string, string> = {
+      active:    "var(--grim-ember)",
+      completed: "var(--grim-line-2)",
+      failed:    "oklch(0.52 0.180 22)",
+      onhold:    "var(--grim-arcane)",
+    };
+    return map[status] ?? "var(--grim-line-2)";
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Quests...</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
+        <span className="grim-flame" style={{ fontSize: 32 }}>✦</span>
+        <span style={{ marginLeft: 14, fontFamily: "var(--font-body)", fontSize: 16, color: "var(--grim-ink-3)" }}>
+          Consulting the ledger…
+        </span>
       </div>
     );
   }
 
+  const inputStyle: React.CSSProperties = {
+    background: "var(--grim-bg-3)",
+    border: "1px solid var(--grim-line-2)",
+    color: "var(--grim-ink)",
+    fontFamily: "var(--font-body)",
+    fontSize: 15,
+    padding: "10px 14px",
+    outline: "none",
+    width: "100%",
+  };
+
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Page header */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Quests Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage campaign quests, objectives, and storylines
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen · Errands</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Ledger of Errands</h1>
+          <p className="grim-page-sub">Manage the campaign&apos;s threads — active, rumored, and closed.</p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Create Quest
-        </button>
+        <button className="grim-btn is-ember" onClick={handleCreate}>+ New Errand</button>
       </header>
 
-      {/* Status Messages */}
+      {/* Status banners */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div style={{
+          background: "oklch(0.25 0.12 22 / 0.4)",
+          border: "1px solid var(--grim-blood-2)",
+          color: "oklch(0.85 0.08 30)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {error}
         </div>
       )}
 
       {success && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-          <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+        <div style={{
+          background: "oklch(0.25 0.10 145 / 0.4)",
+          border: "1px solid oklch(0.55 0.090 145)",
+          color: "var(--grim-moss)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {success}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quests List */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Quests ({filteredQuests.length})
-              </h2>
-              <input
-                type="text"
-                placeholder="Search Quests..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-            <div className="p-4 max-h-96 overflow-y-auto">
-              <div className="space-y-2">
-                {filteredQuests.map((quest) => (
-                  <div
-                    key={quest.id}
-                    data-quest-id={quest.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedQuest?.id === quest.id
-                        ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
-                        : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                    onClick={() => handleView(quest)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {quest.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1 max-h-16 overflow-hidden">
-                          {(() => {
-                            // Handle quest notes array - each note on its own line with markdown
-                            if (quest.notes && quest.notes.length > 0) {
-                              // Show first few notes, truncate if needed
-                              const normalizedNotes = normalizeQuestNotes(quest);
-                              const displayNotes = normalizedNotes.slice(0, 3);
-                              return (
-                                <>
-                                  {displayNotes.map((note, noteIndex) => (
-                                    <div key={noteIndex} className="flex items-start">
-                                      <span className="text-gray-400 mr-1 mt-0.5 flex-shrink-0">•</span>
-                                      <div className="prose dark:prose-invert prose-xs max-w-none overflow-hidden">
-                                        <ReactMarkdown
-                                          components={{
-                                            p: ({ children }) => <span>{children}</span>,
-                                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                                            em: ({ children }) => <em className="italic">{children}</em>,
-                                            code: ({ children }) => <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs">{children}</code>,
-                                          }}
-                                        >
-                                          {note.content.length > 100 ? note.content.substring(0, 100) + "..." : note.content}
-                                        </ReactMarkdown>
-                                      </div>
-                                    </div>
-                                  ))}
-                                  {normalizedNotes.length > 3 && (
-                                    <div className="text-xs italic pl-4">
-                                      +{quest.notes.length - 3} more notes...
-                                    </div>
-                                  )}
-                                </>
-                              );
-                            }
-                            return <div>No notes</div>;
-                          })()}
-                        </div>
-                        <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(quest.status || 'active')}`}>
-                          {quest.status || 'active'}
-                        </span>
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+
+        {/* List panel */}
+        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+          {/* Search */}
+          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+            <input
+              type="text"
+              placeholder="Search errands…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+
+          {/* Count */}
+          <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--grim-line)" }}>
+            <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+              {filteredQuests.length} errand{filteredQuests.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {/* Quest list */}
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+            {filteredQuests.map((quest) => {
+              const isSelected = selectedQuest?.id === quest.id;
+              return (
+                <div
+                  key={quest.id}
+                  data-quest-id={quest.id}
+                  onClick={() => handleView(quest)}
+                  style={{
+                    borderBottom: "1px solid var(--grim-line)",
+                    borderLeft: isSelected ? "2px solid var(--grim-ember)" : "2px solid transparent",
+                    background: isSelected
+                      ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
+                      : "transparent",
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontFamily: "var(--font-head)",
+                        fontSize: 14,
+                        color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        marginBottom: 4,
+                      }}>
+                        {quest.name}
                       </div>
-                      <div className="flex items-center space-x-1 ml-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(quest);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(quest);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                      <span className={getStatusChipClass(quest.status || "active")} style={{ fontSize: 10, padding: "1px 7px" }}>
+                        {quest.status || "active"}
+                      </span>
+                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 4 }}>
+                        {normalizeQuestNotes(quest).length} note{normalizeQuestNotes(quest).length !== 1 ? "s" : ""}
                       </div>
                     </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEdit(quest); }}
+                        className="grim-btn is-ghost"
+                        style={{ padding: "3px 8px", fontSize: 11 }}
+                        title="Edit"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(quest); }}
+                        className="grim-btn is-blood"
+                        style={{ padding: "3px 8px", fontSize: 11 }}
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
-                ))}
+                </div>
+              );
+            })}
+
+            {filteredQuests.length === 0 && (
+              <div style={{ padding: "32px 16px", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-4)", marginBottom: 8 }}>✦</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
+                  No errands found
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Detail/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* Detail / edit panel */}
+        <div>
           {(isCreating || isEditing) ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {isCreating ? "Create New Quest" : "Edit Quest"}
-                </h2>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Form header */}
+              <div className="grim-tome-head" style={{ padding: "16px 24px" }}>
+                <div className="grim-tome-title">
+                  {isCreating ? "New Errand" : "Edit Errand"}
+                </div>
               </div>
-              <div className="p-6">
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+
+              <div style={{ padding: "24px 28px" }}>
+                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+
+                  {/* Name */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>
                       Name *
                     </label>
                     <input
                       type="text"
                       value={formData.name || ""}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                       required
                     />
                   </div>
 
-                  <div>
+                  {/* Notes */}
+                  <div style={{ marginBottom: 20 }}>
                     <UserNotesEditor
-                      notes={formData.notes ? 
-                        (typeof formData.notes[0] === 'string' ? 
+                      notes={formData.notes ?
+                        (typeof formData.notes[0] === 'string' ?
                           (formData.notes as string[]).map((content, index) => ({
                             id: `legacy-${index}`,
                             content,
                             timestamp: '',
                             author: 'Unknown'
-                          })) : 
+                          })) :
                           formData.notes as UserNote[]
                         ) : []
                       }
@@ -428,14 +448,15 @@ export default function QuestsManagementPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {/* Status */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>
                       Status
                     </label>
                     <select
                       value={formData.status || "active"}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                     >
                       <option value="active">Active</option>
                       <option value="completed">Completed</option>
@@ -444,8 +465,9 @@ export default function QuestsManagementPage() {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                  {/* GM Notes */}
+                  <div style={{ marginBottom: 28 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -454,102 +476,131 @@ export default function QuestsManagementPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      <XMarkIcon className="w-4 h-4 mr-2" />
+                  {/* Actions */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                    <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <CheckIcon className="w-4 h-4 mr-2" />
-                      {isCreating ? "Create Quest" : "Update Quest"}
+                    <button type="submit" className="grim-btn is-ember">
+                      {isCreating ? "Create Errand" : "Save Changes"}
                     </button>
                   </div>
+
                 </form>
               </div>
             </div>
           ) : selectedQuest ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {selectedQuest.name}
-                    </h2>
-                    <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(selectedQuest.status || 'active')}`}>
-                      {selectedQuest.status || 'active'}
-                    </span>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Quest header with colored rail */}
+              <div style={{ display: "flex", overflow: "hidden" }}>
+                <div style={{
+                  width: 6,
+                  flexShrink: 0,
+                  background: getStatusRail(selectedQuest.status || "active"),
+                  boxShadow: selectedQuest.status !== "completed"
+                    ? `0 0 12px ${getStatusRail(selectedQuest.status || "active")}`
+                    : "none",
+                }} />
+                <div style={{ flex: 1, padding: "22px 26px" }}>
+                  {/* Title row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 16 }}>
+                    <div>
+                      <h2 style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: 32,
+                        color: "var(--grim-gold)",
+                        margin: 0,
+                        lineHeight: 1.1,
+                        textDecoration: selectedQuest.status === "completed" ? "line-through" : "none",
+                        opacity: selectedQuest.status === "completed" ? 0.7 : 1,
+                      }}>
+                        {selectedQuest.name}
+                      </h2>
+                      <div style={{ marginTop: 8 }}>
+                        <span className={getStatusChipClass(selectedQuest.status || "active")}>
+                          {selectedQuest.status || "active"}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedQuest)}>
+                        ✎ Edit
+                      </button>
+                      <button className="grim-btn is-blood" onClick={() => handleDelete(selectedQuest)}>
+                        ✕ Delete
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(selectedQuest)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedQuest)}
-                      className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
-                    >
-                      <TrashIcon className="w-4 h-4 mr-2" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
+
+                  {/* Notes */}
                   {selectedQuest.notes && selectedQuest.notes.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Notes</h3>
-                      <div className="space-y-4">
+                      <div className="grim-label" style={{ marginBottom: 10 }}>Marginalia</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         {normalizeQuestNotes(selectedQuest).map((note: UserNote, index: number) => (
-                          <div key={note.id} className="border border-gray-200 dark:border-gray-600 rounded-lg">
-                            <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                  Note #{index + 1}
+                          <div
+                            key={note.id}
+                            style={{
+                              padding: "10px 14px",
+                              background: "oklch(0.14 0.025 290 / 0.7)",
+                              border: "1px solid var(--grim-line)",
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 6 }}>
+                              <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
+                                Note #{index + 1}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 14, color: "var(--grim-ink)", lineHeight: 1.55, fontFamily: "var(--font-body)" }}>
+                              <ReactMarkdown>{note.content}</ReactMarkdown>
+                            </div>
+                            {!isLegacyNote(note) && (
+                              <div style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginTop: 8,
+                                paddingTop: 8,
+                                borderTop: "1px solid var(--grim-line)",
+                              }}>
+                                <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                                  {formatNoteTimestamp(note)}
                                 </span>
+                                <AuthorDisplay uid={note.author} />
                               </div>
-                            </div>
-                            <div className="p-3">
-                              <div className="prose dark:prose-invert max-w-none prose-sm mb-2">
-                                <ReactMarkdown>{note.content}</ReactMarkdown>
-                              </div>
-                              {!isLegacyNote(note) && (
-                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                  <span>{formatNoteTimestamp(note)}</span>
-                                  <AuthorDisplay uid={note.author} />
-                                </div>
-                              )}
-                            </div>
+                            )}
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {(!selectedQuest.notes || selectedQuest.notes.length === 0) && (
+                    <div style={{ paddingTop: 8 }}>
+                      <p className="grim-flavor" style={{ color: "var(--grim-ink-4)", fontSize: 15 }}>
+                        No notes have been inscribed for this errand.
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <EyeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No quest selected
+            /* Empty state */
+            <div className="grim-tome" style={{ padding: "60px 40px", textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>
+                ✦
+              </div>
+              <h3 style={{ fontFamily: "var(--font-head)", fontSize: 20, color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>
+                No errand selected
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select a quest from the list to view details, or create a new one.
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+                Choose an errand from the ledger to view its threads, or inscribe a new one.
               </p>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

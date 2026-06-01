@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  XMarkIcon,
-  CheckIcon,
-  CalendarIcon
-} from "@heroicons/react/24/outline";
 import { CalendarData, CalendarEvent } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+
+const inputStyle: React.CSSProperties = {
+  background: "var(--grim-bg-3)",
+  border: "1px solid var(--grim-line-2)",
+  color: "var(--grim-ink)",
+  fontFamily: "var(--font-body)",
+  fontSize: 15,
+  padding: "9px 14px",
+  outline: "none",
+  width: "100%",
+};
 
 export default function CalendarManagementPage() {
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
@@ -43,7 +46,7 @@ export default function CalendarManagementPage() {
   };
 
   const events = calendarData?.events || [];
-  const filteredEvents = events.filter(event => 
+  const filteredEvents = events.filter(event =>
     event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.category?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,7 +88,7 @@ export default function CalendarManagementPage() {
       }
 
       const eventData = formData as CalendarEvent;
-      
+
       let updatedEvents;
       if (isCreating) {
         updatedEvents = [...events, eventData];
@@ -101,11 +104,11 @@ export default function CalendarManagementPage() {
         events: updatedEvents
       };
       setCalendarData(updatedCalendarData);
-      
+
       setIsCreating(false);
       setIsEditing(false);
       setSelectedEvent(eventData);
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save calendar event");
@@ -114,7 +117,7 @@ export default function CalendarManagementPage() {
 
   const handleDelete = async (event: CalendarEvent) => {
     if (!confirm(`Are you sure you want to delete "${event.name}"?`)) return;
-    
+
     try {
       const updatedEvents = events.filter(e => e.id !== event.id);
       const updatedCalendarData = {
@@ -139,286 +142,279 @@ export default function CalendarManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading calendar...</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 0" }}>
+        <span className="grim-flame" />
+        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: 14 }}>Loading Calendar...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Masthead */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Calendar Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage world calendar and events
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen &middot; Calendar</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>Calendar</h1>
+          <p className="grim-page-sub">Tend the world calendar — sessions, festivals, and the turning of days.</p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          Add Event
+        <button className="grim-btn is-ember" onClick={handleCreate} style={{ flexShrink: 0 }}>
+          + Add Event
         </button>
       </header>
 
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded">
-          {success}
-        </div>
-      )}
+      {/* Status Messages */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+        <div style={{
+          background: "oklch(0.25 0.12 22 / 0.4)",
+          border: "1px solid var(--grim-blood-2)",
+          color: "oklch(0.85 0.08 30)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Events List */}
-        <div className="lg:col-span-1 space-y-4">
+      {success && (
+        <div style={{
+          background: "oklch(0.25 0.10 145 / 0.4)",
+          border: "1px solid oklch(0.55 0.090 145)",
+          color: "var(--grim-moss)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {success}
+        </div>
+      )}
+
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+
+        {/* List panel */}
+        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+          {/* Search bar */}
           <div>
             <input
               type="text"
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              style={{
+                background: "var(--grim-bg-3)",
+                border: "1px solid var(--grim-line-2)",
+                color: "var(--grim-ink)",
+                fontFamily: "var(--font-body)",
+                fontSize: 15,
+                padding: "10px 14px",
+                outline: "none",
+                width: "100%",
+              }}
             />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow max-h-96 overflow-y-auto">
+          {/* List items */}
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
             {filteredEvents.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <div style={{ padding: "32px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
                 No calendar events found
               </div>
             ) : (
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredEvents.map((event) => (
-                  <div key={event.id} className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 cursor-pointer" onClick={() => handleView(event)}>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                          {event.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {event.date.day}/{event.date.month}/{event.date.year}
-                        </p>
-                        {event.category && (
-                          <span className="inline-block px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                            {event.category}
-                          </span>
-                        )}
+              filteredEvents.map((event) => (
+                <div
+                  key={event.id}
+                  onClick={() => handleView(event)}
+                  style={{
+                    borderBottom: "1px solid var(--grim-line)",
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    borderLeft: selectedEvent?.id === event.id
+                      ? "2px solid var(--grim-ember)"
+                      : "2px solid transparent",
+                    background: selectedEvent?.id === event.id
+                      ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
+                      : "transparent",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {event.name}
                       </div>
-                      <div className="flex space-x-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(event);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(event);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 3 }}>
+                        {event.date.day}/{event.date.month}/{event.date.year}
                       </div>
+                      {event.category && (
+                        <span className="grim-chip is-ember" style={{ marginTop: 4, display: "inline-block" }}>
+                          {event.category}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEdit(event); }}
+                        className="grim-btn is-ghost"
+                        style={{ padding: "2px 8px", fontSize: 11 }}
+                        title="Edit"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(event); }}
+                        className="grim-btn is-blood"
+                        style={{ padding: "2px 8px", fontSize: 11 }}
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))
             )}
           </div>
         </div>
 
-        {/* Details/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* Detail / Edit panel */}
+        <div>
           {isCreating || isEditing ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {isCreating ? "Create Event" : "Edit Event"}
-                </h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                  >
-                    <CheckIcon className="w-4 h-4 mr-1" />
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center px-3 py-1.5 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm"
-                  >
-                    <XMarkIcon className="w-4 h-4 mr-1" />
-                    Cancel
-                  </button>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)" }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
+                  {isCreating ? "Add New Event" : "Edit Event"}
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Event Name *
-                  </label>
+              <div style={{ padding: "24px 24px" }}>
+                <div style={{ marginBottom: 16 }}>
+                  <label className="grim-label">Event Name *</label>
                   <input
                     type="text"
                     value={formData.name || ""}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    style={inputStyle}
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Description *
-                  </label>
+                <div style={{ marginBottom: 16 }}>
+                  <label className="grim-label">Description *</label>
                   <textarea
                     value={formData.description || ""}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    style={{ ...inputStyle, resize: "vertical" }}
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Day
-                    </label>
+                    <label className="grim-label">Day</label>
                     <input
                       type="number"
                       min="1"
                       value={formData.date?.day?.toString() || "1"}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
+                      onChange={(e) => setFormData({
+                        ...formData,
                         date: { ...formData.date, day: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Month
-                    </label>
+                    <label className="grim-label">Month</label>
                     <input
                       type="number"
                       min="1"
                       value={formData.date?.month?.toString() || "1"}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
+                      onChange={(e) => setFormData({
+                        ...formData,
                         date: { ...formData.date, month: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Year
-                    </label>
+                    <label className="grim-label">Year</label>
                     <input
                       type="number"
                       value={formData.date?.year?.toString() || "1"}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
+                      onChange={(e) => setFormData({
+                        ...formData,
                         date: { ...formData.date, year: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Category
-                  </label>
+                <div style={{ marginBottom: 24 }}>
+                  <label className="grim-label">Category</label>
                   <input
                     type="text"
                     value={formData.category || ""}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    style={inputStyle}
                   />
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
+                    Cancel
+                  </button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember">
+                    {isCreating ? "Add Event" : "Save Changes"}
+                  </button>
                 </div>
               </div>
             </div>
           ) : selectedEvent ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Event Details
-                </h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(selectedEvent)}
-                    className="flex items-center px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    <PencilIcon className="w-4 h-4 mr-1" />
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                    {selectedEvent.name}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    <span className="grim-chip">
+                      {selectedEvent.date.day}/{selectedEvent.date.month}/{selectedEvent.date.year}
+                    </span>
+                    {selectedEvent.category && (
+                      <span className="grim-chip is-ember">{selectedEvent.category}</span>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button onClick={() => handleEdit(selectedEvent)} className="grim-btn is-ghost">
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleDelete(selectedEvent)}
-                    className="flex items-center px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
-                  >
-                    <TrashIcon className="w-4 h-4 mr-1" />
+                  <button onClick={() => handleDelete(selectedEvent)} className="grim-btn is-blood">
                     Delete
                   </button>
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Event Name</h3>
-                  <p className="text-gray-900 dark:text-gray-100">{selectedEvent.name}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Date</h3>
-                  <p className="text-gray-900 dark:text-gray-100">
-                    {selectedEvent.date.day}/{selectedEvent.date.month}/{selectedEvent.date.year}
-                  </p>
-                </div>
-
-                {selectedEvent.category && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Category</h3>
-                    <span className="inline-block px-2 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                      {selectedEvent.category}
-                    </span>
-                  </div>
-                )}
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
-                  <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                    {selectedEvent.description}
-                  </p>
-                </div>
+              <div style={{ padding: "24px 24px" }}>
+                <p className="grim-flavor" style={{ whiteSpace: "pre-wrap" }}>
+                  {selectedEvent.description}
+                </p>
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No event selected
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select an event from the list to view details, or create a new one.
-              </p>
+            <div className="grim-tome" style={{ padding: "64px 32px", textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+                Nothing selected
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
+                Choose an event from the calendar, or add a new one.
+              </div>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

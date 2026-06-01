@@ -1,16 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  XMarkIcon,
-  CheckIcon,
-  DocumentTextIcon
-} from "@heroicons/react/24/outline";
 import { SessionRecap } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import MarkdownEditor from "@/components/MarkdownEditor";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
 
 export default function RecapsManagementPage() {
   const [recaps, setRecaps] = useState<SessionRecap[]>([]);
@@ -42,7 +36,7 @@ export default function RecapsManagementPage() {
     }
   };
 
-  const filteredRecaps = recaps.filter(recap => 
+  const filteredRecaps = recaps.filter(recap =>
     recap.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     recap.recap?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     recap.date?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -91,7 +85,7 @@ export default function RecapsManagementPage() {
       let savedRecap: SessionRecap | null = null;
 
       if (isCreating) {
-        const response = await fetch("/api/data/session-recaps", {
+        const response = await authFetch("/api/data/session-recaps", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -112,7 +106,7 @@ export default function RecapsManagementPage() {
           setError("Unable to update recap: missing identifier.");
           return;
         }
-        const response = await fetch("/api/data/session-recaps", {
+        const response = await authFetch("/api/data/session-recaps", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -161,7 +155,7 @@ export default function RecapsManagementPage() {
 
     try {
       const targetId = recap.id ?? recap.date;
-      const response = await fetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
+      const response = await authFetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete session recap");
@@ -193,233 +187,185 @@ export default function RecapsManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading session recaps...</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <span className="grim-flame" />
+          Consulting the chronicle…
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Session Recaps Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage campaign session summaries and recaps
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen · Chronicle</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>Session Recaps</h1>
+          <p className="grim-page-sub">Chronicle the sessions — each night of peril, set down in ink.</p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="w-5 h-5 mr-2" />
-          Add Recap
-        </button>
+        <button className="grim-btn is-ember" onClick={handleCreate}>+ Inscribe Recap</button>
       </header>
 
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded">
-          {success}
-        </div>
-      )}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+        <div style={{ background: "oklch(0.25 0.12 22 / 0.4)", border: "1px solid var(--grim-blood-2)", color: "oklch(0.85 0.08 30)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {error}
         </div>
       )}
+      {success && (
+        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
+          {success}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24 }}>
+
         {/* Recaps List */}
-        <div className="lg:col-span-1 space-y-4">
-          <div>
+        <div>
+          <div style={{ marginBottom: 12 }}>
             <input
               type="text"
-              placeholder="Search recaps..."
+              placeholder="Search recaps…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "10px 14px", outline: "none" }}
             />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow max-h-96 overflow-y-auto">
+          <div className="grim-tome" style={{ padding: 0, maxHeight: 520, overflowY: "auto" }}>
             {filteredRecaps.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 14 }}>
                 No session recaps found
               </div>
             ) : (
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredRecaps.map((recap) => (
-                  <div key={recap.id ?? recap.date} className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 cursor-pointer" onClick={() => handleView(recap)}>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
+              filteredRecaps.map((recap) => {
+                const isSelected = selectedRecap?.id === recap.id || (!selectedRecap?.id && selectedRecap?.date === recap.date);
+                return (
+                  <div
+                    key={recap.id ?? recap.date}
+                    style={{
+                      padding: "12px 16px",
+                      cursor: "pointer",
+                      background: isSelected ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent",
+                      borderLeft: "2px solid " + (isSelected ? "var(--grim-ember)" : "transparent"),
+                      borderBottom: "1px solid var(--grim-line)",
+                    }}
+                    onClick={() => handleView(recap)}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)" }}>
                           {recap.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatDate(recap.date)}
-                        </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-2">
-                          {recap.recap.substring(0, 100)}...
-                        </p>
+                        </div>
+                        <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 3 }}>
+                          {recap.date}
+                        </div>
                       </div>
-                      <div className="flex space-x-1">
+                      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(recap);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                          onClick={(e) => { e.stopPropagation(); handleEdit(recap); }}
+                          className="grim-link"
+                          style={{ fontSize: 11, letterSpacing: ".06em" }}
                         >
-                          <PencilIcon className="w-4 h-4" />
+                          Edit
                         </button>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(recap);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(recap); }}
+                          className="grim-link"
+                          style={{ fontSize: 11, letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
                         >
-                          <TrashIcon className="w-4 h-4" />
+                          Del
                         </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Details/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* Detail / Edit Panel */}
+        <div>
           {isCreating || isEditing ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {isCreating ? "Create Session Recap" : "Edit Session Recap"}
-                </h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
-                  >
-                    <CheckIcon className="w-4 h-4 mr-1" />
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center px-3 py-1.5 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm"
-                  >
-                    <XMarkIcon className="w-4 h-4 mr-1" />
-                    Cancel
-                  </button>
+            <div className="grim-tome" style={{ padding: "24px 28px" }}>
+              <div className="grim-tome-head" style={{ marginBottom: 20 }}>
+                <div className="grim-tome-title">
+                  {isCreating ? "Inscribe New Recap" : "Edit Recap"}
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Session Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.date || ""}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
+              <div style={{ marginBottom: 16 }}>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Session Date *</div>
+                <input
+                  type="date"
+                  value={formData.date || ""}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "9px 14px", outline: "none" }}
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Session Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title || ""}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Enter session title..."
-                  />
-                </div>
+              <div style={{ marginBottom: 16 }}>
+                <div className="grim-label" style={{ marginBottom: 6 }}>Session Title *</div>
+                <input
+                  type="text"
+                  value={formData.title || ""}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Enter session title…"
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "9px 14px", outline: "none" }}
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Session Recap *
-                  </label>
-                  <textarea
-                    value={formData.recap || ""}
-                    onChange={(e) => setFormData({ ...formData, recap: e.target.value })}
-                    rows={12}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Enter session recap content..."
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    You can use [[Entity Name]] for linked references
-                  </p>
-                </div>
+              <div style={{ marginBottom: 16 }}>
+                <MarkdownEditor
+                  value={formData.recap || ""}
+                  onChange={(val) => setFormData({ ...formData, recap: val })}
+                  rows={14}
+                  label="Session Recap"
+                  placeholder="Enter session recap content…"
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
+                <button className="grim-btn is-ghost" onClick={handleCancel}>Cancel</button>
+                <button className="grim-btn is-ember" onClick={handleSave}>Save Recap</button>
               </div>
             </div>
           ) : selectedRecap ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Session Recap Details
-                </h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(selectedRecap)}
-                    className="flex items-center px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    <PencilIcon className="w-4 h-4 mr-1" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(selectedRecap)}
-                    className="flex items-center px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
-                  >
-                    <TrashIcon className="w-4 h-4 mr-1" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Session Date</h3>
-                  <p className="text-gray-900 dark:text-gray-100">{formatDate(selectedRecap.date)}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Session Title</h3>
-                  <p className="text-gray-900 dark:text-gray-100 font-medium">{selectedRecap.title}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Session Recap</h3>
-                  <div className="prose dark:prose-invert max-w-none">
-                    <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">
-                      {selectedRecap.recap}
-                    </p>
+            <div className="grim-tome" style={{ padding: "24px 28px" }}>
+              <div className="grim-tome-head" style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                  <div>
+                    <div className="grim-tome-title">{selectedRecap.title}</div>
+                    <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", marginTop: 4, letterSpacing: ".12em" }}>
+                      {formatDate(selectedRecap.date)}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 4 }}>
+                    <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedRecap)}>Edit</button>
+                    <button className="grim-btn is-blood" onClick={() => handleDelete(selectedRecap)}>Delete</button>
                   </div>
                 </div>
               </div>
+
+              <hr className="grim-rule" style={{ marginBottom: 20 }} />
+
+              <div
+                className="prose-grim"
+                style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.75 }}
+                dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedRecap.recap, true) }}
+              />
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <DocumentTextIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No recap selected
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select a session recap from the list to view details, or create a new one.
-              </p>
+            <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-ink-3)", marginBottom: 12 }}>✎</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No recap selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: 14 }}>Select a recap from the list to view, or inscribe a new one.</div>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

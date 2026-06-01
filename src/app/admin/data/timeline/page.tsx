@@ -1,14 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  EyeIcon,
-  XMarkIcon,
-  CheckIcon
-} from "@heroicons/react/24/outline";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
@@ -21,6 +13,17 @@ interface TimelineEvent {
   category?: string;
   gm_notes?: string;
 }
+
+const inputStyle: React.CSSProperties = {
+  background: "var(--grim-bg-3)",
+  border: "1px solid var(--grim-line-2)",
+  color: "var(--grim-ink)",
+  fontFamily: "var(--font-body)",
+  fontSize: 15,
+  padding: "9px 14px",
+  outline: "none",
+  width: "100%",
+};
 
 export default function TimelineManagementPage() {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
@@ -51,7 +54,7 @@ export default function TimelineManagementPage() {
     }
   };
 
-  const filteredEvents = events.filter(event => 
+  const filteredEvents = events.filter(event =>
     event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.date?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -137,7 +140,7 @@ export default function TimelineManagementPage() {
       }
 
       const eventData = formData as TimelineEvent;
-      
+
       let updatedEvents;
       if (isCreating) {
         updatedEvents = [...events, eventData];
@@ -151,7 +154,7 @@ export default function TimelineManagementPage() {
       setIsCreating(false);
       setIsEditing(false);
       setSelectedEvent(eventData);
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Event");
@@ -160,7 +163,7 @@ export default function TimelineManagementPage() {
 
   const handleDelete = async (event: TimelineEvent) => {
     if (!confirm(`Are you sure you want to delete "${event.title}"?`)) return;
-    
+
     try {
       const updatedEvents = events.filter(e => e.id !== event.id);
       setEvents(updatedEvents);
@@ -181,170 +184,182 @@ export default function TimelineManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Timeline...</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 0" }}>
+        <span className="grim-flame" />
+        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: 14 }}>Loading Timeline...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Masthead */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Timeline Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage campaign timeline events and history
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen &middot; Events</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Timeline</h1>
+          <p className="grim-page-sub">Chronicle the turning of history — events, ages, and turning points.</p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Create Event
+        <button className="grim-btn is-ember" onClick={handleCreate} style={{ flexShrink: 0 }}>
+          + Mark Event
         </button>
       </header>
 
       {/* Status Messages */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div style={{
+          background: "oklch(0.25 0.12 22 / 0.4)",
+          border: "1px solid var(--grim-blood-2)",
+          color: "oklch(0.85 0.08 30)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {error}
         </div>
       )}
 
       {success && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-          <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+        <div style={{
+          background: "oklch(0.25 0.10 145 / 0.4)",
+          border: "1px solid oklch(0.55 0.090 145)",
+          color: "var(--grim-moss)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {success}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Events List */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Events ({filteredEvents.length})
-              </h2>
-              <input
-                type="text"
-                placeholder="Search Events..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-            <div className="p-4 max-h-96 overflow-y-auto">
-              <div className="space-y-2">
-                {filteredEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    data-event-id={event.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedEvent?.id === event.id
-                        ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
-                        : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                    onClick={() => handleView(event)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {event.title}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {event.date}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {event.description}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1 ml-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(event);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(event);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
-                      </div>
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+
+        {/* List panel */}
+        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+          {/* Search bar */}
+          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+            <input
+              type="text"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                background: "var(--grim-bg-3)",
+                border: "none",
+                borderBottom: "1px solid var(--grim-line-2)",
+                color: "var(--grim-ink)",
+                fontFamily: "var(--font-body)",
+                fontSize: 15,
+                padding: "10px 14px",
+                outline: "none",
+                width: "100%",
+              }}
+            />
+          </div>
+
+          {/* List items */}
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+            {filteredEvents.map((event) => (
+              <div
+                key={event.id}
+                data-event-id={event.id}
+                onClick={() => handleView(event)}
+                style={{
+                  borderBottom: "1px solid var(--grim-line)",
+                  padding: "12px 16px",
+                  cursor: "pointer",
+                  borderLeft: selectedEvent?.id === event.id
+                    ? "2px solid var(--grim-ember)"
+                    : "2px solid transparent",
+                  background: selectedEvent?.id === event.id
+                    ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
+                    : "transparent",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {event.title}
+                    </div>
+                    <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 3 }}>
+                      {event.date}
                     </div>
                   </div>
-                ))}
+                  <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleEdit(event); }}
+                      className="grim-btn is-ghost"
+                      style={{ padding: "2px 8px", fontSize: 11 }}
+                      title="Edit"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(event); }}
+                      className="grim-btn is-blood"
+                      style={{ padding: "2px 8px", fontSize: 11 }}
+                      title="Delete"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Detail/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* Detail / Edit panel */}
+        <div>
           {(isCreating || isEditing) ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {isCreating ? "Create New Event" : "Edit Event"}
-                </h2>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)" }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
+                  {isCreating ? "Mark New Event" : "Edit Event"}
+                </div>
               </div>
-              <div className="p-6">
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Title *
-                    </label>
+              <div style={{ padding: "24px 24px" }}>
+                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label">Title *</label>
                     <input
                       type="text"
                       value={formData.title || ""}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={inputStyle}
                       required
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Date *
-                    </label>
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label">Date *</label>
                     <input
                       type="text"
                       value={formData.date || ""}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                       placeholder="e.g., 15th of Reaping, 1482 AC"
+                      style={inputStyle}
                       required
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Category
-                    </label>
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label">Category</label>
                     <input
                       type="text"
                       value={formData.category || ""}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                       placeholder="e.g., Campaign, Historical, Personal"
+                      style={inputStyle}
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description *</label>
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label">Description *</label>
                     <MarkdownEditor
                       value={formData.description || ""}
                       onChange={(value) => setFormData({ ...formData, description: value })}
@@ -353,8 +368,8 @@ export default function TimelineManagementPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                  <div style={{ marginBottom: 24 }}>
+                    <label className="grim-label">GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -363,84 +378,60 @@ export default function TimelineManagementPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      <XMarkIcon className="w-4 h-4 mr-2" />
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                    <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
                       Cancel
                     </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <CheckIcon className="w-4 h-4 mr-2" />
-                      {isCreating ? "Create Event" : "Update Event"}
+                    <button type="submit" className="grim-btn is-ember">
+                      {isCreating ? "Mark Event" : "Save Changes"}
                     </button>
                   </div>
                 </form>
               </div>
             </div>
           ) : selectedEvent ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {selectedEvent.title}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {selectedEvent.date}
-                    </p>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                    {selectedEvent.title}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(selectedEvent)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedEvent)}
-                      className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
-                    >
-                      <TrashIcon className="w-4 h-4 mr-2" />
-                      Delete
-                    </button>
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    <span className="grim-chip">{selectedEvent.date}</span>
+                    {selectedEvent.category && (
+                      <span className="grim-chip is-ember">{selectedEvent.category}</span>
+                    )}
                   </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button onClick={() => handleEdit(selectedEvent)} className="grim-btn is-ghost">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(selectedEvent)} className="grim-btn is-blood">
+                    Delete
+                  </button>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {selectedEvent.category && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Category</h3>
-                      <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedEvent.category}</p>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
-                    <div className="mt-1 prose dark:prose-invert max-w-none prose-sm" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedEvent.description || '', true) }} />
-                  </div>
-                </div>
+              <div style={{ padding: "24px 24px" }}>
+                <div
+                  className="grim-flavor"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedEvent.description || '', true) }}
+                />
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <EyeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No event selected
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select an event from the list to view details, or create a new one.
-              </p>
+            <div className="grim-tome" style={{ padding: "64px 32px", textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>☾</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+                Nothing selected
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
+                Choose an event from the chronicle, or mark a new one.
+              </div>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );

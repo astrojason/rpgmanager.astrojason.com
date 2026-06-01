@@ -3,14 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Image from "next/image";
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon,
-  EyeIcon,
-  XMarkIcon,
-  CheckIcon
-} from "@heroicons/react/24/outline";
 import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { authFetch } from "@/utils/authFetch";
@@ -44,7 +36,7 @@ export default function LocationsManagementPage() {
     }
   };
 
-  const filteredLocations = locations.filter(location => 
+  const filteredLocations = locations.filter(location =>
     location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.teaser?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.detail?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -129,7 +121,7 @@ export default function LocationsManagementPage() {
       }
 
       const locationData = formData as Location;
-      
+
       let updatedLocations;
       if (isCreating) {
         updatedLocations = [...locations, locationData];
@@ -143,7 +135,7 @@ export default function LocationsManagementPage() {
       setIsCreating(false);
       setIsEditing(false);
       setSelectedLocation(locationData);
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Location");
@@ -152,7 +144,7 @@ export default function LocationsManagementPage() {
 
   const handleDelete = async (location: Location) => {
     if (!confirm(`Are you sure you want to delete ${location.name}?`)) return;
-    
+
     try {
       const updatedLocations = locations.filter(l => l.id !== location.id);
       setLocations(updatedLocations);
@@ -171,171 +163,215 @@ export default function LocationsManagementPage() {
     setError("");
   };
 
+  const fieldStyle: React.CSSProperties = {
+    background: "var(--grim-bg-3)",
+    border: "1px solid var(--grim-line-2)",
+    color: "var(--grim-ink)",
+    fontFamily: "var(--font-body)",
+    fontSize: 15,
+    padding: "9px 14px",
+    outline: "none",
+    width: "100%",
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading Locations...</span>
+      <div style={{ padding: "36px 48px 80px" }}>
+        <div className="grim-flame" style={{ textAlign: "center", padding: "80px 0" }}>
+          Loading Locations…
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div style={{ padding: "36px 48px 80px" }}>
+
+      {/* Page header */}
+      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Locations Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage towns, cities, landmarks, and points of interest
-          </p>
+          <div className="grim-page-eyebrow">Behind the Screen · Places</div>
+          <h1 className="grim-page-title" style={{ fontSize: 58 }}>Locations</h1>
+          <p className="grim-page-sub">Towns, cities, and landmarks — the places that shape the journey.</p>
         </div>
-        <button
-          onClick={handleCreate}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-        >
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Create Location
-        </button>
+        <button className="grim-btn is-ember" onClick={handleCreate}>+ Chart Location</button>
       </header>
 
       {/* Status Messages */}
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div style={{
+          background: "oklch(0.25 0.12 22 / 0.4)",
+          border: "1px solid var(--grim-blood-2)",
+          color: "oklch(0.85 0.08 30)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {error}
         </div>
       )}
 
       {success && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-          <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+        <div style={{
+          background: "oklch(0.25 0.10 145 / 0.4)",
+          border: "1px solid oklch(0.55 0.090 145)",
+          color: "var(--grim-moss)",
+          padding: "12px 16px",
+          marginBottom: 16,
+          fontFamily: "var(--font-body)",
+          fontSize: 14,
+        }}>
+          {success}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Locations List */}
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Locations ({filteredLocations.length})
-              </h2>
-              <input
-                type="text"
-                placeholder="Search Locations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-            <div className="p-4 max-h-96 overflow-y-auto">
-              <div className="space-y-2">
-                {filteredLocations.map((location) => (
-                  <div
-                    key={location.id}
-                    data-location-id={location.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedLocation?.id === location.id
-                        ? "bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700"
-                        : "bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                    onClick={() => handleView(location)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="min-w-0">
-                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {location.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {location.teaser}
-                        </div>
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+
+        {/* List panel */}
+        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+          {/* Search */}
+          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+            <input
+              type="text"
+              placeholder="Search locations…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                background: "var(--grim-bg-3)",
+                border: "none",
+                borderBottom: "1px solid var(--grim-line-2)",
+                color: "var(--grim-ink)",
+                fontFamily: "var(--font-body)",
+                fontSize: 15,
+                padding: "10px 14px",
+                outline: "none",
+                width: "100%",
+              }}
+            />
+          </div>
+
+          {/* Location list */}
+          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+            {filteredLocations.length === 0 && (
+              <div style={{ padding: "24px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 13 }}>
+                No locations found.
+              </div>
+            )}
+            {filteredLocations.map((location) => {
+              const selected = selectedLocation?.id === location.id;
+              return (
+                <div
+                  key={location.id}
+                  data-location-id={location.id}
+                  onClick={() => handleView(location)}
+                  style={{
+                    borderBottom: "1px solid var(--grim-line)",
+                    borderLeft: selected ? "2px solid var(--grim-ember)" : "2px solid transparent",
+                    background: selected
+                      ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
+                      : "transparent",
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{
+                        fontFamily: "var(--font-head)",
+                        fontSize: 14,
+                        color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {location.name}
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(location);
-                          }}
-                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
-                          title="Edit"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(location);
-                          }}
-                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
-                          title="Delete"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                        {location.teaser}
                       </div>
                     </div>
+                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                      <a
+                        className="grim-link"
+                        style={{ fontSize: 12, cursor: "pointer" }}
+                        onClick={(e) => { e.stopPropagation(); handleEdit(location); }}
+                        title="Edit"
+                      >
+                        Edit
+                      </a>
+                      <span style={{ color: "var(--grim-ink-4)" }}>·</span>
+                      <a
+                        style={{ fontSize: 12, cursor: "pointer", color: "var(--grim-blood-2)", fontFamily: "var(--font-body)", textDecoration: "none" }}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(location); }}
+                        title="Delete"
+                      >
+                        Del
+                      </a>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Detail/Edit Panel */}
-        <div className="lg:col-span-2">
+        {/* Detail / Edit panel */}
+        <div>
           {(isCreating || isEditing) ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {isCreating ? "Create New Location" : "Edit Location"}
-                </h2>
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Form header */}
+              <div className="grim-tome-head">
+                <div className="grim-tome-title">
+                  {isCreating ? "Chart New Location" : "Edit Location"}
+                </div>
               </div>
-              <div className="p-6">
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+
+              <form style={{ padding: "24px 28px" }} onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+                  {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Name *
-                    </label>
+                    <label className="grim-label">Name *</label>
                     <input
                       type="text"
                       value={formData.name || ""}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={fieldStyle}
                       required
                     />
                   </div>
 
+                  {/* Pronunciation */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Pronunciation
-                    </label>
+                    <label className="grim-label">Pronunciation</label>
                     <input
                       type="text"
                       value={formData.pronunciation || ""}
                       onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={fieldStyle}
                       placeholder="e.g., az-OR-ee-ahn"
                     />
                   </div>
 
+                  {/* Teaser */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Teaser *
-                    </label>
+                    <label className="grim-label">Teaser *</label>
                     <input
                       type="text"
                       value={formData.teaser || ""}
                       onChange={(e) => setFormData({ ...formData, teaser: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={fieldStyle}
                       placeholder="Brief description"
                       required
                     />
                   </div>
 
+                  {/* Detail */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Detailed Description *
-                    </label>
+                    <label className="grim-label">Detailed Description *</label>
                     <MarkdownEditor
                       value={formData.detail || ""}
                       onChange={(value) => setFormData({ ...formData, detail: value })}
@@ -344,8 +380,9 @@ export default function LocationsManagementPage() {
                     />
                   </div>
 
+                  {/* GM Notes */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GM Notes</label>
+                    <label className="grim-label">GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -354,23 +391,24 @@ export default function LocationsManagementPage() {
                     />
                   </div>
 
+                  {/* Map Image URL */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Map Image URL
-                    </label>
+                    <label className="grim-label">Map Image URL</label>
                     <input
                       type="text"
                       value={formData.mapImg || ""}
                       onChange={(e) => setFormData({ ...formData, mapImg: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      style={fieldStyle}
                       placeholder="https://example.com/map.jpg"
                     />
                   </div>
 
                   {/* Interactive Map Editor */}
                   {formData.mapImg && (
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
-                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Map Hover Area Editor</h3>
+                    <div style={{ border: "1px solid var(--grim-line-2)", padding: 16 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
+                        Map Hover Area Editor
+                      </div>
                       <MapAreaEditor
                         imageUrl={formData.mapImg}
                         x={typeof formData.x === 'number' ? formData.x : 0}
@@ -382,11 +420,10 @@ export default function LocationsManagementPage() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Map position grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        X Position (%)
-                      </label>
+                      <label className="grim-label">X Position (%)</label>
                       <input
                         type="number"
                         min="0"
@@ -394,13 +431,11 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.x || ""}
                         onChange={(e) => setFormData({ ...formData, x: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        style={fieldStyle}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Y Position (%)
-                      </label>
+                      <label className="grim-label">Y Position (%)</label>
                       <input
                         type="number"
                         min="0"
@@ -408,13 +443,11 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.y || ""}
                         onChange={(e) => setFormData({ ...formData, y: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        style={fieldStyle}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Width (%)
-                      </label>
+                      <label className="grim-label">Width (%)</label>
                       <input
                         type="number"
                         min="0"
@@ -422,13 +455,11 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.width || ""}
                         onChange={(e) => setFormData({ ...formData, width: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        style={fieldStyle}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Height (%)
-                      </label>
+                      <label className="grim-label">Height (%)</label>
                       <input
                         type="number"
                         min="0"
@@ -436,120 +467,140 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.height || ""}
                         onChange={(e) => setFormData({ ...formData, height: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        style={fieldStyle}
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      <XMarkIcon className="w-4 h-4 mr-2" />
+                  {/* Action buttons */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8 }}>
+                    <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <CheckIcon className="w-4 h-4 mr-2" />
-                      {isCreating ? "Create Location" : "Update Location"}
+                    {isEditing && (
+                      <button
+                        type="button"
+                        className="grim-btn is-blood"
+                        onClick={() => { handleCancel(); if (selectedLocation) handleDelete(selectedLocation); }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                    <button type="submit" className="grim-btn is-ember">
+                      {isCreating ? "Chart Location" : "Save Changes"}
                     </button>
                   </div>
-                </form>
-              </div>
+
+                </div>
+              </form>
             </div>
           ) : selectedLocation ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+              {/* Detail header */}
+              <div style={{ padding: "24px 28px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                <div>
+                  <div style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: 36,
+                    color: "var(--grim-gold)",
+                    lineHeight: 1.1,
+                    marginBottom: 4,
+                  }}>
                     {selectedLocation.name}
-                  </h2>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(selectedLocation)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedLocation)}
-                      className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
-                    >
-                      <TrashIcon className="w-4 h-4 mr-2" />
-                      Delete
-                    </button>
                   </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
                   {selectedLocation.pronunciation && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Pronunciation</h3>
-                      <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedLocation.pronunciation}</p>
+                    <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                      {selectedLocation.pronunciation}
                     </div>
                   )}
-                  
+                </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 4 }}>
+                  <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedLocation)}>
+                    Edit
+                  </button>
+                  <button className="grim-btn is-blood" onClick={() => handleDelete(selectedLocation)}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              {/* Detail body */}
+              <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 22 }}>
+
+                {/* Teaser */}
+                {selectedLocation.teaser && (
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
                     <div
-                      className="mt-1 prose dark:prose-invert max-w-none prose-sm break-words"
+                      className="grim-flavor"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.teaser || '', true) }}
                     />
                   </div>
-                  
+                )}
+
+                {/* Detail */}
+                {selectedLocation.detail && (
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Details</h3>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Details</div>
                     <div
-                      className="mt-1 prose dark:prose-invert max-w-none prose-sm break-words"
+                      className="grim-flavor"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.detail || '', true) }}
                     />
                   </div>
+                )}
 
-                  {(selectedLocation.x !== undefined || selectedLocation.y !== undefined) && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Map Position</h3>
-                      <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div><span className="font-medium">X:</span> {selectedLocation.x?.toFixed(1)}%</div>
-                        <div><span className="font-medium">Y:</span> {selectedLocation.y?.toFixed(1)}%</div>
-                        <div><span className="font-medium">Width:</span> {selectedLocation.width?.toFixed(1)}%</div>
-                        <div><span className="font-medium">Height:</span> {selectedLocation.height?.toFixed(1)}%</div>
-                      </div>
+                {/* Map position */}
+                {(selectedLocation.x !== undefined || selectedLocation.y !== undefined) && (
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 6 }}>Map Position</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                      {[
+                        { label: "X", value: selectedLocation.x },
+                        { label: "Y", value: selectedLocation.y },
+                        { label: "Width", value: selectedLocation.width },
+                        { label: "Height", value: selectedLocation.height },
+                      ].map(({ label, value }) => (
+                        <div key={label} style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", padding: "8px 12px" }}>
+                          <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                            {value?.toFixed(1) ?? "—"}%
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {selectedLocation.mapImg && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Map Image</h3>
-                      <Image 
-                        src={selectedLocation.mapImg} 
-                        alt={selectedLocation.name}
-                        width={400}
-                        height={300}
-                        className="max-w-md h-auto rounded-lg"
-                      />
-                    </div>
-                  )}
-                </div>
+                {/* Map image */}
+                {selectedLocation.mapImg && (
+                  <div>
+                    <div className="grim-label" style={{ marginBottom: 8 }}>Map Image</div>
+                    <Image
+                      src={selectedLocation.mapImg}
+                      alt={selectedLocation.name}
+                      width={400}
+                      height={300}
+                      style={{ maxWidth: "100%", height: "auto", border: "1px solid var(--grim-line-2)" }}
+                    />
+                  </div>
+                )}
+
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <EyeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            /* Empty state */
+            <div className="grim-tome" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 40px", textAlign: "center", minHeight: 320 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 No location selected
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Select a location from the list to view details, or create a new one.
-              </p>
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)", maxWidth: 280 }}>
+                Select a location from the list to view its details, or chart a new one.
+              </div>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
@@ -610,7 +661,7 @@ function MapAreaEditor({
 
   return (
     <div
-      className="relative w-full max-w-xl select-none"
+      style={{ position: "relative", width: "100%", maxWidth: 560, userSelect: "none" }}
       ref={containerRef}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -618,23 +669,40 @@ function MapAreaEditor({
     >
       {/* Map image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imageUrl} alt="Map" className="w-full h-auto rounded" />
+      <img src={imageUrl} alt="Map" style={{ width: "100%", height: "auto", display: "block", border: "1px solid var(--grim-line-2)" }} />
 
       {/* Hover area rect */}
       <div
-        className="absolute border-2 border-blue-500/80 bg-blue-500/10 cursor-move"
-        style={{ left: `${x}%`, top: `${y}%`, width: `${width}%`, height: `${height}%` }}
+        style={{
+          position: "absolute",
+          left: `${x}%`,
+          top: `${y}%`,
+          width: `${width}%`,
+          height: `${height}%`,
+          border: "2px solid var(--grim-ember)",
+          background: "oklch(0.72 0.165 48 / 0.12)",
+          cursor: "move",
+        }}
         onMouseDown={(e) => onMouseDown(e, 'move')}
       >
         {/* Resize handle */}
         <div
-          className="absolute right-0 bottom-0 translate-x-1/2 translate-y-1/2 w-4 h-4 bg-blue-600 rounded-sm cursor-se-resize"
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0,
+            transform: "translate(50%, 50%)",
+            width: 14,
+            height: 14,
+            background: "var(--grim-ember)",
+            cursor: "se-resize",
+          }}
           onMouseDown={(e) => onMouseDown(e, 'resize')}
         />
       </div>
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-        Drag the blue rectangle to reposition. Drag the corner to resize.
+      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 8, letterSpacing: ".08em" }}>
+        Drag the rectangle to reposition. Drag the corner handle to resize.
       </div>
     </div>
   );
