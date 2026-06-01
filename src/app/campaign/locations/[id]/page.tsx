@@ -6,8 +6,9 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { Location } from "@/types/interfaces";
+import { Location, SessionRecap } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import Link from "next/link";
 
 export default function LocationDetailPage() {
   const params = useParams();
@@ -15,6 +16,7 @@ export default function LocationDetailPage() {
   const router = useRouter();
 
   const [location, setLocation] = useState<Location | null>(null);
+  const [appearances, setAppearances] = useState<SessionRecap[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [dmMode, setDmMode] = useState(false);
@@ -27,9 +29,13 @@ export default function LocationDetailPage() {
   useEffect(() => {
     const loadLocation = async () => {
       try {
-        const response = await authFetch("/api/data/locations");
-        if (!response.ok) throw new Error("Failed to load locations");
-        const data: Location[] = await response.json();
+        const [locResponse, recapsResponse] = await Promise.all([
+          authFetch("/api/data/locations"),
+          authFetch("/api/data/session-recaps"),
+        ]);
+        if (!locResponse.ok) throw new Error("Failed to load locations");
+        const data: Location[] = await locResponse.json();
+        const recaps: SessionRecap[] = recapsResponse.ok ? await recapsResponse.json() : [];
 
         let found: Location | undefined;
 
@@ -49,6 +55,11 @@ export default function LocationDetailPage() {
         } else {
           setLocation(found);
         }
+
+        const tagged = recaps
+          .filter(r => (r.tagged_locations ?? []).includes(id))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setAppearances(tagged);
       } catch {
         setNotFound(true);
       } finally {
@@ -218,8 +229,31 @@ export default function LocationDetailPage() {
           )}
         </div>
 
-        {/* RIGHT — DM marginalia */}
+        {/* RIGHT — appearances + DM marginalia */}
         <div className="grim-stack" style={{ gap: 22 }}>
+          {appearances.length > 0 && (
+            <section className="grim-tome">
+              <div className="grim-tome-head">
+                <h3 className="grim-tome-title">Session Appearances</h3>
+                <span className="grim-tome-sub">{appearances.length} recap{appearances.length !== 1 ? "s" : ""}</span>
+              </div>
+              <div className="grim-stack" style={{ gap: 8 }}>
+                {appearances.map((r) => (
+                  <Link
+                    key={r.id ?? r.date}
+                    href={`/campaign/recaps?recap=${r.id ?? r.date}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                  >
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                      <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
+                      <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
           {(isDM || isAdmin) && (
             dmMode ? (
               location.gm_notes ? (

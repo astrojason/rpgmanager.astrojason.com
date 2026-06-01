@@ -20,7 +20,7 @@ export function getRecentlyTaggedNpcs(
       if (seen.has(id)) continue;
       seen.add(id);
       const npc = npcMap.get(id);
-      if (npc && !npc.hidden) {
+      if (npc) {
         result.push(npc);
         if (result.length >= limit) return result;
       }

@@ -319,9 +319,9 @@ export default function CampaignHome() {
           <div className="grim-stack" style={{ gap: 10 }}>
             {recentNPCs.map((npc, i) => {
               const imgSrc = safeImageSrc(npc.image);
-              const name = npc.nameHidden ? (npc.display_name || npc.aka || "Unknown") : (npc.name || npc.aka || "Unknown");
+              const name = (npc.nameHidden || npc.hide_name) ? (npc.display_name || npc.aka || "Unknown") : (npc.name || npc.aka || "Unknown");
               return (
-                <Link key={npc.id} href={`/campaign/npcs?selected=${npc.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link key={npc.id} href={`/campaign/npcs/${npc.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "6px 0", borderBottom: i < recentNPCs.length - 1 ? "1px dashed var(--grim-line)" : "none", paddingBottom: i < recentNPCs.length - 1 ? 10 : 0 }}>
                     <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, overflow: "hidden", border: "1px solid var(--grim-line)", position: "relative" }}>
                       {imgSrc ? (

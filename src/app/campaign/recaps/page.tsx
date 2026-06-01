@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import UserNotesEditor from "@/components/UserNotesEditor";
@@ -32,6 +33,7 @@ export default function RecapsPage() {
   const [search, setSearch] = useState("");
   const [activeRecap, setActiveRecap] = useState<string | null>(null);
   const recapRefs = useRef<Record<string, HTMLElement | null>>({});
+  const searchParams = useSearchParams();
   const isAdmin = useIsAdmin();
   const [user, setUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -59,8 +61,15 @@ export default function RecapsPage() {
     authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
       setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
     }).catch(() => {});
-    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailableLocations(data.map(l => ({ id: String(l.id), name: l.name })));
+    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
+      const flat: EntityItem[] = [];
+      for (const loc of data) {
+        flat.push({ id: String(loc.id), name: loc.name });
+        for (const sub of loc.locations ?? []) {
+          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
+        }
+      }
+      setAvailableLocations(flat);
     }).catch(() => {});
   }, []);
 
@@ -69,6 +78,14 @@ export default function RecapsPage() {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    const recapId = searchParams.get("recap");
+    if (recapId && allRecaps.length > 0) {
+      handleJumpToRecap(recapId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allRecaps, searchParams]);
 
   // Assign session numbers based on chronological order (oldest = #1)
   const sessionNumbers = [...allRecaps]
@@ -424,7 +441,7 @@ export default function RecapsPage() {
                         {(recap.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
                           return n ? (
-                            <Link key={id} href={`/campaign/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>
                               {n.name}
                             </Link>
                           ) : null;
@@ -432,7 +449,7 @@ export default function RecapsPage() {
                         {(recap.tagged_locations ?? []).map(id => {
                           const l = availableLocations.find(x => x.id === id);
                           return l ? (
-                            <Link key={id} href={`/campaign/locations`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
                               {l.name}
                             </Link>
                           ) : null;

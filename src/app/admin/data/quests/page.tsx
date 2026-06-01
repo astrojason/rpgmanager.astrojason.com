@@ -45,8 +45,15 @@ export default function QuestsManagementPage() {
     authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
       setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
     }).catch(() => {});
-    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailableLocations(data.map(l => ({ id: String(l.id), name: l.name })));
+    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
+      const flat: EntityItem[] = [];
+      for (const loc of data) {
+        flat.push({ id: String(loc.id), name: loc.name });
+        for (const sub of loc.locations ?? []) {
+          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
+        }
+      }
+      setAvailableLocations(flat);
     }).catch(() => {});
   }, []);
 
