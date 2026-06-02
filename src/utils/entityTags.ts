@@ -15,14 +15,15 @@ export function getRecentlyTaggedNpcs(
     return bId - aId;
   });
 
-  for (const recap of sorted) {
-    for (const id of recap.tagged_npcs ?? []) {
+  for (let recapIdx = 0; recapIdx < sorted.length; recapIdx++) {
+    if (recapIdx > 0 && result.length >= limit) return result;
+    for (const id of sorted[recapIdx].tagged_npcs ?? []) {
       if (seen.has(id)) continue;
       seen.add(id);
       const npc = npcMap.get(id);
       if (npc && !npc.hidden) {
         result.push(npc);
-        if (result.length >= limit) return result;
+        if (recapIdx > 0 && result.length >= limit) return result;
       }
     }
   }

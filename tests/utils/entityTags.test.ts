@@ -58,10 +58,13 @@ describe('getRecentlyTaggedNpcs', () => {
     expect(result.map(n => n.id)).toEqual(['2']);
   });
 
-  it('respects the limit', () => {
+  it('limits NPCs drawn from older recaps but not the most recent', () => {
     const npcs = [npc('1'), npc('2'), npc('3'), npc('4')];
-    const recaps = [recap('1', ['1', '2', '3', '4'])];
-    expect(getRecentlyTaggedNpcs(recaps, npcs, 2)).toHaveLength(2);
+    // Most recent recap (id=10) has NPCs 1 and 2 — both always included.
+    // Older recap (id=5) has NPCs 3 and 4 — limit=2 is already met after NPC 2.
+    const recaps = [recap('10', ['1', '2']), recap('5', ['3', '4'])];
+    const result = getRecentlyTaggedNpcs(recaps, npcs, 2);
+    expect(result.map(n => n.id)).toEqual(['1', '2']);
   });
 
   it('returns empty array when recaps list is empty', () => {
