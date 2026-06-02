@@ -94,7 +94,7 @@ export default function PronunciationsPage() {
   };
 
   const visibleNPCs = npcData
-    .filter((npc) => !npc.hidden && !npc.nameHidden)
+    .filter((npc) => !npc.hidden && !npc.nameHidden && !npc.hide_name)
     .map((npc) => ({ name: npc.name || npc.aka || "", pronunciation: npc.pronunciation || "" }))
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
