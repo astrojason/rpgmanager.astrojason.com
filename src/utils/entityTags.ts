@@ -9,11 +9,9 @@ export function getRecentlyTaggedNpcs(
   const seen = new Set<string>();
   const result: NPC[] = [];
 
-  const sorted = [...recaps].sort((a, b) => {
-    const aId = parseInt(a.id || '0', 10);
-    const bId = parseInt(b.id || '0', 10);
-    return bId - aId;
-  });
+  const sorted = [...recaps].sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   for (let recapIdx = 0; recapIdx < sorted.length; recapIdx++) {
     if (recapIdx > 0 && result.length >= limit) return result;

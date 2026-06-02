@@ -9,39 +9,42 @@ async function loadTagMaps(db: ReturnType<typeof getDb>) {
     const locRows = await db.execute(`SELECT recap_id, location_id FROM recap_locations`);
     const questRows = await db.execute(`SELECT recap_id, quest_id FROM recap_quests`);
     const itemRows = await db.execute(`SELECT recap_id, item_id FROM recap_items`);
-    const npcMap = new Map<string, string[]>();
-    for (const r of npcRows.rows as Record<string, unknown>[]) {
-        const key = String(r.recap_id);
-        if (!npcMap.has(key)) npcMap.set(key, []);
-        npcMap.get(key)!.push(String(r.npc_id));
+    const factionRows = await db.execute(`SELECT recap_id, faction_id FROM recap_factions`);
+    const deityRows = await db.execute(`SELECT recap_id, deity_id FROM recap_deities`);
+
+    function buildMap(rows: Record<string, unknown>[], keyCol: string, valCol: string): Map<string, string[]> {
+        const m = new Map<string, string[]>();
+        for (const r of rows) {
+            const key = String(r[keyCol]);
+            if (!m.has(key)) m.set(key, []);
+            m.get(key)!.push(String(r[valCol]));
+        }
+        return m;
     }
-    const locMap = new Map<string, string[]>();
-    for (const r of locRows.rows as Record<string, unknown>[]) {
-        const key = String(r.recap_id);
-        if (!locMap.has(key)) locMap.set(key, []);
-        locMap.get(key)!.push(String(r.location_id));
-    }
-    const questMap = new Map<string, string[]>();
-    for (const r of questRows.rows as Record<string, unknown>[]) {
-        const key = String(r.recap_id);
-        if (!questMap.has(key)) questMap.set(key, []);
-        questMap.get(key)!.push(String(r.quest_id));
-    }
-    const itemMap = new Map<string, string[]>();
-    for (const r of itemRows.rows as Record<string, unknown>[]) {
-        const key = String(r.recap_id);
-        if (!itemMap.has(key)) itemMap.set(key, []);
-        itemMap.get(key)!.push(String(r.item_id));
-    }
-    return { npcMap, locMap, questMap, itemMap };
+
+    return {
+        npcMap: buildMap(npcRows.rows as Record<string, unknown>[], 'recap_id', 'npc_id'),
+        locMap: buildMap(locRows.rows as Record<string, unknown>[], 'recap_id', 'location_id'),
+        questMap: buildMap(questRows.rows as Record<string, unknown>[], 'recap_id', 'quest_id'),
+        itemMap: buildMap(itemRows.rows as Record<string, unknown>[], 'recap_id', 'item_id'),
+        factionMap: buildMap(factionRows.rows as Record<string, unknown>[], 'recap_id', 'faction_id'),
+        deityMap: buildMap(deityRows.rows as Record<string, unknown>[], 'recap_id', 'deity_id'),
+    };
 }
 
-async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string | number, npcs: string[], locations: string[], quests: string[], items: string[]) {
+async function replaceTagsForRecap(
+    db: ReturnType<typeof getDb>,
+    recapId: string | number,
+    npcs: string[], locations: string[], quests: string[], items: string[],
+    factions: string[] = [], deities: string[] = []
+) {
     const id = Number(recapId);
     await db.execute({ sql: `DELETE FROM recap_npcs WHERE recap_id=?`, args: [id] });
     await db.execute({ sql: `DELETE FROM recap_locations WHERE recap_id=?`, args: [id] });
     await db.execute({ sql: `DELETE FROM recap_quests WHERE recap_id=?`, args: [id] });
     await db.execute({ sql: `DELETE FROM recap_items WHERE recap_id=?`, args: [id] });
+    await db.execute({ sql: `DELETE FROM recap_factions WHERE recap_id=?`, args: [id] });
+    await db.execute({ sql: `DELETE FROM recap_deities WHERE recap_id=?`, args: [id] });
     for (const npcId of npcs) {
         await db.execute({ sql: `INSERT OR IGNORE INTO recap_npcs (recap_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)] });
     }
@@ -53,6 +56,12 @@ async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string
     }
     for (const itemId of items) {
         await db.execute({ sql: `INSERT OR IGNORE INTO recap_items (recap_id, item_id) VALUES (?,?)`, args: [id, Number(itemId)] });
+    }
+    for (const factionId of factions) {
+        await db.execute({ sql: `INSERT OR IGNORE INTO recap_factions (recap_id, faction_id) VALUES (?,?)`, args: [id, factionId] });
+    }
+    for (const deityId of deities) {
+        await db.execute({ sql: `INSERT OR IGNORE INTO recap_deities (recap_id, deity_id) VALUES (?,?)`, args: [id, Number(deityId)] });
     }
 }
 
@@ -70,7 +79,7 @@ export async function GET(request?: NextRequest) {
         const db = getDb();
         await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, date TEXT, title TEXT, recap TEXT, author TEXT, notes TEXT)`);
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
-        const { npcMap, locMap, questMap, itemMap } = await loadTagMaps(db);
+        const { npcMap, locMap, questMap, itemMap, factionMap, deityMap } = await loadTagMaps(db);
         const data: SessionRecap[] = res.rows.map((r: Record<string, unknown>) => {
             const id = String(r.id);
             return {
@@ -84,6 +93,8 @@ export async function GET(request?: NextRequest) {
                 tagged_locations: locMap.get(id) ?? [],
                 tagged_quests: questMap.get(id) ?? [],
                 tagged_items: itemMap.get(id) ?? [],
+                tagged_factions: factionMap.get(id) ?? [],
+                tagged_deities: deityMap.get(id) ?? [],
             };
         });
         // Auto-migrate: add ids and defaults
@@ -158,7 +169,7 @@ export async function POST(request: NextRequest) {
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (date,title,recap,author,notes) VALUES (?,?,?,?,?)`, args: [newRecap.date, newRecap.title, newRecap.recap, newRecap.author ?? null, JSON.stringify(newRecap.notes ?? [])] });
         const newId = Number(res.lastInsertRowid ?? 0);
-        await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? [], newRecap.tagged_items ?? []);
+        await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? [], newRecap.tagged_items ?? [], newRecap.tagged_factions ?? [], newRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...newRecap, id: String(newId) } });
     } catch (error) {
         console.error('Error creating Session Recap:', error);
@@ -195,7 +206,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         }
         await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=? WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), Number(updatedRecap.id)] });
-        await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? [], updatedRecap.tagged_items ?? []);
+        await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? [], updatedRecap.tagged_items ?? [], updatedRecap.tagged_factions ?? [], updatedRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: updatedRecap });
     } catch (error) {
         console.error('Error updating Session Recap:', error);
@@ -217,6 +228,8 @@ export async function DELETE(request: NextRequest) {
         await db.execute({ sql: `DELETE FROM recap_locations WHERE recap_id=?`, args: [Number(id)] });
         await db.execute({ sql: `DELETE FROM recap_quests WHERE recap_id=?`, args: [Number(id)] });
         await db.execute({ sql: `DELETE FROM recap_items WHERE recap_id=?`, args: [Number(id)] });
+        await db.execute({ sql: `DELETE FROM recap_factions WHERE recap_id=?`, args: [Number(id)] });
+        await db.execute({ sql: `DELETE FROM recap_deities WHERE recap_id=?`, args: [Number(id)] });
         const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
         if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         return NextResponse.json({ success: true });

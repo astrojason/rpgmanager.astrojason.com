@@ -16,7 +16,7 @@ const npc = (id: string, hidden = false): NPC => ({
 
 const recap = (id: string, tagged_npcs: string[]): SessionRecap => ({
   id,
-  date: `2026-01-0${id}`,
+  date: `2026-01-${id.padStart(2, '0')}`,
   title: `Session ${id}`,
   recap: '',
   tagged_npcs,

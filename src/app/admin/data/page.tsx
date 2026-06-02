@@ -12,6 +12,7 @@ const DATA_TYPES = [
   { glyph: "☾", name: "Timeline",          href: "/admin/data/timeline",  sub: "Events of the realm",    tint: "arcane" },
   { glyph: "✎", name: "Session Recaps",    href: "/admin/data/recaps",    sub: "Chronicle the sessions", tint: "arcane" },
   { glyph: "⚔", name: "Items",             href: "/admin/data/items",     sub: "Relics & artefacts",     tint: "gold" },
+  { glyph: "✦", name: "Deities",           href: "/admin/data/deities",   sub: "Gods & divine forces",   tint: "gold" },
 ] as const;
 
 const TINT_BG: Record<string, string> = {

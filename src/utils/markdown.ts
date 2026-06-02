@@ -1,9 +1,9 @@
 import { marked } from "marked";
-import { parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import { autoLinkEntitiesInHtml, parseMarkdownWithLinks } from "@/utils/markdownLinking";
+import type { AutoLinkEntity } from "@/utils/markdownLinking";
 
-/**
- * Render markdown to HTML, optionally converting custom [[Name]] links.
- */
+export type { AutoLinkEntity };
+
 export function renderMarkdown(markdown: string): string {
   try {
     return marked.parse(markdown, { breaks: true, gfm: true }) as string;
@@ -13,11 +13,13 @@ export function renderMarkdown(markdown: string): string {
   }
 }
 
-/**
- * Render markdown and convert custom entity links with admin-aware styling.
- */
-export function renderMarkdownWithLinks(markdown: string, isAdmin: boolean = false): string {
+export function renderMarkdownWithLinks(
+  markdown: string,
+  isAdmin: boolean = false,
+  entities?: AutoLinkEntity[]
+): string {
   const html = renderMarkdown(markdown);
-  return parseMarkdownWithLinks(html, isAdmin);
+  const linked = parseMarkdownWithLinks(html, isAdmin);
+  return entities?.length ? autoLinkEntitiesInHtml(linked, entities) : linked;
 }
 

@@ -7,7 +7,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import { UserNote } from "@/types/interfaces";
-import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { renderMarkdownWithLinks, AutoLinkEntity } from "@/utils/markdown";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { authFetch } from "@/utils/authFetch";
@@ -27,6 +27,8 @@ interface Recap {
   tagged_locations?: string[];
   tagged_quests?: string[];
   tagged_items?: string[];
+  tagged_factions?: string[];
+  tagged_deities?: string[];
 }
 
 export default function RecapsPage() {
@@ -40,13 +42,16 @@ export default function RecapsPage() {
   const isAdmin = useIsAdmin();
   const [user, setUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "", tagged_npcs: [], tagged_locations: [], tagged_quests: [], tagged_items: [] });
+  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "", tagged_npcs: [], tagged_locations: [], tagged_quests: [], tagged_items: [], tagged_factions: [], tagged_deities: [] });
   const [editingRecapId, setEditingRecapId] = useState<string | null>(null);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableQuests, setAvailableQuests] = useState<EntityItem[]>([]);
   const [availableItems, setAvailableItems] = useState<EntityItem[]>([]);
+  const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
+  const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
+  const [allNPCData, setAllNPCData] = useState<{ id: string; name?: string; hidden?: boolean; nameHidden?: boolean }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,7 +69,8 @@ export default function RecapsPage() {
       }
     };
     loadRecaps();
-    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
+    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string; hidden?: boolean; nameHidden?: boolean }[]) => {
+      setAllNPCData(data);
       setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
     }).catch((e: unknown) => setError(toErrorMessage(e)));
     authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
@@ -80,8 +86,14 @@ export default function RecapsPage() {
     authFetch('/api/data/quests').then(r => r.json()).then((data: { id: string; name: string }[]) => {
       setAvailableQuests(data.map(q => ({ id: String(q.id), name: q.name })));
     }).catch((e: unknown) => setError(toErrorMessage(e)));
-    authFetch('/api/data/items').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailableItems(data.map(it => ({ id: String(it.id), name: it.name })));
+    authFetch('/api/data/items').then(r => r.json()).then((data: { id: string; name: string; hidden?: boolean }[]) => {
+      setAvailableItems(data.map(it => ({ id: String(it.id), name: it.name, hidden: it.hidden })));
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
+    authFetch('/api/data/factions').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableFactions(data.map(f => ({ id: String(f.id), name: f.name })));
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
+    authFetch('/api/data/deities').then(r => r.json()).then((data: { id: string; name: string; hidden?: boolean }[]) => {
+      setAvailableDeities(data.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })));
     }).catch((e: unknown) => setError(toErrorMessage(e)));
   }, []);
 
@@ -315,14 +327,20 @@ export default function RecapsPage() {
                   locations={availableLocations}
                   quests={availableQuests}
                   items={availableItems}
+                  factions={availableFactions}
+                  deities={availableDeities}
                   selectedNpcs={newRecap.tagged_npcs ?? []}
                   selectedLocations={newRecap.tagged_locations ?? []}
                   selectedQuests={newRecap.tagged_quests ?? []}
                   selectedItems={newRecap.tagged_items ?? []}
+                  selectedFactions={newRecap.tagged_factions ?? []}
+                  selectedDeities={newRecap.tagged_deities ?? []}
                   onNpcsChange={(ids) => setNewRecap({ ...newRecap, tagged_npcs: ids })}
                   onLocationsChange={(ids) => setNewRecap({ ...newRecap, tagged_locations: ids })}
                   onQuestsChange={(ids) => setNewRecap({ ...newRecap, tagged_quests: ids })}
                   onItemsChange={(ids) => setNewRecap({ ...newRecap, tagged_items: ids })}
+                  onFactionsChange={(ids) => setNewRecap({ ...newRecap, tagged_factions: ids })}
+                  onDeitiesChange={(ids) => setNewRecap({ ...newRecap, tagged_deities: ids })}
                 />
               </div>
             )}
@@ -435,32 +453,47 @@ export default function RecapsPage() {
                             locations={availableLocations}
                             quests={availableQuests}
                             items={availableItems}
+                            factions={availableFactions}
+                            deities={availableDeities}
                             selectedNpcs={editingRecap.tagged_npcs ?? []}
                             selectedLocations={editingRecap.tagged_locations ?? []}
                             selectedQuests={editingRecap.tagged_quests ?? []}
                             selectedItems={editingRecap.tagged_items ?? []}
+                            selectedFactions={editingRecap.tagged_factions ?? []}
+                            selectedDeities={editingRecap.tagged_deities ?? []}
                             onNpcsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_npcs: ids })}
                             onLocationsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_locations: ids })}
                             onQuestsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_quests: ids })}
                             onItemsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_items: ids })}
+                            onFactionsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_factions: ids })}
+                            onDeitiesChange={(ids) => setEditingRecap({ ...editingRecap, tagged_deities: ids })}
                           />
                         </div>
                       )}
                     </>
-                  ) : (
-                    <div
-                      className="grim-chronicle"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin) }}
-                    />
-                  )}
+                  ) : (() => {
+                    const entityLinks: AutoLinkEntity[] = [
+                      ...allNPCData.filter(n => !n.hidden && !n.nameHidden).map(n => ({ id: String(n.id), name: n.name || '', url: `/campaign/npcs/${n.id}`, type: 'npc' as const })).filter(e => e.name),
+                      ...availableLocations.map(l => ({ id: l.id, name: l.name, url: `/campaign/locations/${l.id}`, type: 'location' as const })),
+                      ...(availableItems as (EntityItem & { hidden?: boolean })[]).filter(it => !it.hidden).map(it => ({ id: it.id, name: it.name, url: `/campaign/items/${it.id}`, type: 'item' as const })),
+                    ];
+                    return (
+                      <div
+                        className="grim-chronicle"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(recap.recap, isAdmin, entityLinks) }}
+                      />
+                    );
+                  })()}
 
                   {/* Tagged entities */}
-                  {((recap.tagged_npcs && recap.tagged_npcs.length > 0) ||
-                    (recap.tagged_locations && recap.tagged_locations.length > 0) ||
-                    (recap.tagged_quests && recap.tagged_quests.length > 0) ||
-                    (recap.tagged_items && recap.tagged_items.length > 0)) && (
+                  {((recap.tagged_npcs?.length ?? 0) > 0 ||
+                    (recap.tagged_locations?.length ?? 0) > 0 ||
+                    (recap.tagged_quests?.length ?? 0) > 0 ||
+                    (recap.tagged_items?.length ?? 0) > 0 ||
+                    (recap.tagged_factions?.length ?? 0) > 0 ||
+                    (recap.tagged_deities?.length ?? 0) > 0) && (
                     <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--grim-line)" }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places, Errands &amp; Relics</div>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places, Errands, Relics, Banners &amp; Divinities</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {(recap.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
@@ -491,6 +524,22 @@ export default function RecapsPage() {
                           return it ? (
                             <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
                               ⚔ {it.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(recap.tagged_factions ?? []).map(id => {
+                          const f = availableFactions.find(x => x.id === id);
+                          return f ? (
+                            <Link key={id} href={`/campaign/factions?faction=${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                              ⚑ {f.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(recap.tagged_deities ?? []).map(id => {
+                          const d = availableDeities.find(x => x.id === id);
+                          return d ? (
+                            <Link key={id} href={`/campaign/deities?deity=${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                              ✦ {d.name}
                             </Link>
                           ) : null;
                         })}

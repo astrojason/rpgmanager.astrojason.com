@@ -147,7 +147,7 @@ export default function CampaignHome() {
       authFetch('/api/data/npcs').then(r => r.json()),
       authFetch('/api/data/session-recaps').then(r => r.json()),
     ]).then(([npcs, recaps]: [NPC[], SessionRecap[]]) => {
-      const sorted = [...recaps].sort((a, b) => parseInt(b.id || '0') - parseInt(a.id || '0'));
+      const sorted = [...recaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       if (sorted.length > 0) setLatestRecap(sorted[0]);
 
       const tagged = getRecentlyTaggedNpcs(sorted, npcs);

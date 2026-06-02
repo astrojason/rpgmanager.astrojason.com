@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { convertMarkdownLinks, parseMarkdownWithLinks, resetLinkMapCache, seedLinkMap } from '@/utils/markdownLinking';
+import { convertMarkdownLinks, parseMarkdownWithLinks, resetLinkMapCache, seedLinkMap, autoLinkEntitiesInHtml } from '@/utils/markdownLinking';
+import type { AutoLinkEntity } from '@/utils/markdownLinking';
 
 afterEach(() => {
   resetLinkMapCache();
@@ -31,5 +32,48 @@ describe('markdown linking utilities', () => {
 
     expect(parsed).toContain('<br />');
     expect(parsed).toContain('/pcs/aria');
+  });
+});
+
+describe('autoLinkEntitiesInHtml', () => {
+  const npcEntity: AutoLinkEntity = { id: '1', name: 'Veldris', url: '/campaign/npcs/1', type: 'npc' };
+  const locationEntity: AutoLinkEntity = { id: '2', name: 'Stormharbor', url: '/campaign/locations/2', type: 'location' };
+
+  it('replaces entity names in plain text with links', () => {
+    const html = '<p>The party met Veldris in Stormharbor.</p>';
+    const result = autoLinkEntitiesInHtml(html, [npcEntity, locationEntity]);
+    expect(result).toContain('href="/campaign/npcs/1"');
+    expect(result).toContain('href="/campaign/locations/2"');
+    expect(result).toContain('>Veldris<');
+    expect(result).toContain('>Stormharbor<');
+  });
+
+  it('does not double-link text already inside an anchor tag', () => {
+    const html = '<p><a href="/campaign/npcs/1">Veldris</a> met Veldris again.</p>';
+    const result = autoLinkEntitiesInHtml(html, [npcEntity]);
+    const matches = result.match(/href="\/campaign\/npcs\/1"/g);
+    expect(matches).toHaveLength(2);
+  });
+
+  it('returns html unchanged when no entities given', () => {
+    const html = '<p>Hello world</p>';
+    expect(autoLinkEntitiesInHtml(html, [])).toBe(html);
+  });
+
+  it('matches whole words only, not partial matches', () => {
+    const entity: AutoLinkEntity = { id: '3', name: 'Tor', url: '/campaign/npcs/3', type: 'npc' };
+    const html = '<p>Torment was not Tor.</p>';
+    const result = autoLinkEntitiesInHtml(html, [entity]);
+    expect(result).toContain('>Tor<');
+    expect(result).not.toMatch(/href[^>]*>Torment/);
+  });
+
+  it('longer names take priority over shorter partial names', () => {
+    const short: AutoLinkEntity = { id: '1', name: 'Storm', url: '/s', type: 'location' };
+    const long: AutoLinkEntity = { id: '2', name: 'Stormharbor', url: '/sh', type: 'location' };
+    const html = '<p>Visit Stormharbor now.</p>';
+    const result = autoLinkEntitiesInHtml(html, [short, long]);
+    expect(result).toContain('href="/sh"');
+    expect(result).not.toContain('href="/s"');
   });
 });

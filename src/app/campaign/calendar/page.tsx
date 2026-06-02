@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { CalendarData, CalendarEvent, CalendarCategory } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { usePageTracking } from "@/utils/referrerTracking";
+import { useIsAdmin } from "@/utils/adminCheck";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 function dayStart(d: number | number[]): number {
   return Array.isArray(d) ? d[0] : d;
@@ -77,8 +79,34 @@ export default function CalendarPage() {
   const [viewYear, setViewYear] = useState<number>(427);
   const [viewMonth, setViewMonth] = useState<number>(1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateForm, setDateForm] = useState({ day: 0, month: 0, year: 0 });
+  const [savingDate, setSavingDate] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
+  const isAdmin = useIsAdmin();
 
   usePageTracking();
+
+  const handleSaveCurrentDate = async () => {
+    if (!calendarData) return;
+    setSavingDate(true);
+    setDateError(null);
+    try {
+      const res = await authFetch('/api/data/calendar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...calendarData, current: dateForm }),
+      });
+      if (!res.ok) throw new Error(`Failed to save date (${res.status})`);
+      const updated = await res.json();
+      setCalendarData(prev => prev ? { ...prev, current: updated.data?.current ?? dateForm } : prev);
+      setEditingDate(false);
+    } catch (e) {
+      setDateError(toErrorMessage(e));
+    } finally {
+      setSavingDate(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -212,8 +240,63 @@ export default function CalendarPage() {
           <span className="grim-mono" style={{ fontSize: 11, letterSpacing: ".14em", color: "var(--grim-ink-2)", textTransform: "uppercase" }}>
             Now · {curWeekdayName}, {curMonthName} {initialCurrent.day}, Yr {initialCurrent.year}
           </span>
+          {isAdmin && !editingDate && (
+            <button
+              className="grim-btn is-ghost"
+              style={{ padding: "4px 10px", fontSize: 11 }}
+              onClick={() => { setDateForm({ ...initialCurrent }); setEditingDate(true); }}
+            >
+              ✎ Set Date
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Admin: set current date */}
+      {isAdmin && editingDate && (
+        <div className="grim-tome" style={{ marginBottom: 20, padding: "16px 20px" }}>
+          {dateError && <ErrorBlock error={dateError} onDismiss={() => setDateError(null)} />}
+          <div className="grim-label" style={{ marginBottom: 10 }}>Set Current In-Game Date</div>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
+              <input
+                type="number" min={1} max={60}
+                value={dateForm.day}
+                onChange={e => setDateForm(f => ({ ...f, day: Number(e.target.value) }))}
+                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
+              <select
+                value={dateForm.month}
+                onChange={e => setDateForm(f => ({ ...f, month: Number(e.target.value) }))}
+                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, padding: "6px 10px", outline: "none" }}
+              >
+                {months.map((m, idx) => (
+                  <option key={idx} value={idx + 1}>{m.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR</div>
+              <input
+                type="number" min={1}
+                value={dateForm.year}
+                onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
+                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8, alignSelf: "flex-end", paddingBottom: 2 }}>
+              <button className="grim-btn is-ghost" onClick={() => setEditingDate(false)}>Cancel</button>
+              <button className="grim-btn is-ember" onClick={handleSaveCurrentDate} disabled={savingDate}>
+                {savingDate ? "Saving…" : "Save Date"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Page header */}
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 22 }}>

@@ -5,6 +5,13 @@ interface LinkMapping {
     type: 'faction' | 'location' | 'npc' | 'pc';
 }
 
+export interface AutoLinkEntity {
+    id: string;
+    name: string;
+    url: string;
+    type: 'npc' | 'location' | 'item' | 'faction' | 'deity';
+}
+
 // Cache for the link map to avoid repeated computations
 let cachedLinkMap: Map<string, LinkMapping> | null = null;
 
@@ -81,6 +88,62 @@ function getTypeClass(type: 'faction' | 'location' | 'npc' | 'pc'): string {
         default:
             return `${baseClasses} text-gray-600 dark:text-gray-400 decoration-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/20`;
     }
+}
+
+// Auto-link entity names in rendered HTML without touching existing anchor tags.
+// Entities sorted by name length (longest first) so "Stormharbor" wins over "Storm".
+export function autoLinkEntitiesInHtml(html: string, entities: AutoLinkEntity[]): string {
+    if (!entities.length) return html;
+
+    const sorted = [...entities].sort((a, b) => b.name.length - a.name.length);
+
+    // Split on HTML tags so we can skip content inside tags
+    const parts = html.split(/(<[^>]*>)/g);
+    let inAnchor = 0;
+
+    return parts.map((part, i) => {
+        if (i % 2 === 1) {
+            // HTML tag — track anchor depth
+            if (/^<a[\s>]/i.test(part)) inAnchor++;
+            else if (/^<\/a>/i.test(part)) inAnchor--;
+            return part;
+        }
+
+        // Text node — skip if inside an existing anchor or empty
+        if (inAnchor > 0 || !part) return part;
+
+        // Collect non-overlapping match intervals for all entities
+        type Interval = { start: number; end: number; entity: AutoLinkEntity; match: string };
+        const intervals: Interval[] = [];
+
+        for (const entity of sorted) {
+            if (!entity.name?.trim()) continue;
+            const escaped = entity.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+            let m;
+            while ((m = re.exec(part)) !== null) {
+                const start = m.index;
+                const end = start + m[0].length;
+                if (!intervals.some(iv => start < iv.end && end > iv.start)) {
+                    intervals.push({ start, end, entity, match: m[0] });
+                }
+            }
+        }
+
+        if (!intervals.length) return part;
+
+        intervals.sort((a, b) => a.start - b.start);
+
+        let result = '';
+        let pos = 0;
+        for (const iv of intervals) {
+            result += part.slice(pos, iv.start);
+            result += `<a href="${iv.entity.url}" class="grim-link">${iv.match}</a>`;
+            pos = iv.end;
+        }
+        result += part.slice(pos);
+        return result;
+    }).join('');
 }
 
 // Enhanced function to parse markdown with link conversion

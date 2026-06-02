@@ -20,7 +20,9 @@ describe('session recaps endpoint', () => {
       .mockResolvedValueOnce({ rows: [] }) // recap_npcs
       .mockResolvedValueOnce({ rows: [] }) // recap_locations
       .mockResolvedValueOnce({ rows: [] }) // recap_quests
-      .mockResolvedValueOnce({ rows: [] }); // recap_items
+      .mockResolvedValueOnce({ rows: [] }) // recap_items
+      .mockResolvedValueOnce({ rows: [] }) // recap_factions
+      .mockResolvedValueOnce({ rows: [] }); // recap_deities
 
     const { GET } = await import('@/app/api/data/session-recaps/route');
     const res = await GET();
@@ -36,6 +38,8 @@ describe('session recaps endpoint', () => {
         tagged_locations: [],
         tagged_quests: [],
         tagged_items: [],
+        tagged_factions: [],
+        tagged_deities: [],
       },
     ]);
   });
@@ -118,6 +122,8 @@ describe('session recaps endpoint', () => {
       .mockResolvedValueOnce({}) // DELETE recap_locations
       .mockResolvedValueOnce({}) // DELETE recap_quests
       .mockResolvedValueOnce({}) // DELETE recap_items
+      .mockResolvedValueOnce({}) // DELETE recap_factions
+      .mockResolvedValueOnce({}) // DELETE recap_deities
       .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE session_recaps
     const { DELETE } = await import('@/app/api/data/session-recaps/route');
     const res = await DELETE(requestWithQuery('http://test/api/recaps?id=9') as any);

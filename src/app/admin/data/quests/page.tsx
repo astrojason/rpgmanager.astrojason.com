@@ -28,6 +28,8 @@ export default function QuestsManagementPage() {
   const [formData, setFormData] = useState<Partial<Quest>>({});
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
+  const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
+  const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
 
   // Authentication state
   useEffect(() => {
@@ -55,6 +57,12 @@ export default function QuestsManagementPage() {
       }
       setAvailableLocations(flat);
     }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load locations'));
+    authFetch('/api/data/factions').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableFactions(data.map(f => ({ id: String(f.id), name: f.name })));
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load factions'));
+    authFetch('/api/data/deities').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableDeities(data.map(d => ({ id: String(d.id), name: d.name })));
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load deities'));
   }, []);
 
   const loadQuests = async () => {
@@ -500,10 +508,16 @@ export default function QuestsManagementPage() {
                     <EntityTagPicker
                       npcs={availableNPCs}
                       locations={availableLocations}
+                      factions={availableFactions}
+                      deities={availableDeities}
                       selectedNpcs={formData.tagged_npcs ?? []}
                       selectedLocations={formData.tagged_locations ?? []}
+                      selectedFactions={formData.tagged_factions ?? []}
+                      selectedDeities={formData.tagged_deities ?? []}
                       onNpcsChange={(ids) => setFormData({ ...formData, tagged_npcs: ids })}
                       onLocationsChange={(ids) => setFormData({ ...formData, tagged_locations: ids })}
+                      onFactionsChange={(ids) => setFormData({ ...formData, tagged_factions: ids })}
+                      onDeitiesChange={(ids) => setFormData({ ...formData, tagged_deities: ids })}
                     />
                   </div>
 
@@ -564,10 +578,12 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* Tagged entities */}
-                  {((selectedQuest.tagged_npcs && selectedQuest.tagged_npcs.length > 0) ||
-                    (selectedQuest.tagged_locations && selectedQuest.tagged_locations.length > 0)) && (
+                  {((selectedQuest.tagged_npcs?.length ?? 0) > 0 ||
+                    (selectedQuest.tagged_locations?.length ?? 0) > 0 ||
+                    (selectedQuest.tagged_factions?.length ?? 0) > 0 ||
+                    (selectedQuest.tagged_deities?.length ?? 0) > 0) && (
                     <div style={{ marginBottom: 16 }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Tagged Souls & Places</div>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Tagged Souls, Places, Banners &amp; Divinities</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {(selectedQuest.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
@@ -582,6 +598,22 @@ export default function QuestsManagementPage() {
                           return l ? (
                             <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: 11, textDecoration: "none" }}>
                               {l.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(selectedQuest.tagged_factions ?? []).map(id => {
+                          const f = availableFactions.find(x => x.id === id);
+                          return f ? (
+                            <Link key={id} href={`/admin/data/factions`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                              ⚑ {f.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(selectedQuest.tagged_deities ?? []).map(id => {
+                          const d = availableDeities.find(x => x.id === id);
+                          return d ? (
+                            <Link key={id} href={`/admin/data/deities`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                              ✦ {d.name}
                             </Link>
                           ) : null;
                         })}

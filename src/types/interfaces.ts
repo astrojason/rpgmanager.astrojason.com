@@ -170,6 +170,22 @@ export interface UserNote {
   timestamp: string;
 }
 
+export interface Deity {
+  id: string;
+  name: string;
+  pronunciation?: string;
+  domain?: string;
+  alignment?: string;
+  status?: string;
+  description?: string;
+  image?: string;
+  hidden?: boolean;
+  gm_notes?: string;
+  notes?: UserNote[];
+  tagged_recaps?: string[];
+  tagged_quests?: string[];
+}
+
 export interface Quest {
   id: string;
   name: string;
@@ -178,6 +194,8 @@ export interface Quest {
   gm_notes?: string;
   tagged_npcs?: string[];
   tagged_locations?: string[];
+  tagged_factions?: string[];
+  tagged_deities?: string[];
 }
 
 export interface Item {
@@ -209,4 +227,6 @@ export interface SessionRecap {
   tagged_locations?: string[];
   tagged_quests?: string[];
   tagged_items?: string[];
+  tagged_factions?: string[];
+  tagged_deities?: string[];
 }

@@ -11,12 +11,14 @@ describe('quests endpoint', () => {
         ],
       }) // SELECT * FROM quests
       .mockResolvedValueOnce({ rows: [] }) // quest_npcs
-      .mockResolvedValueOnce({ rows: [] }); // quest_locations
+      .mockResolvedValueOnce({ rows: [] }) // quest_locations
+      .mockResolvedValueOnce({ rows: [] }) // quest_factions
+      .mockResolvedValueOnce({ rows: [] }); // quest_deities
     const { GET } = await import('@/app/api/data/quests/route');
     const res = await GET();
     expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
-      { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [] },
+      { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [], tagged_factions: [], tagged_deities: [] },
     ]);
   });
 
@@ -43,12 +45,16 @@ describe('quests endpoint', () => {
     mockDb.execute
       .mockResolvedValueOnce({}) // DELETE quest_npcs
       .mockResolvedValueOnce({}) // DELETE quest_locations
+      .mockResolvedValueOnce({}) // DELETE quest_factions
+      .mockResolvedValueOnce({}) // DELETE quest_deities
       .mockResolvedValueOnce({ rowsAffected: 0 }); // DELETE quest → 404
     const missing = await DELETE(requestWithQuery('http://test/api/quests?id=1') as any);
     expect(missing.status).toBe(404);
     mockDb.execute
       .mockResolvedValueOnce({}) // DELETE quest_npcs
       .mockResolvedValueOnce({}) // DELETE quest_locations
+      .mockResolvedValueOnce({}) // DELETE quest_factions
+      .mockResolvedValueOnce({}) // DELETE quest_deities
       .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE quest → 200
     const ok = await DELETE(requestWithQuery('http://test/api/quests?id=2') as any);
     expect(ok.status).toBe(200);

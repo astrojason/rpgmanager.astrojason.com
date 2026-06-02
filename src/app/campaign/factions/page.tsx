@@ -9,6 +9,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Faction, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
+import Link from "next/link";
 
 const FACTION_CRESTS: Record<string, string> = {
   "Ship Crew": "☾",
@@ -43,6 +44,8 @@ export default function FactionsPage() {
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [npcData, setNpcData] = useState<NPC[]>([]);
   const [pcsData, setPcsData] = useState<PC[]>([]);
+  const [recapData, setRecapData] = useState<{ id?: string; title: string; date: string; tagged_factions?: string[] }[]>([]);
+  const [questData, setQuestData] = useState<{ id: string; name: string; status: string; tagged_factions?: string[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,10 +57,12 @@ export default function FactionsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [factionsResponse, npcsResponse, pcsResponse] = await Promise.all([
+        const [factionsResponse, npcsResponse, pcsResponse, recapsResponse, questsResponse] = await Promise.all([
           authFetch("/api/data/factions"),
           authFetch("/api/data/npcs"),
           authFetch("/api/data/pcs"),
+          authFetch("/api/data/session-recaps"),
+          authFetch("/api/data/quests"),
         ]);
         if (factionsResponse.ok && npcsResponse.ok && pcsResponse.ok) {
           const factions = await factionsResponse.json();
@@ -67,6 +72,8 @@ export default function FactionsPage() {
           setNpcData(npcs);
           setPcsData(pcs);
         }
+        if (recapsResponse.ok) setRecapData(await recapsResponse.json());
+        if (questsResponse.ok) setQuestData(await questsResponse.json());
       } catch {
         /* noop */
       } finally {
@@ -339,7 +346,7 @@ export default function FactionsPage() {
 
               {/* Relationships */}
               {selectedFaction.relationships && selectedFaction.relationships.length > 0 && (
-                <section className="grim-tome">
+                <section className="grim-tome" style={{ marginBottom: 24 }}>
                   <div className="grim-tome-head">
                     <h3 className="grim-tome-title">Alliances &amp; Enmities</h3>
                     <span className="grim-tome-sub">{selectedFaction.relationships.length} recorded</span>
@@ -375,6 +382,43 @@ export default function FactionsPage() {
                   </div>
                 </section>
               )}
+
+              {/* Backlinks — session recaps that tag this faction */}
+              {(() => {
+                const factionRecaps = recapData
+                  .filter(r => (r.tagged_factions ?? []).includes(selectedFaction.id))
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                const factionQuests = questData.filter(q => (q.tagged_factions ?? []).includes(selectedFaction.id));
+                if (factionRecaps.length === 0 && factionQuests.length === 0) return null;
+                return (
+                  <section className="grim-tome">
+                    <div className="grim-tome-head">
+                      <h3 className="grim-tome-title">Appearances</h3>
+                      <span className="grim-tome-sub">sessions &amp; quests</span>
+                    </div>
+                    <div className="grim-stack" style={{ gap: 8 }}>
+                      {factionRecaps.map(r => (
+                        <Link key={r.id ?? r.date} href={`/campaign/recaps?recap=${r.id ?? r.date}`} style={{ textDecoration: "none" }}>
+                          <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-ember-2)", flexShrink: 0 }}>SESSION</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{r.title}</span>
+                            <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", marginLeft: "auto" }}>{r.date}</span>
+                          </div>
+                        </Link>
+                      ))}
+                      {factionQuests.map(q => (
+                        <Link key={q.id} href={`/campaign/quests?quest=${q.id}`} style={{ textDecoration: "none" }}>
+                          <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-gold)", flexShrink: 0 }}>QUEST</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{q.name}</span>
+                            <span className="grim-chip" style={{ fontSize: 9, marginLeft: "auto" }}>{q.status}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })()}
             </>
           ) : (
             /* Empty state */
