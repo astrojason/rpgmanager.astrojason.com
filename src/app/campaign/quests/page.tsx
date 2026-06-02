@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
@@ -38,6 +39,9 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true);
   const userId = useEffectiveUserId();
   const [activeFilter, setActiveFilter] = useState("active");
+  const [activeQuest, setActiveQuest] = useState<string | null>(null);
+  const questRefs = useRef<Record<string, HTMLElement | null>>({});
+  const searchParams = useSearchParams();
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -69,6 +73,26 @@ export default function QuestsPage() {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    const questId = searchParams.get("quest");
+    if (questId && questsData.length > 0) {
+      const quest = questsData.find(q => q.id === questId);
+      if (quest) {
+        // If the quest is not visible under the current filter, switch to "all"
+        const visible =
+          activeFilter === "all" ||
+          quest.status === activeFilter ||
+          (activeFilter === "completed" && (quest.status === "completed" || quest.status === "complete"));
+        if (!visible) setActiveFilter("all");
+      }
+      setActiveQuest(questId);
+      setTimeout(() => {
+        questRefs.current[questId]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questsData, searchParams]);
 
   const filteredQuests = questsData.filter((quest) => {
     const matchesSearch =
@@ -321,11 +345,13 @@ export default function QuestsPage() {
             const notes = normalizeQuestNotes(quest);
             const isClosed = quest.status === "completed" || quest.status === "complete";
 
+            const isActive = activeQuest === quest.id;
             return (
               <section
                 key={quest.id}
-                className="grim-tome"
-                style={{ padding: 0, overflow: "hidden", display: "flex" }}
+                ref={(el) => { questRefs.current[quest.id] = el; }}
+                className={`grim-tome${isActive ? " is-bordered" : ""}`}
+                style={{ padding: 0, overflow: "hidden", display: "flex", scrollMarginTop: 24 }}
               >
                 {/* Left color rail */}
                 <div style={{
