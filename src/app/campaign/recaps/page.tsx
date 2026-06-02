@@ -25,6 +25,7 @@ interface Recap {
   tagged_npcs?: string[];
   tagged_locations?: string[];
   tagged_quests?: string[];
+  tagged_items?: string[];
 }
 
 export default function RecapsPage() {
@@ -38,12 +39,13 @@ export default function RecapsPage() {
   const isAdmin = useIsAdmin();
   const [user, setUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "", tagged_npcs: [], tagged_locations: [], tagged_quests: [] });
+  const [newRecap, setNewRecap] = useState<Partial<Recap>>({ date: "", title: "", recap: "", tagged_npcs: [], tagged_locations: [], tagged_quests: [], tagged_items: [] });
   const [editingRecapId, setEditingRecapId] = useState<string | null>(null);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableQuests, setAvailableQuests] = useState<EntityItem[]>([]);
+  const [availableItems, setAvailableItems] = useState<EntityItem[]>([]);
 
   useEffect(() => {
     const loadRecaps = async () => {
@@ -75,6 +77,9 @@ export default function RecapsPage() {
     }).catch(() => {});
     authFetch('/api/data/quests').then(r => r.json()).then((data: { id: string; name: string }[]) => {
       setAvailableQuests(data.map(q => ({ id: String(q.id), name: q.name })));
+    }).catch(() => {});
+    authFetch('/api/data/items').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailableItems(data.map(it => ({ id: String(it.id), name: it.name })));
     }).catch(() => {});
   }, []);
 
@@ -309,12 +314,15 @@ export default function RecapsPage() {
                   npcs={availableNPCs}
                   locations={availableLocations}
                   quests={availableQuests}
+                  items={availableItems}
                   selectedNpcs={newRecap.tagged_npcs ?? []}
                   selectedLocations={newRecap.tagged_locations ?? []}
                   selectedQuests={newRecap.tagged_quests ?? []}
+                  selectedItems={newRecap.tagged_items ?? []}
                   onNpcsChange={(ids) => setNewRecap({ ...newRecap, tagged_npcs: ids })}
                   onLocationsChange={(ids) => setNewRecap({ ...newRecap, tagged_locations: ids })}
                   onQuestsChange={(ids) => setNewRecap({ ...newRecap, tagged_quests: ids })}
+                  onItemsChange={(ids) => setNewRecap({ ...newRecap, tagged_items: ids })}
                 />
               </div>
             )}
@@ -426,12 +434,15 @@ export default function RecapsPage() {
                             npcs={availableNPCs}
                             locations={availableLocations}
                             quests={availableQuests}
+                            items={availableItems}
                             selectedNpcs={editingRecap.tagged_npcs ?? []}
                             selectedLocations={editingRecap.tagged_locations ?? []}
                             selectedQuests={editingRecap.tagged_quests ?? []}
+                            selectedItems={editingRecap.tagged_items ?? []}
                             onNpcsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_npcs: ids })}
                             onLocationsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_locations: ids })}
                             onQuestsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_quests: ids })}
+                            onItemsChange={(ids) => setEditingRecap({ ...editingRecap, tagged_items: ids })}
                           />
                         </div>
                       )}
@@ -446,9 +457,10 @@ export default function RecapsPage() {
                   {/* Tagged entities */}
                   {((recap.tagged_npcs && recap.tagged_npcs.length > 0) ||
                     (recap.tagged_locations && recap.tagged_locations.length > 0) ||
-                    (recap.tagged_quests && recap.tagged_quests.length > 0)) && (
+                    (recap.tagged_quests && recap.tagged_quests.length > 0) ||
+                    (recap.tagged_items && recap.tagged_items.length > 0)) && (
                     <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--grim-line)" }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places & Errands</div>
+                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places, Errands &amp; Relics</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {(recap.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
@@ -471,6 +483,14 @@ export default function RecapsPage() {
                           return qt ? (
                             <Link key={id} href={`/campaign/quests`} className="grim-chip is-faction" style={{ fontSize: 11, textDecoration: "none" }}>
                               {qt.name}
+                            </Link>
+                          ) : null;
+                        })}
+                        {(recap.tagged_items ?? []).map(id => {
+                          const it = availableItems.find(x => x.id === id);
+                          return it ? (
+                            <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                              ⚔ {it.name}
                             </Link>
                           ) : null;
                         })}

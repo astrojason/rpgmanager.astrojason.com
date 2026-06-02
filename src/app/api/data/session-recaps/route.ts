@@ -8,6 +8,7 @@ async function loadTagMaps(db: ReturnType<typeof getDb>) {
     const npcRows = await db.execute(`SELECT recap_id, npc_id FROM recap_npcs`);
     const locRows = await db.execute(`SELECT recap_id, location_id FROM recap_locations`);
     const questRows = await db.execute(`SELECT recap_id, quest_id FROM recap_quests`);
+    const itemRows = await db.execute(`SELECT recap_id, item_id FROM recap_items`);
     const npcMap = new Map<string, string[]>();
     for (const r of npcRows.rows as Record<string, unknown>[]) {
         const key = String(r.recap_id);
@@ -26,14 +27,21 @@ async function loadTagMaps(db: ReturnType<typeof getDb>) {
         if (!questMap.has(key)) questMap.set(key, []);
         questMap.get(key)!.push(String(r.quest_id));
     }
-    return { npcMap, locMap, questMap };
+    const itemMap = new Map<string, string[]>();
+    for (const r of itemRows.rows as Record<string, unknown>[]) {
+        const key = String(r.recap_id);
+        if (!itemMap.has(key)) itemMap.set(key, []);
+        itemMap.get(key)!.push(String(r.item_id));
+    }
+    return { npcMap, locMap, questMap, itemMap };
 }
 
-async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string | number, npcs: string[], locations: string[], quests: string[]) {
+async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string | number, npcs: string[], locations: string[], quests: string[], items: string[]) {
     const id = Number(recapId);
     await db.execute({ sql: `DELETE FROM recap_npcs WHERE recap_id=?`, args: [id] });
     await db.execute({ sql: `DELETE FROM recap_locations WHERE recap_id=?`, args: [id] });
     await db.execute({ sql: `DELETE FROM recap_quests WHERE recap_id=?`, args: [id] });
+    await db.execute({ sql: `DELETE FROM recap_items WHERE recap_id=?`, args: [id] });
     for (const npcId of npcs) {
         await db.execute({ sql: `INSERT OR IGNORE INTO recap_npcs (recap_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)] });
     }
@@ -42,6 +50,9 @@ async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string
     }
     for (const questId of quests) {
         await db.execute({ sql: `INSERT OR IGNORE INTO recap_quests (recap_id, quest_id) VALUES (?,?)`, args: [id, Number(questId)] });
+    }
+    for (const itemId of items) {
+        await db.execute({ sql: `INSERT OR IGNORE INTO recap_items (recap_id, item_id) VALUES (?,?)`, args: [id, Number(itemId)] });
     }
 }
 
@@ -59,7 +70,7 @@ export async function GET(request?: NextRequest) {
         const db = getDb();
         await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, date TEXT, title TEXT, recap TEXT, author TEXT, notes TEXT)`);
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
-        const { npcMap, locMap, questMap } = await loadTagMaps(db);
+        const { npcMap, locMap, questMap, itemMap } = await loadTagMaps(db);
         const data: SessionRecap[] = res.rows.map((r: Record<string, unknown>) => {
             const id = String(r.id);
             return {
@@ -72,6 +83,7 @@ export async function GET(request?: NextRequest) {
                 tagged_npcs: npcMap.get(id) ?? [],
                 tagged_locations: locMap.get(id) ?? [],
                 tagged_quests: questMap.get(id) ?? [],
+                tagged_items: itemMap.get(id) ?? [],
             };
         });
         // Auto-migrate: add ids and defaults
@@ -146,7 +158,7 @@ export async function POST(request: NextRequest) {
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (date,title,recap,author,notes) VALUES (?,?,?,?,?)`, args: [newRecap.date, newRecap.title, newRecap.recap, newRecap.author ?? null, JSON.stringify(newRecap.notes ?? [])] });
         const newId = Number(res.lastInsertRowid ?? 0);
-        await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? []);
+        await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? [], newRecap.tagged_items ?? []);
         return NextResponse.json({ success: true, data: { ...newRecap, id: String(newId) } });
     } catch (error) {
         console.error('Error creating Session Recap:', error);
@@ -183,7 +195,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         }
         await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=? WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), Number(updatedRecap.id)] });
-        await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? []);
+        await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? [], updatedRecap.tagged_items ?? []);
         return NextResponse.json({ success: true, data: updatedRecap });
     } catch (error) {
         console.error('Error updating Session Recap:', error);
@@ -204,6 +216,7 @@ export async function DELETE(request: NextRequest) {
         await db.execute({ sql: `DELETE FROM recap_npcs WHERE recap_id=?`, args: [Number(id)] });
         await db.execute({ sql: `DELETE FROM recap_locations WHERE recap_id=?`, args: [Number(id)] });
         await db.execute({ sql: `DELETE FROM recap_quests WHERE recap_id=?`, args: [Number(id)] });
+        await db.execute({ sql: `DELETE FROM recap_items WHERE recap_id=?`, args: [Number(id)] });
         const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
         if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
         return NextResponse.json({ success: true });

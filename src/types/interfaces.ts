@@ -180,6 +180,24 @@ export interface Quest {
   tagged_locations?: string[];
 }
 
+export interface Item {
+  id: string;
+  name: string;
+  category: string;
+  pronunciation?: string;
+  type_tag?: string;
+  description?: string;
+  properties?: string;
+  image?: string;
+  hidden?: boolean;
+  gm_notes?: string;
+  notes?: UserNote[];
+  tagged_recaps?: string[];
+  tagged_npcs?: string[];
+  tagged_pcs?: string[];
+  tagged_locations?: string[];
+}
+
 export interface SessionRecap {
   date: string;
   title: string;
@@ -190,4 +208,5 @@ export interface SessionRecap {
   tagged_npcs?: string[];
   tagged_locations?: string[];
   tagged_quests?: string[];
+  tagged_items?: string[];
 }

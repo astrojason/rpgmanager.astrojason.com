@@ -19,7 +19,8 @@ describe('session recaps endpoint', () => {
       }) // SELECT * FROM session_recaps
       .mockResolvedValueOnce({ rows: [] }) // recap_npcs
       .mockResolvedValueOnce({ rows: [] }) // recap_locations
-      .mockResolvedValueOnce({ rows: [] }); // recap_quests
+      .mockResolvedValueOnce({ rows: [] }) // recap_quests
+      .mockResolvedValueOnce({ rows: [] }); // recap_items
 
     const { GET } = await import('@/app/api/data/session-recaps/route');
     const res = await GET();
@@ -34,6 +35,7 @@ describe('session recaps endpoint', () => {
         tagged_npcs: [],
         tagged_locations: [],
         tagged_quests: [],
+        tagged_items: [],
       },
     ]);
   });
@@ -115,6 +117,7 @@ describe('session recaps endpoint', () => {
       .mockResolvedValueOnce({}) // DELETE recap_npcs
       .mockResolvedValueOnce({}) // DELETE recap_locations
       .mockResolvedValueOnce({}) // DELETE recap_quests
+      .mockResolvedValueOnce({}) // DELETE recap_items
       .mockResolvedValueOnce({ rowsAffected: 1 }); // DELETE session_recaps
     const { DELETE } = await import('@/app/api/data/session-recaps/route');
     const res = await DELETE(requestWithQuery('http://test/api/recaps?id=9') as any);
