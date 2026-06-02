@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRecentlyTaggedNpcs } from '@/utils/entityTags';
+import { getRecentlyTaggedNpcs, getRecapsForQuest } from '@/utils/entityTags';
 import { NPC, SessionRecap } from '@/types/interfaces';
 
 const npc = (id: string, hidden = false): NPC => ({
@@ -76,5 +76,35 @@ describe('getRecentlyTaggedNpcs', () => {
     const recaps = [recap('1', ['1', '2'])];
     const result = getRecentlyTaggedNpcs(recaps, npcs);
     expect(result.map(n => n.id)).toEqual(['2']);
+  });
+});
+
+const recapWithQuests = (id: string, tagged_quests: string[]): SessionRecap => ({
+  id,
+  date: `2026-01-0${id}`,
+  title: `Session ${id}`,
+  recap: '',
+  tagged_quests,
+});
+
+describe('getRecapsForQuest', () => {
+  it('returns recaps that tag the given quest', () => {
+    const recaps = [recapWithQuests('1', ['q1']), recapWithQuests('2', ['q2'])];
+    expect(getRecapsForQuest(recaps, 'q1').map(r => r.id)).toEqual(['1']);
+  });
+
+  it('returns multiple recaps sorted newest first', () => {
+    const recaps = [recapWithQuests('1', ['q1']), recapWithQuests('3', ['q1']), recapWithQuests('2', ['q1'])];
+    const result = getRecapsForQuest(recaps, 'q1');
+    expect(result.map(r => r.date)).toEqual(['2026-01-03', '2026-01-02', '2026-01-01']);
+  });
+
+  it('returns empty array when quest has no tagged recaps', () => {
+    const recaps = [recapWithQuests('1', ['q2'])];
+    expect(getRecapsForQuest(recaps, 'q1')).toEqual([]);
+  });
+
+  it('returns empty array when recaps list is empty', () => {
+    expect(getRecapsForQuest([], 'q1')).toEqual([]);
   });
 });

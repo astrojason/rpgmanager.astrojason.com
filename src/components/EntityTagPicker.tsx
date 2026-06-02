@@ -10,26 +10,33 @@ interface EntityItem {
 interface EntityTagPickerProps {
   npcs: EntityItem[];
   locations: EntityItem[];
+  quests?: EntityItem[];
   selectedNpcs: string[];
   selectedLocations: string[];
+  selectedQuests?: string[];
   onNpcsChange: (ids: string[]) => void;
   onLocationsChange: (ids: string[]) => void;
+  onQuestsChange?: (ids: string[]) => void;
 }
 
 export default function EntityTagPicker({
   npcs,
   locations,
+  quests = [],
   selectedNpcs,
   selectedLocations,
+  selectedQuests = [],
   onNpcsChange,
   onLocationsChange,
+  onQuestsChange,
 }: EntityTagPickerProps) {
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"npcs" | "locations">("npcs");
+  const [activeTab, setActiveTab] = useState<"npcs" | "locations" | "quests">("npcs");
 
   const q = search.toLowerCase();
   const filteredNpcs = npcs.filter(n => n.name.toLowerCase().includes(q));
   const filteredLocations = locations.filter(l => l.name.toLowerCase().includes(q));
+  const filteredQuests = quests.filter(qt => qt.name.toLowerCase().includes(q));
 
   const toggleNpc = (id: string) => {
     onNpcsChange(
@@ -47,9 +54,18 @@ export default function EntityTagPicker({
     );
   };
 
-  const totalSelected = selectedNpcs.length + selectedLocations.length;
+  const toggleQuest = (id: string) => {
+    if (!onQuestsChange) return;
+    onQuestsChange(
+      selectedQuests.includes(id)
+        ? selectedQuests.filter(x => x !== id)
+        : [...selectedQuests, id]
+    );
+  };
 
-  const tabStyle = (tab: "npcs" | "locations"): React.CSSProperties => ({
+  const totalSelected = selectedNpcs.length + selectedLocations.length + selectedQuests.length;
+
+  const tabStyle = (tab: "npcs" | "locations" | "quests"): React.CSSProperties => ({
     padding: "7px 14px",
     fontFamily: "var(--font-head)",
     fontSize: 11,
@@ -103,6 +119,20 @@ export default function EntityTagPicker({
               </span>
             );
           })}
+          {selectedQuests.map(id => {
+            const qt = quests.find(x => x.id === id);
+            if (!qt) return null;
+            return (
+              <span
+                key={id}
+                className="grim-chip is-faction"
+                style={{ fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                onClick={() => toggleQuest(id)}
+              >
+                {qt.name} ×
+              </span>
+            );
+          })}
         </div>
       )}
 
@@ -114,6 +144,11 @@ export default function EntityTagPicker({
           <button type="button" style={tabStyle("locations")} onClick={() => setActiveTab("locations")}>
             Locations ({selectedLocations.length}/{locations.length})
           </button>
+          {quests.length > 0 && onQuestsChange && (
+            <button type="button" style={tabStyle("quests")} onClick={() => setActiveTab("quests")}>
+              Quests ({selectedQuests.length}/{quests.length})
+            </button>
+          )}
           <div style={{ flex: 1 }} />
           <input
             type="text"
@@ -165,7 +200,7 @@ export default function EntityTagPicker({
                 </label>
               ))
             )
-          ) : (
+          ) : activeTab === "locations" ? (
             filteredLocations.length === 0 ? (
               <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 13 }}>
                 No locations found
@@ -191,6 +226,36 @@ export default function EntityTagPicker({
                   />
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
                     {l.name}
+                  </span>
+                </label>
+              ))
+            )
+          ) : (
+            filteredQuests.length === 0 ? (
+              <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 13 }}>
+                No quests found
+              </div>
+            ) : (
+              filteredQuests.map(qt => (
+                <label
+                  key={qt.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "6px 14px",
+                    cursor: "pointer",
+                    background: selectedQuests.includes(qt.id) ? "oklch(0.85 0.12 85 / 0.12)" : "transparent",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedQuests.includes(qt.id)}
+                    onChange={() => toggleQuest(qt.id)}
+                    style={{ accentColor: "var(--grim-gold)" }}
+                  />
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
+                    {qt.name}
                   </span>
                 </label>
               ))

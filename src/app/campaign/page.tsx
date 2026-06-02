@@ -367,7 +367,7 @@ export default function CampaignHome() {
               const state = questRailState(q.status);
               const desc = questDescription(q);
               return (
-                <div key={q.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none" }}>
+                <Link key={q.id} href="/campaign/quests" style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none", textDecoration: "none" }}>
                   <div style={{
                     width: 4, alignSelf: "stretch", marginTop: 4, flexShrink: 0,
                     background: state === "ember" ? "var(--grim-ember)" : state === "arcane" ? "var(--grim-arcane)" : "var(--grim-line-2)",
@@ -378,7 +378,7 @@ export default function CampaignHome() {
                     <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{questMeta(q.status)}</div>
                     {desc && <div style={{ fontSize: 13, color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{desc}</div>}
                   </div>
-                </div>
+                </Link>
               );
             })}
             <Link href="/campaign/quests" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start" }}>

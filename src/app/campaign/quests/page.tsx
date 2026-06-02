@@ -5,12 +5,14 @@ import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 import ReactMarkdown from 'react-markdown';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import AuthorDisplay from '@/components/AuthorDisplay';
-import { Quest, UserNote } from "@/types/interfaces";
+import { Quest, SessionRecap, UserNote } from "@/types/interfaces";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
+import { getRecapsForQuest } from "@/utils/entityTags";
+import Link from "next/link";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; glow: boolean }> = {
   active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  glow: true },
@@ -32,6 +34,7 @@ const FILTERS = [
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [questsData, setQuestsData] = useState<Quest[]>([]);
+  const [recapsData, setRecapsData] = useState<SessionRecap[]>([]);
   const [loading, setLoading] = useState(true);
   const userId = useEffectiveUserId();
   const [activeFilter, setActiveFilter] = useState("active");
@@ -49,19 +52,22 @@ export default function QuestsPage() {
   const [createError, setCreateError] = useState("");
 
   useEffect(() => {
-    const loadQuests = async () => {
+    const loadData = async () => {
       try {
-        const response = await authFetch('/api/data/quests');
-        if (!response.ok) throw new Error('Failed to load quests');
-        const data = await response.json();
-        setQuestsData(data);
+        const [questsRes, recapsRes] = await Promise.all([
+          authFetch('/api/data/quests'),
+          authFetch('/api/data/session-recaps'),
+        ]);
+        if (!questsRes.ok) throw new Error('Failed to load quests');
+        setQuestsData(await questsRes.json());
+        if (recapsRes.ok) setRecapsData(await recapsRes.json());
       } catch (error) {
         console.error('Error loading quests:', error);
       } finally {
         setLoading(false);
       }
     };
-    loadQuests();
+    loadData();
   }, []);
 
   const filteredQuests = questsData.filter((quest) => {
@@ -438,6 +444,29 @@ export default function QuestsPage() {
                           style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
                           dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes, true) }}
                         />
+                      </div>
+                    );
+                  })()}
+
+                  {/* Session back-references */}
+                  {(() => {
+                    const appearances = getRecapsForQuest(recapsData, quest.id);
+                    if (appearances.length === 0) return null;
+                    return (
+                      <div style={{ marginTop: 18 }}>
+                        <div className="grim-label" style={{ marginBottom: 8 }}>Appeared in Sessions</div>
+                        <div className="grim-stack" style={{ gap: 4 }}>
+                          {appearances.map(r => (
+                            <Link
+                              key={r.id ?? r.date}
+                              href={`/campaign/recaps?recap=${r.id ?? r.date}`}
+                              style={{ textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "6px 10px", background: "oklch(0.14 0.025 290 / 0.5)", border: "1px solid var(--grim-line)" }}
+                            >
+                              <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
+                              <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     );
                   })()}

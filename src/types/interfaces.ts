@@ -189,4 +189,5 @@ export interface SessionRecap {
   notes?: UserNote[];
   tagged_npcs?: string[];
   tagged_locations?: string[];
+  tagged_quests?: string[];
 }

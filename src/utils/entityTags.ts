@@ -30,3 +30,9 @@ export function getRecentlyTaggedNpcs(
 
   return result;
 }
+
+export function getRecapsForQuest(recaps: SessionRecap[], questId: string): SessionRecap[] {
+  return [...recaps]
+    .filter(r => (r.tagged_quests ?? []).includes(questId))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
