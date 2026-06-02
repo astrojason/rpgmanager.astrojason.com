@@ -306,7 +306,7 @@ export default function FactionsPage() {
                       <MemberCard
                         key={index}
                         image={npc.image}
-                        name={!npc.name || npc.nameHidden ? (npc.aka ? `"${npc.aka}"` : "Unknown") : npc.name}
+                        name={!npc.name || npc.nameHidden || npc.hide_name ? (npc.display_name || npc.aka ? `"${npc.display_name || npc.aka}"` : "Unknown") : npc.name}
                         sub={[npc.description, npc.gender, npc.location].filter(Boolean).join(" · ")}
                         deceased={npc.status === "Deceased"}
                         onClick={() => router.push(`/campaign/npcs?selected=${npc.id}`)}

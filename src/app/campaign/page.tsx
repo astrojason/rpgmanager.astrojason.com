@@ -333,7 +333,7 @@ export default function CampaignHome() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                         <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", letterSpacing: ".02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                        {npc.pronunciation && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
+                        {npc.pronunciation && !npc.nameHidden && !npc.hide_name && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
                       </div>
                       <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {[npc.race, npc.location].filter(Boolean).join(" · ")}
