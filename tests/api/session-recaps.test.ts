@@ -81,6 +81,26 @@ describe('session recaps endpoint', () => {
     expect(await res.json()).toEqual({ success: true, data: body });
   });
 
+  it('updates recap with uuid sub-location id without error', async () => {
+    const uuid = 'e1b5c9d3-0f6a-4d2e-9b3c-4d5e6f7a8b9c';
+    mockDb.execute
+      .mockResolvedValueOnce({
+        rows: [{ id: 31, date: '2026-05-31', title: 'The Bloody Thorn', recap: 'Details', author: null, notes: JSON.stringify([]) }],
+      })
+      .mockResolvedValueOnce({ rowsAffected: 1 });
+
+    const { PUT } = await import('@/app/api/data/session-recaps/route');
+    const body = { id: '31', date: '2026-05-31', title: 'The Bloody Thorn', recap: 'Details', notes: [], tagged_npcs: [], tagged_locations: [uuid] };
+    const res = await PUT(jsonRequest('http://test/api/recaps', 'PUT', body) as any);
+    expect(res.status).toBe(200);
+
+    const insertCall = mockDb.execute.mock.calls.find(
+      (c: unknown[]) => typeof c[0] === 'object' && c[0] !== null && (c[0] as { sql?: string }).sql?.includes('INSERT OR IGNORE INTO recap_locations')
+    );
+    expect(insertCall).toBeDefined();
+    expect((insertCall![0] as { args: unknown[] }).args[1]).toBe(uuid);
+  });
+
   it('returns 404 when update target missing', async () => {
     mockDb.execute.mockResolvedValueOnce({ rows: [] });
     const { PUT } = await import('@/app/api/data/session-recaps/route');

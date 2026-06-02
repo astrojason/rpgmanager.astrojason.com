@@ -156,7 +156,7 @@ export async function ensureSchema() {
   )`);
   await db.execute(`CREATE TABLE IF NOT EXISTS recap_locations (
     recap_id INTEGER NOT NULL,
-    location_id INTEGER NOT NULL,
+    location_id TEXT NOT NULL,
     PRIMARY KEY(recap_id, location_id)
   )`);
   await db.execute(`CREATE TABLE IF NOT EXISTS quest_npcs (
@@ -166,7 +166,7 @@ export async function ensureSchema() {
   )`);
   await db.execute(`CREATE TABLE IF NOT EXISTS quest_locations (
     quest_id INTEGER NOT NULL,
-    location_id INTEGER NOT NULL,
+    location_id TEXT NOT NULL,
     PRIMARY KEY(quest_id, location_id)
   )`);
 }

@@ -32,7 +32,7 @@ async function replaceTagsForQuest(db: ReturnType<typeof getDb>, questId: string
         await db.execute({ sql: `INSERT OR IGNORE INTO quest_npcs (quest_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)] });
     }
     for (const locId of locations) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO quest_locations (quest_id, location_id) VALUES (?,?)`, args: [id, Number(locId)] });
+        await db.execute({ sql: `INSERT OR IGNORE INTO quest_locations (quest_id, location_id) VALUES (?,?)`, args: [id, locId] });
     }
 }
 

@@ -30,7 +30,7 @@ async function replaceTagsForRecap(db: ReturnType<typeof getDb>, recapId: string
         await db.execute({ sql: `INSERT OR IGNORE INTO recap_npcs (recap_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)] });
     }
     for (const locId of locations) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO recap_locations (recap_id, location_id) VALUES (?,?)`, args: [id, Number(locId)] });
+        await db.execute({ sql: `INSERT OR IGNORE INTO recap_locations (recap_id, location_id) VALUES (?,?)`, args: [id, locId] });
     }
 }
 
