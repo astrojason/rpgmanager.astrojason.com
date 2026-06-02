@@ -30,7 +30,7 @@ export default function InteractiveImage({
     if (onAreaClick) {
       onAreaClick(area);
     } else {
-      alert(`Clicked on ${area.name}: ${area.teaser}`);
+      console.warn(`InteractiveImage: no onAreaClick handler provided for area "${area.name}"`);
     }
   };
 

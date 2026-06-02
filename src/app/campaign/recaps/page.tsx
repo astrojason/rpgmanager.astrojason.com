@@ -12,6 +12,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { authFetch } from "@/utils/authFetch";
 import Link from "next/link";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 interface EntityItem { id: string; name: string; }
 
@@ -46,6 +47,7 @@ export default function RecapsPage() {
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableQuests, setAvailableQuests] = useState<EntityItem[]>([]);
   const [availableItems, setAvailableItems] = useState<EntityItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadRecaps = async () => {
@@ -55,8 +57,8 @@ export default function RecapsPage() {
           const data = await response.json();
           setAllRecaps(data);
         }
-      } catch (error) {
-        console.error("Error loading recaps:", error);
+      } catch (e) {
+        setError(toErrorMessage(e));
       } finally {
         setLoading(false);
       }
@@ -64,7 +66,7 @@ export default function RecapsPage() {
     loadRecaps();
     authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
       setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
     authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
       const flat: EntityItem[] = [];
       for (const loc of data) {
@@ -74,13 +76,13 @@ export default function RecapsPage() {
         }
       }
       setAvailableLocations(flat);
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
     authFetch('/api/data/quests').then(r => r.json()).then((data: { id: string; name: string }[]) => {
       setAvailableQuests(data.map(q => ({ id: String(q.id), name: q.name })));
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
     authFetch('/api/data/items').then(r => r.json()).then((data: { id: string; name: string }[]) => {
       setAvailableItems(data.map(it => ({ id: String(it.id), name: it.name })));
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
   }, []);
 
   useEffect(() => {
@@ -144,8 +146,7 @@ export default function RecapsPage() {
       setShowAddForm(false);
       setNewRecap({ date: "", title: "", recap: "" });
     } catch (e) {
-      console.error(e);
-      alert("Failed to add recap");
+      setError(toErrorMessage(e));
     }
   };
 
@@ -169,8 +170,7 @@ export default function RecapsPage() {
       setEditingRecapId(null);
       setEditingRecap({});
     } catch (e) {
-      console.error(e);
-      alert("Failed to save recap");
+      setError(toErrorMessage(e));
     }
   };
 
@@ -186,8 +186,7 @@ export default function RecapsPage() {
       const data = await (await authFetch("/api/data/session-recaps")).json();
       setAllRecaps(data);
     } catch (e) {
-      console.error(e);
-      alert("Failed to update notes");
+      setError(toErrorMessage(e));
     }
   };
 
@@ -209,6 +208,7 @@ export default function RecapsPage() {
 
       {/* Chronicle column */}
       <div style={{ overflowY: "auto", padding: "36px 40px 80px 56px" }}>
+        {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
         {/* Page header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

@@ -58,10 +58,8 @@ export default function PCsManagementPage() {
         const result = await listUsers();
         setUsers(result.data as UserData[]);
       } catch (userError) {
-        console.error('Failed to load users:', userError);
-        // Continue without users data
+        setError(userError instanceof Error ? userError.message : 'Failed to load users');
       }
-      // Load Factions for name mapping and selector
       try {
         const factionsResp = await authFetch('/api/data/factions');
         if (factionsResp.ok) {
@@ -69,7 +67,7 @@ export default function PCsManagementPage() {
           setFactions(Array.isArray(factionsData) ? factionsData : []);
         }
       } catch (factionError) {
-        console.error('Failed to load factions:', factionError);
+        setError(factionError instanceof Error ? factionError.message : 'Failed to load factions');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');

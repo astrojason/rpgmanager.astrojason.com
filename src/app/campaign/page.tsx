@@ -16,6 +16,7 @@ import {
   parseSessionDate,
 } from "@/utils/nextSession";
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 interface NextSessionData {
   date: string;
@@ -126,6 +127,7 @@ export default function CampaignHome() {
   const [recentNPCs, setRecentNPCs] = useState<NPC[]>([]);
   const [activeQuests, setActiveQuests] = useState<Quest[]>([]);
   const [latestRecap, setLatestRecap] = useState<SessionRecap | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth) return;
@@ -139,7 +141,7 @@ export default function CampaignHome() {
     authFetch('/api/data/next-session')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d) setSessionData(d); })
-      .catch(() => {});
+      .catch((e: unknown) => setError(toErrorMessage(e)));
 
     Promise.all([
       authFetch('/api/data/npcs').then(r => r.json()),
@@ -153,14 +155,14 @@ export default function CampaignHome() {
         ? tagged
         : npcs.filter((n: NPC) => !n.hidden).slice(0, 6);
       setRecentNPCs(visible);
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
 
     authFetch('/api/data/quests')
       .then(r => r.json())
       .then((quests: Quest[]) => {
         setActiveQuests(quests.filter((q: Quest) => q.status === 'active').slice(0, 4));
       })
-      .catch(() => {});
+      .catch((e: unknown) => setError(toErrorMessage(e)));
   }, []);
 
   const storedDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
@@ -178,6 +180,7 @@ export default function CampaignHome() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
       {/* Masthead */}
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { NPC, Location, Faction, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 const FILTERS = [
   { id: "all",       label: "All Tongues" },
@@ -48,6 +49,7 @@ export default function PronunciationsPage() {
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -64,8 +66,8 @@ export default function PronunciationsPage() {
           setFactionData(await factRes.json());
           setCalendarData(await calRes.json());
         }
-      } catch (error) {
-        console.error('Error loading data:', error);
+      } catch (e) {
+        setError(toErrorMessage(e));
       } finally {
         setLoading(false);
       }
@@ -120,6 +122,7 @@ export default function PronunciationsPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

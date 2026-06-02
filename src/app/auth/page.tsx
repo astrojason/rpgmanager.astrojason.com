@@ -37,7 +37,7 @@ export default function AuthPage() {
       // Refresh the token so role claims are immediately available to the app
       await user.getIdToken(true);
     } catch (err) {
-      console.error("Failed to assign default role", err);
+      setError(err instanceof Error ? err.message : "Failed to assign default role");
     } finally {
       setAssigningRole(false);
     }

@@ -84,7 +84,9 @@ export default function NPCsManagementPage() {
       const cursor = localStorage.getItem('npcReviewCursorId');
       if (done) setDoneIds(new Set(JSON.parse(done)));
       if (cursor) setCursorId(cursor);
-    } catch {}
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not restore review progress from localStorage');
+    }
   }, []);
 
   const persistProgress = (nextDone: Set<string>, nextCursorId: string | null) => {
@@ -92,7 +94,9 @@ export default function NPCsManagementPage() {
       localStorage.setItem('npcReviewDoneIds', JSON.stringify(Array.from(nextDone)));
       if (nextCursorId) localStorage.setItem('npcReviewCursorId', nextCursorId);
       else localStorage.removeItem('npcReviewCursorId');
-    } catch {}
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not save review progress to localStorage');
+    }
   };
 
   const filteredNpcs = npcs.filter(npc => {
@@ -348,7 +352,9 @@ export default function NPCsManagementPage() {
     try {
       localStorage.removeItem('npcReviewDoneIds');
       localStorage.removeItem('npcReviewCursorId');
-    } catch {}
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not clear review progress from localStorage');
+    }
     setSuccess('Review progress reset');
     setTimeout(() => setSuccess(''), 2000);
   };

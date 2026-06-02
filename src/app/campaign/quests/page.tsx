@@ -13,6 +13,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
 import { getRecapsForQuest } from "@/utils/entityTags";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; glow: boolean }> = {
@@ -54,6 +55,7 @@ export default function QuestsPage() {
   const [newQuestName, setNewQuestName] = useState("");
   const [newQuestStatus, setNewQuestStatus] = useState("active");
   const [createError, setCreateError] = useState("");
+  const [noteError, setNoteError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -65,8 +67,8 @@ export default function QuestsPage() {
         if (!questsRes.ok) throw new Error('Failed to load quests');
         setQuestsData(await questsRes.json());
         if (recapsRes.ok) setRecapsData(await recapsRes.json());
-      } catch (error) {
-        console.error('Error loading quests:', error);
+      } catch (e) {
+        setCreateError(toErrorMessage(e));
       } finally {
         setLoading(false);
       }
@@ -169,9 +171,8 @@ export default function QuestsPage() {
       setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
       setNewNoteContent("");
       setEditingNote(null);
-    } catch (error) {
-      console.error('Error adding note:', error);
-      alert('Failed to add note. Please try again.');
+    } catch (e) {
+      setNoteError(toErrorMessage(e));
     }
   };
 
@@ -202,8 +203,7 @@ export default function QuestsPage() {
       setEditingNoteId(null);
       setEditingNoteContent("");
     } catch (e) {
-      console.error('Error updating note:', e);
-      alert('Failed to update note');
+      setNoteError(toErrorMessage(e));
     }
   };
 
@@ -221,8 +221,7 @@ export default function QuestsPage() {
       if (!response.ok) throw new Error('Failed to delete note');
       setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
     } catch (e) {
-      console.error('Error deleting note:', e);
-      alert('Failed to delete note');
+      setNoteError(toErrorMessage(e));
     }
   };
 
@@ -239,6 +238,7 @@ export default function QuestsPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+      {noteError && <ErrorBlock error={noteError} onDismiss={() => setNoteError(null)} />}
 
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

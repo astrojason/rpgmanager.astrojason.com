@@ -10,6 +10,7 @@ import {
   parseSessionDate,
 } from "@/utils/nextSession";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 interface NextSessionData {
   date: string;
@@ -52,6 +53,7 @@ const QUICK_LINKS = [
 export default function NextSessionPage() {
   const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<Countdown>({ h: 0, m: 0, s: 0 });
   const isAdmin = useIsAdmin();
 
@@ -67,7 +69,7 @@ export default function NextSessionPage() {
     authFetch("/api/data/next-session")
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d) setSessionData(d); })
-      .catch(() => {})
+      .catch((e: unknown) => setError(toErrorMessage(e)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -116,7 +118,7 @@ export default function NextSessionPage() {
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) setSessionData(updated);
-    } catch { /* noop */ }
+    } catch (e) { setError(toErrorMessage(e)); }
   };
 
   const handleSkip = async () => {
@@ -127,7 +129,7 @@ export default function NextSessionPage() {
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) setSessionData(updated);
-    } catch { /* noop */ }
+    } catch (e) { setError(toErrorMessage(e)); }
   };
 
   const handleUnskip = async () => {
@@ -136,7 +138,7 @@ export default function NextSessionPage() {
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) setSessionData(updated);
-    } catch { /* noop */ }
+    } catch (e) { setError(toErrorMessage(e)); }
   };
 
   const handleAdvance = async () => {
@@ -147,7 +149,7 @@ export default function NextSessionPage() {
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) setSessionData(updated);
-    } catch { /* noop */ }
+    } catch (e) { setError(toErrorMessage(e)); }
   };
 
   if (loading) {
@@ -164,6 +166,7 @@ export default function NextSessionPage() {
   if (!sessionData) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
         <div style={{ fontFamily: "var(--font-head)", fontSize: 18, color: "var(--grim-blood-2)", letterSpacing: ".08em" }}>
           The summons could not be retrieved.
         </div>
@@ -173,6 +176,7 @@ export default function NextSessionPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
       {/* Masthead */}
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 26 }}>

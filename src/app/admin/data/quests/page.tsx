@@ -44,7 +44,7 @@ export default function QuestsManagementPage() {
     loadQuests();
     authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
       setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load NPCs'));
     authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
       const flat: EntityItem[] = [];
       for (const loc of data) {
@@ -54,7 +54,7 @@ export default function QuestsManagementPage() {
         }
       }
       setAvailableLocations(flat);
-    }).catch(() => {});
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load locations'));
   }, []);
 
   const loadQuests = async () => {
