@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { NPC, Location, Faction, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
+import { NPC, Location, Faction, Item, Deity, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
@@ -10,6 +10,8 @@ const FILTERS = [
   { id: "npcs",      label: "Souls" },
   { id: "locations", label: "Places" },
   { id: "factions",  label: "Banners" },
+  { id: "items",     label: "Relics" },
+  { id: "deities",   label: "Divinities" },
   { id: "months",    label: "Months" },
   { id: "days",      label: "Days" },
 ];
@@ -47,6 +49,8 @@ export default function PronunciationsPage() {
   const [npcData, setNpcData] = useState<NPC[]>([]);
   const [locationData, setLocationData] = useState<Location[]>([]);
   const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [itemData, setItemData] = useState<Item[]>([]);
+  const [deityData, setDeityData] = useState<Deity[]>([]);
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,18 +58,20 @@ export default function PronunciationsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [npcsRes, locsRes, factRes, calRes] = await Promise.all([
+        const [npcsRes, locsRes, factRes, itemsRes, deitiesRes, calRes] = await Promise.all([
           authFetch('/api/data/npcs'),
           authFetch('/api/data/locations'),
           authFetch('/api/data/factions'),
+          authFetch('/api/data/items'),
+          authFetch('/api/data/deities'),
           authFetch('/api/data/calendar'),
         ]);
-        if (npcsRes.ok && locsRes.ok && factRes.ok && calRes.ok) {
-          setNpcData(await npcsRes.json());
-          setLocationData(await locsRes.json());
-          setFactionData(await factRes.json());
-          setCalendarData(await calRes.json());
-        }
+        if (npcsRes.ok) setNpcData(await npcsRes.json());
+        if (locsRes.ok) setLocationData(await locsRes.json());
+        if (factRes.ok) setFactionData(await factRes.json());
+        if (itemsRes.ok) setItemData(await itemsRes.json());
+        if (deitiesRes.ok) setDeityData(await deitiesRes.json());
+        if (calRes.ok) setCalendarData(await calRes.json());
       } catch (e) {
         setError(toErrorMessage(e));
       } finally {
@@ -104,6 +110,16 @@ export default function PronunciationsPage() {
   const calendarMonths: CalendarMonth[] = calendarData?.static?.months ?? [];
   const calendarWeekdays: CalendarWeekday[] = calendarData?.static?.weekdays ?? [];
 
+  const visibleItems = itemData
+    .filter((it) => !it.hidden && it.pronunciation)
+    .map((it) => ({ name: it.name, pronunciation: it.pronunciation }))
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+  const visibleDeities = deityData
+    .filter((d) => !d.hidden && d.pronunciation)
+    .map((d) => ({ name: d.name, pronunciation: d.pronunciation }))
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
   const filterItems = (items: Array<{ name: string; pronunciation?: string }>) =>
     items.filter(
       (item) =>
@@ -115,10 +131,12 @@ export default function PronunciationsPage() {
   const filteredNPCs      = (activeFilter === "all" || activeFilter === "npcs")      ? filterItems(visibleNPCs)      : [];
   const filteredLocations = (activeFilter === "all" || activeFilter === "locations") ? filterItems(allLocations)     : [];
   const filteredFactions  = (activeFilter === "all" || activeFilter === "factions")  ? filterItems(factionData)      : [];
+  const filteredItems     = (activeFilter === "all" || activeFilter === "items")     ? filterItems(visibleItems)     : [];
+  const filteredDeities   = (activeFilter === "all" || activeFilter === "deities")   ? filterItems(visibleDeities)   : [];
   const filteredMonths    = (activeFilter === "all" || activeFilter === "months")    ? filterItems(calendarMonths)   : [];
   const filteredWeekdays  = (activeFilter === "all" || activeFilter === "days")      ? filterItems(calendarWeekdays) : [];
 
-  const totalResults = filteredNPCs.length + filteredLocations.length + filteredFactions.length + filteredMonths.length + filteredWeekdays.length;
+  const totalResults = filteredNPCs.length + filteredLocations.length + filteredFactions.length + filteredItems.length + filteredDeities.length + filteredMonths.length + filteredWeekdays.length;
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
@@ -177,7 +195,13 @@ export default function PronunciationsPage() {
         <PronSection glyph="✠" title="Places of the Realm" items={filteredLocations} />
       )}
       {filteredFactions.length > 0 && (
-        <PronSection glyph="⚑" title="Banners & Relics" items={filteredFactions} />
+        <PronSection glyph="⚑" title="Banners & Orders" items={filteredFactions} />
+      )}
+      {filteredItems.length > 0 && (
+        <PronSection glyph="⚔" title="Relics & Artefacts" items={filteredItems} />
+      )}
+      {filteredDeities.length > 0 && (
+        <PronSection glyph="✦" title="Divinities & Powers" items={filteredDeities} />
       )}
       {filteredMonths.length > 0 && (
         <PronSection glyph="☽" title="Months of the Realm" items={filteredMonths} />
