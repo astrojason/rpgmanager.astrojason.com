@@ -244,7 +244,37 @@ export default function DeitiesManagementPage() {
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Description</label>
-                    <MarkdownEditor value={form.description || ""} onChange={v => setForm(f => ({ ...f, description: v }))} rows={5} label="Description" />
+                    <MarkdownEditor value={form.description || ""} onChange={v => setForm(f => ({ ...f, description: v }))} rows={4} label="Description" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Symbol</label>
+                    <input type="text" value={form.symbol || ""} onChange={e => setForm(f => ({ ...f, symbol: e.target.value }))} style={inputStyle} placeholder="e.g. An open eye above a flame" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Church</label>
+                    <MarkdownEditor value={form.church || ""} onChange={v => setForm(f => ({ ...f, church: v }))} rows={3} label="Church" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Garments</label>
+                    <MarkdownEditor value={form.garments || ""} onChange={v => setForm(f => ({ ...f, garments: v }))} rows={3} label="Garments" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Tenets</label>
+                    <MarkdownEditor value={form.tenets || ""} onChange={v => setForm(f => ({ ...f, tenets: v }))} rows={4} label="Tenets" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Lore</label>
+                    <MarkdownEditor value={form.lore || ""} onChange={v => setForm(f => ({ ...f, lore: v }))} rows={5} label="Lore" />
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Notable Followers</label>
+                    <MarkdownEditor value={form.notable_followers || ""} onChange={v => setForm(f => ({ ...f, notable_followers: v }))} rows={4} label="Notable Followers" />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>

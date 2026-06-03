@@ -187,8 +187,18 @@ export async function ensureSchema() {
     image TEXT,
     hidden INTEGER NOT NULL DEFAULT 0,
     gm_notes TEXT,
-    notes TEXT
+    notes TEXT,
+    symbol TEXT,
+    church TEXT,
+    garments TEXT,
+    tenets TEXT,
+    lore TEXT,
+    notable_followers TEXT
   )`);
+  // Migrate existing deities tables that predate new columns
+  for (const col of ['symbol', 'church', 'garments', 'tenets', 'lore', 'notable_followers']) {
+    try { await db.execute(`ALTER TABLE deities ADD COLUMN ${col} TEXT`); } catch { /* already exists */ }
+  }
 
   // Items
   await db.execute(`CREATE TABLE IF NOT EXISTS items (

@@ -184,6 +184,12 @@ export interface Deity {
   notes?: UserNote[];
   tagged_recaps?: string[];
   tagged_quests?: string[];
+  symbol?: string;
+  church?: string;
+  garments?: string;
+  tenets?: string;
+  lore?: string;
+  notable_followers?: string;
 }
 
 export interface Quest {

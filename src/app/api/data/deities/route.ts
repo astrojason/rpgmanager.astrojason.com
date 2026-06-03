@@ -50,6 +50,12 @@ export async function GET(request?: NextRequest) {
                 notes: r.notes ? JSON.parse(String(r.notes)) : [],
                 tagged_recaps: recapMap.get(id) ?? [],
                 tagged_quests: questMap.get(id) ?? [],
+                symbol: sanitizeOptionalText(r.symbol),
+                church: sanitizeOptionalText(r.church),
+                garments: sanitizeOptionalText(r.garments),
+                tenets: sanitizeOptionalText(r.tenets),
+                lore: sanitizeOptionalText(r.lore),
+                notable_followers: sanitizeOptionalText(r.notable_followers),
             };
         });
         return NextResponse.json(data);
@@ -68,8 +74,8 @@ export async function POST(request: NextRequest) {
         const db = getDb();
         const d: Deity = await request.json();
         const res = await db.execute({
-            sql: `INSERT INTO ${TABLE} (name,pronunciation,domain,alignment,status,description,image,hidden,gm_notes,notes) VALUES (?,?,?,?,?,?,?,?,?,?)`,
-            args: [d.name, d.pronunciation ?? null, d.domain ?? null, d.alignment ?? null, d.status ?? null, d.description ?? null, d.image ?? null, d.hidden ? 1 : 0, d.gm_notes ?? null, JSON.stringify(d.notes ?? [])],
+            sql: `INSERT INTO ${TABLE} (name,pronunciation,domain,alignment,status,description,image,hidden,gm_notes,notes,symbol,church,garments,tenets,lore,notable_followers) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            args: [d.name, d.pronunciation ?? null, d.domain ?? null, d.alignment ?? null, d.status ?? null, d.description ?? null, d.image ?? null, d.hidden ? 1 : 0, d.gm_notes ?? null, JSON.stringify(d.notes ?? []), d.symbol ?? null, d.church ?? null, d.garments ?? null, d.tenets ?? null, d.lore ?? null, d.notable_followers ?? null],
         });
         return NextResponse.json({ success: true, data: { ...d, id: String(res.lastInsertRowid ?? 0) } });
     } catch (error) {
@@ -87,8 +93,8 @@ export async function PUT(request: NextRequest) {
         const db = getDb();
         const d: Deity = await request.json();
         const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,domain=?,alignment=?,status=?,description=?,image=?,hidden=?,gm_notes=?,notes=? WHERE id=?`,
-            args: [d.name, d.pronunciation ?? null, d.domain ?? null, d.alignment ?? null, d.status ?? null, d.description ?? null, d.image ?? null, d.hidden ? 1 : 0, d.gm_notes ?? null, JSON.stringify(d.notes ?? []), Number(d.id)],
+            sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,domain=?,alignment=?,status=?,description=?,image=?,hidden=?,gm_notes=?,notes=?,symbol=?,church=?,garments=?,tenets=?,lore=?,notable_followers=? WHERE id=?`,
+            args: [d.name, d.pronunciation ?? null, d.domain ?? null, d.alignment ?? null, d.status ?? null, d.description ?? null, d.image ?? null, d.hidden ? 1 : 0, d.gm_notes ?? null, JSON.stringify(d.notes ?? []), d.symbol ?? null, d.church ?? null, d.garments ?? null, d.tenets ?? null, d.lore ?? null, d.notable_followers ?? null, Number(d.id)],
         });
         if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
         return NextResponse.json({ success: true, data: d });

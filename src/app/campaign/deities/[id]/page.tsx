@@ -229,7 +229,31 @@ export default function DeityDetailPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
-                <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={5} label="Description" />
+                <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={4} label="Description" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Symbol</label>
+                <input type="text" value={editingDeity.symbol || ""} onChange={e => setEditingDeity({ ...editingDeity, symbol: e.target.value })} style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Church</label>
+                <MarkdownEditor value={editingDeity.church || ""} onChange={v => setEditingDeity({ ...editingDeity, church: v })} rows={3} label="Church" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Garments</label>
+                <MarkdownEditor value={editingDeity.garments || ""} onChange={v => setEditingDeity({ ...editingDeity, garments: v })} rows={3} label="Garments" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Tenets</label>
+                <MarkdownEditor value={editingDeity.tenets || ""} onChange={v => setEditingDeity({ ...editingDeity, tenets: v })} rows={4} label="Tenets" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Lore</label>
+                <MarkdownEditor value={editingDeity.lore || ""} onChange={v => setEditingDeity({ ...editingDeity, lore: v })} rows={5} label="Lore" />
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers</label>
+                <MarkdownEditor value={editingDeity.notable_followers || ""} onChange={v => setEditingDeity({ ...editingDeity, notable_followers: v })} rows={4} label="Notable Followers" />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
@@ -316,15 +340,16 @@ export default function DeityDetailPage() {
             </div>
 
             {/* Stat strip */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", marginTop: 22, borderTop: "1px solid var(--grim-line)", borderBottom: "1px solid var(--grim-line)", padding: "12px 0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: `repeat(${deity.symbol ? 4 : 3}, 1fr)`, marginTop: 22, borderTop: "1px solid var(--grim-line)", borderBottom: "1px solid var(--grim-line)", padding: "12px 0" }}>
               {[
                 ["Domain", deity.domain || "—"],
                 ["Alignment", deity.alignment || "—"],
                 ["Status", deity.status || "—"],
+                ...(deity.symbol ? [["Symbol", deity.symbol]] : []),
               ].map(([k, v], i) => (
                 <div key={k} style={{ paddingLeft: i === 0 ? 0 : 16, borderLeft: i === 0 ? "none" : "1px solid var(--grim-line)" }}>
                   <div className="grim-label">{k}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1.2, marginTop: 3 }}>{v}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--grim-gold)", lineHeight: 1.2, marginTop: 3 }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -341,14 +366,41 @@ export default function DeityDetailPage() {
         {/* Two-column body */}
         <div style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 22 }}>
 
-          {/* Left column: appearances */}
+          {/* Left column: content + appearances */}
           <div className="grim-stack" style={{ gap: 22 }}>
-            {linkedRecaps.length === 0 && linkedQuests.length === 0 ? (
+            {deity.lore && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Lore</h3>
+                  <span className="grim-tome-sub">history &amp; legend</span>
+                </div>
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.lore, isAdmin) }} />
+              </section>
+            )}
+            {deity.tenets && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Tenets</h3>
+                  <span className="grim-tome-sub">the sacred laws</span>
+                </div>
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.tenets, isAdmin) }} />
+              </section>
+            )}
+            {deity.notable_followers && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Notable Followers</h3>
+                  <span className="grim-tome-sub">disciples &amp; devotees</span>
+                </div>
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.notable_followers, isAdmin) }} />
+              </section>
+            )}
+            {linkedRecaps.length === 0 && linkedQuests.length === 0 && !deity.lore && !deity.tenets && !deity.notable_followers ? (
               <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ unrecorded ~</div>
-                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No appearances yet recorded in the codex</div>
+                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No record yet in the codex</div>
               </section>
-            ) : (
+            ) : (linkedRecaps.length > 0 || linkedQuests.length > 0) ? (
               <>
                 {linkedRecaps.length > 0 && (
                   <section className="grim-tome">
@@ -387,11 +439,29 @@ export default function DeityDetailPage() {
                   </section>
                 )}
               </>
-            )}
+            ) : null}
           </div>
 
-          {/* Right column: GM notes + user notes */}
+          {/* Right column: church, garments, GM notes, user notes */}
           <div className="grim-stack" style={{ gap: 22 }}>
+            {deity.church && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Church</h3>
+                  <span className="grim-tome-sub">clergy &amp; organisation</span>
+                </div>
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.church, isAdmin) }} />
+              </section>
+            )}
+            {deity.garments && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Garments</h3>
+                  <span className="grim-tome-sub">vestments &amp; regalia</span>
+                </div>
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.garments, isAdmin) }} />
+              </section>
+            )}
             {(isDM || isAdmin) && (
               dmMode ? (
                 deity.gm_notes ? (
