@@ -7,6 +7,7 @@
 - [x] recaps should be scanned for NPC names, locations, items and change the text to a link to the appropriate entity
 - [x] add the ability to add factions to recaps and quests, and link to their respective pages, and add backlinks
 - [x] add the ability to add deities to recaps and quests, and link to their respective pages, and add backlinks
+- [x] entity cross-links should use path-based routing `/campaign/entity/:id`, not query string params; added `[id]` detail pages for quests, recaps, and factions
 
 ## Bugs to fix
 - [x] next session calculation should show the next upcoming session, defaulting to the next Sunday at 7pm Pacific if there are no skipped sessions

@@ -262,7 +262,7 @@ export default function PCDetailPage() {
                       key={factionId}
                       className="grim-chip is-faction"
                       style={{ cursor: "pointer", fontSize: 12, padding: "5px 12px" }}
-                      onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(factionId)}`)}
+                      onClick={() => router.push(`/campaign/factions/${factionId}`)}
                     >
                       ⚑ {getFactionName(factionId)}
                     </button>

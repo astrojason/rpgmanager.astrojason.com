@@ -485,7 +485,7 @@ export default function QuestsPage() {
                           {appearances.map(r => (
                             <Link
                               key={r.id ?? r.date}
-                              href={`/campaign/recaps?recap=${r.id ?? r.date}`}
+                              href={`/campaign/recaps/${r.id ?? r.date}`}
                               style={{ textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "6px 10px", background: "oklch(0.14 0.025 290 / 0.5)", border: "1px solid var(--grim-line)" }}
                             >
                               <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>

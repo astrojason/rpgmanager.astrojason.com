@@ -41,7 +41,7 @@ describe('SideNavigation', () => {
   it('renders coming-soon items as non-interactive spans with dim class', () => {
     render(<SideNavigation />);
 
-    const el = screen.getByTitle('Items');
+    const el = screen.getByTitle('Timeline');
     expect(el.tagName.toLowerCase()).toBe('span');
     expect(el).toHaveClass('is-dim');
   });

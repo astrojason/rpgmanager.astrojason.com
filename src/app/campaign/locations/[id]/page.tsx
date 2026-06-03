@@ -241,7 +241,7 @@ export default function LocationDetailPage() {
                 {appearances.map((r) => (
                   <Link
                     key={r.id ?? r.date}
-                    href={`/campaign/recaps?recap=${r.id ?? r.date}`}
+                    href={`/campaign/recaps/${r.id ?? r.date}`}
                     style={{ textDecoration: "none", color: "inherit", display: "block" }}
                   >
                     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>

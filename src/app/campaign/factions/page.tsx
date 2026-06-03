@@ -316,7 +316,7 @@ export default function FactionsPage() {
                         name={!npc.name || npc.nameHidden || npc.hide_name ? (npc.display_name || npc.aka ? `"${npc.display_name || npc.aka}"` : "Unknown") : npc.name}
                         sub={[npc.description, npc.gender, npc.location].filter(Boolean).join(" · ")}
                         deceased={npc.status === "Deceased"}
-                        onClick={() => router.push(`/campaign/npcs?selected=${npc.id}`)}
+                        onClick={() => router.push(`/campaign/npcs/${npc.id}`)}
                       />
                     ))}
                   </div>
@@ -337,7 +337,7 @@ export default function FactionsPage() {
                         image={pc.image}
                         name={pc.name + (pc.nickname ? ` "${pc.nickname}"` : "")}
                         sub={[pc.race, pc.class, pc.hometown].filter(Boolean).join(" · ")}
-                        onClick={() => router.push(`/campaign/pcs?selected=${pc.id}`)}
+                        onClick={() => router.push(`/campaign/pcs/${pc.id}`)}
                       />
                     ))}
                   </div>
@@ -398,7 +398,7 @@ export default function FactionsPage() {
                     </div>
                     <div className="grim-stack" style={{ gap: 8 }}>
                       {factionRecaps.map(r => (
-                        <Link key={r.id ?? r.date} href={`/campaign/recaps?recap=${r.id ?? r.date}`} style={{ textDecoration: "none" }}>
+                        <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`} style={{ textDecoration: "none" }}>
                           <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
                             <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-ember-2)", flexShrink: 0 }}>SESSION</span>
                             <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{r.title}</span>
@@ -407,7 +407,7 @@ export default function FactionsPage() {
                         </Link>
                       ))}
                       {factionQuests.map(q => (
-                        <Link key={q.id} href={`/campaign/quests?quest=${q.id}`} style={{ textDecoration: "none" }}>
+                        <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ textDecoration: "none" }}>
                           <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
                             <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-gold)", flexShrink: 0 }}>QUEST</span>
                             <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{q.name}</span>

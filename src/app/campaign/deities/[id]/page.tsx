@@ -460,7 +460,7 @@ export default function DeityDetailPage() {
                     </div>
                     <div className="grim-stack" style={{ gap: 8 }}>
                       {linkedRecaps.map(r => (
-                        <Link key={r.id ?? r.date} href={`/campaign/recaps?recap=${r.id ?? r.date}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                        <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
                             <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
                             <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
@@ -478,7 +478,7 @@ export default function DeityDetailPage() {
                     </div>
                     <div className="grim-stack" style={{ gap: 8 }}>
                       {linkedQuests.map(q => (
-                        <Link key={q.id} href={`/campaign/quests?quest=${q.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                        <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
                             <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{q.name}</span>
                             <span className="grim-chip" style={{ fontSize: 9 }}>{q.status}</span>

@@ -370,7 +370,7 @@ export default function CampaignHome() {
               const state = questRailState(q.status);
               const desc = questDescription(q);
               return (
-                <Link key={q.id} href={`/campaign/quests?quest=${q.id}`} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none", textDecoration: "none" }}>
+                <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none", textDecoration: "none" }}>
                   <div style={{
                     width: 4, alignSelf: "stretch", marginTop: 4, flexShrink: 0,
                     background: state === "ember" ? "var(--grim-ember)" : state === "arcane" ? "var(--grim-arcane)" : "var(--grim-line-2)",

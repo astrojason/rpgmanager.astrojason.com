@@ -514,7 +514,7 @@ export default function RecapsPage() {
                         {(recap.tagged_quests ?? []).map(id => {
                           const qt = availableQuests.find(x => x.id === id);
                           return qt ? (
-                            <Link key={id} href={`/campaign/quests`} className="grim-chip is-faction" style={{ fontSize: 11, textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: 11, textDecoration: "none" }}>
                               {qt.name}
                             </Link>
                           ) : null;
@@ -530,7 +530,7 @@ export default function RecapsPage() {
                         {(recap.tagged_factions ?? []).map(id => {
                           const f = availableFactions.find(x => x.id === id);
                           return f ? (
-                            <Link key={id} href={`/campaign/factions?faction=${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                            <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
                               ⚑ {f.name}
                             </Link>
                           ) : null;
@@ -538,7 +538,7 @@ export default function RecapsPage() {
                         {(recap.tagged_deities ?? []).map(id => {
                           const d = availableDeities.find(x => x.id === id);
                           return d ? (
-                            <Link key={id} href={`/campaign/deities?deity=${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                            <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
                               ✦ {d.name}
                             </Link>
                           ) : null;

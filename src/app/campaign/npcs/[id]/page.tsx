@@ -393,7 +393,7 @@ export default function NPCDetailPage() {
                     key={fid}
                     className="grim-chip is-faction"
                     style={{ cursor: "pointer", border: "1px solid oklch(0.68 0.115 82 / 0.45)" }}
-                    onClick={() => router.push(`/campaign/factions?selected=${encodeURIComponent(fid)}`)}
+                    onClick={() => router.push(`/campaign/factions/${fid}`)}
                   >
                     ⚑ {getFactionName(fid)}
                   </button>
@@ -530,7 +530,7 @@ export default function NPCDetailPage() {
                   {appearances.map((r) => (
                     <Link
                       key={r.id ?? r.date}
-                      href={`/campaign/recaps?recap=${r.id ?? r.date}`}
+                      href={`/campaign/recaps/${r.id ?? r.date}`}
                       style={{ textDecoration: "none", color: "inherit", display: "block" }}
                     >
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
