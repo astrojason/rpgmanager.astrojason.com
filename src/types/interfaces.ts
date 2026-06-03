@@ -189,7 +189,8 @@ export interface Deity {
   garments?: string;
   tenets?: string;
   lore?: string;
-  notable_followers?: string;
+  follower_npcs?: string[];
+  follower_pcs?: string[];
 }
 
 export interface Quest {

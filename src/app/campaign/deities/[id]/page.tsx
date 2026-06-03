@@ -6,7 +6,7 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import Image from "next/image";
-import { Deity, UserNote, SessionRecap, Quest } from "@/types/interfaces";
+import { Deity, NPC, PC, UserNote, SessionRecap, Quest } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
@@ -44,6 +44,8 @@ export default function DeityDetailPage() {
 
   const [recaps, setRecaps] = useState<SessionRecap[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [npcs, setNpcs] = useState<NPC[]>([]);
+  const [pcs, setPcs] = useState<PC[]>([]);
 
   const userId = useEffectiveUserId();
   const isAdmin = useIsAdmin();
@@ -53,19 +55,21 @@ export default function DeityDetailPage() {
 
   const loadAll = async () => {
     try {
-      const [deitiesRes, recapsRes, questsRes] = await Promise.all([
+      const [deitiesRes, recapsRes, questsRes, npcsRes, pcsRes] = await Promise.all([
         authFetch("/api/data/deities"),
         authFetch("/api/data/session-recaps"),
         authFetch("/api/data/quests"),
+        authFetch("/api/data/npcs"),
+        authFetch("/api/data/pcs"),
       ]);
       const allDeities: Deity[] = deitiesRes.ok ? await deitiesRes.json() : [];
       const found = allDeities.find(d => String(d.id) === id);
       if (!found) { setNotFound(true); return; }
       setDeity(found);
-      const allRecaps: SessionRecap[] = recapsRes.ok ? await recapsRes.json() : [];
-      setRecaps(allRecaps);
-      const allQuests: Quest[] = questsRes.ok ? await questsRes.json() : [];
-      setQuests(allQuests);
+      setRecaps(recapsRes.ok ? await recapsRes.json() : []);
+      setQuests(questsRes.ok ? await questsRes.json() : []);
+      setNpcs(npcsRes.ok ? await npcsRes.json() : []);
+      setPcs(pcsRes.ok ? await pcsRes.json() : []);
     } catch (e) {
       setError(toErrorMessage(e));
       setNotFound(true);
@@ -252,8 +256,32 @@ export default function DeityDetailPage() {
                 <MarkdownEditor value={editingDeity.lore || ""} onChange={v => setEditingDeity({ ...editingDeity, lore: v })} rows={5} label="Lore" />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers</label>
-                <MarkdownEditor value={editingDeity.notable_followers || ""} onChange={v => setEditingDeity({ ...editingDeity, notable_followers: v })} rows={4} label="Notable Followers" />
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — NPCs</label>
+                <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 160, overflowY: "auto", padding: "6px 0" }}>
+                  {npcs.filter(n => !n.hidden).map(n => {
+                    const nid = String(n.id);
+                    return (
+                      <label key={nid} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingDeity.follower_npcs ?? []).includes(nid) ? "oklch(0.72 0.165 48 / 0.12)" : "transparent" }}>
+                        <input type="checkbox" checked={(editingDeity.follower_npcs ?? []).includes(nid)} onChange={e => { const cur = editingDeity.follower_npcs ?? []; setEditingDeity({ ...editingDeity, follower_npcs: e.target.checked ? [...cur, nid] : cur.filter(x => x !== nid) }); }} style={{ accentColor: "var(--grim-ember)" }} />
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{n.name || n.aka || nid}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — PCs</label>
+                <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 120, overflowY: "auto", padding: "6px 0" }}>
+                  {pcs.map(p => {
+                    const pid = String(p.id);
+                    return (
+                      <label key={pid} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingDeity.follower_pcs ?? []).includes(pid) ? "oklch(0.55 0.090 145 / 0.12)" : "transparent" }}>
+                        <input type="checkbox" checked={(editingDeity.follower_pcs ?? []).includes(pid)} onChange={e => { const cur = editingDeity.follower_pcs ?? []; setEditingDeity({ ...editingDeity, follower_pcs: e.target.checked ? [...cur, pid] : cur.filter(x => x !== pid) }); }} style={{ accentColor: "var(--grim-moss)" }} />
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{p.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
@@ -386,16 +414,38 @@ export default function DeityDetailPage() {
                 <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.tenets, isAdmin) }} />
               </section>
             )}
-            {deity.notable_followers && (
-              <section className="grim-tome">
-                <div className="grim-tome-head">
-                  <h3 className="grim-tome-title">Notable Followers</h3>
-                  <span className="grim-tome-sub">disciples &amp; devotees</span>
-                </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.notable_followers, isAdmin) }} />
-              </section>
-            )}
-            {linkedRecaps.length === 0 && linkedQuests.length === 0 && !deity.lore && !deity.tenets && !deity.notable_followers ? (
+            {(() => {
+              const followerNpcs = npcs.filter(n => (deity.follower_npcs ?? []).includes(String(n.id)));
+              const followerPcs = pcs.filter(p => (deity.follower_pcs ?? []).includes(String(p.id)));
+              if (followerNpcs.length === 0 && followerPcs.length === 0) return null;
+              return (
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Notable Followers</h3>
+                    <span className="grim-tome-sub">{followerNpcs.length + followerPcs.length} disciple{followerNpcs.length + followerPcs.length !== 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="grim-stack" style={{ gap: 8 }}>
+                    {followerNpcs.map(n => (
+                      <Link key={n.id} href={`/campaign/npcs/${n.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
+                          <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "NPC"}</span>
+                        </div>
+                      </Link>
+                    ))}
+                    {followerPcs.map(p => (
+                      <Link key={p.id} href={`/campaign/pcs/${p.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ember-2)", letterSpacing: ".03em" }}>{p.name}</span>
+                          <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{p.class || "PC"}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+            {linkedRecaps.length === 0 && linkedQuests.length === 0 && !deity.lore && !deity.tenets && (deity.follower_npcs ?? []).length === 0 && (deity.follower_pcs ?? []).length === 0 ? (
               <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ unrecorded ~</div>
                 <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No record yet in the codex</div>

@@ -200,6 +200,18 @@ export async function ensureSchema() {
     try { await db.execute(`ALTER TABLE deities ADD COLUMN ${col} TEXT`); } catch { /* already exists */ }
   }
 
+  // Deity follower junctions
+  await db.execute(`CREATE TABLE IF NOT EXISTS deity_follower_npcs (
+    deity_id INTEGER NOT NULL,
+    npc_id INTEGER NOT NULL,
+    PRIMARY KEY(deity_id, npc_id)
+  )`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS deity_follower_pcs (
+    deity_id INTEGER NOT NULL,
+    pc_id INTEGER NOT NULL,
+    PRIMARY KEY(deity_id, pc_id)
+  )`);
+
   // Items
   await db.execute(`CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY,
