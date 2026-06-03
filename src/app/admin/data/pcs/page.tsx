@@ -504,13 +504,11 @@ export default function PCsManagementPage() {
                       style={inputStyle}
                     >
                       <option value="">No Player Assigned</option>
-                      {users
-                        .filter(user => !pcs.find(pc => pc.player === user.uid && pc.id !== formData.id))
-                        .map((user) => (
-                          <option key={user.uid} value={user.uid}>
-                            {user.displayName || user.email}
-                          </option>
-                        ))}
+                      {users.map((user) => (
+                        <option key={user.uid} value={user.uid}>
+                          {user.displayName || user.email}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

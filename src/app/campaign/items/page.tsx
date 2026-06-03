@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
-import { Item, UserNote } from "@/types/interfaces";
+import { Item } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
@@ -35,7 +35,6 @@ export default function ItemsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [hoveredItem, setHoveredItem] = useState<Item | null>(null);
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
 
@@ -89,23 +88,12 @@ export default function ItemsPage() {
     } catch { /* noop */ }
   };
 
-  const handleUpdateNotes = async (item: Item, notes: UserNote[]) => {
-    try {
-      await authFetch("/api/data/items", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...item, notes }),
-      });
-      await loadItems();
-    } catch { /* noop */ }
-  };
-
   const startAdding = () => {
     setEditingItem({ name: "", category: "Magic Item", pronunciation: "", type_tag: "", description: "", properties: "", image: "", hidden: false, notes: [] });
     setShowAddForm(true);
   };
 
-  const previewItem = selectedItem || sortedItems[0] || null;
+  const previewItem = hoveredItem || sortedItems[0] || null;
 
   if (loading) {
     return (
@@ -261,7 +249,7 @@ export default function ItemsPage() {
                     style={{
                       padding: "16px 18px",
                       cursor: "pointer",
-                      border: `1px solid ${selectedItem?.id === item.id ? "var(--grim-ember)" : hoveredItem?.id === item.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
+                      border: `1px solid ${hoveredItem?.id === item.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
                       transform: hoveredItem?.id === item.id ? "translateY(-2px)" : "none",
                       transition: "transform 0.15s ease, border-color 0.15s ease",
                       position: "relative",
@@ -307,8 +295,8 @@ export default function ItemsPage() {
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold-2)", opacity: 0.4 }}>⚔</span>
               </div>
               <div style={{ padding: 16 }}>
-                {(hoveredItem || previewItem) ? (() => {
-                  const it = hoveredItem || previewItem!;
+                {previewItem ? (() => {
+                  const it = previewItem;
                   return (
                     <>
                       <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>Relic Ledger</div>
@@ -365,21 +353,6 @@ export default function ItemsPage() {
               </div>
             </div>
 
-            {/* User notes on selected item */}
-            {selectedItem && (
-              <div className="grim-tome" style={{ marginTop: 14 }}>
-                <div className="grim-tome-head">
-                  <h3 className="grim-tome-title">Party Notes</h3>
-                  <span className="grim-tome-sub">field observations</span>
-                </div>
-                <UserNotesEditor
-                  notes={selectedItem.notes || []}
-                  onChange={notes => handleUpdateNotes(selectedItem, notes)}
-                  currentUser={userId}
-                  isAdmin={isAdmin}
-                />
-              </div>
-            )}
           </aside>
         </div>
       </div>

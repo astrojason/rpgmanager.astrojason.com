@@ -16,9 +16,9 @@ const NAV_ITEMS = [
   { id: "pcs",          label: "Player Characters",  sub: "The party",                     icon: "shield",  href: "/campaign/pcs" },
   { id: "factions",     label: "Factions",           sub: "Guilds, politics, cabals",      icon: "banner",  href: "/campaign/factions" },
   { id: "quests",       label: "Quests",             sub: "Active, complete, available",   icon: "key",     href: "/campaign/quests" },
-  { id: "items",        label: "Items",              sub: "Weapons, artifacts, charms",    icon: "gem",     href: "/campaign/items",        dim: true },
+  { id: "items",        label: "Items",              sub: "Weapons, artifacts, charms",    icon: "gem",     href: "/campaign/items" },
   { id: "lore",         label: "Lore",               sub: "History & world building",      icon: "book",    href: "/campaign/lore",         dim: true },
-  { id: "deities",      label: "Deities",            sub: "Gods, pantheons, powers",       icon: "star",    href: "/campaign/deities",      dim: true },
+  { id: "deities",      label: "Deities",            sub: "Gods, pantheons, powers",       icon: "star",    href: "/campaign/deities" },
   { id: "recaps",       label: "Recaps",             sub: "Session summaries",             icon: "feather", href: "/campaign/recaps" },
   { id: "pronounce",    label: "Pronunciations",     sub: "Name pronunciation guide",      icon: "tongue",  href: "/campaign/pronunciations" },
 ];
