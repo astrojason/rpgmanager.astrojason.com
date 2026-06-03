@@ -5,10 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsDM } from "@/utils/role";
 import Image from "next/image";
-import { PC, Faction } from "@/types/interfaces";
+import { PC, Faction, Deity } from "@/types/interfaces";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
+import Link from "next/link";
 
 function statusChipClass(status?: string): string {
   const s = (status || "").toLowerCase();
@@ -24,6 +25,7 @@ export default function PCDetailPage() {
 
   const [pc, setPc] = useState<PC | null>(null);
   const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [deities, setDeities] = useState<Deity[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
@@ -37,9 +39,10 @@ export default function PCDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [pcsResponse, factionsResponse] = await Promise.all([
+        const [pcsResponse, factionsResponse, deitiesResponse] = await Promise.all([
           authFetch("/api/data/pcs"),
           authFetch("/api/data/factions"),
+          authFetch("/api/data/deities"),
         ]);
         const pcs = await pcsResponse.json();
         const factions = await factionsResponse.json();
@@ -50,6 +53,10 @@ export default function PCDetailPage() {
           setPc(found);
         }
         setFactionData(factions);
+        if (deitiesResponse.ok) {
+          const allDeities: Deity[] = await deitiesResponse.json();
+          setDeities(allDeities.filter(d => (d.follower_pcs ?? []).includes(id)));
+        }
       } catch {
         setNotFound(true);
       } finally {
@@ -265,6 +272,26 @@ export default function PCDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Deity */}
+        {deities.length > 0 && (
+          <section className="grim-tome" style={{ marginBottom: 24 }}>
+            <div className="grim-tome-head">
+              <h3 className="grim-tome-title">Divine Devotion</h3>
+              <span className="grim-tome-sub">{deities.length === 1 ? "deity" : "deities"}</span>
+            </div>
+            <div className="grim-stack" style={{ gap: 8 }}>
+              {deities.map(d => (
+                <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                    <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* GM Notes (DM only) */}
         {isDM && pc.gm_notes && (

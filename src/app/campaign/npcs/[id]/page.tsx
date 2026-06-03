@@ -6,7 +6,7 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import Image from "next/image";
-import { NPC, Faction, UserNote, SessionRecap } from "@/types/interfaces";
+import { NPC, Faction, Deity, UserNote, SessionRecap } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
@@ -30,6 +30,7 @@ export default function NPCDetailPage() {
   const [npc, setNpc] = useState<NPC | null>(null);
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [appearances, setAppearances] = useState<SessionRecap[]>([]);
+  const [deities, setDeities] = useState<Deity[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
@@ -46,10 +47,11 @@ export default function NPCDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [npcsResponse, factionsResponse, recapsResponse] = await Promise.all([
+        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse] = await Promise.all([
           authFetch("/api/data/npcs"),
           authFetch("/api/data/factions"),
           authFetch("/api/data/session-recaps"),
+          authFetch("/api/data/deities"),
         ]);
         const npcs = await npcsResponse.json();
         const factions = await factionsResponse.json();
@@ -65,6 +67,10 @@ export default function NPCDetailPage() {
           .filter(r => (r.tagged_npcs ?? []).includes(id))
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setAppearances(tagged);
+        if (deitiesResponse.ok) {
+          const allDeities: Deity[] = await deitiesResponse.json();
+          setDeities(allDeities.filter(d => (d.follower_npcs ?? []).includes(id)));
+        }
       } catch {
         setNotFound(true);
       } finally {
@@ -492,6 +498,26 @@ export default function NPCDetailPage() {
                 isAdmin={isAdmin}
               />
             </section>
+
+            {/* Deity */}
+            {deities.length > 0 && (
+              <section className="grim-tome">
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Divine Devotion</h3>
+                  <span className="grim-tome-sub">{deities.length === 1 ? "deity" : "deities"}</span>
+                </div>
+                <div className="grim-stack" style={{ gap: 8 }}>
+                  {deities.map(d => (
+                    <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                        <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                        <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Session appearances */}
             {appearances.length > 0 && (
