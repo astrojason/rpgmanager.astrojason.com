@@ -8,8 +8,9 @@ interface LinkMapping {
 export interface AutoLinkEntity {
     id: string;
     name: string;
+    aliases?: string[];
     url: string;
-    type: 'npc' | 'location' | 'item' | 'faction' | 'deity';
+    type: 'npc' | 'location' | 'item' | 'faction' | 'deity' | 'pc';
 }
 
 // Cache for the link map to avoid repeated computations
@@ -42,31 +43,42 @@ function createEntityLinkMap(): Map<string, LinkMapping> {
 }
 
 // Function to convert [[{NAME}]] references to links
-export function convertMarkdownLinks(markdownText: string, isAdmin: boolean = false): string {
+export function convertMarkdownLinks(markdownText: string, isAdmin: boolean = false, autoLinkEntities: AutoLinkEntity[] = []): string {
     const linkMap = createEntityLinkMap();
+
+    // Build a name→entity map for O(1) fallback lookup
+    const entityFallback = new Map<string, AutoLinkEntity>();
+    for (const e of autoLinkEntities) {
+        entityFallback.set(e.name.trim().toLowerCase(), e);
+        for (const alias of e.aliases ?? []) {
+            if (alias.trim()) entityFallback.set(alias.trim().toLowerCase(), e);
+        }
+    }
 
     // Regex to match [[{NAME}]] patterns
     const linkRegex = /\[\[([^\]]+)\]\]/g;
 
     return markdownText.replace(linkRegex, (_match, entityName) => {
-        // Mark unused parameter as intentionally ignored to satisfy strict TS flags
         void _match;
         const normalizedName = entityName.trim().toLowerCase();
         const linkData = linkMap.get(normalizedName);
 
         if (linkData) {
-            // Create a styled link with different colors for different types
             const typeClass = getTypeClass(linkData.type);
             return `<a href="${linkData.url}" class="${typeClass}" title="${linkData.type}: ${linkData.name}">${entityName.trim()}</a>`;
         }
 
-        // Handle non-existent links
+        // Fall back to autoLinkEntities — creates a proper <a> so autoLinkEntitiesInHtml skips it
+        const autoEntity = entityFallback.get(normalizedName);
+        if (autoEntity) {
+            return `<a href="${autoEntity.url}" class="grim-link">${entityName.trim()}</a>`;
+        }
+
+        // Unknown entity
         if (isAdmin) {
-            // For admins, show as red links indicating missing entities
             const redLinkClass = "font-medium text-red-600 dark:text-red-400 underline decoration-2 decoration-red-300 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors duration-200";
             return `<span class="${redLinkClass}" title="Missing entity: ${entityName.trim()}">${entityName.trim()}</span>`;
         } else {
-            // For non-admins, remove the brackets and show as plain text
             return entityName.trim();
         }
     });
@@ -91,11 +103,25 @@ function getTypeClass(type: 'faction' | 'location' | 'npc' | 'pc'): string {
 }
 
 // Auto-link entity names in rendered HTML without touching existing anchor tags.
-// Entities sorted by name length (longest first) so "Stormharbor" wins over "Storm".
+// Matches primary names, aliases, and first-word partials of multi-word names.
+// Sorted longest-first so "Stormharbor" wins over "Storm".
 export function autoLinkEntitiesInHtml(html: string, entities: AutoLinkEntity[]): string {
     if (!entities.length) return html;
 
-    const sorted = [...entities].sort((a, b) => b.name.length - a.name.length);
+    // Build a flat list of (searchName, entity) pairs including aliases and first-word partials
+    type NamedEntity = { searchName: string; entity: AutoLinkEntity };
+    const namedEntities: NamedEntity[] = [];
+
+    for (const entity of entities) {
+        const allNames = [entity.name, ...(entity.aliases ?? [])];
+        for (const n of allNames) {
+            if (!n?.trim()) continue;
+            namedEntities.push({ searchName: n.trim(), entity });
+        }
+    }
+
+    // Sort longest first so specific matches win over partial ones
+    const sorted = namedEntities.sort((a, b) => b.searchName.length - a.searchName.length);
 
     // Split on HTML tags so we can skip content inside tags
     const parts = html.split(/(<[^>]*>)/g);
@@ -116,9 +142,8 @@ export function autoLinkEntitiesInHtml(html: string, entities: AutoLinkEntity[])
         type Interval = { start: number; end: number; entity: AutoLinkEntity; match: string };
         const intervals: Interval[] = [];
 
-        for (const entity of sorted) {
-            if (!entity.name?.trim()) continue;
-            const escaped = entity.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        for (const { searchName, entity } of sorted) {
+            const escaped = searchName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const re = new RegExp(`\\b${escaped}\\b`, 'gi');
             let m;
             while ((m = re.exec(part)) !== null) {
@@ -147,10 +172,7 @@ export function autoLinkEntitiesInHtml(html: string, entities: AutoLinkEntity[])
 }
 
 // Enhanced function to parse markdown with link conversion
-export function parseMarkdownWithLinks(markdownText: string, isAdmin: boolean = false): string {
-    // First convert [[{NAME}]] references to links
-    const textWithLinks = convertMarkdownLinks(markdownText, isAdmin);
-
-    // Then convert newlines to <br /> tags
+export function parseMarkdownWithLinks(markdownText: string, isAdmin: boolean = false, autoLinkEntities: AutoLinkEntity[] = []): string {
+    const textWithLinks = convertMarkdownLinks(markdownText, isAdmin, autoLinkEntities);
     return textWithLinks.replace(/\n/g, '<br />');
 }

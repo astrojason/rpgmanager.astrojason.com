@@ -28,7 +28,7 @@ describe('markdown rendering', () => {
 
     const result = renderMarkdownWithLinks('Hello', true);
 
-    expect(linkSpy).toHaveBeenCalledWith(expect.any(String), true);
+    expect(linkSpy).toHaveBeenCalledWith(expect.any(String), true, []);
     expect(result).toBe('linked');
 
     linkSpy.mockRestore();

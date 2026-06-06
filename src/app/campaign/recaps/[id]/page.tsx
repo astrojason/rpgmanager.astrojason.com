@@ -51,7 +51,8 @@ export default function RecapDetailPage() {
   const [availableItems, setAvailableItems] = useState<(EntityItem & { hidden?: boolean })[]>([]);
   const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
   const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
-  const [allNPCData, setAllNPCData] = useState<{ id: string; name?: string; hidden?: boolean; nameHidden?: boolean }[]>([]);
+  const [allNPCData, setAllNPCData] = useState<{ id: string; name?: string; aka?: string; hidden?: boolean; nameHidden?: boolean }[]>([]);
+  const [allPCData, setAllPCData] = useState<{ id: string; name: string; nickname?: string }[]>([]);
 
   const isAdmin = useIsAdmin();
 
@@ -64,7 +65,7 @@ export default function RecapDetailPage() {
   useEffect(() => {
     const loadAll = async () => {
       try {
-        const [recapsRes, npcsRes, locsRes, questsRes, itemsRes, factionsRes, deitiesRes] = await Promise.all([
+        const [recapsRes, npcsRes, locsRes, questsRes, itemsRes, factionsRes, deitiesRes, pcsRes] = await Promise.all([
           authFetch("/api/data/session-recaps"),
           authFetch("/api/data/npcs"),
           authFetch("/api/data/locations"),
@@ -72,6 +73,7 @@ export default function RecapDetailPage() {
           authFetch("/api/data/items"),
           authFetch("/api/data/factions"),
           authFetch("/api/data/deities"),
+          authFetch("/api/data/pcs"),
         ]);
 
         const allRecaps: Recap[] = recapsRes.ok ? await recapsRes.json() : [];
@@ -106,6 +108,9 @@ export default function RecapDetailPage() {
 
         const deityData: { id: string; name: string; hidden?: boolean }[] = deitiesRes.ok ? await deitiesRes.json() : [];
         setAvailableDeities(deityData.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })));
+
+        const pcData: { id: string; name: string; nickname?: string }[] = pcsRes.ok ? await pcsRes.json() : [];
+        setAllPCData(pcData);
       } catch (e) {
         setError(toErrorMessage(e));
       } finally {
@@ -181,9 +186,18 @@ export default function RecapDetailPage() {
   }
 
   const entityLinks: AutoLinkEntity[] = [
-    ...allNPCData.filter(n => !n.hidden && !n.nameHidden).map(n => ({ id: String(n.id), name: n.name || '', url: `/campaign/npcs/${n.id}`, type: 'npc' as const })).filter(e => e.name),
+    ...allNPCData.filter(n => !n.hidden && !n.nameHidden).map(n => ({
+      id: String(n.id), name: n.name || '', url: `/campaign/npcs/${n.id}`, type: 'npc' as const,
+      aliases: n.aka ? n.aka.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    })).filter(e => e.name),
     ...availableLocations.map(l => ({ id: l.id, name: l.name, url: `/campaign/locations/${l.id}`, type: 'location' as const })),
     ...availableItems.filter(it => !it.hidden).map(it => ({ id: it.id, name: it.name, url: `/campaign/items/${it.id}`, type: 'item' as const })),
+    ...availableFactions.map(f => ({ id: f.id, name: f.name, url: `/campaign/factions/${f.id}`, type: 'faction' as const })),
+    ...availableDeities.map(d => ({ id: d.id, name: d.name, url: `/campaign/deities/${d.id}`, type: 'deity' as const })),
+    ...allPCData.map(p => ({
+      id: String(p.id), name: p.name, url: `/campaign/pcs/${p.id}`, type: 'pc' as const,
+      aliases: p.nickname ? [p.nickname] : undefined,
+    })),
   ];
 
   return (

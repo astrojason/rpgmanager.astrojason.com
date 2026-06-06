@@ -2,8 +2,35 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { convertMarkdownLinks, parseMarkdownWithLinks, resetLinkMapCache, seedLinkMap, autoLinkEntitiesInHtml } from '@/utils/markdownLinking';
 import type { AutoLinkEntity } from '@/utils/markdownLinking';
 
+const silvara: AutoLinkEntity = { id: '5', name: 'Silvara', url: '/campaign/deities/5', type: 'deity' };
+
 afterEach(() => {
   resetLinkMapCache();
+});
+
+describe('convertMarkdownLinks with autoLinkEntities', () => {
+  it('creates a link when entity is in autoLinkEntities and not in seedLinkMap', () => {
+    const result = convertMarkdownLinks('Prayed to [[Silvara]] last night.', false, [silvara]);
+    expect(result).toContain('href="/campaign/deities/5"');
+    expect(result).toContain('>Silvara<');
+  });
+
+  it('autoLinkEntitiesInHtml does not double-link a [[Name]] already linked by convertMarkdownLinks', () => {
+    const withBrackets = convertMarkdownLinks('Prayed to [[Silvara]] last night. Silvara watches.', false, [silvara]);
+    const result = autoLinkEntitiesInHtml(withBrackets, [silvara]);
+    const links = result.match(/href="\/campaign\/deities\/5"/g);
+    expect(links).toHaveLength(2); // one from [[Silvara]], one from the plain "Silvara watches"
+  });
+
+  it('still shows plain text for unknown entities (non-admin)', () => {
+    const result = convertMarkdownLinks('Met [[Unknown]] there.', false);
+    expect(result).toBe('Met Unknown there.');
+  });
+
+  it('still shows red span for unknown entities (admin)', () => {
+    const result = convertMarkdownLinks('Met [[Unknown]] there.', true);
+    expect(result).toContain('Missing entity: Unknown');
+  });
 });
 
 describe('markdown linking utilities', () => {
@@ -76,4 +103,13 @@ describe('autoLinkEntitiesInHtml', () => {
     expect(result).toContain('href="/sh"');
     expect(result).not.toContain('href="/s"');
   });
+
+  it('matches on alias when text uses an alias instead of primary name', () => {
+    const entity: AutoLinkEntity = { id: '5', name: 'Barrow Ironhoof', url: '/campaign/npcs/5', type: 'npc', aliases: ['The Bull', 'Old Barrow'] };
+    const html = '<p>The Bull charged through the gate. Old Barrow watched.</p>';
+    const result = autoLinkEntitiesInHtml(html, [entity]);
+    const links = result.match(/href="\/campaign\/npcs\/5"/g);
+    expect(links).toHaveLength(2);
+  });
+
 });

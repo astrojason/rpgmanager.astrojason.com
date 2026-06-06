@@ -19,7 +19,7 @@ export function renderMarkdownWithLinks(
   entities?: AutoLinkEntity[]
 ): string {
   const html = renderMarkdown(markdown);
-  const linked = parseMarkdownWithLinks(html, isAdmin);
+  const linked = parseMarkdownWithLinks(html, isAdmin, entities ?? []);
   return entities?.length ? autoLinkEntitiesInHtml(linked, entities) : linked;
 }
 
