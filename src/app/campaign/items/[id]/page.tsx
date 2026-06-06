@@ -173,6 +173,12 @@ export default function ItemDetailPage() {
   const availableNpcs: EntityItem[] = npcs.map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id) }));
   const availablePcs: EntityItem[] = pcs.map(p => ({ id: String(p.id), name: p.name }));
 
+  const linkEntities = [
+    ...availableNpcs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availablePcs.map(p => ({ id: p.id, name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+    ...locations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+  ];
+
   return (
     <>
       {/* Edit modal */}
@@ -220,15 +226,15 @@ export default function ItemDetailPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
-                <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" />
+                <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Properties / Stats</label>
-                <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" />
+                <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
-                <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" />
+                <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" linkEntities={linkEntities} />
               </div>
 
               {/* Tag NPCs, PCs, Locations */}
@@ -487,6 +493,7 @@ export default function ItemDetailPage() {
                 onChange={handleUpdateNotes}
                 currentUser={userId}
                 isAdmin={isAdmin}
+                linkEntities={linkEntities}
               />
             </section>
 

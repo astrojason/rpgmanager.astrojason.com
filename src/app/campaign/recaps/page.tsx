@@ -215,6 +215,15 @@ export default function RecapsPage() {
 
   const totalCount = allRecaps.length;
 
+  const linkEntities = [
+    ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+    ...availableQuests.map(q => ({ id: q.id, name: q.name, type: 'quest' as const, url: `/campaign/quests/${q.id}` })),
+    ...(availableItems as { id: string; name: string; hidden?: boolean }[]).filter(it => !it.hidden).map(it => ({ id: it.id, name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` })),
+    ...availableFactions.map(f => ({ id: f.id, name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
+    ...availableDeities.map(d => ({ id: d.id, name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
+  ];
+
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 0, height: "100%", overflow: "hidden" }}>
 
@@ -318,6 +327,7 @@ export default function RecapsPage() {
                 onChange={(v) => setNewRecap({ ...newRecap, recap: v })}
                 rows={10}
                 label="Recap"
+                linkEntities={linkEntities}
               />
             </div>
             {isAdmin && (
@@ -445,6 +455,7 @@ export default function RecapsPage() {
                         onChange={(v) => setEditingRecap({ ...editingRecap, recap: v })}
                         rows={12}
                         label="Recap"
+                        linkEntities={linkEntities}
                       />
                       {isAdmin && (
                         <div style={{ marginTop: 16 }}>
@@ -556,6 +567,7 @@ export default function RecapsPage() {
                       onChange={(notes) => handleUpdateRecapNotes(recap, notes)}
                       currentUser={user}
                       isAdmin={isAdmin}
+                      linkEntities={linkEntities}
                     />
                   </div>
                 </article>

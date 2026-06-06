@@ -140,6 +140,12 @@ export default function DeitiesManagementPage() {
     );
   }
 
+  const linkEntities = [
+    ...npcs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...pcs.map(p => ({ id: p.id, name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+    ...deities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
+  ];
+
   return (
     <div style={{ padding: "36px 48px 80px" }}>
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
@@ -260,7 +266,7 @@ export default function DeitiesManagementPage() {
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Description</label>
-                    <MarkdownEditor value={form.description || ""} onChange={v => setForm(f => ({ ...f, description: v }))} rows={4} label="Description" />
+                    <MarkdownEditor value={form.description || ""} onChange={v => setForm(f => ({ ...f, description: v }))} rows={4} label="Description" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
@@ -270,22 +276,22 @@ export default function DeitiesManagementPage() {
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Church</label>
-                    <MarkdownEditor value={form.church || ""} onChange={v => setForm(f => ({ ...f, church: v }))} rows={3} label="Church" />
+                    <MarkdownEditor value={form.church || ""} onChange={v => setForm(f => ({ ...f, church: v }))} rows={3} label="Church" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Garments</label>
-                    <MarkdownEditor value={form.garments || ""} onChange={v => setForm(f => ({ ...f, garments: v }))} rows={3} label="Garments" />
+                    <MarkdownEditor value={form.garments || ""} onChange={v => setForm(f => ({ ...f, garments: v }))} rows={3} label="Garments" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Tenets</label>
-                    <MarkdownEditor value={form.tenets || ""} onChange={v => setForm(f => ({ ...f, tenets: v }))} rows={4} label="Tenets" />
+                    <MarkdownEditor value={form.tenets || ""} onChange={v => setForm(f => ({ ...f, tenets: v }))} rows={4} label="Tenets" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Lore</label>
-                    <MarkdownEditor value={form.lore || ""} onChange={v => setForm(f => ({ ...f, lore: v }))} rows={5} label="Lore" />
+                    <MarkdownEditor value={form.lore || ""} onChange={v => setForm(f => ({ ...f, lore: v }))} rows={5} label="Lore" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
@@ -315,11 +321,11 @@ export default function DeitiesManagementPage() {
 
                   <div style={{ marginBottom: 16 }}>
                     <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>GM Notes</label>
-                    <MarkdownEditor value={form.gm_notes || ""} onChange={v => setForm(f => ({ ...f, gm_notes: v }))} rows={4} label="GM Notes" />
+                    <MarkdownEditor value={form.gm_notes || ""} onChange={v => setForm(f => ({ ...f, gm_notes: v }))} rows={4} label="GM Notes" linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <UserNotesEditor notes={(form.notes as UserNote[]) ?? []} onChange={notes => setForm(f => ({ ...f, notes }))} currentUser={user} />
+                    <UserNotesEditor notes={(form.notes as UserNote[]) ?? []} onChange={notes => setForm(f => ({ ...f, notes }))} currentUser={user} linkEntities={linkEntities} />
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>

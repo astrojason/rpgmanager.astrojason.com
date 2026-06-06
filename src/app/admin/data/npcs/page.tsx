@@ -438,6 +438,11 @@ export default function NPCsManagementPage() {
     );
   }
 
+  const linkEntities = [
+    ...npcs.map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id), type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
+  ];
+
   return (
     <div style={{ padding: "36px 48px 80px" }}>
 
@@ -713,6 +718,7 @@ export default function NPCsManagementPage() {
                     onChange={(value) => setFormData({ ...formData, description: value })}
                     rows={6}
                     label="Description"
+                    linkEntities={linkEntities}
                   />
                 </div>
 
@@ -723,6 +729,7 @@ export default function NPCsManagementPage() {
                     onChange={(value) => setFormData({ ...formData, background: value })}
                     rows={6}
                     label="Background"
+                    linkEntities={linkEntities}
                   />
                 </div>
 
@@ -733,6 +740,7 @@ export default function NPCsManagementPage() {
                     onChange={(value) => setFormData({ ...formData, personality: value })}
                     rows={6}
                     label="Personality"
+                    linkEntities={linkEntities}
                   />
                 </div>
 
@@ -743,6 +751,7 @@ export default function NPCsManagementPage() {
                     onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                     rows={6}
                     label="GM Notes"
+                    linkEntities={linkEntities}
                   />
                 </div>
 

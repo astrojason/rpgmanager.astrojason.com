@@ -200,6 +200,16 @@ export default function RecapDetailPage() {
     })),
   ];
 
+  const linkEntities = [
+    ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+    ...availableQuests.map(q => ({ id: q.id, name: q.name, type: 'quest' as const, url: `/campaign/quests/${q.id}` })),
+    ...availableItems.filter(it => !it.hidden).map(it => ({ id: it.id, name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` })),
+    ...availableFactions.map(f => ({ id: f.id, name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
+    ...availableDeities.map(d => ({ id: d.id, name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
+    ...allPCData.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+  ];
+
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
       {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
@@ -243,7 +253,7 @@ export default function RecapDetailPage() {
 
         {editing ? (
           <>
-            <MarkdownEditor value={(editingRecap.recap as string) || ""} onChange={v => setEditingRecap({ ...editingRecap, recap: v })} rows={12} label="Recap" />
+            <MarkdownEditor value={(editingRecap.recap as string) || ""} onChange={v => setEditingRecap({ ...editingRecap, recap: v })} rows={12} label="Recap" linkEntities={linkEntities} />
             {isAdmin && (
               <div style={{ marginTop: 16 }}>
                 <EntityTagPicker
@@ -308,6 +318,7 @@ export default function RecapDetailPage() {
             onChange={handleUpdateNotes}
             currentUser={user}
             isAdmin={isAdmin}
+            linkEntities={linkEntities}
           />
         </div>
       </article>

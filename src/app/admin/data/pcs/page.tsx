@@ -578,6 +578,10 @@ export default function PCsManagementPage() {
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={6}
                       label="GM Notes"
+                      linkEntities={[
+                        ...pcs.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+                        ...factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
+                      ]}
                     />
                   </div>
 

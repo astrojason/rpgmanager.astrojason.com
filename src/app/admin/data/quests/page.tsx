@@ -290,6 +290,13 @@ export default function QuestsManagementPage() {
     width: "100%",
   };
 
+  const linkEntities = [
+    ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+    ...availableFactions.map(f => ({ id: f.id, name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
+    ...availableDeities.map(d => ({ id: d.id, name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
+  ];
+
   return (
     <div style={{ padding: "36px 48px 80px" }}>
 
@@ -472,6 +479,7 @@ export default function QuestsManagementPage() {
                       }
                       onChange={(notes) => setFormData({ ...formData, notes })}
                       currentUser={user}
+                      linkEntities={linkEntities}
                     />
                   </div>
 
@@ -500,6 +508,7 @@ export default function QuestsManagementPage() {
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
+                      linkEntities={linkEntities}
                     />
                   </div>
 

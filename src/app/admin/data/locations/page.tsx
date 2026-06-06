@@ -377,6 +377,7 @@ export default function LocationsManagementPage() {
                       onChange={(value) => setFormData({ ...formData, detail: value })}
                       rows={6}
                       label="Details"
+                      linkEntities={locations.map(l => ({ id: String(l.id), name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` }))}
                     />
                   </div>
 
@@ -388,6 +389,7 @@ export default function LocationsManagementPage() {
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
+                      linkEntities={locations.map(l => ({ id: String(l.id), name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` }))}
                     />
                   </div>
 

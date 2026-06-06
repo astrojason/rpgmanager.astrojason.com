@@ -364,6 +364,7 @@ export default function FactionsManagementPage() {
                       onChange={(value) => setFormData({ ...formData, description: value })}
                       rows={6}
                       label="Description"
+                      linkEntities={factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` }))}
                     />
                   </div>
 
@@ -374,6 +375,7 @@ export default function FactionsManagementPage() {
                       onChange={(value) => setFormData({ ...formData, goals: value })}
                       rows={4}
                       label="Goals"
+                      linkEntities={factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` }))}
                     />
                   </div>
 
@@ -384,6 +386,7 @@ export default function FactionsManagementPage() {
                       onChange={(value) => setFormData({ ...formData, background: value })}
                       rows={4}
                       label="Background"
+                      linkEntities={factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` }))}
                     />
                   </div>
 
@@ -394,6 +397,7 @@ export default function FactionsManagementPage() {
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
                       rows={4}
                       label="GM Notes"
+                      linkEntities={factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` }))}
                     />
                   </div>
 

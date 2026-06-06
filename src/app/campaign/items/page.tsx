@@ -155,18 +155,18 @@ export default function ItemsPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
-                <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" />
+                <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Properties / Stats</label>
-                <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" />
+                <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
-                <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" />
+                <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
-                <UserNotesEditor notes={editingItem.notes || []} onChange={notes => setEditingItem({ ...editingItem, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" />
+                <UserNotesEditor notes={editingItem.notes || []} onChange={notes => setEditingItem({ ...editingItem, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
                 <input type="checkbox" checked={Boolean(editingItem.hidden)} onChange={e => setEditingItem({ ...editingItem, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />

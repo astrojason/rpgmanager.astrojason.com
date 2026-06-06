@@ -164,6 +164,12 @@ export default function ItemsManagementPage() {
     );
   }
 
+  const linkEntities = [
+    ...availableNpcs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availablePcs.map(p => ({ id: p.id, name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+    ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+  ];
+
   return (
     <div style={{ padding: "36px 48px 80px" }}>
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
@@ -279,17 +285,17 @@ export default function ItemsManagementPage() {
 
                 <div style={{ marginBottom: 16 }}>
                   <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
-                  <MarkdownEditor value={formData.description || ""} onChange={v => setFormData({ ...formData, description: v })} rows={5} label="Description" />
+                  <MarkdownEditor value={formData.description || ""} onChange={v => setFormData({ ...formData, description: v })} rows={5} label="Description" linkEntities={linkEntities} />
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
                   <div className="grim-label" style={{ marginBottom: 6 }}>Properties / Stats</div>
-                  <MarkdownEditor value={formData.properties || ""} onChange={v => setFormData({ ...formData, properties: v })} rows={6} label="Properties" />
+                  <MarkdownEditor value={formData.properties || ""} onChange={v => setFormData({ ...formData, properties: v })} rows={6} label="Properties" linkEntities={linkEntities} />
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
                   <div className="grim-label" style={{ marginBottom: 6 }}>GM Notes</div>
-                  <MarkdownEditor value={formData.gm_notes || ""} onChange={v => setFormData({ ...formData, gm_notes: v })} rows={5} label="GM Notes" />
+                  <MarkdownEditor value={formData.gm_notes || ""} onChange={v => setFormData({ ...formData, gm_notes: v })} rows={5} label="GM Notes" linkEntities={linkEntities} />
                 </div>
 
                 {/* NPC tags */}

@@ -4,9 +4,10 @@ import MarkdownEditor from './MarkdownEditor';
 import AuthorDisplay from './AuthorDisplay';
 import { UserNote } from '@/types/interfaces';
 import { User } from 'firebase/auth';
-import { 
-  PlusIcon, 
-  TrashIcon, 
+import type { LinkEntity } from './EntityLinkPicker';
+import {
+  PlusIcon,
+  TrashIcon,
   PencilIcon,
   CheckIcon,
   XMarkIcon
@@ -18,14 +19,16 @@ interface UserNotesEditorProps {
   className?: string;
   currentUser?: User | string | null;
   isAdmin?: boolean;
+  linkEntities?: LinkEntity[];
 }
 
-export default function UserNotesEditor({ 
-  notes, 
-  onChange, 
+export default function UserNotesEditor({
+  notes,
+  onChange,
   className = "",
   currentUser,
   isAdmin = false,
+  linkEntities,
 }: UserNotesEditorProps) {
   const getUid = () => {
     if (!currentUser) return undefined;
@@ -178,6 +181,7 @@ export default function UserNotesEditor({
                   placeholder="Edit Note"
                   rows={6}
                   label="Notes"
+                  linkEntities={linkEntities}
                 />
               ) : (
                 <div className="prose dark:prose-invert max-w-none prose-sm mb-2">
@@ -231,6 +235,7 @@ export default function UserNotesEditor({
               placeholder="Add Note"
               rows={6}
               label="Notes"
+              linkEntities={linkEntities}
             />
           </div>
         </div>

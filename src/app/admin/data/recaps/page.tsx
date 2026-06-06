@@ -344,6 +344,10 @@ export default function RecapsManagementPage() {
                   rows={14}
                   label="Session Recap"
                   placeholder="Enter session recap content…"
+                  linkEntities={[
+                    ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+                    ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
+                  ]}
                 />
               </div>
 

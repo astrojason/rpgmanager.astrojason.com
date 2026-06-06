@@ -169,6 +169,12 @@ export default function DeityDetailPage() {
 
   const deityImage = safeImageSrc(deity.image);
 
+  const linkEntities = [
+    ...npcs.map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id), type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...pcs.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
+    ...quests.map(q => ({ id: String(q.id), name: q.name, type: 'quest' as const, url: `/campaign/quests/${q.id}` })),
+  ];
+
   return (
     <>
       {/* Edit modal */}
@@ -233,7 +239,7 @@ export default function DeityDetailPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
-                <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={4} label="Description" />
+                <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={4} label="Description" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Symbol</label>
@@ -241,19 +247,19 @@ export default function DeityDetailPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Church</label>
-                <MarkdownEditor value={editingDeity.church || ""} onChange={v => setEditingDeity({ ...editingDeity, church: v })} rows={3} label="Church" />
+                <MarkdownEditor value={editingDeity.church || ""} onChange={v => setEditingDeity({ ...editingDeity, church: v })} rows={3} label="Church" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Garments</label>
-                <MarkdownEditor value={editingDeity.garments || ""} onChange={v => setEditingDeity({ ...editingDeity, garments: v })} rows={3} label="Garments" />
+                <MarkdownEditor value={editingDeity.garments || ""} onChange={v => setEditingDeity({ ...editingDeity, garments: v })} rows={3} label="Garments" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Tenets</label>
-                <MarkdownEditor value={editingDeity.tenets || ""} onChange={v => setEditingDeity({ ...editingDeity, tenets: v })} rows={4} label="Tenets" />
+                <MarkdownEditor value={editingDeity.tenets || ""} onChange={v => setEditingDeity({ ...editingDeity, tenets: v })} rows={4} label="Tenets" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Lore</label>
-                <MarkdownEditor value={editingDeity.lore || ""} onChange={v => setEditingDeity({ ...editingDeity, lore: v })} rows={5} label="Lore" />
+                <MarkdownEditor value={editingDeity.lore || ""} onChange={v => setEditingDeity({ ...editingDeity, lore: v })} rows={5} label="Lore" linkEntities={linkEntities} />
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — NPCs</label>
@@ -285,7 +291,7 @@ export default function DeityDetailPage() {
               </div>
               <div>
                 <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
-                <MarkdownEditor value={editingDeity.gm_notes || ""} onChange={v => setEditingDeity({ ...editingDeity, gm_notes: v })} rows={4} label="GM Notes" />
+                <MarkdownEditor value={editingDeity.gm_notes || ""} onChange={v => setEditingDeity({ ...editingDeity, gm_notes: v })} rows={4} label="GM Notes" linkEntities={linkEntities} />
               </div>
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
                 <input type="checkbox" checked={Boolean(editingDeity.hidden)} onChange={e => setEditingDeity({ ...editingDeity, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
@@ -546,6 +552,7 @@ export default function DeityDetailPage() {
                 onChange={handleUpdateNotes}
                 currentUser={userId}
                 isAdmin={isAdmin}
+                linkEntities={linkEntities}
               />
             </section>
           </div>
