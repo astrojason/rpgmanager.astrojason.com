@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import Image from "next/image";
-import { NPC, Faction } from "@/types/interfaces";
+import { NPC, Faction, PC } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
@@ -26,6 +26,7 @@ export default function NPCsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [npcData, setNpcData] = useState<NPC[]>([]);
   const [factionData, setFactionData] = useState<Faction[]>([]);
+  const [pcData, setPcData] = useState<PC[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
@@ -39,14 +40,17 @@ export default function NPCsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [npcsResponse, factionsResponse] = await Promise.all([
+        const [npcsResponse, factionsResponse, pcsResponse] = await Promise.all([
           authFetch("/api/data/npcs"),
           authFetch("/api/data/factions"),
+          authFetch("/api/data/pcs"),
         ]);
         const npcs = await npcsResponse.json();
         const factions = await factionsResponse.json();
+        const pcs = pcsResponse.ok ? await pcsResponse.json() : [];
         setNpcData(npcs);
         setFactionData(factions);
+        setPcData(Array.isArray(pcs) ? pcs : []);
       } catch {
         /* noop */
       } finally {
@@ -152,6 +156,7 @@ export default function NPCsPage() {
 
   const linkEntities = [
     ...npcData.map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id), type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...pcData.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...factionData.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
   ];
 

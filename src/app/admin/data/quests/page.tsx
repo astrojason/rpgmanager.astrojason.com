@@ -30,6 +30,7 @@ export default function QuestsManagementPage() {
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
   const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
+  const [availablePCs, setAvailablePCs] = useState<EntityItem[]>([]);
 
   // Authentication state
   useEffect(() => {
@@ -63,6 +64,9 @@ export default function QuestsManagementPage() {
     authFetch('/api/data/deities').then(r => r.json()).then((data: { id: string; name: string }[]) => {
       setAvailableDeities(data.map(d => ({ id: String(d.id), name: d.name })));
     }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load deities'));
+    authFetch('/api/data/pcs').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailablePCs(data.map(p => ({ id: String(p.id), name: p.name })));
+    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load PCs'));
   }, []);
 
   const loadQuests = async () => {
@@ -292,6 +296,7 @@ export default function QuestsManagementPage() {
 
   const linkEntities = [
     ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availablePCs.map(p => ({ id: p.id, name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
     ...availableFactions.map(f => ({ id: f.id, name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
     ...availableDeities.map(d => ({ id: d.id, name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),

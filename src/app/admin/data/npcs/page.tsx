@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { NPC, Faction } from "@/types/interfaces";
+import { NPC, Faction, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 
 const fieldStyle: React.CSSProperties = {
@@ -32,6 +32,7 @@ export default function NPCsManagementPage() {
   const [success, setSuccess] = useState<string>("");
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
   const [factions, setFactions] = useState<Faction[]>([]);
+  const [pcs, setPcs] = useState<PC[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
@@ -53,18 +54,21 @@ export default function NPCsManagementPage() {
   const loadNpcs = async () => {
     setLoading(true);
     try {
-      const [npcsRes, factionsRes] = await Promise.all([
+      const [npcsRes, factionsRes, pcsRes] = await Promise.all([
         authFetch('/api/data/npcs'),
         authFetch('/api/data/factions'),
+        authFetch('/api/data/pcs'),
       ]);
       if (!npcsRes.ok) throw new Error('Failed to load NPCs');
       if (!factionsRes.ok) throw new Error('Failed to load factions');
-      const [npcsData, factionsData] = await Promise.all([
+      const [npcsData, factionsData, pcsData] = await Promise.all([
         npcsRes.json(),
         factionsRes.json(),
+        pcsRes.ok ? pcsRes.json() : Promise.resolve([]),
       ]);
       setNpcs(Array.isArray(npcsData) ? npcsData : []);
       setFactions(Array.isArray(factionsData) ? factionsData : []);
+      setPcs(Array.isArray(pcsData) ? pcsData : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load NPCs');
     } finally {
@@ -440,6 +444,7 @@ export default function NPCsManagementPage() {
 
   const linkEntities = [
     ...npcs.map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id), type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...pcs.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...factions.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
   ];
 

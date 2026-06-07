@@ -6,7 +6,7 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import Image from "next/image";
-import { NPC, Faction, Deity, UserNote, SessionRecap } from "@/types/interfaces";
+import { NPC, Faction, Deity, UserNote, SessionRecap, PC } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
@@ -31,6 +31,7 @@ export default function NPCDetailPage() {
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [appearances, setAppearances] = useState<SessionRecap[]>([]);
   const [deities, setDeities] = useState<Deity[]>([]);
+  const [pcs, setPcs] = useState<PC[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
@@ -47,11 +48,12 @@ export default function NPCDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse] = await Promise.all([
+        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse, pcsResponse] = await Promise.all([
           authFetch("/api/data/npcs"),
           authFetch("/api/data/factions"),
           authFetch("/api/data/session-recaps"),
           authFetch("/api/data/deities"),
+          authFetch("/api/data/pcs"),
         ]);
         const npcs = await npcsResponse.json();
         const factions = await factionsResponse.json();
@@ -70,6 +72,9 @@ export default function NPCDetailPage() {
         if (deitiesResponse.ok) {
           const allDeities: Deity[] = await deitiesResponse.json();
           setDeities(allDeities.filter(d => (d.follower_npcs ?? []).includes(id)));
+        }
+        if (pcsResponse.ok) {
+          setPcs(await pcsResponse.json());
         }
       } catch {
         setNotFound(true);
@@ -177,6 +182,7 @@ export default function NPCDetailPage() {
   const selectedNpcImage = safeImageSrc(npc.image);
 
   const linkEntities = [
+    ...pcs.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...factionData.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
     ...deities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
   ];

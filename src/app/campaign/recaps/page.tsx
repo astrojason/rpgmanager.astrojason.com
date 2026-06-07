@@ -51,6 +51,7 @@ export default function RecapsPage() {
   const [availableItems, setAvailableItems] = useState<EntityItem[]>([]);
   const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
   const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
+  const [availablePCs, setAvailablePCs] = useState<EntityItem[]>([]);
   const [allNPCData, setAllNPCData] = useState<{ id: string; name?: string; hidden?: boolean; nameHidden?: boolean }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +95,9 @@ export default function RecapsPage() {
     }).catch((e: unknown) => setError(toErrorMessage(e)));
     authFetch('/api/data/deities').then(r => r.json()).then((data: { id: string; name: string; hidden?: boolean }[]) => {
       setAvailableDeities(data.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })));
+    }).catch((e: unknown) => setError(toErrorMessage(e)));
+    authFetch('/api/data/pcs').then(r => r.json()).then((data: { id: string; name: string }[]) => {
+      setAvailablePCs(data.map(p => ({ id: String(p.id), name: p.name })));
     }).catch((e: unknown) => setError(toErrorMessage(e)));
   }, []);
 
@@ -217,6 +221,7 @@ export default function RecapsPage() {
 
   const linkEntities = [
     ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
+    ...availablePCs.map(p => ({ id: p.id, name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...availableLocations.map(l => ({ id: l.id, name: l.name, type: 'location' as const, url: `/campaign/locations/${l.id}` })),
     ...availableQuests.map(q => ({ id: q.id, name: q.name, type: 'quest' as const, url: `/campaign/quests/${q.id}` })),
     ...(availableItems as { id: string; name: string; hidden?: boolean }[]).filter(it => !it.hidden).map(it => ({ id: it.id, name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` })),
