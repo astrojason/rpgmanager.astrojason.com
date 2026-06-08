@@ -214,6 +214,28 @@ export async function PUT(request: NextRequest) {
     }
 }
 
+export async function PATCH(request: NextRequest) {
+    const authResult = await verifyRequestAuth(request);
+    if ('errorResponse' in authResult) return authResult.errorResponse;
+
+    try {
+        await ensureSchema();
+        const db = getDb();
+        const body: { id?: string; notes?: unknown[] } = await request.json();
+        if (!body.id) return NextResponse.json({ error: 'Recap ID is required' }, { status: 400 });
+
+        const res = await db.execute({
+            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
+            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
+        });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Recap not found' }, { status: 404 });
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error updating recap notes:', error);
+        return NextResponse.json({ error: 'Failed to update recap notes' }, { status: 500 });
+    }
+}
+
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;

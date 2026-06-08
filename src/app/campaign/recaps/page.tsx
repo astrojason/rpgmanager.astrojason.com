@@ -192,15 +192,13 @@ export default function RecapsPage() {
 
   const handleUpdateRecapNotes = async (recap: Recap, updatedNotes: UserNote[]) => {
     try {
-      const payload = { ...recap, notes: updatedNotes };
       const res = await authFetch("/api/data/session-recaps", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ id: recap.id, notes: updatedNotes }),
       });
       if (!res.ok) throw new Error("Failed to update notes");
-      const data = await (await authFetch("/api/data/session-recaps")).json();
-      setAllRecaps(data);
+      setAllRecaps(prev => prev.map(r => r.id === recap.id ? { ...r, notes: updatedNotes } : r));
     } catch (e) {
       setError(toErrorMessage(e));
     }

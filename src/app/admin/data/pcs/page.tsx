@@ -6,6 +6,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { PC, Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
 
 interface UserData {
   uid: string;
@@ -36,6 +37,7 @@ export default function PCsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<PC>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load PCs data and users
   useEffect(() => {
@@ -172,11 +174,13 @@ export default function PCsManagementPage() {
   };
 
   const handleSave = async () => {
+    setError("");
     try {
       if (!formData.name || !formData.race || !formData.hometown || !formData.class) {
         setError("Please fill in all required fields (Name, Race, Hometown, Class)");
         return;
       }
+      setIsSaving(true);
 
       const pcData = formData as PC;
 
@@ -224,6 +228,8 @@ export default function PCsManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save PC");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -287,19 +293,7 @@ export default function PCsManagementPage() {
       </header>
 
       {/* Status messages */}
-      {error && (
-        <div style={{
-          background: "oklch(0.25 0.12 22 / 0.4)",
-          border: "1px solid var(--grim-blood-2)",
-          color: "oklch(0.85 0.08 30)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {error}
-        </div>
-      )}
+      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{
@@ -417,6 +411,10 @@ export default function PCsManagementPage() {
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "New Character" : "Edit Character"}</div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Add Character" : "Save Changes"}`}</button>
+                </div>
               </div>
               <div style={{ padding: "24px 28px 28px" }}>
                 <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
@@ -595,8 +593,8 @@ export default function PCsManagementPage() {
                         Delete
                       </button>
                     )}
-                    <button type="submit" className="grim-btn is-ember">
-                      {isCreating ? "Create Character" : "Save Changes"}
+                    <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                      {isSaving ? "Saving…" : (isCreating ? "Create Character" : "Save Changes")}
                     </button>
                   </div>
 

@@ -6,10 +6,11 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import Image from "next/image";
-import { NPC, Faction, Deity, UserNote, SessionRecap, PC } from "@/types/interfaces";
+import { NPC, Faction, Deity, UserNote, SessionRecap, PC, Item, Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
-import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { renderMarkdownWithLinks, AutoLinkEntity } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
@@ -31,9 +32,15 @@ export default function NPCDetailPage() {
   const [factionData, setFactionData] = useState<Faction[]>([]);
   const [appearances, setAppearances] = useState<SessionRecap[]>([]);
   const [deities, setDeities] = useState<Deity[]>([]);
+  const [allDeities, setAllDeities] = useState<Deity[]>([]);
+  const [allNpcs, setAllNpcs] = useState<NPC[]>([]);
   const [pcs, setPcs] = useState<PC[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showEditForm, setShowEditForm] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
@@ -48,14 +55,16 @@ export default function NPCDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse, pcsResponse] = await Promise.all([
+        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse, pcsResponse, locsResponse, itemsResponse] = await Promise.all([
           authFetch("/api/data/npcs"),
           authFetch("/api/data/factions"),
           authFetch("/api/data/session-recaps"),
           authFetch("/api/data/deities"),
           authFetch("/api/data/pcs"),
+          authFetch("/api/data/locations"),
+          authFetch("/api/data/items"),
         ]);
-        const npcs = await npcsResponse.json();
+        const npcs: NPC[] = await npcsResponse.json();
         const factions = await factionsResponse.json();
         const recaps: SessionRecap[] = recapsResponse.ok ? await recapsResponse.json() : [];
         const found = npcs.find((n: NPC) => String(n.id) === id);
@@ -64,17 +73,25 @@ export default function NPCDetailPage() {
         } else {
           setNpc(found);
         }
+        setAllNpcs(Array.isArray(npcs) ? npcs : []);
         setFactionData(factions);
         const tagged = recaps
           .filter(r => (r.tagged_npcs ?? []).includes(id))
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setAppearances(tagged);
         if (deitiesResponse.ok) {
-          const allDeities: Deity[] = await deitiesResponse.json();
-          setDeities(allDeities.filter(d => (d.follower_npcs ?? []).includes(id)));
+          const deitiesData: Deity[] = await deitiesResponse.json();
+          setAllDeities(deitiesData);
+          setDeities(deitiesData.filter(d => (d.follower_npcs ?? []).includes(id)));
         }
         if (pcsResponse.ok) {
           setPcs(await pcsResponse.json());
+        }
+        if (locsResponse.ok) {
+          setLocations(await locsResponse.json());
+        }
+        if (itemsResponse.ok) {
+          setItems(await itemsResponse.json());
         }
       } catch {
         setNotFound(true);
@@ -110,43 +127,59 @@ export default function NPCDetailPage() {
   };
 
   const handleSaveNPC = async (data: Partial<NPC>) => {
+    setIsSaving(true);
+    setError("");
     try {
       const response = await authFetch("/api/data/npcs", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (response.ok) {
-        await refreshNpc();
-        setShowEditForm(false);
-        setEditingNPC({});
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${response.status}`);
       }
-    } catch {
-      /* noop */
+      await refreshNpc();
+      setShowEditForm(false);
+      setEditingNPC({});
+    } catch (e) {
+      setError(toErrorMessage(e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDeleteNPC = async () => {
     if (!npc || !confirm("Are you sure you want to delete this NPC?")) return;
+    setError("");
     try {
       const response = await authFetch(`/api/data/npcs?id=${npc.id}`, { method: "DELETE" });
-      if (response.ok) router.push("/campaign/npcs");
-    } catch {
-      /* noop */
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${response.status}`);
+      }
+      router.push("/campaign/npcs");
+    } catch (e) {
+      setError(toErrorMessage(e));
     }
   };
 
   const handleUpdateNPCNotes = async (updatedNotes: UserNote[]) => {
     if (!npc) return;
+    setError("");
     try {
       const response = await authFetch("/api/data/npcs", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...npc, notes: updatedNotes }),
+        body: JSON.stringify({ id: npc.id, notes: updatedNotes }),
       });
-      if (response.ok) await refreshNpc();
-    } catch {
-      /* noop */
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${response.status}`);
+      }
+      await refreshNpc();
+    } catch (e) {
+      setError(toErrorMessage(e));
     }
   };
 
@@ -181,10 +214,19 @@ export default function NPCDetailPage() {
 
   const selectedNpcImage = safeImageSrc(npc.image);
 
+  const autoLinkEntities: AutoLinkEntity[] = [
+    ...allNpcs.filter(n => String(n.id) !== id).map(n => ({ id: String(n.id), name: n.name || n.aka || "", aliases: n.aka ? [n.aka] : [], url: `/campaign/npcs/${n.id}`, type: 'npc' as const })),
+    ...factionData.map(f => ({ id: String(f.id), name: f.name, url: `/campaign/factions/${f.id}`, type: 'faction' as const })),
+    ...pcs.map(p => ({ id: String(p.id), name: p.name, url: `/campaign/pcs/${p.id}`, type: 'pc' as const })),
+    ...allDeities.map(d => ({ id: String(d.id), name: d.name, url: `/campaign/deities/${d.id}`, type: 'deity' as const })),
+    ...locations.map(l => ({ id: String(l.id), name: l.name, url: `/campaign/locations/${l.id}`, type: 'location' as const })),
+    ...items.map(it => ({ id: String(it.id), name: it.name, url: `/campaign/items/${it.id}`, type: 'item' as const })),
+  ].filter(e => e.name);
+
   const linkEntities = [
     ...pcs.map(p => ({ id: String(p.id), name: p.name, type: 'pc' as const, url: `/campaign/pcs/${p.id}` })),
     ...factionData.map(f => ({ id: String(f.id), name: f.name, type: 'faction' as const, url: `/campaign/factions/${f.id}` })),
-    ...deities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
+    ...allDeities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` })),
   ];
 
   return (
@@ -285,9 +327,12 @@ export default function NPCDetailPage() {
                   </label>
                 ))}
               </div>
+              {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
-                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingNPC({}); }}>Cancel</button>
-                <button type="submit" className="grim-btn is-ember">Save Changes</button>
+                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingNPC({}); setError(""); }}>Cancel</button>
+                <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                  {isSaving ? <><span className="grim-flame" style={{ width: 8, height: 8 }} /> Saving…</> : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>
@@ -315,6 +360,8 @@ export default function NPCDetailPage() {
 
       {/* NPC DETAIL */}
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+
+        {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
         {/* Top bar */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
@@ -432,9 +479,9 @@ export default function NPCDetailPage() {
         {/* Description parchment block */}
         {npc.description && (
           <section className="grim-parchment" style={{ marginBottom: 28 }}>
-            <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}>
-              {npc.description}
-            </p>
+            <div style={{ margin: 0, fontSize: 17, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.description, isAdmin, autoLinkEntities) }}
+            />
           </section>
         )}
 
@@ -449,7 +496,7 @@ export default function NPCDetailPage() {
                   <h3 className="grim-tome-title">Background</h3>
                   <span className="grim-tome-sub">history &amp; origin</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.background || "", isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.background || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
             {npc.personality && (
@@ -458,7 +505,7 @@ export default function NPCDetailPage() {
                   <h3 className="grim-tome-title">Personality</h3>
                   <span className="grim-tome-sub">manner &amp; disposition</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.personality || "", isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.personality || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
             {!npc.background && !npc.personality && (

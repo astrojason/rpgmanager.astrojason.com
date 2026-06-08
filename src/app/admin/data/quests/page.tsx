@@ -11,6 +11,7 @@ import EntityTagPicker from '@/components/EntityTagPicker';
 import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
 import Link from "next/link";
 
 interface EntityItem { id: string; name: string; }
@@ -26,6 +27,7 @@ export default function QuestsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Quest>>({});
+  const [isSaving, setIsSaving] = useState(false);
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
@@ -166,11 +168,13 @@ export default function QuestsManagementPage() {
   };
 
   const handleSave = async () => {
+    setError("");
     try {
       if (!formData.name) {
         setError("Please fill in quest name");
         return;
       }
+      setIsSaving(true);
 
       const questData = formData as Quest;
 
@@ -220,6 +224,8 @@ export default function QuestsManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Quest");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -316,19 +322,7 @@ export default function QuestsManagementPage() {
       </header>
 
       {/* Status banners */}
-      {error && (
-        <div style={{
-          background: "oklch(0.25 0.12 22 / 0.4)",
-          border: "1px solid var(--grim-blood-2)",
-          color: "oklch(0.85 0.08 30)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {error}
-        </div>
-      )}
+      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{
@@ -449,6 +443,10 @@ export default function QuestsManagementPage() {
                 <div className="grim-tome-title">
                   {isCreating ? "New Errand" : "Edit Errand"}
                 </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Create Errand" : "Save Changes"}`}</button>
+                </div>
               </div>
 
               <div style={{ padding: "24px 28px" }}>
@@ -540,8 +538,8 @@ export default function QuestsManagementPage() {
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
-                    <button type="submit" className="grim-btn is-ember">
-                      {isCreating ? "Create Errand" : "Save Changes"}
+                    <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                      {isSaving ? "Saving…" : (isCreating ? "Create Errand" : "Save Changes")}
                     </button>
                   </div>
 

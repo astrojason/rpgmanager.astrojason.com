@@ -43,6 +43,7 @@ export default function DeitiesManagementPage() {
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<Partial<Deity>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!auth) return;
@@ -97,7 +98,9 @@ export default function DeitiesManagementPage() {
   };
 
   const handleSave = async () => {
+    setError(null);
     if (!form.name?.trim()) { setError("Name is required."); return; }
+    setIsSaving(true);
     try {
       const method = creating ? "POST" : "PUT";
       const res = await authFetch("/api/data/deities", {
@@ -115,6 +118,8 @@ export default function DeitiesManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {
       setError(toErrorMessage(e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -219,6 +224,10 @@ export default function DeitiesManagementPage() {
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div className="grim-tome-head" style={{ padding: "16px 24px" }}>
                 <div className="grim-tome-title">{creating ? "New Deity" : "Edit Deity"}</div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={() => { setCreating(false); setEditing(false); }} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${creating ? "Create Deity" : "Save Changes"}`}</button>
+                </div>
               </div>
               <div style={{ padding: "24px 28px" }}>
                 <form onSubmit={e => { e.preventDefault(); handleSave(); }}>
@@ -337,7 +346,7 @@ export default function DeitiesManagementPage() {
 
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
                     <button type="button" className="grim-btn is-ghost" onClick={() => { setCreating(false); setEditing(false); }}>Cancel</button>
-                    <button type="submit" className="grim-btn is-ember">{creating ? "Create Deity" : "Save Changes"}</button>
+                    <button type="submit" className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : (creating ? "Create Deity" : "Save Changes")}</button>
                   </div>
                 </form>
               </div>

@@ -74,6 +74,29 @@ describe('npcs endpoint', () => {
     expect(txRollback).toHaveBeenCalled();
   });
 
+  it('PATCH updates notes for any authenticated user', async () => {
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+
+    const { PATCH } = await import('@/app/api/data/npcs/route');
+    const res = await PATCH(jsonRequest('http://test/api/npcs', 'PATCH', { id: '42', notes: [{ id: 'n1', content: 'hello', author: 'u1', timestamp: '' }] }) as any);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ success: true });
+  });
+
+  it('PATCH returns 400 when id is missing', async () => {
+    const { PATCH } = await import('@/app/api/data/npcs/route');
+    const res = await PATCH(jsonRequest('http://test/api/npcs', 'PATCH', { notes: [] }) as any);
+    expect(res.status).toBe(400);
+  });
+
+  it('PATCH returns 404 when NPC not found', async () => {
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 });
+
+    const { PATCH } = await import('@/app/api/data/npcs/route');
+    const res = await PATCH(jsonRequest('http://test/api/npcs', 'PATCH', { id: '99', notes: [] }) as any);
+    expect(res.status).toBe(404);
+  });
+
   it('validates delete id parameter', async () => {
     const { DELETE } = await import('@/app/api/data/npcs/route');
     const bad = await DELETE(requestWithQuery('http://test/api/npcs') as any);

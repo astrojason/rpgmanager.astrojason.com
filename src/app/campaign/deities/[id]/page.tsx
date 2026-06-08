@@ -38,6 +38,7 @@ export default function DeityDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingDeity, setEditingDeity] = useState<Partial<Deity>>({});
   const [dmMode, setDmMode] = useState(false);
@@ -91,6 +92,8 @@ export default function DeityDetailPage() {
   };
 
   const handleSave = async (data: Partial<Deity>) => {
+    setIsSaving(true);
+    setError(null);
     try {
       const res = await authFetch("/api/data/deities", {
         method: "PUT",
@@ -103,6 +106,8 @@ export default function DeityDetailPage() {
       setEditingDeity({});
     } catch (e) {
       setError(toErrorMessage(e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -119,11 +124,12 @@ export default function DeityDetailPage() {
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!deity) return;
+    setError(null);
     try {
       const res = await authFetch("/api/data/deities", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...deity, notes }),
+        body: JSON.stringify({ id: deity.id, notes }),
       });
       if (res.ok) await refreshDeity();
       else throw new Error(await res.text());
@@ -297,9 +303,12 @@ export default function DeityDetailPage() {
                 <input type="checkbox" checked={Boolean(editingDeity.hidden)} onChange={e => setEditingDeity({ ...editingDeity, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
                 Hidden from players
               </label>
+              {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
-                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingDeity({}); }}>Cancel</button>
-                <button type="submit" className="grim-btn is-ember">Save Changes</button>
+                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingDeity({}); setError(null); }}>Cancel</button>
+                <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                  {isSaving ? <><span className="grim-flame" style={{ width: 8, height: 8 }} /> Saving…</> : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>

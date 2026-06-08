@@ -6,6 +6,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -45,6 +46,7 @@ export default function NPCsManagementPage() {
   const [cursorId, setCursorId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<NPC>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load NPCs data
   useEffect(() => {
@@ -228,11 +230,13 @@ export default function NPCsManagementPage() {
   };
 
   const handleSave = async () => {
+    setError("");
     try {
       if (!formData.name || !formData.race || !formData.location) {
         setError("Please fill in all required fields (Name, Race, Location)");
         return;
       }
+      setIsSaving(true);
 
       const npcData = formData as NPC;
 
@@ -268,6 +272,8 @@ export default function NPCsManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save NPC");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -489,11 +495,7 @@ export default function NPCsManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && (
-        <div style={{ background: "oklch(0.25 0.12 22 / 0.4)", border: "1px solid var(--grim-blood-2)", color: "oklch(0.85 0.08 30)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {error}
-        </div>
-      )}
+      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}
@@ -592,6 +594,10 @@ export default function NPCsManagementPage() {
             <div className="grim-tome">
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "Inscribe a New Soul" : "Amend the Record"}</div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Inscribe Soul" : "Save Changes"}`}</button>
+                </div>
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
@@ -796,8 +802,8 @@ export default function NPCsManagementPage() {
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
                     ✕ Cancel
                   </button>
-                  <button type="submit" className="grim-btn is-ember">
-                    ✓ {isCreating ? "Inscribe Soul" : "Save Changes"}
+                  <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                    {isSaving ? "Saving…" : `✓ ${isCreating ? "Inscribe Soul" : "Save Changes"}`}
                   </button>
                 </div>
               </form>

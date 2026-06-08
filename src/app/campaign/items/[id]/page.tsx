@@ -9,6 +9,7 @@ import { Item, NPC, PC, Location, SessionRecap, UserNote } from "@/types/interfa
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
@@ -34,6 +35,8 @@ export default function ItemDetailPage() {
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
   const [dmMode, setDmMode] = useState(false);
@@ -101,38 +104,60 @@ export default function ItemDetailPage() {
   };
 
   const handleSave = async (data: Partial<Item>) => {
+    setIsSaving(true);
+    setError("");
     try {
       const res = await authFetch("/api/data/items", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (res.ok) {
-        await refreshItem();
-        setShowEditForm(false);
-        setEditingItem({});
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${res.status}`);
       }
-    } catch { /* noop */ }
+      await refreshItem();
+      setShowEditForm(false);
+      setEditingItem({});
+    } catch (e) {
+      setError(toErrorMessage(e));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!item || !confirm("Are you sure you want to delete this item?")) return;
+    setError("");
     try {
       const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
-      if (res.ok) router.push("/campaign/items");
-    } catch { /* noop */ }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${res.status}`);
+      }
+      router.push("/campaign/items");
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
   };
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!item) return;
+    setError("");
     try {
       const res = await authFetch("/api/data/items", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...item, notes }),
+        body: JSON.stringify({ id: item.id, notes }),
       });
-      if (res.ok) await refreshItem();
-    } catch { /* noop */ }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Server error ${res.status}`);
+      }
+      await refreshItem();
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
   };
 
   const startEditing = () => {
@@ -302,9 +327,12 @@ export default function ItemDetailPage() {
                 <input type="checkbox" checked={Boolean(editingItem.hidden)} onChange={e => setEditingItem({ ...editingItem, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
                 Hidden from players
               </label>
+              {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
-                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingItem({}); }}>Cancel</button>
-                <button type="submit" className="grim-btn is-ember">Save Changes</button>
+                <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingItem({}); setError(""); }}>Cancel</button>
+                <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                  {isSaving ? <><span className="grim-flame" style={{ width: 8, height: 8 }} /> Saving…</> : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>
@@ -313,6 +341,7 @@ export default function ItemDetailPage() {
 
       {/* ITEM DETAIL */}
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
         {/* Top bar */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>

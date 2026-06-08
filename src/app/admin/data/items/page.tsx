@@ -5,6 +5,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Item, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -31,6 +32,7 @@ export default function ItemsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<Partial<Item>>({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const [availableNpcs, setAvailableNpcs] = useState<EntityItem[]>([]);
   const [availablePcs, setAvailablePcs] = useState<EntityItem[]>([]);
@@ -104,8 +106,10 @@ export default function ItemsManagementPage() {
   };
 
   const handleSave = async () => {
+    setError("");
     try {
       if (!formData.name) { setError("Name is required"); return; }
+      setIsSaving(true);
       const method = isCreating ? "POST" : "PUT";
       const res = await authFetch("/api/data/items", {
         method,
@@ -126,6 +130,8 @@ export default function ItemsManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save item");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -181,11 +187,7 @@ export default function ItemsManagementPage() {
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Catalogue New</button>
       </header>
 
-      {error && (
-        <div style={{ background: "oklch(0.25 0.12 22 / 0.4)", border: "1px solid var(--grim-blood-2)", color: "oklch(0.85 0.08 30)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {error}
-        </div>
-      )}
+      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}
@@ -251,6 +253,10 @@ export default function ItemsManagementPage() {
             <div className="grim-tome">
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "Catalogue New Relic" : "Amend the Record"}</div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Catalogue" : "Save Changes"}`}</button>
+                </div>
               </div>
               <form onSubmit={e => { e.preventDefault(); handleSave(); }}>
 
@@ -366,7 +372,7 @@ export default function ItemsManagementPage() {
                 <hr className="grim-rule" />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
-                  <button type="submit" className="grim-btn is-ember">✓ {isCreating ? "Catalogue" : "Save Changes"}</button>
+                  <button type="submit" className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Catalogue" : "Save Changes"}`}</button>
                 </div>
               </form>
             </div>

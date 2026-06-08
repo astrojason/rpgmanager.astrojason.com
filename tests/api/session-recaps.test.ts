@@ -137,4 +137,27 @@ describe('session recaps endpoint', () => {
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'ID is required' });
   });
+
+  it('PATCH updates notes for any authenticated user', async () => {
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+
+    const { PATCH } = await import('@/app/api/data/session-recaps/route');
+    const res = await PATCH(jsonRequest('http://test/api/recaps', 'PATCH', { id: '5', notes: [{ id: 'n1', content: 'note', author: 'u1', timestamp: '' }] }) as any);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ success: true });
+  });
+
+  it('PATCH returns 400 when id is missing', async () => {
+    const { PATCH } = await import('@/app/api/data/session-recaps/route');
+    const res = await PATCH(jsonRequest('http://test/api/recaps', 'PATCH', { notes: [] }) as any);
+    expect(res.status).toBe(400);
+  });
+
+  it('PATCH returns 404 when recap not found', async () => {
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 });
+
+    const { PATCH } = await import('@/app/api/data/session-recaps/route');
+    const res = await PATCH(jsonRequest('http://test/api/recaps', 'PATCH', { id: '99', notes: [] }) as any);
+    expect(res.status).toBe(404);
+  });
 });

@@ -41,6 +41,7 @@ export default function RecapDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
@@ -127,6 +128,8 @@ export default function RecapDetailPage() {
 
   const handleSaveEdit = async () => {
     if (!recap) return;
+    setIsSaving(true);
+    setError(null);
     try {
       const res = await authFetch("/api/data/session-recaps", {
         method: "PUT",
@@ -142,20 +145,22 @@ export default function RecapDetailPage() {
       setEditingRecap({});
     } catch (e) {
       setError(toErrorMessage(e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleUpdateNotes = async (updatedNotes: UserNote[]) => {
     if (!recap) return;
+    setError(null);
     try {
-      const payload = { ...recap, notes: updatedNotes };
       const res = await authFetch("/api/data/session-recaps", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ id: recap.id, notes: updatedNotes }),
       });
       if (!res.ok) throw new Error("Failed to update notes");
-      setRecap(payload);
+      setRecap({ ...recap, notes: updatedNotes });
     } catch (e) {
       setError(toErrorMessage(e));
     }
@@ -241,8 +246,10 @@ export default function RecapDetailPage() {
             <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
               {editing ? (
                 <>
-                  <button onClick={() => { setEditing(false); setEditingRecap({}); }} className="grim-btn is-ghost" style={{ padding: "6px 12px", fontSize: 11 }}>Cancel</button>
-                  <button onClick={handleSaveEdit} className="grim-btn is-ember" style={{ padding: "6px 12px", fontSize: 11 }}>Save</button>
+                  <button onClick={() => { setEditing(false); setEditingRecap({}); setError(null); }} className="grim-btn is-ghost" style={{ padding: "6px 12px", fontSize: 11 }}>Cancel</button>
+                  <button onClick={handleSaveEdit} className="grim-btn is-ember" style={{ padding: "6px 12px", fontSize: 11 }} disabled={isSaving}>
+                    {isSaving ? <><span className="grim-flame" style={{ width: 7, height: 7 }} /> Saving…</> : "Save"}
+                  </button>
                 </>
               ) : (
                 <button onClick={() => { setEditing(true); setEditingRecap({ ...recap }); }} className="grim-btn is-ghost">Edit</button>

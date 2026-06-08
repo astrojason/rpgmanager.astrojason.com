@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
 
 export default function LocationsManagementPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -17,6 +18,7 @@ export default function LocationsManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Location>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadLocations();
@@ -114,11 +116,13 @@ export default function LocationsManagementPage() {
   };
 
   const handleSave = async () => {
+    setError("");
     try {
       if (!formData.name || !formData.teaser || !formData.detail) {
         setError("Please fill in all required fields");
         return;
       }
+      setIsSaving(true);
 
       const locationData = formData as Location;
 
@@ -139,6 +143,8 @@ export default function LocationsManagementPage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Location");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -198,19 +204,7 @@ export default function LocationsManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && (
-        <div style={{
-          background: "oklch(0.25 0.12 22 / 0.4)",
-          border: "1px solid var(--grim-blood-2)",
-          color: "oklch(0.85 0.08 30)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {error}
-        </div>
-      )}
+      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{
@@ -326,6 +320,10 @@ export default function LocationsManagementPage() {
               <div className="grim-tome-head">
                 <div className="grim-tome-title">
                   {isCreating ? "Chart New Location" : "Edit Location"}
+                </div>
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Chart Location" : "Save Changes"}`}</button>
                 </div>
               </div>
 
@@ -488,8 +486,8 @@ export default function LocationsManagementPage() {
                         Delete
                       </button>
                     )}
-                    <button type="submit" className="grim-btn is-ember">
-                      {isCreating ? "Chart Location" : "Save Changes"}
+                    <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                      {isSaving ? "Saving…" : (isCreating ? "Chart Location" : "Save Changes")}
                     </button>
                   </div>
 
