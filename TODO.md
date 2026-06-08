@@ -11,6 +11,7 @@
 - [x] add auto linking to NPC descriptions
 - [x] add animations for actions to make it clear something is happening
 - [x] all actions should surface errors to the UI in copyable blocks
+- [ ] administrators should be able to impersonate other users to see what they see and troubleshoot issues, all impersonated user permissions should be respected until the impersonation session is ended
 
 ## Bugs to fix
 - [x] next session calculation should show the next upcoming session, defaulting to the next Sunday at 7pm Pacific if there are no skipped sessions
@@ -20,3 +21,4 @@
 - [-] auto linking should also use AKA/Alias and partial matches (i.e. Barrow Ironhoof should also match on Barrow)
 - [x] non-admins cannot save notes
 - [x] save button on admin is not inline
+- [ ] notes left on item and npc are showing as a note from the DM not the actual player who left the note

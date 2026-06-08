@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { SessionRecap } from '@/types/interfaces';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 
@@ -75,9 +74,7 @@ export async function GET(request?: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
-        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, date TEXT, title TEXT, recap TEXT, author TEXT, notes TEXT)`);
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const { npcMap, locMap, questMap, itemMap, factionMap, deityMap } = await loadTagMaps(db);
         const data: SessionRecap[] = res.rows.map((r: Record<string, unknown>) => {
@@ -163,7 +160,6 @@ export async function POST(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const newRecap: SessionRecap = await request.json();
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
@@ -182,7 +178,6 @@ export async function PUT(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const updatedRecap: SessionRecap = await request.json();
         // Load all recaps to find the one to update
@@ -219,7 +214,6 @@ export async function PATCH(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: { id?: string; notes?: unknown[] } = await request.json();
         if (!body.id) return NextResponse.json({ error: 'Recap ID is required' }, { status: 400 });
@@ -241,7 +235,6 @@ export async function DELETE(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

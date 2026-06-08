@@ -675,9 +675,12 @@ body {
   cursor: pointer;
   border-radius: 1px;
   position: relative;
+  transition: transform 100ms ease-out, filter 100ms ease-out, box-shadow 100ms ease-out, background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .grim-btn:hover { background: var(--grim-bg-4); border-color: var(--grim-gold-2); color: var(--grim-gold); }
+.grim-btn:active:not(:disabled) { transform: scale(0.955); filter: brightness(1.22); transition-duration: 50ms; }
+.grim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .grim-btn.is-ember {
   background: linear-gradient(180deg, oklch(0.40 0.12 35), oklch(0.30 0.10 30));
@@ -685,6 +688,7 @@ body {
   color: oklch(0.95 0.02 80);
   box-shadow: 0 0 18px oklch(0.72 0.165 48 / 0.25);
 }
+.grim-btn.is-ember:active:not(:disabled) { box-shadow: 0 0 32px oklch(0.72 0.165 48 / 0.60); }
 
 .grim-btn.is-blood {
   background: linear-gradient(180deg, oklch(0.40 0.16 22), oklch(0.30 0.14 22));
@@ -840,8 +844,20 @@ a.grim-link {
   color: var(--grim-ember-2);
   text-decoration: none;
   border-bottom: 1px dotted oklch(0.72 0.165 48 / 0.5);
+  transition: opacity 80ms ease-out;
 }
 a.grim-link:hover { color: var(--grim-gold); }
+a.grim-link:active { opacity: 0.55; transition-duration: 40ms; }
+
+/* Fallback press feedback for any <button> not using .grim-btn (Tailwind-styled, icon buttons, etc.) */
+button:not(.grim-btn) {
+  transition: transform 100ms ease-out, opacity 100ms ease-out;
+}
+button:not(.grim-btn):active:not(:disabled) {
+  transform: scale(0.90);
+  opacity: 0.75;
+  transition-duration: 50ms;
+}
 
 .grim-row { display: flex; gap: 12px; align-items: center; }
 .grim-stack { display: flex; flex-direction: column; gap: 12px; }

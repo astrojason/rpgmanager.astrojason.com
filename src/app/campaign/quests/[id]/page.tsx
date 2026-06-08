@@ -79,11 +79,12 @@ export default function QuestDetailPage() {
         timestamp: new Date().toISOString(),
         author: userId,
       };
-      const updatedQuest = { ...quest, notes: [...normalizeQuestNotes(quest), newUserNote] as UserNote[] };
+      const updatedNotes = [...normalizeQuestNotes(quest), newUserNote] as UserNote[];
+      const updatedQuest = { ...quest, notes: updatedNotes };
       const res = await authFetch("/api/data/quests", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedQuest),
+        body: JSON.stringify({ id: quest.id, notes: updatedNotes }),
       });
       if (!res.ok) throw new Error("Failed to save note");
       setQuest(updatedQuest);
@@ -102,9 +103,9 @@ export default function QuestDetailPage() {
       );
       const updatedQuest = { ...quest, notes };
       const res = await authFetch("/api/data/quests", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedQuest),
+        body: JSON.stringify({ id: quest.id, notes }),
       });
       if (!res.ok) throw new Error("Failed to update note");
       setQuest(updatedQuest);
@@ -121,9 +122,9 @@ export default function QuestDetailPage() {
       const notes = normalizeQuestNotes(quest).filter(n => n.id !== noteId);
       const updatedQuest = { ...quest, notes };
       const res = await authFetch("/api/data/quests", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedQuest),
+        body: JSON.stringify({ id: quest.id, notes }),
       });
       if (!res.ok) throw new Error("Failed to delete note");
       setQuest(updatedQuest);

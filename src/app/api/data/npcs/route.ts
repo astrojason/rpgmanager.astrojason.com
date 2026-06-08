@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NPC } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -37,19 +36,7 @@ export async function GET(request?: NextRequest) {
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
-        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          name TEXT, aka TEXT, display_name TEXT,
-          pronunciation TEXT, race TEXT, gender TEXT,
-          location TEXT, status TEXT,
-          description TEXT, background TEXT, personality TEXT,
-          image TEXT,
-          hidden INTEGER, nameHidden INTEGER, hide_name INTEGER,
-          notes TEXT, gm_notes TEXT
-        )`);
-        await db.execute(`CREATE TABLE IF NOT EXISTS ${JUNCTION} (npc_id INTEGER NOT NULL, faction_id INTEGER NOT NULL, PRIMARY KEY(npc_id,faction_id))`);
         const base = await db.execute(`SELECT * FROM ${TABLE}`);
         const jf = await db.execute(`SELECT npc_id, faction_id FROM ${JUNCTION}`);
         const map = new Map<number, string[]>();
@@ -74,7 +61,6 @@ export async function POST(request: NextRequest) {
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: NPC = await request.json();
         const factions = Array.isArray(body.factions) ? body.factions : [];
@@ -124,7 +110,6 @@ export async function PUT(request: NextRequest) {
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: NPC = await request.json();
         const idNum = Number(body.id);
@@ -178,7 +163,6 @@ export async function PATCH(request: NextRequest) {
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: { id?: string; notes?: unknown[] } = await request.json();
         if (!body.id) return NextResponse.json({ error: 'NPC ID is required' }, { status: 400 });
@@ -200,7 +184,6 @@ export async function DELETE(request: NextRequest) {
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

@@ -13,11 +13,4 @@ export function getDb(): Client {
   return cached;
 }
 
-export async function ensureTable(table: string) {
-  const db = getDb();
-  await db.execute(`CREATE TABLE IF NOT EXISTS ${table} (
-    id TEXT PRIMARY KEY,
-    data TEXT NOT NULL
-  )`);
-}
 

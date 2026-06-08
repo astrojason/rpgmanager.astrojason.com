@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyRequestAuth, VerifiedUser } from '@/lib/apiAuth';
-import { ensureSchema } from '@/lib/schema';
 
 /**
  * Standard API route handler wrapper
@@ -21,7 +20,6 @@ export async function withApiHandler(
   }
 
   try {
-    await ensureSchema();
     return await handler(authResult.user);
   } catch (error) {
     console.error('API handler error:', error);

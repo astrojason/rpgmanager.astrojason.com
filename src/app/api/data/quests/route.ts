@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -60,9 +59,7 @@ export async function GET(request?: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
-        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, name TEXT, notes TEXT, status TEXT, gm_notes TEXT)`);
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const { npcMap, locMap, factionMap, deityMap } = await loadQuestTagMaps(db);
         const data = res.rows.map((r: Record<string, unknown>) => {
@@ -91,7 +88,6 @@ export async function POST(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const q = await request.json();
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes) VALUES (?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null] });
@@ -109,7 +105,6 @@ export async function PUT(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const q = await request.json();
         const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, Number(q.id)] });
@@ -122,12 +117,32 @@ export async function PUT(request: NextRequest) {
     }
 }
 
+export async function PATCH(request: NextRequest) {
+    const authResult = await verifyRequestAuth(request);
+    if ('errorResponse' in authResult) return authResult.errorResponse;
+
+    try {
+        const db = getDb();
+        const body: { id?: string; notes?: unknown[] } = await request.json();
+        if (!body.id) return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
+
+        const res = await db.execute({
+            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
+            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
+        });
+        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error updating Quest notes:', error);
+        return NextResponse.json({ error: 'Failed to update Quest notes' }, { status: 500 });
+    }
+}
+
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

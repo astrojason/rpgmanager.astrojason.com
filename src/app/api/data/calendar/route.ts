@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 
 const TABLE = 'calendar';
@@ -10,20 +9,7 @@ export async function GET(request?: NextRequest) {
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          description TEXT,
-          showIntercalarySeparately INTEGER,
-          current_day INTEGER,
-          current_month INTEGER,
-          current_year INTEGER,
-          static TEXT,
-          events TEXT,
-          categories TEXT
-        )`);
     const res = await db.execute(`SELECT * FROM ${TABLE} LIMIT 1`);
     if (res.rows.length === 0) return NextResponse.json({});
     const r: Record<string, unknown> = res.rows[0];
@@ -48,21 +34,8 @@ export async function PUT(request: NextRequest) {
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const body = await request.json();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          description TEXT,
-          showIntercalarySeparately INTEGER,
-          current_day INTEGER,
-          current_month INTEGER,
-          current_year INTEGER,
-          static TEXT,
-          events TEXT,
-          categories TEXT
-        )`);
     const payload = {
       name: body.name ?? null,
       description: body.description ?? null,

@@ -4,11 +4,15 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsDM } from "@/utils/role";
+import { useIsAdmin } from "@/utils/adminCheck";
+import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import Image from "next/image";
-import { PC, Faction, Deity } from "@/types/interfaces";
+import { PC, Faction, Deity, UserNote } from "@/types/interfaces";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import UserNotesEditor from "@/components/UserNotesEditor";
 import Link from "next/link";
 
 function statusChipClass(status?: string): string {
@@ -31,10 +35,29 @@ export default function PCDetailPage() {
   const [showFullImage, setShowFullImage] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [fadeGif, setFadeGif] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isDM = useIsDM();
+  const isAdmin = useIsAdmin();
+  const userId = useEffectiveUserId();
 
   usePageTracking();
+
+  const handleUpdateNotes = async (notes: UserNote[]) => {
+    if (!pc) return;
+    setError(null);
+    try {
+      const res = await authFetch("/api/data/pcs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pc.id, notes }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setPc({ ...pc, notes });
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -162,6 +185,7 @@ export default function PCDetailPage() {
       )}
 
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+        {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
         {/* Back nav */}
         <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/pcs")} style={{ marginBottom: 24 }}>
@@ -307,6 +331,20 @@ export default function PCDetailPage() {
             />
           </section>
         )}
+
+        {/* Party Notes */}
+        <section className="grim-tome">
+          <div className="grim-tome-head">
+            <h3 className="grim-tome-title">Party Notes</h3>
+            <span className="grim-tome-sub">field observations</span>
+          </div>
+          <UserNotesEditor
+            notes={pc.notes || []}
+            onChange={handleUpdateNotes}
+            currentUser={userId}
+            isAdmin={isAdmin}
+          />
+        </section>
       </div>
     </>
   );

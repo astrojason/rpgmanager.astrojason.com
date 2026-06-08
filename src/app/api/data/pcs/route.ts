@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -26,6 +25,7 @@ function rowToPC(row: Record<string, unknown>, factions: string[]) {
     // Keep null instead of stringifying null/undefined so user mapping works
     player: row.player === null || row.player === undefined ? null : sanitizeText(row.player),
     gm_notes: sanitizeOptionalText(row.gm_notes),
+    notes: row.notes ? JSON.parse(String(row.notes)) : [],
     factions,
   };
 }
@@ -35,22 +35,7 @@ export async function GET(request?: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          nickname TEXT,
-          race TEXT,
-          hometown TEXT,
-          status TEXT,
-          class TEXT,
-          image TEXT,
-          gif TEXT,
-          player TEXT,
-          gm_notes TEXT
-        )`);
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${JUNCTION} (pc_id INTEGER NOT NULL, faction_id INTEGER NOT NULL, PRIMARY KEY(pc_id,faction_id))`);
     const base = await db.execute(`SELECT * FROM ${TABLE}`);
     const jf = await db.execute(`SELECT pc_id, faction_id FROM ${JUNCTION}`);
     const byPc = new Map<number, string[]>();
@@ -74,15 +59,14 @@ export async function POST(request: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const body = await request.json();
     const factions: string[] = Array.isArray(body.factions) ? body.factions : [];
     const tx = await db.transaction('write');
     try {
       const res = await tx.execute({
-        sql: `INSERT INTO ${TABLE} (name,nickname,race,hometown,status,class,image,gif,player,gm_notes) VALUES (?,?,?,?,?,?,?,?,?,?)`,
-        args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null]
+        sql: `INSERT INTO ${TABLE} (name,nickname,race,hometown,status,class,image,gif,player,gm_notes,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+        args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null, JSON.stringify(body.notes ?? [])]
       });
       const newId = Number(res.lastInsertRowid ?? 0);
       // faction_id is TEXT in database, keep as string
@@ -101,7 +85,6 @@ export async function PUT(request: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const body = await request.json();
     const idNum = Number(body.id);
@@ -109,8 +92,8 @@ export async function PUT(request: NextRequest) {
     const tx = await db.transaction('write');
     try {
       const res = await tx.execute({
-        sql: `UPDATE ${TABLE} SET name=?,nickname=?,race=?,hometown=?,status=?,class=?,image=?,gif=?,player=?,gm_notes=? WHERE id=?`,
-        args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null, idNum]
+        sql: `UPDATE ${TABLE} SET name=?,nickname=?,race=?,hometown=?,status=?,class=?,image=?,gif=?,player=?,gm_notes=?,notes=? WHERE id=?`,
+        args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null, JSON.stringify(body.notes ?? []), idNum]
       });
       if ((res.rowsAffected ?? 0) === 0) { await tx.rollback(); return NextResponse.json({ error: 'PC not found' }, { status: 404 }); }
       await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [idNum] });
@@ -126,14 +109,37 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const body = await request.json();
+
+  // Notes-only update: any authenticated user
+  if (!Array.isArray(body)) {
+    const authResult = await verifyRequestAuth(request);
+    if ("errorResponse" in authResult) return authResult.errorResponse;
+
+    try {
+      const db = getDb();
+      const { id, notes } = body as { id?: string; notes?: unknown[] };
+      if (!id) return NextResponse.json({ error: 'PC ID is required' }, { status: 400 });
+
+      const res = await db.execute({
+        sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
+        args: [JSON.stringify(notes ?? []), Number(id)],
+      });
+      if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'PC not found' }, { status: 404 });
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      console.error('Error updating PC notes:', error);
+      return NextResponse.json({ error: 'Failed to update PC notes' }, { status: 500 });
+    }
+  }
+
+  // Bulk update: admin/DM only
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
-    const pcsArray = await request.json();
-    if (!Array.isArray(pcsArray)) return NextResponse.json({ error: 'Expected an array of PCs' }, { status: 400 });
+    const pcsArray = body;
     const tx = await db.transaction('write');
     try {
       for (const pc of pcsArray) {
@@ -166,7 +172,6 @@ export async function DELETE(request: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

@@ -5,9 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
+import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { Location, SessionRecap } from "@/types/interfaces";
+import { Location, SessionRecap, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import UserNotesEditor from "@/components/UserNotesEditor";
 import Link from "next/link";
 
 export default function LocationDetailPage() {
@@ -20,11 +23,29 @@ export default function LocationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [dmMode, setDmMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const userId = useEffectiveUserId();
 
   usePageTracking();
+
+  const handleUpdateNotes = async (notes: UserNote[]) => {
+    if (!location) return;
+    setError(null);
+    try {
+      const res = await authFetch("/api/data/locations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: location.id, notes }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setLocation({ ...location, notes });
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
+  };
 
   useEffect(() => {
     const loadLocation = async () => {
@@ -109,6 +130,7 @@ export default function LocationDetailPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
@@ -254,7 +276,21 @@ export default function LocationDetailPage() {
             </section>
           )}
 
-          {(isDM || isAdmin) && (
+            {/* Party Notes */}
+          <section className="grim-tome">
+            <div className="grim-tome-head">
+              <h3 className="grim-tome-title">Party Notes</h3>
+              <span className="grim-tome-sub">field observations</span>
+            </div>
+            <UserNotesEditor
+              notes={location.notes || []}
+              onChange={handleUpdateNotes}
+              currentUser={userId}
+              isAdmin={isAdmin}
+            />
+          </section>
+
+        {(isDM || isAdmin) && (
             dmMode ? (
               location.gm_notes ? (
                 <section className="grim-tome" style={{ border: "1px solid var(--grim-arcane)", background: "linear-gradient(180deg, oklch(0.18 0.05 285), oklch(0.13 0.04 290))" }}>

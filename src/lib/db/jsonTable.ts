@@ -2,7 +2,6 @@ import { getDb } from '@/lib/turso';
 
 export async function getAllJSON<T = unknown>(table: string): Promise<T[]> {
   const db = getDb();
-  await db.execute(`CREATE TABLE IF NOT EXISTS ${table} (id TEXT PRIMARY KEY, data TEXT NOT NULL)`);
   const res = await db.execute(`SELECT data FROM ${table}`);
   return res.rows.map((r) => JSON.parse(String((r as Record<string, unknown>).data)) as T);
 }

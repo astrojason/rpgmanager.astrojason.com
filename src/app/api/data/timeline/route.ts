@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -13,9 +12,7 @@ export async function GET(request?: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
-        await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (id INTEGER PRIMARY KEY, title TEXT, date TEXT, description TEXT, category TEXT, gm_notes TEXT)`);
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const data = res.rows.map((r: Record<string, unknown>) => ({
             id: String(r.id),
@@ -37,7 +34,6 @@ export async function POST(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const e = await request.json();
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (title,date,description,category,gm_notes) VALUES (?,?,?,?,?)`, args: [e.title, e.date, e.description, e.category ?? null, e.gm_notes ?? null] });
@@ -54,7 +50,6 @@ export async function PUT(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const e: TimelineEvent = await request.json();
         const res = await db.execute({ sql: `UPDATE ${TABLE} SET title=?,date=?,description=?,category=?,gm_notes=? WHERE id=?`, args: [e.title, e.date, e.description, e.category ?? null, e.gm_notes ?? null, Number(e.id)] });
@@ -71,7 +66,6 @@ export async function DELETE(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

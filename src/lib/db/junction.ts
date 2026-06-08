@@ -1,10 +1,5 @@
 import { getDb } from '@/lib/turso';
 
-export async function ensureJunction(table: string, a: string, b: string) {
-  const db = getDb();
-  await db.execute(`CREATE TABLE IF NOT EXISTS ${table} (${a} TEXT NOT NULL, ${b} TEXT NOT NULL, PRIMARY KEY(${a},${b}))`);
-}
-
 export async function loadJunctionMap(table: string, a: string, b: string): Promise<Map<string, string[]>> {
   const db = getDb();
   const res = await db.execute(`SELECT ${a} as a, ${b} as b FROM ${table}`);

@@ -10,6 +10,7 @@ export interface Location {
   teaser: string;
   detail: string;
   gm_notes?: string;
+  notes?: UserNote[];
   isEditing?: boolean; // Optional field for admin use
   locations?: Location[];
 }
@@ -73,6 +74,7 @@ export interface PC {
   gif?: string;
   player?: string | null; // UUID of the user who plays this character
   gm_notes?: string;
+  notes?: UserNote[];
 }
 export interface Faction {
   id: string;
@@ -91,6 +93,7 @@ export interface Faction {
   }[];
   image?: string;
   gm_notes?: string;
+  notes?: UserNote[];
 }
 
 export interface CalendarWeekday {

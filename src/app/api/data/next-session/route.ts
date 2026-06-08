@@ -10,18 +10,6 @@ export async function GET(request?: NextRequest) {
 
   try {
     const db = getDb();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          date TEXT,
-          agenda TEXT,
-          reminders TEXT,
-          currentGameDate TEXT,
-          location TEXT,
-          notes TEXT,
-          lastUpdated TEXT,
-          isSkipped INTEGER,
-          skipReason TEXT
-        )`);
     const res = await db.execute(`SELECT * FROM ${TABLE} LIMIT 1`);
     if (res.rows.length === 0) return NextResponse.json({});
     const r: Record<string, unknown> = res.rows[0];
@@ -50,18 +38,6 @@ export async function PUT(request: NextRequest) {
   try {
     const db = getDb();
     const body = await request.json();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          date TEXT,
-          agenda TEXT,
-          reminders TEXT,
-          currentGameDate TEXT,
-          location TEXT,
-          notes TEXT,
-          lastUpdated TEXT,
-          isSkipped INTEGER,
-          skipReason TEXT
-        )`);
     const payload = {
       date: body.date ?? null,
       agenda: body.agenda ?? null,

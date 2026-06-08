@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -11,22 +10,7 @@ export async function GET(request?: NextRequest) {
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
-    await db.execute(`CREATE TABLE IF NOT EXISTS ${TABLE} (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          pronunciation TEXT,
-          mapImg TEXT,
-          x REAL,
-          y REAL,
-          width REAL,
-          height REAL,
-          teaser TEXT,
-          detail TEXT,
-          gm_notes TEXT,
-          locations TEXT
-        )`);
     const res = await db.execute(`SELECT * FROM ${TABLE}`);
     const data = res.rows.map((r: Record<string, unknown>) => ({
       id: String(r.id),
@@ -40,6 +24,7 @@ export async function GET(request?: NextRequest) {
       teaser: sanitizeText(r.teaser),
       detail: sanitizeText(r.detail),
       gm_notes: sanitizeOptionalText(r.gm_notes),
+      notes: r.notes ? JSON.parse(String(r.notes)) : [],
       locations: r.locations ? JSON.parse(String(r.locations)) : undefined,
     }));
     return NextResponse.json(data);
@@ -54,12 +39,11 @@ export async function POST(request: NextRequest) {
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const l = await request.json();
     const res = await db.execute({
-      sql: `INSERT INTO ${TABLE} (name,pronunciation,mapImg,x,y,width,height,teaser,detail,gm_notes,locations) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null)]
+      sql: `INSERT INTO ${TABLE} (name,pronunciation,mapImg,x,y,width,height,teaser,detail,gm_notes,locations,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? [])]
     });
     const newId = Number(res.lastInsertRowid ?? 0);
     return NextResponse.json({ success: true, data: { ...l, id: String(newId) } });
@@ -74,13 +58,12 @@ export async function PUT(request: NextRequest) {
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const l = await request.json();
     const idNum = Number(l.id);
     const res = await db.execute({
-      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,mapImg=?,x=?,y=?,width=?,height=?,teaser=?,detail=?,gm_notes=?,locations=? WHERE id=?`,
-      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), idNum]
+      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,mapImg=?,x=?,y=?,width=?,height=?,teaser=?,detail=?,gm_notes=?,locations=?,notes=? WHERE id=?`,
+      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? []), idNum]
     });
     if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Location not found' }, { status: 404 });
     return NextResponse.json({ success: true, data: l });
@@ -90,12 +73,32 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  const authResult = await verifyRequestAuth(request);
+  if ('errorResponse' in authResult) return authResult.errorResponse;
+
+  try {
+    const db = getDb();
+    const body: { id?: string; notes?: unknown[] } = await request.json();
+    if (!body.id) return NextResponse.json({ error: 'Location ID is required' }, { status: 400 });
+
+    const res = await db.execute({
+      sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
+      args: [JSON.stringify(body.notes ?? []), Number(body.id)],
+    });
+    if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Location not found' }, { status: 404 });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error updating Location notes:', error);
+    return NextResponse.json({ error: 'Failed to update Location notes' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
   try {
-    await ensureSchema();
     const db = getDb();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

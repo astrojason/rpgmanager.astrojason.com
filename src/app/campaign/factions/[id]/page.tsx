@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useIsDM } from "@/utils/role";
+import { useIsAdmin } from "@/utils/adminCheck";
+import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { Faction, NPC, PC } from "@/types/interfaces";
+import { Faction, NPC, PC, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import UserNotesEditor from "@/components/UserNotesEditor";
 import Link from "next/link";
 
 const FACTION_CRESTS: Record<string, string> = {
@@ -49,6 +52,25 @@ export default function FactionDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFullImage, setShowFullImage] = useState(false);
+
+  const isAdmin = useIsAdmin();
+  const userId = useEffectiveUserId();
+
+  const handleUpdateNotes = async (notes: UserNote[]) => {
+    if (!faction) return;
+    setError(null);
+    try {
+      const res = await authFetch("/api/data/factions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: faction.id, notes }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setFaction({ ...faction, notes });
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
+  };
 
   useEffect(() => {
     const loadAll = async () => {
@@ -279,6 +301,20 @@ export default function FactionDetailPage() {
           </div>
         </section>
       )}
+
+      {/* Party Notes */}
+      <section className="grim-tome" style={{ marginBottom: 24 }}>
+        <div className="grim-tome-head">
+          <h3 className="grim-tome-title">Party Notes</h3>
+          <span className="grim-tome-sub">field observations</span>
+        </div>
+        <UserNotesEditor
+          notes={faction.notes || []}
+          onChange={handleUpdateNotes}
+          currentUser={userId}
+          isAdmin={isAdmin}
+        />
+      </section>
 
       {/* Appearances */}
       {(recaps.length > 0 || quests.length > 0) && (

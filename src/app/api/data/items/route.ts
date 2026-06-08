@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Item } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
-import { ensureSchema } from '@/lib/schema';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
@@ -92,7 +91,6 @@ export async function GET(request?: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const { npcMap, pcMap, locMap, recapMap } = await loadTagMaps(db);
@@ -118,7 +116,6 @@ export async function POST(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: Item = await request.json();
         const tx = await db.transaction('write');
@@ -157,7 +154,6 @@ export async function PUT(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: Item = await request.json();
         const idNum = Number(body.id);
@@ -193,7 +189,6 @@ export async function PATCH(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const body: { id?: string; notes?: unknown[] } = await request.json();
         if (!body.id) return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
@@ -215,7 +210,6 @@ export async function DELETE(request: NextRequest) {
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
     try {
-        await ensureSchema();
         const db = getDb();
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
