@@ -5,10 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useReferrerInfo, usePageTracking, getDefaultBackInfo } from "@/utils/referrerTracking";
 import Image from "next/image";
 import { useIsDM } from "@/utils/role";
+import { useIsAdmin } from "@/utils/adminCheck";
+import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { Faction, NPC, PC } from "@/types/interfaces";
+import { Faction, NPC, PC, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
+import UserNotesEditor from "@/components/UserNotesEditor";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
 
 const FACTION_CRESTS: Record<string, string> = {
@@ -47,10 +51,13 @@ export default function FactionsPage() {
   const [recapData, setRecapData] = useState<{ id?: string; title: string; date: string; tagged_factions?: string[] }[]>([]);
   const [questData, setQuestData] = useState<{ id: string; name: string; status: string; tagged_factions?: string[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerInfo = useReferrerInfo();
   const isDM = useIsDM();
+  const isAdmin = useIsAdmin();
+  const userId = useEffectiveUserId();
 
   usePageTracking();
 
@@ -106,6 +113,24 @@ export default function FactionsPage() {
     setFactionMembers(members);
     setFactionPCs(pcsData.filter((pc: PC) => pc.factions?.includes(selectedFaction.id)));
   }, [selectedFaction, npcData, pcsData]);
+
+  const handleUpdateNotes = async (notes: UserNote[]) => {
+    if (!selectedFaction) return;
+    setError("");
+    try {
+      const res = await authFetch("/api/data/factions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedFaction.id, notes }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const updated = { ...selectedFaction, notes };
+      setSelectedFaction(updated);
+      setFactionData(factionData.map(f => f.id === updated.id ? updated : f));
+    } catch (e) {
+      setError(toErrorMessage(e));
+    }
+  };
 
   const filteredFactions = factionData.filter((faction: Faction) => {
     const matchesSearch =
@@ -175,6 +200,7 @@ export default function FactionsPage() {
 
         {/* Left: detail column */}
         <div style={{ padding: "36px 36px 80px 56px", overflowY: "auto" }}>
+          {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
           {selectedFaction ? (
             <>
               {/* Back button row */}
@@ -382,6 +408,20 @@ export default function FactionsPage() {
                   </div>
                 </section>
               )}
+
+              {/* Party Notes */}
+              <section className="grim-tome" style={{ marginBottom: 24 }}>
+                <div className="grim-tome-head">
+                  <h3 className="grim-tome-title">Party Notes</h3>
+                  <span className="grim-tome-sub">field observations</span>
+                </div>
+                <UserNotesEditor
+                  notes={selectedFaction.notes || []}
+                  onChange={handleUpdateNotes}
+                  currentUser={userId}
+                  isAdmin={isAdmin}
+                />
+              </section>
 
               {/* Backlinks — session recaps that tag this faction */}
               {(() => {
