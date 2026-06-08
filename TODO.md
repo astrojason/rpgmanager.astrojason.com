@@ -21,4 +21,4 @@
 - [-] auto linking should also use AKA/Alias and partial matches (i.e. Barrow Ironhoof should also match on Barrow)
 - [x] non-admins cannot save notes
 - [x] save button on admin is not inline
-- [ ] notes left on item and npc are showing as a note from the DM not the actual player who left the note
+- [x] notes left on item and npc are showing as a note from the DM not the actual player who left the note

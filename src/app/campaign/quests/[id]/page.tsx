@@ -236,7 +236,7 @@ export default function QuestDetailPage() {
                               <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
                                 {formatNoteTimestamp(note)}
                               </span>
-                              <AuthorDisplay uid={note.author} useImpersonation={true} />
+                              <AuthorDisplay uid={note.author} />
                             </>
                           )}
                           {canEditNote(note) && (

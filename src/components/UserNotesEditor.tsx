@@ -191,7 +191,7 @@ export default function UserNotesEditor({
               {!editingIndex && note.timestamp && (
                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-600">
                   <span>{new Date(note.timestamp).toLocaleString()}</span>
-                  <AuthorDisplay uid={note.author} useImpersonation={true} />
+                  <AuthorDisplay uid={note.author} />
                 </div>
               )}
             </div>
