@@ -4,7 +4,6 @@ import { jsonRequest, mockDb } from '../test-utils';
 describe('calendar endpoint', () => {
   it('returns parsed calendar entry', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {

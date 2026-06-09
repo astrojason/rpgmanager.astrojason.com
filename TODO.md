@@ -4,3 +4,4 @@
 ## Features
 
 ## Enhancements
+- [x] Fix slow SQL queries: batch junction queries to reduce network round trips, add indexes on junction FKs

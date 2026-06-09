@@ -4,8 +4,6 @@ import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 describe('pcs endpoint', () => {
   it('returns PCs with faction ids', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {
@@ -32,6 +30,7 @@ describe('pcs endpoint', () => {
         status: 'active',
         class: 'Bard',
         player: 'Jason',
+        notes: [],
         factions: ['3'],
       },
     ]);

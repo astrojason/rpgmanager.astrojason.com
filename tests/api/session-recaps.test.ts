@@ -4,7 +4,6 @@ import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 describe('session recaps endpoint', () => {
   it('lists recaps without mutation', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] }) // CREATE TABLE
       .mockResolvedValueOnce({
         rows: [
           {
@@ -69,12 +68,7 @@ describe('session recaps endpoint', () => {
 
   it('updates recap when found', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({
-        rows: [
-          { id: 5, date: '2025-07-01', title: 'Adventure', recap: 'Details', author: null, notes: JSON.stringify([]) },
-        ],
-      })
-      .mockResolvedValueOnce({ rowsAffected: 1 });
+      .mockResolvedValueOnce({ rowsAffected: 1 }); // UPDATE session_recaps WHERE id=
 
     const { PUT } = await import('@/app/api/data/session-recaps/route');
     const body = {
@@ -92,10 +86,7 @@ describe('session recaps endpoint', () => {
   it('updates recap with uuid sub-location id without error', async () => {
     const uuid = 'e1b5c9d3-0f6a-4d2e-9b3c-4d5e6f7a8b9c';
     mockDb.execute
-      .mockResolvedValueOnce({
-        rows: [{ id: 31, date: '2026-05-31', title: 'The Bloody Thorn', recap: 'Details', author: null, notes: JSON.stringify([]) }],
-      })
-      .mockResolvedValueOnce({ rowsAffected: 1 });
+      .mockResolvedValueOnce({ rowsAffected: 1 }); // UPDATE session_recaps WHERE id=
 
     const { PUT } = await import('@/app/api/data/session-recaps/route');
     const body = { id: '31', date: '2026-05-31', title: 'The Bloody Thorn', recap: 'Details', notes: [], tagged_npcs: [], tagged_locations: [uuid] };
@@ -110,7 +101,7 @@ describe('session recaps endpoint', () => {
   });
 
   it('returns 404 when update target missing', async () => {
-    mockDb.execute.mockResolvedValueOnce({ rows: [] });
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 }); // UPDATE WHERE id= affects 0 rows
     const { PUT } = await import('@/app/api/data/session-recaps/route');
     const res = await PUT(jsonRequest('http://test/api/recaps', 'PUT', { id: '99' }) as any);
     expect(res.status).toBe(404);

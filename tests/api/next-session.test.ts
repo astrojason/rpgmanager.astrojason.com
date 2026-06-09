@@ -4,7 +4,6 @@ import { jsonRequest, mockDb } from '../test-utils';
 describe('next-session endpoint', () => {
   it('returns session data with parsed reminders', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {

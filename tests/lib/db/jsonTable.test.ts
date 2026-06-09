@@ -3,14 +3,13 @@ import { deleteById, getAllJSON, insertJSON, updateJSON } from '@/lib/db/jsonTab
 import { mockDb } from '../../test-utils';
 
 describe('jsonTable helpers', () => {
-  it('creates table and parses stored JSON', async () => {
+  it('parses stored JSON rows', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] }) // create table
       .mockResolvedValueOnce({ rows: [{ data: JSON.stringify({ id: '1', name: 'entry' }) }] });
 
     const rows = await getAllJSON<{ id: string; name: string }>('test_table');
 
-    expect(mockDb.execute).toHaveBeenNthCalledWith(1, expect.stringContaining('CREATE TABLE IF NOT EXISTS test_table'));
+    expect(mockDb.execute).toHaveBeenCalledWith(expect.stringContaining('SELECT data FROM test_table'));
     expect(rows).toEqual([{ id: '1', name: 'entry' }]);
   });
 

@@ -5,28 +5,14 @@ import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 const TABLE = 'quests';
 
-async function loadQuestTagMaps(db: ReturnType<typeof getDb>) {
-    const npcRows = await db.execute(`SELECT quest_id, npc_id FROM quest_npcs`);
-    const locRows = await db.execute(`SELECT quest_id, location_id FROM quest_locations`);
-    const factionRows = await db.execute(`SELECT quest_id, faction_id FROM quest_factions`);
-    const deityRows = await db.execute(`SELECT quest_id, deity_id FROM quest_deities`);
-
-    function buildMap(rows: Record<string, unknown>[], keyCol: string, valCol: string): Map<string, string[]> {
-        const m = new Map<string, string[]>();
-        for (const r of rows) {
-            const key = String(r[keyCol]);
-            if (!m.has(key)) m.set(key, []);
-            m.get(key)!.push(String(r[valCol]));
-        }
-        return m;
+function buildMap(rows: Record<string, unknown>[], keyCol: string, valCol: string): Map<string, string[]> {
+    const m = new Map<string, string[]>();
+    for (const r of rows) {
+        const key = String(r[keyCol]);
+        if (!m.has(key)) m.set(key, []);
+        m.get(key)!.push(String(r[valCol]));
     }
-
-    return {
-        npcMap: buildMap(npcRows.rows as Record<string, unknown>[], 'quest_id', 'npc_id'),
-        locMap: buildMap(locRows.rows as Record<string, unknown>[], 'quest_id', 'location_id'),
-        factionMap: buildMap(factionRows.rows as Record<string, unknown>[], 'quest_id', 'faction_id'),
-        deityMap: buildMap(deityRows.rows as Record<string, unknown>[], 'quest_id', 'deity_id'),
-    };
+    return m;
 }
 
 async function replaceTagsForQuest(
@@ -36,22 +22,16 @@ async function replaceTagsForQuest(
     factions: string[] = [], deities: string[] = []
 ) {
     const id = Number(questId);
-    await db.execute({ sql: `DELETE FROM quest_npcs WHERE quest_id=?`, args: [id] });
-    await db.execute({ sql: `DELETE FROM quest_locations WHERE quest_id=?`, args: [id] });
-    await db.execute({ sql: `DELETE FROM quest_factions WHERE quest_id=?`, args: [id] });
-    await db.execute({ sql: `DELETE FROM quest_deities WHERE quest_id=?`, args: [id] });
-    for (const npcId of npcs) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO quest_npcs (quest_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)] });
-    }
-    for (const locId of locations) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO quest_locations (quest_id, location_id) VALUES (?,?)`, args: [id, locId] });
-    }
-    for (const factionId of factions) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO quest_factions (quest_id, faction_id) VALUES (?,?)`, args: [id, factionId] });
-    }
-    for (const deityId of deities) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO quest_deities (quest_id, deity_id) VALUES (?,?)`, args: [id, Number(deityId)] });
-    }
+    await db.batch([
+        { sql: `DELETE FROM quest_npcs WHERE quest_id=?`, args: [id] },
+        { sql: `DELETE FROM quest_locations WHERE quest_id=?`, args: [id] },
+        { sql: `DELETE FROM quest_factions WHERE quest_id=?`, args: [id] },
+        { sql: `DELETE FROM quest_deities WHERE quest_id=?`, args: [id] },
+        ...npcs.map(npcId => ({ sql: `INSERT OR IGNORE INTO quest_npcs (quest_id, npc_id) VALUES (?,?)`, args: [id, Number(npcId)]  as (string | number | null)[] })),
+        ...locations.map(locId => ({ sql: `INSERT OR IGNORE INTO quest_locations (quest_id, location_id) VALUES (?,?)`, args: [id, locId]  as (string | number | null)[] })),
+        ...factions.map(factionId => ({ sql: `INSERT OR IGNORE INTO quest_factions (quest_id, faction_id) VALUES (?,?)`, args: [id, factionId]  as (string | number | null)[] })),
+        ...deities.map(deityId => ({ sql: `INSERT OR IGNORE INTO quest_deities (quest_id, deity_id) VALUES (?,?)`, args: [id, Number(deityId)]  as (string | number | null)[] })),
+    ], "write");
 }
 
 export async function GET(request?: NextRequest) {
@@ -60,8 +40,17 @@ export async function GET(request?: NextRequest) {
 
     try {
         const db = getDb();
-        const res = await db.execute(`SELECT * FROM ${TABLE}`);
-        const { npcMap, locMap, factionMap, deityMap } = await loadQuestTagMaps(db);
+        const [res, npcRows, locRows, factionRows, deityRows] = await db.batch([
+            `SELECT * FROM ${TABLE}`,
+            `SELECT quest_id, npc_id FROM quest_npcs`,
+            `SELECT quest_id, location_id FROM quest_locations`,
+            `SELECT quest_id, faction_id FROM quest_factions`,
+            `SELECT quest_id, deity_id FROM quest_deities`,
+        ], "read");
+        const npcMap = buildMap(npcRows.rows as Record<string, unknown>[], 'quest_id', 'npc_id');
+        const locMap = buildMap(locRows.rows as Record<string, unknown>[], 'quest_id', 'location_id');
+        const factionMap = buildMap(factionRows.rows as Record<string, unknown>[], 'quest_id', 'faction_id');
+        const deityMap = buildMap(deityRows.rows as Record<string, unknown>[], 'quest_id', 'deity_id');
         const data = res.rows.map((r: Record<string, unknown>) => {
             const id = String(r.id);
             return {
@@ -147,12 +136,15 @@ export async function DELETE(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
         if (!id) return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
-        await db.execute({ sql: `DELETE FROM quest_npcs WHERE quest_id=?`, args: [Number(id)] });
-        await db.execute({ sql: `DELETE FROM quest_locations WHERE quest_id=?`, args: [Number(id)] });
-        await db.execute({ sql: `DELETE FROM quest_factions WHERE quest_id=?`, args: [Number(id)] });
-        await db.execute({ sql: `DELETE FROM quest_deities WHERE quest_id=?`, args: [Number(id)] });
-        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+        const idNum = Number(id);
+        const results = await db.batch([
+            { sql: `DELETE FROM quest_npcs WHERE quest_id=?`, args: [idNum] },
+            { sql: `DELETE FROM quest_locations WHERE quest_id=?`, args: [idNum] },
+            { sql: `DELETE FROM quest_factions WHERE quest_id=?`, args: [idNum] },
+            { sql: `DELETE FROM quest_deities WHERE quest_id=?`, args: [idNum] },
+            { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
+        ], "write");
+        if ((results[4].rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting Quest:', error);

@@ -4,8 +4,6 @@ import { mockDb } from '../test-utils';
 describe('API null/blank handling', () => {
   it('does not stringify null PC fields', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] }) // create pcs table
-      .mockResolvedValueOnce({ rows: [] }) // create junction
       .mockResolvedValueOnce({
         rows: [
           {
@@ -47,8 +45,6 @@ describe('API null/blank handling', () => {
 
   it('does not stringify null NPC fields', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] }) // create npcs table
-      .mockResolvedValueOnce({ rows: [] }) // create junction
       .mockResolvedValueOnce({
         rows: [
           {

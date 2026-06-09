@@ -4,8 +4,6 @@ import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 describe('npcs endpoint', () => {
   it('returns NPCs with factions and notes', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {

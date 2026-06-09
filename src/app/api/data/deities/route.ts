@@ -6,39 +6,13 @@ import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/saniti
 
 const TABLE = 'deities';
 
-async function loadTagMaps(db: ReturnType<typeof getDb>) {
-    const recapRows = await db.execute(`SELECT deity_id, recap_id FROM recap_deities`);
-    const questRows = await db.execute(`SELECT deity_id, quest_id FROM quest_deities`);
-    const npcRows = await db.execute(`SELECT deity_id, npc_id FROM deity_follower_npcs`);
-    const pcRows = await db.execute(`SELECT deity_id, pc_id FROM deity_follower_pcs`);
-
-    const build = <T extends Record<string, unknown>>(rows: T[], keyField: string, valField: string) => {
-        const map = new Map<string, string[]>();
-        for (const r of rows) {
-            const k = String(r[keyField]);
-            if (!map.has(k)) map.set(k, []);
-            map.get(k)!.push(String(r[valField]));
-        }
-        return map;
-    };
-
-    return {
-        recapMap: build(recapRows.rows as Record<string, unknown>[], 'deity_id', 'recap_id'),
-        questMap: build(questRows.rows as Record<string, unknown>[], 'deity_id', 'quest_id'),
-        npcMap: build(npcRows.rows as Record<string, unknown>[], 'deity_id', 'npc_id'),
-        pcMap: build(pcRows.rows as Record<string, unknown>[], 'deity_id', 'pc_id'),
-    };
-}
-
 async function replaceFollowers(db: ReturnType<typeof getDb>, deityId: number, npcs: string[], pcs: string[]) {
-    await db.execute({ sql: `DELETE FROM deity_follower_npcs WHERE deity_id=?`, args: [deityId] });
-    await db.execute({ sql: `DELETE FROM deity_follower_pcs WHERE deity_id=?`, args: [deityId] });
-    for (const id of npcs) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO deity_follower_npcs (deity_id, npc_id) VALUES (?,?)`, args: [deityId, Number(id)] });
-    }
-    for (const id of pcs) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO deity_follower_pcs (deity_id, pc_id) VALUES (?,?)`, args: [deityId, Number(id)] });
-    }
+    await db.batch([
+        { sql: `DELETE FROM deity_follower_npcs WHERE deity_id=?`, args: [deityId] },
+        { sql: `DELETE FROM deity_follower_pcs WHERE deity_id=?`, args: [deityId] },
+        ...npcs.map(id => ({ sql: `INSERT OR IGNORE INTO deity_follower_npcs (deity_id, npc_id) VALUES (?,?)`, args: [deityId, Number(id)]  as (string | number | null)[] })),
+        ...pcs.map(id => ({ sql: `INSERT OR IGNORE INTO deity_follower_pcs (deity_id, pc_id) VALUES (?,?)`, args: [deityId, Number(id)]  as (string | number | null)[] })),
+    ], "write");
 }
 
 export async function GET(request?: NextRequest) {
@@ -47,8 +21,29 @@ export async function GET(request?: NextRequest) {
 
     try {
         const db = getDb();
-        const res = await db.execute(`SELECT * FROM ${TABLE}`);
-        const { recapMap, questMap, npcMap, pcMap } = await loadTagMaps(db);
+        const [res, recapRows, questRows, npcRows, pcRows] = await db.batch([
+            `SELECT * FROM ${TABLE}`,
+            `SELECT deity_id, recap_id FROM recap_deities`,
+            `SELECT deity_id, quest_id FROM quest_deities`,
+            `SELECT deity_id, npc_id FROM deity_follower_npcs`,
+            `SELECT deity_id, pc_id FROM deity_follower_pcs`,
+        ], "read");
+
+        const build = <T extends Record<string, unknown>>(rows: T[], keyField: string, valField: string) => {
+            const map = new Map<string, string[]>();
+            for (const r of rows) {
+                const k = String(r[keyField]);
+                if (!map.has(k)) map.set(k, []);
+                map.get(k)!.push(String(r[valField]));
+            }
+            return map;
+        };
+
+        const recapMap = build(recapRows.rows as Record<string, unknown>[], 'deity_id', 'recap_id');
+        const questMap = build(questRows.rows as Record<string, unknown>[], 'deity_id', 'quest_id');
+        const npcMap = build(npcRows.rows as Record<string, unknown>[], 'deity_id', 'npc_id');
+        const pcMap = build(pcRows.rows as Record<string, unknown>[], 'deity_id', 'pc_id');
+
         const data: Deity[] = res.rows.map((r: Record<string, unknown>) => {
             const id = String(r.id);
             return {
@@ -153,12 +148,14 @@ export async function DELETE(request: NextRequest) {
         const id = searchParams.get('id');
         if (!id) return NextResponse.json({ error: 'Deity ID is required' }, { status: 400 });
         const idNum = Number(id);
-        await db.execute({ sql: `DELETE FROM recap_deities WHERE deity_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM quest_deities WHERE deity_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM deity_follower_npcs WHERE deity_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM deity_follower_pcs WHERE deity_id=?`, args: [idNum] });
-        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
+        const results = await db.batch([
+            { sql: `DELETE FROM recap_deities WHERE deity_id=?`, args: [idNum] },
+            { sql: `DELETE FROM quest_deities WHERE deity_id=?`, args: [idNum] },
+            { sql: `DELETE FROM deity_follower_npcs WHERE deity_id=?`, args: [idNum] },
+            { sql: `DELETE FROM deity_follower_pcs WHERE deity_id=?`, args: [idNum] },
+            { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
+        ], "write");
+        if ((results[4].rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error deleting Deity:', error);

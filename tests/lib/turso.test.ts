@@ -41,17 +41,4 @@ describe('turso client helpers', () => {
     expect(createClient).toHaveBeenCalledTimes(1);
   });
 
-  it('creates JSON table with provided name', async () => {
-    vi.doUnmock('@/lib/turso');
-    const execute = vi.fn();
-    const createClient = vi.fn(() => ({ execute }) as any);
-    vi.doMock('@libsql/client', () => ({ createClient }));
-    process.env.TURSO_DATABASE_URL = 'http://example.db';
-    process.env.TURSO_AUTH_TOKEN = 'token';
-
-    const { ensureTable } = await import('@/lib/turso');
-    await ensureTable('events');
-
-    expect(execute).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS events'));
-  });
 });

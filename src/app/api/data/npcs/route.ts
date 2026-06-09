@@ -37,8 +37,10 @@ export async function GET(request?: NextRequest) {
 
     try {
         const db = getDb();
-        const base = await db.execute(`SELECT * FROM ${TABLE}`);
-        const jf = await db.execute(`SELECT npc_id, faction_id FROM ${JUNCTION}`);
+        const [base, jf] = await db.batch([
+            `SELECT * FROM ${TABLE}`,
+            `SELECT npc_id, faction_id FROM ${JUNCTION}`,
+        ], "read");
         const map = new Map<number, string[]>();
         for (const r of jf.rows as unknown[]) {
             const row = r as Record<string, unknown>;
@@ -89,9 +91,9 @@ export async function POST(request: NextRequest) {
                 ],
             });
             const newId = Number(res.lastInsertRowid ?? 0);
-            for (const fid of factions) {
-                // faction_id is TEXT in database, keep as string
-                await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES (?,?)`, args: [newId, fid] });
+            if (factions.length > 0) {
+                const placeholders = factions.map(() => '(?,?)').join(',');
+                await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [newId, fid]) });
             }
             await tx.commit();
             return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
@@ -144,8 +146,10 @@ export async function PUT(request: NextRequest) {
                 return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
             }
             await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE npc_id=?`, args: [idNum] });
-            // faction_id is TEXT in database, keep as string
-            for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES (?,?)`, args: [idNum, fid] });
+            if (factions.length > 0) {
+                const placeholders = factions.map(() => '(?,?)').join(',');
+                await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [idNum, fid]) });
+            }
             await tx.commit();
             return NextResponse.json({ success: true, data: body });
         } catch (e) {

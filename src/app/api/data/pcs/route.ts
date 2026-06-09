@@ -36,8 +36,10 @@ export async function GET(request?: NextRequest) {
 
   try {
     const db = getDb();
-    const base = await db.execute(`SELECT * FROM ${TABLE}`);
-    const jf = await db.execute(`SELECT pc_id, faction_id FROM ${JUNCTION}`);
+    const [base, jf] = await db.batch([
+      `SELECT * FROM ${TABLE}`,
+      `SELECT pc_id, faction_id FROM ${JUNCTION}`,
+    ], "read");
     const byPc = new Map<number, string[]>();
     for (const r of jf.rows as unknown[]) {
       const row = r as Record<string, unknown>;
@@ -69,8 +71,10 @@ export async function POST(request: NextRequest) {
         args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null, JSON.stringify(body.notes ?? [])]
       });
       const newId = Number(res.lastInsertRowid ?? 0);
-      // faction_id is TEXT in database, keep as string
-      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [newId, fid] });
+      if (factions.length > 0) {
+        const placeholders = factions.map(() => '(?,?)').join(',');
+        await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [newId, fid]) });
+      }
       await tx.commit();
       return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
     } catch (e) { await tx.rollback(); throw e; }
@@ -97,8 +101,10 @@ export async function PUT(request: NextRequest) {
       });
       if ((res.rowsAffected ?? 0) === 0) { await tx.rollback(); return NextResponse.json({ error: 'PC not found' }, { status: 404 }); }
       await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [idNum] });
-      // faction_id is TEXT in database, keep as string
-      for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [idNum, fid] });
+      if (factions.length > 0) {
+        const placeholders = factions.map(() => '(?,?)').join(',');
+        await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [idNum, fid]) });
+      }
       await tx.commit();
       return NextResponse.json({ success: true, data: body });
     } catch (e) { await tx.rollback(); throw e; }
@@ -155,8 +161,10 @@ export async function PATCH(request: NextRequest) {
         }
         const useId = Number(pc.id);
         await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [useId] });
-        // faction_id is TEXT in database, keep as string
-        for (const fid of factions) await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES (?,?)`, args: [useId, fid] });
+        if (factions.length > 0) {
+          const placeholders = factions.map(() => '(?,?)').join(',');
+          await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (pc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap((fid: string) => [useId, fid]) });
+        }
       }
       await tx.commit();
     } catch (e) { await tx.rollback(); throw e; }

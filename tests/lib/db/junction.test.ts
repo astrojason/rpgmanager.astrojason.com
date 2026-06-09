@@ -1,16 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ensureJunction, loadJunctionMap, replaceJunctionForKey } from '@/lib/db/junction';
+import { loadJunctionMap, replaceJunctionForKey } from '@/lib/db/junction';
 import { mockDb } from '../../test-utils';
 
 describe('junction helpers', () => {
-  it('ensures junction table schema exists', async () => {
-    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 0 });
-
-    await ensureJunction('npc_factions', 'npc_id', 'faction_id');
-
-    expect(mockDb.execute).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS npc_factions'));
-  });
-
   it('loads rows into keyed map', async () => {
     mockDb.execute.mockResolvedValueOnce({
       rows: [

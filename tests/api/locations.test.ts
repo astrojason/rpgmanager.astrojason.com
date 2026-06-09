@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ensureSchemaMock, jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 
 describe('locations endpoint', () => {
   it('returns locations with parsed fields', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {
@@ -26,7 +25,6 @@ describe('locations endpoint', () => {
 
     const { GET } = await import('@/app/api/data/locations/route');
     const res = await GET();
-    expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
       {
         id: '7',
@@ -41,6 +39,7 @@ describe('locations endpoint', () => {
         detail: 'detail',
         gm_notes: 'secret',
         locations: ['Inner Harbor'],
+        notes: [],
       },
     ]);
   });

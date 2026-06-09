@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ensureSchemaMock, jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 
 describe('timeline endpoint', () => {
   it('returns timeline entries', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           { id: 1, title: 'Event', date: '2025-01-01', description: 'desc', category: 'cat', gm_notes: 'notes' },
@@ -13,7 +12,6 @@ describe('timeline endpoint', () => {
 
     const { GET } = await import('@/app/api/data/timeline/route');
     const res = await GET();
-    expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
       { id: '1', title: 'Event', date: '2025-01-01', description: 'desc', category: 'cat', gm_notes: 'notes' },
     ]);

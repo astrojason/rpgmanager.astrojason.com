@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ensureSchemaMock, jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 
 describe('quests endpoint', () => {
   it('lists quests with parsed notes', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] }) // CREATE TABLE
       .mockResolvedValueOnce({
         rows: [
           { id: 1, name: 'Quest', notes: JSON.stringify(['step']), status: 'active', gm_notes: 'secret' },
@@ -16,7 +15,6 @@ describe('quests endpoint', () => {
       .mockResolvedValueOnce({ rows: [] }); // quest_deities
     const { GET } = await import('@/app/api/data/quests/route');
     const res = await GET();
-    expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
       { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [], tagged_factions: [], tagged_deities: [] },
     ]);

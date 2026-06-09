@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ensureSchemaMock, jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
 
 describe('factions endpoint', () => {
   it('returns transformed factions list', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({
         rows: [
           {
@@ -26,7 +25,6 @@ describe('factions endpoint', () => {
 
     const { GET } = await import('@/app/api/data/factions/route');
     const res = await GET();
-    expect(ensureSchemaMock).toHaveBeenCalled();
     expect(await res.json()).toEqual([
       {
         id: '1',
@@ -41,6 +39,7 @@ describe('factions endpoint', () => {
         relationships: ['ally'],
         image: 'img.png',
         gm_notes: 'secret',
+        notes: [],
       },
     ]);
   });

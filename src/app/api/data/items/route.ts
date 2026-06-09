@@ -32,39 +32,6 @@ function rowToItem(
     };
 }
 
-async function loadTagMaps(db: ReturnType<typeof getDb>) {
-    const npcRows = await db.execute(`SELECT item_id, npc_id FROM item_npcs`);
-    const pcRows = await db.execute(`SELECT item_id, pc_id FROM item_pcs`);
-    const locRows = await db.execute(`SELECT item_id, location_id FROM item_locations`);
-    const recapRows = await db.execute(`SELECT item_id, recap_id FROM recap_items`);
-
-    const npcMap = new Map<string, string[]>();
-    for (const r of npcRows.rows as Record<string, unknown>[]) {
-        const k = String(r.item_id);
-        if (!npcMap.has(k)) npcMap.set(k, []);
-        npcMap.get(k)!.push(String(r.npc_id));
-    }
-    const pcMap = new Map<string, string[]>();
-    for (const r of pcRows.rows as Record<string, unknown>[]) {
-        const k = String(r.item_id);
-        if (!pcMap.has(k)) pcMap.set(k, []);
-        pcMap.get(k)!.push(String(r.pc_id));
-    }
-    const locMap = new Map<string, string[]>();
-    for (const r of locRows.rows as Record<string, unknown>[]) {
-        const k = String(r.item_id);
-        if (!locMap.has(k)) locMap.set(k, []);
-        locMap.get(k)!.push(String(r.location_id));
-    }
-    const recapMap = new Map<string, string[]>();
-    for (const r of recapRows.rows as Record<string, unknown>[]) {
-        const k = String(r.item_id);
-        if (!recapMap.has(k)) recapMap.set(k, []);
-        recapMap.get(k)!.push(String(r.recap_id));
-    }
-    return { npcMap, pcMap, locMap, recapMap };
-}
-
 async function replaceItemTags(
     db: ReturnType<typeof getDb>,
     itemId: number,
@@ -72,18 +39,14 @@ async function replaceItemTags(
     pcs: string[],
     locations: string[],
 ) {
-    await db.execute({ sql: `DELETE FROM item_npcs WHERE item_id=?`, args: [itemId] });
-    await db.execute({ sql: `DELETE FROM item_pcs WHERE item_id=?`, args: [itemId] });
-    await db.execute({ sql: `DELETE FROM item_locations WHERE item_id=?`, args: [itemId] });
-    for (const id of npcs) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO item_npcs (item_id, npc_id) VALUES (?,?)`, args: [itemId, Number(id)] });
-    }
-    for (const id of pcs) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO item_pcs (item_id, pc_id) VALUES (?,?)`, args: [itemId, Number(id)] });
-    }
-    for (const id of locations) {
-        await db.execute({ sql: `INSERT OR IGNORE INTO item_locations (item_id, location_id) VALUES (?,?)`, args: [itemId, id] });
-    }
+    await db.batch([
+        { sql: `DELETE FROM item_npcs WHERE item_id=?`, args: [itemId] },
+        { sql: `DELETE FROM item_pcs WHERE item_id=?`, args: [itemId] },
+        { sql: `DELETE FROM item_locations WHERE item_id=?`, args: [itemId] },
+        ...npcs.map(id => ({ sql: `INSERT OR IGNORE INTO item_npcs (item_id, npc_id) VALUES (?,?)`, args: [itemId, Number(id)]  as (string | number | null)[] })),
+        ...pcs.map(id => ({ sql: `INSERT OR IGNORE INTO item_pcs (item_id, pc_id) VALUES (?,?)`, args: [itemId, Number(id)]  as (string | number | null)[] })),
+        ...locations.map(id => ({ sql: `INSERT OR IGNORE INTO item_locations (item_id, location_id) VALUES (?,?)`, args: [itemId, id]  as (string | number | null)[] })),
+    ], "write");
 }
 
 export async function GET(request?: NextRequest) {
@@ -92,8 +55,38 @@ export async function GET(request?: NextRequest) {
 
     try {
         const db = getDb();
-        const res = await db.execute(`SELECT * FROM ${TABLE}`);
-        const { npcMap, pcMap, locMap, recapMap } = await loadTagMaps(db);
+        const [res, npcRows, pcRows, locRows, recapRows] = await db.batch([
+            `SELECT * FROM ${TABLE}`,
+            `SELECT item_id, npc_id FROM item_npcs`,
+            `SELECT item_id, pc_id FROM item_pcs`,
+            `SELECT item_id, location_id FROM item_locations`,
+            `SELECT item_id, recap_id FROM recap_items`,
+        ], "read");
+
+        const npcMap = new Map<string, string[]>();
+        for (const r of npcRows.rows as Record<string, unknown>[]) {
+            const k = String(r.item_id);
+            if (!npcMap.has(k)) npcMap.set(k, []);
+            npcMap.get(k)!.push(String(r.npc_id));
+        }
+        const pcMap = new Map<string, string[]>();
+        for (const r of pcRows.rows as Record<string, unknown>[]) {
+            const k = String(r.item_id);
+            if (!pcMap.has(k)) pcMap.set(k, []);
+            pcMap.get(k)!.push(String(r.pc_id));
+        }
+        const locMap = new Map<string, string[]>();
+        for (const r of locRows.rows as Record<string, unknown>[]) {
+            const k = String(r.item_id);
+            if (!locMap.has(k)) locMap.set(k, []);
+            locMap.get(k)!.push(String(r.location_id));
+        }
+        const recapMap = new Map<string, string[]>();
+        for (const r of recapRows.rows as Record<string, unknown>[]) {
+            const k = String(r.item_id);
+            if (!recapMap.has(k)) recapMap.set(k, []);
+            recapMap.get(k)!.push(String(r.recap_id));
+        }
         const items: Item[] = (res.rows as Record<string, unknown>[]).map((row) => {
             const id = String(row.id);
             return rowToItem(
@@ -215,12 +208,14 @@ export async function DELETE(request: NextRequest) {
         const id = searchParams.get('id');
         if (!id) return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         const idNum = Number(id);
-        await db.execute({ sql: `DELETE FROM item_npcs WHERE item_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM item_pcs WHERE item_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM item_locations WHERE item_id=?`, args: [idNum] });
-        await db.execute({ sql: `DELETE FROM recap_items WHERE item_id=?`, args: [idNum] });
-        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
-        if ((res.rowsAffected ?? 0) === 0) {
+        const results = await db.batch([
+            { sql: `DELETE FROM item_npcs WHERE item_id=?`, args: [idNum] },
+            { sql: `DELETE FROM item_pcs WHERE item_id=?`, args: [idNum] },
+            { sql: `DELETE FROM item_locations WHERE item_id=?`, args: [idNum] },
+            { sql: `DELETE FROM recap_items WHERE item_id=?`, args: [idNum] },
+            { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
+        ], "write");
+        if ((results[4].rowsAffected ?? 0) === 0) {
             return NextResponse.json({ error: 'Item not found' }, { status: 404 });
         }
         return NextResponse.json({ success: true });
