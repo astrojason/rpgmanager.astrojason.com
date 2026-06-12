@@ -374,7 +374,7 @@ export default function NPCsManagementPage() {
   useEffect(() => {
     if (!selectedNpc || !mergeCandidate) return;
     const init: Record<string, 'left' | 'right'> = {};
-    const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','personality','image'];
+    const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','roleplaying_notes','image'];
     for (const k of fields) {
       const left = selectedNpc[k];
       const right = mergeCandidate[k];
@@ -388,7 +388,7 @@ export default function NPCsManagementPage() {
   const previewMerged: NPC | null = useMemo(() => {
     if (!selectedNpc || !mergeCandidate) return null;
     const merged: NPC = { ...(selectedNpc as NPC) } as NPC;
-    const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','personality','image'];
+    const fields: (keyof NPC)[] = ['name','aka','pronunciation','race','gender','location','status','description','background','roleplaying_notes','image'];
     for (const k of fields) {
       const choice = mergeChoice[k as string] || 'left';
       (merged as Record<keyof NPC, unknown>)[k] = choice === 'left' ? selectedNpc[k] : mergeCandidate[k];
@@ -745,12 +745,12 @@ export default function NPCsManagementPage() {
                 </div>
 
                 <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Personality</div>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Roleplaying Notes</div>
                   <MarkdownEditor
-                    value={formData.personality || ""}
-                    onChange={(value) => setFormData({ ...formData, personality: value })}
+                    value={formData.roleplaying_notes || ""}
+                    onChange={(value) => setFormData({ ...formData, roleplaying_notes: value })}
                     rows={6}
-                    label="Personality"
+                    label="Roleplaying Notes"
                     linkEntities={linkEntities}
                   />
                 </div>
@@ -915,10 +915,10 @@ export default function NPCsManagementPage() {
                 </div>
               )}
 
-              {selectedNpc.personality && (
+              {selectedNpc.roleplaying_notes && (
                 <div style={{ marginTop: 22 }}>
-                  <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Personality</h3>
-                  <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.personality || '', true) }} />
+                  <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Roleplaying Notes</h3>
+                  <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.roleplaying_notes || '', true) }} />
                 </div>
               )}
             </div>
@@ -987,7 +987,7 @@ export default function NPCsManagementPage() {
                           ['status','Status'],
                           ['description','Description'],
                           ['background','Background'],
-                          ['personality','Personality'],
+                          ['roleplaying_notes','Roleplaying Notes'],
                           ['image','Image URL'],
                         ].map(([key, label]) => (
                           <div key={key as string} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>

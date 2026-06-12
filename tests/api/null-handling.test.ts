@@ -59,7 +59,7 @@ describe('API null/blank handling', () => {
             status: null,
             description: null,
             background: null,
-            personality: null,
+            roleplaying_notes: null,
             image: null,
             hidden: null,
             nameHidden: null,
@@ -88,7 +88,7 @@ describe('API null/blank handling', () => {
     expect(npcs[0].aka).toBeUndefined();
     expect(npcs[0].display_name).toBeUndefined();
     expect(npcs[0].background).toBeUndefined();
-    expect(npcs[0].personality).toBeUndefined();
+    expect(npcs[0].roleplaying_notes).toBeUndefined();
     expect(npcs[0].image).toBeUndefined();
     expect(npcs[0].gm_notes).toBeUndefined();
     expect(JSON.stringify(npcs[0])).not.toContain('"null"');

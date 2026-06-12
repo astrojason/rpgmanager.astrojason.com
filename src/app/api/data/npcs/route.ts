@@ -21,7 +21,7 @@ function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
         factions,
         description: sanitizeText(row.description),
         background: sanitizeOptionalText(row.background),
-        personality: sanitizeOptionalText(row.personality),
+        roleplaying_notes: sanitizeOptionalText(row.roleplaying_notes),
         image: sanitizeOptionalText(row.image),
         hidden: row.hidden ? true : false,
         nameHidden: row.nameHidden ? true : false,
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         const tx = await db.transaction('write');
         try {
             const res = await tx.execute({
-                sql: `INSERT INTO ${TABLE} (name,aka,display_name,pronunciation,race,gender,location,status,description,background,personality,image,hidden,nameHidden,hide_name,notes,gm_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                sql: `INSERT INTO ${TABLE} (name,aka,display_name,pronunciation,race,gender,location,status,description,background,roleplaying_notes,image,hidden,nameHidden,hide_name,notes,gm_notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 args: [
                     body.name ?? null,
                     (Array.isArray(body.aka) ? (body.aka as unknown as string[])?.join(', ') : body.aka) ?? null,
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
                     body.status ?? null,
                     body.description ?? null,
                     body.background ?? null,
-                    body.personality ?? null,
+                    body.roleplaying_notes ?? null,
                     body.image ?? null,
                     body.hidden ? 1 : 0,
                     body.nameHidden ? 1 : 0,
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest) {
         const tx = await db.transaction('write');
         try {
             const res = await tx.execute({
-                sql: `UPDATE ${TABLE} SET name=?,aka=?,display_name=?,pronunciation=?,race=?,gender=?,location=?,status=?,description=?,background=?,personality=?,image=?,hidden=?,nameHidden=?,hide_name=?,notes=?,gm_notes=? WHERE id=?`,
+                sql: `UPDATE ${TABLE} SET name=?,aka=?,display_name=?,pronunciation=?,race=?,gender=?,location=?,status=?,description=?,background=?,roleplaying_notes=?,image=?,hidden=?,nameHidden=?,hide_name=?,notes=?,gm_notes=? WHERE id=?`,
                 args: [
                     body.name ?? null,
                     (Array.isArray(body.aka) ? (body.aka as unknown as string[])?.join(', ') : body.aka) ?? null,
@@ -131,7 +131,7 @@ export async function PUT(request: NextRequest) {
                     body.status ?? null,
                     body.description ?? null,
                     body.background ?? null,
-                    body.personality ?? null,
+                    body.roleplaying_notes ?? null,
                     body.image ?? null,
                     body.hidden ? 1 : 0,
                     body.nameHidden ? 1 : 0,

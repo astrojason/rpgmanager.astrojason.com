@@ -108,10 +108,12 @@ export default function NPCDetailPage() {
 
   const cleanText = (value?: string | null) => sanitizeOptionalText(value) ?? "";
   const isNameHidden = (n: NPC) => Boolean(n.nameHidden || n.hide_name);
-  const displayName = (n: NPC) =>
-    isNameHidden(n)
-      ? cleanText(n.display_name) || cleanText(n.aka)
-      : cleanText(n.name) || cleanText(n.aka);
+  const displayName = (n: NPC) => {
+    const showRealName = !isNameHidden(n) || dmMode;
+    return showRealName
+      ? cleanText(n.name) || cleanText(n.aka)
+      : cleanText(n.display_name) || cleanText(n.aka);
+  };
   const hasValidImage = (src?: string | null) => Boolean(safeImageSrc(src));
 
   const getFactionName = (factionId: string) => {
@@ -305,8 +307,8 @@ export default function NPCDetailPage() {
                 <MarkdownEditor value={editingNPC.background || ""} onChange={(v) => setEditingNPC({ ...editingNPC, background: v })} rows={5} label="Background" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Personality</label>
-                <MarkdownEditor value={editingNPC.personality || ""} onChange={(v) => setEditingNPC({ ...editingNPC, personality: v })} rows={4} label="Personality" linkEntities={linkEntities} />
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Roleplaying Notes</label>
+                <MarkdownEditor value={editingNPC.roleplaying_notes || ""} onChange={(v) => setEditingNPC({ ...editingNPC, roleplaying_notes: v })} rows={4} label="Roleplaying Notes" linkEntities={linkEntities} />
               </div>
               <div>
                 <UserNotesEditor notes={editingNPC.notes || []} onChange={(notes) => setEditingNPC({ ...editingNPC, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" linkEntities={linkEntities} />
@@ -499,16 +501,16 @@ export default function NPCDetailPage() {
                 <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.background || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
-            {npc.personality && (
-              <section className="grim-tome">
-                <div className="grim-tome-head">
-                  <h3 className="grim-tome-title">Personality</h3>
-                  <span className="grim-tome-sub">manner &amp; disposition</span>
+            {(isDM || isAdmin) && npc.roleplaying_notes && (
+              <section className="grim-tome" style={{ border: "1px solid oklch(0.65 0.150 285 / 0.35)", background: "linear-gradient(180deg, oklch(0.16 0.04 285 / 0.4), oklch(0.13 0.03 290 / 0.25))" }}>
+                <div className="grim-tome-head" style={{ borderColor: "oklch(0.65 0.150 285 / 0.25)" }}>
+                  <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>Roleplaying Notes</h3>
+                  <span className="grim-tome-sub">dm-facing · hidden from players</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.personality || "", isAdmin, autoLinkEntities) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.roleplaying_notes || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
-            {!npc.background && !npc.personality && (
+            {!npc.background && (!(isDM || isAdmin) || !npc.roleplaying_notes) && (
               <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ unwritten ~</div>
                 <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>

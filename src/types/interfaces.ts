@@ -52,7 +52,7 @@ export interface NPC {
   factions?: string[];
   description: string;
   background?: string;
-  personality?: string;
+  roleplaying_notes?: string;
   image?: string; // optional
   hidden?: boolean;
   nameHidden?: boolean;

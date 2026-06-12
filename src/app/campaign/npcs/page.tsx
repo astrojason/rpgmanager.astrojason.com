@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
+import { useIsDM } from "@/utils/role";
 import Image from "next/image";
 import { NPC, Faction, PC } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -34,6 +35,7 @@ export default function NPCsPage() {
   const userId = useEffectiveUserId();
   const router = useRouter();
   const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
 
   usePageTracking();
 
@@ -60,14 +62,15 @@ export default function NPCsPage() {
     fetchData();
   }, []);
 
-  const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden);
+  const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden || isDM || isAdmin);
 
   const isNameHidden = (npc: NPC) => Boolean(npc.nameHidden || npc.hide_name);
   const displayName = (npc: NPC) => {
     const clean = (v?: string | null) => sanitizeOptionalText(v) ?? "";
-    return isNameHidden(npc)
-      ? clean(npc.display_name) || clean(npc.aka)
-      : clean(npc.name) || clean(npc.aka);
+    const showRealName = !isNameHidden(npc) || isDM || isAdmin;
+    return showRealName
+      ? clean(npc.name) || clean(npc.aka)
+      : clean(npc.display_name) || clean(npc.aka);
   };
   const hasValidImage = (src?: string | null) => Boolean(safeImageSrc(src));
 
@@ -137,7 +140,7 @@ export default function NPCsPage() {
   };
 
   const startAdding = () => {
-    setEditingNPC({ name: "", aka: "", pronunciation: "", race: "", gender: "", description: "", location: "", status: "Alive", background: "", personality: "", image: "", factions: [], hidden: false, nameHidden: false, notes: [] });
+    setEditingNPC({ name: "", aka: "", pronunciation: "", race: "", gender: "", description: "", location: "", status: "Alive", background: "", roleplaying_notes: "", image: "", factions: [], hidden: false, nameHidden: false, notes: [] });
     setShowAddForm(true);
   };
 
@@ -236,8 +239,8 @@ export default function NPCsPage() {
                 <MarkdownEditor value={editingNPC.background || ""} onChange={(v) => setEditingNPC({ ...editingNPC, background: v })} rows={5} label="Background" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Personality</label>
-                <MarkdownEditor value={editingNPC.personality || ""} onChange={(v) => setEditingNPC({ ...editingNPC, personality: v })} rows={4} label="Personality" linkEntities={linkEntities} />
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Roleplaying Notes</label>
+                <MarkdownEditor value={editingNPC.roleplaying_notes || ""} onChange={(v) => setEditingNPC({ ...editingNPC, roleplaying_notes: v })} rows={4} label="Roleplaying Notes" linkEntities={linkEntities} />
               </div>
               <div>
                 <UserNotesEditor notes={editingNPC.notes || []} onChange={(notes) => setEditingNPC({ ...editingNPC, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" linkEntities={linkEntities} />
@@ -361,8 +364,11 @@ export default function NPCsPage() {
                       ) : (
                         <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
                       )}
-                      <div style={{ position: "absolute", top: 7, left: 7 }}>
+                      <div style={{ position: "absolute", top: 7, left: 7, display: "flex", flexDirection: "column", gap: 3 }}>
                         <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
+                        {npc.hidden && (isDM || isAdmin) && (
+                          <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.06 285 / 0.85)", color: "var(--grim-arcane)", border: "1px solid var(--grim-arcane)" }}>hidden</span>
+                        )}
                       </div>
                     </div>
 
