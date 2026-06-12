@@ -34,7 +34,6 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [hoveredItem, setHoveredItem] = useState<Item | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
 
@@ -92,8 +91,6 @@ export default function ItemsPage() {
     setEditingItem({ name: "", category: "Magic Item", pronunciation: "", type_tag: "", description: "", properties: "", image: "", hidden: false, notes: [] });
     setShowAddForm(true);
   };
-
-  const previewItem = hoveredItem || sortedItems[0] || null;
 
   if (loading) {
     return (
@@ -220,141 +217,68 @@ export default function ItemsPage() {
           </div>
         </section>
 
-        {/* Two-pane: grid + sidebar */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 22 }}>
-
-          {/* Item grid */}
-          <section>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-              <h2 className="grim-h-section">Of what was found and taken</h2>
-              <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
-                {sortedItems.length} of {visibleItems.length} shown
-              </div>
+        {/* Item grid */}
+        <section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+            <h2 className="grim-h-section">Of what was found and taken</h2>
+            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+              {sortedItems.length} of {visibleItems.length} shown
             </div>
+          </div>
 
-            {sortedItems.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ the vaults are empty ~</div>
-                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
-                {sortedItems.map(item => (
-                  <div
-                    key={item.id}
-                    onMouseEnter={() => setHoveredItem(item)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    onClick={() => router.push(`/campaign/items/${item.id}`)}
-                    className="grim-tome"
-                    style={{
-                      padding: "16px 18px",
-                      cursor: "pointer",
-                      border: `1px solid ${hoveredItem?.id === item.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
-                      transform: hoveredItem?.id === item.id ? "translateY(-2px)" : "none",
-                      transition: "transform 0.15s ease, border-color 0.15s ease",
-                      position: "relative",
-                    }}
-                  >
-                    {item.hidden && isAdmin && (
-                      <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: 9, letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
-                    )}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <span className="grim-chip" style={{ fontSize: 9, padding: "2px 7px", ...categoryChipStyle(item.category) }}>
-                        {item.category || "Item"}
-                      </span>
-                    </div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em" }}>
-                      {item.name}
-                    </div>
-                    {item.pronunciation && (
-                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
-                        ({item.pronunciation})
-                      </div>
-                    )}
-                    {item.type_tag && (
-                      <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: 12, color: "var(--grim-ink-3)", marginTop: 4 }}>
-                        {item.type_tag}
-                      </div>
-                    )}
-                    {item.description && (
-                      <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                        {item.description}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* Sidebar */}
-          <aside style={{ position: "sticky", top: 0, alignSelf: "flex-start" }}>
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
-              {/* Preview header icon */}
-              <div style={{ height: 120, background: "linear-gradient(180deg, var(--grim-bg-3), var(--grim-bg-2))", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "1px solid var(--grim-line)" }}>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold-2)", opacity: 0.4 }}>⚔</span>
-              </div>
-              <div style={{ padding: 16 }}>
-                {previewItem ? (() => {
-                  const it = previewItem;
-                  return (
-                    <>
-                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>Relic Ledger</div>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-gold)", lineHeight: 1, marginTop: 2 }}>{it.name}</div>
-                      {it.pronunciation && (
-                        <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em", marginTop: 2 }}>({it.pronunciation})</div>
-                      )}
-                      <hr className="grim-rule" />
-                      <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
-                        {[["Category", it.category], ["Type", it.type_tag || "—"]].map(([k, v], i) => (
-                          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 4, borderBottom: "1px dotted var(--grim-line)" }}>
-                            <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                            <span style={{ fontFamily: "var(--font-head)", fontSize: 12, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <hr className="grim-rule" />
-                      <button
-                        className="grim-btn is-ember"
-                        style={{ width: "100%", justifyContent: "center" }}
-                        onClick={() => router.push(`/campaign/items/${it.id}`)}
-                      >
-                        Open Ledger Entry ›
-                      </button>
-                    </>
-                  );
-                })() : (
-                  <div style={{ textAlign: "center", padding: "12px 0", color: "var(--grim-ink-4)" }}>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase" }}>Hover to preview</div>
-                  </div>
-                )}
-              </div>
+          {sortedItems.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ the vaults are empty ~</div>
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
             </div>
-
-            {/* Tally */}
-            <div className="grim-tome">
-              <h3 className="grim-tome-title" style={{ fontSize: 13, marginBottom: 0 }}>Tally of the Armoury</h3>
-              <hr className="grim-rule" style={{ margin: "10px 0 12px" }} />
-              <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
-                {CATEGORIES.filter(c => c.id !== "all").map(cat => {
-                  const count = visibleItems.filter(it => it.category === cat.id).length;
-                  if (!count) return null;
-                  return (
-                    <div key={cat.id} style={{ display: "flex", justifyContent: "space-between", color: "var(--grim-ink-2)" }}>
-                      <span>{cat.label}</span>
-                      <span style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", fontSize: 16 }}>{count}</span>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {sortedItems.map(item => (
+                <div
+                  key={item.id}
+                  onClick={() => router.push(`/campaign/items/${item.id}`)}
+                  className="grim-tome"
+                  style={{
+                    padding: "16px 18px",
+                    cursor: "pointer",
+                    border: "1px solid var(--grim-line)",
+                    transition: "transform 0.15s ease, border-color 0.15s ease",
+                    position: "relative",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-gold-2)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
+                >
+                  {item.hidden && isAdmin && (
+                    <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: 9, letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span className="grim-chip" style={{ fontSize: 9, padding: "2px 7px", ...categoryChipStyle(item.category) }}>
+                      {item.category || "Item"}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em" }}>
+                    {item.name}
+                  </div>
+                  {item.pronunciation && (
+                    <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
+                      ({item.pronunciation})
                     </div>
-                  );
-                })}
-                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--grim-ink-2)", paddingTop: 6, borderTop: "1px dashed var(--grim-line)" }}>
-                  <span>Total</span>
-                  <span style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", fontSize: 16 }}>{visibleItems.length}</span>
+                  )}
+                  {item.type_tag && (
+                    <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: 12, color: "var(--grim-ink-3)", marginTop: 4 }}>
+                      {item.type_tag}
+                    </div>
+                  )}
+                  {item.description && (
+                    <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {item.description}
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
-
-          </aside>
-        </div>
+          )}
+        </section>
       </div>
     </>
   );

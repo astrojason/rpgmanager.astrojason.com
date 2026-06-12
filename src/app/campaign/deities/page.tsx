@@ -29,7 +29,6 @@ export default function DeitiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [hoveredDeity, setHoveredDeity] = useState<Deity | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingDeity, setEditingDeity] = useState<Partial<Deity>>({});
 
@@ -85,8 +84,6 @@ export default function DeitiesPage() {
     setEditingDeity({ name: "", pronunciation: "", domain: "", alignment: "", status: "active", description: "", image: "", hidden: false });
     setShowAddForm(true);
   };
-
-  const previewDeity = hoveredDeity || sorted[0] || null;
 
   if (loading) {
     return (
@@ -212,144 +209,72 @@ export default function DeitiesPage() {
           </div>
         </section>
 
-        {/* Two-pane: card grid + sticky sidebar */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 22 }}>
-
-          {/* Deity card grid */}
-          <section>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-              <h2 className="grim-h-section">Of the gods and divine powers</h2>
-              <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
-                sorted alphabetical · {sorted.length} of {visible.length}
-              </div>
+        {/* Deity card grid */}
+        <section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+            <h2 className="grim-h-section">Of the gods and divine powers</h2>
+            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+              sorted alphabetical · {sorted.length} of {visible.length}
             </div>
+          </div>
 
-            {sorted.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ no divinities found ~</div>
-                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search</div>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
-                {sorted.map(deity => (
-                  <div
-                    key={deity.id}
-                    onMouseEnter={() => setHoveredDeity(deity)}
-                    onMouseLeave={() => setHoveredDeity(null)}
-                    onClick={() => router.push(`/campaign/deities/${deity.id}`)}
-                    className="grim-tome"
-                    style={{
-                      padding: "16px 18px",
-                      cursor: "pointer",
-                      border: `1px solid ${hoveredDeity?.id === deity.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
-                      transform: hoveredDeity?.id === deity.id ? "translateY(-2px)" : "none",
-                      transition: "transform 0.15s ease, border-color 0.15s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
-                      position: "relative",
-                    }}
-                  >
-                    {deity.hidden && isAdmin && (
-                      <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: 9, letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
+          {sorted.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ no divinities found ~</div>
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search</div>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {sorted.map(deity => (
+                <div
+                  key={deity.id}
+                  onClick={() => router.push(`/campaign/deities/${deity.id}`)}
+                  className="grim-tome"
+                  style={{
+                    padding: "16px 18px",
+                    cursor: "pointer",
+                    border: "1px solid var(--grim-line)",
+                    transition: "transform 0.15s ease, border-color 0.15s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    position: "relative",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-gold-2)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
+                >
+                  {deity.hidden && isAdmin && (
+                    <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: 9, letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
+                  )}
+                  {/* Avatar */}
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden", border: "1px solid var(--grim-gold-2)", flexShrink: 0, position: "relative", background: "var(--grim-bg-3)" }}>
+                    {safeImageSrc(deity.image) ? (
+                      <Image src={safeImageSrc(deity.image)!} alt={deity.name} fill style={{ objectFit: "cover" }} />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold-2)" }}>✦</div>
                     )}
-                    {/* Avatar */}
-                    <div style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden", border: "1px solid var(--grim-gold-2)", flexShrink: 0, position: "relative", background: "var(--grim-bg-3)" }}>
-                      {safeImageSrc(deity.image) ? (
-                        <Image src={safeImageSrc(deity.image)!} alt={deity.name} fill style={{ objectFit: "cover" }} />
-                      ) : (
-                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold-2)" }}>✦</div>
-                      )}
+                  </div>
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {deity.name}
                     </div>
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {deity.name}
+                    {deity.domain && (
+                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-gold-2)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3 }}>
+                        {deity.domain}
                       </div>
-                      {deity.domain && (
-                        <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-gold-2)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3 }}>
-                          {deity.domain}
-                        </div>
-                      )}
-                      {deity.alignment && (
-                        <div style={{ marginTop: 6 }}>
-                          <span className={alignmentChipClass(deity.alignment)} style={{ fontSize: 9, padding: "2px 6px" }}>{deity.alignment}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* Right sidebar: hover preview + tally */}
-          <aside style={{ position: "sticky", top: 0, alignSelf: "flex-start" }}>
-            {/* Hover preview */}
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
-              <div style={{ height: 120, background: "linear-gradient(135deg, oklch(0.22 0.06 290) 0%, oklch(0.30 0.10 60) 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {previewDeity && safeImageSrc(previewDeity.image) ? (
-                  <div style={{ width: 72, height: 72, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--grim-gold-2)", position: "relative" }}>
-                    <Image src={safeImageSrc(previewDeity.image)!} alt={previewDeity.name} fill style={{ objectFit: "cover" }} />
-                  </div>
-                ) : (
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 64, color: "var(--grim-gold-2)", opacity: 0.4 }}>✦</span>
-                )}
-              </div>
-              <div style={{ padding: 16 }}>
-                {previewDeity ? (
-                  <>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>Compendium Entry</div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-gold)", lineHeight: 1, marginTop: 2 }}>{previewDeity.name}</div>
-                    {previewDeity.pronunciation && (
-                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em", marginTop: 3 }}>({previewDeity.pronunciation})</div>
                     )}
-                    <hr className="grim-rule" />
-                    <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
-                      {[["Domain", previewDeity.domain || "—"], ["Alignment", previewDeity.alignment || "—"], ["Status", previewDeity.status || "—"]].map(([k, v], i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 4, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
-                          <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: 12, color: "var(--grim-ink)", textAlign: "right" }}>{v}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <hr className="grim-rule" />
-                    <button
-                      className="grim-btn is-ember"
-                      style={{ width: "100%", justifyContent: "center" }}
-                      onClick={() => router.push(`/campaign/deities/${previewDeity.id}`)}
-                    >
-                      Open Compendium ›
-                    </button>
-                  </>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "12px 0", color: "var(--grim-ink-4)" }}>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase" }}>Hover to preview</div>
+                    {deity.alignment && (
+                      <div style={{ marginTop: 6 }}>
+                        <span className={alignmentChipClass(deity.alignment)} style={{ fontSize: 9, padding: "2px 6px" }}>{deity.alignment}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-
-            {/* Tally */}
-            <div className="grim-tome">
-              <h3 className="grim-tome-title" style={{ fontSize: 13, marginBottom: 0 }}>Tally of the Pantheon</h3>
-              <hr className="grim-rule" style={{ margin: "10px 0 12px" }} />
-              <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
-                {[
-                  ["Divinities recorded", String(visible.length)],
-                  ["Good-aligned", String(visible.filter(d => (d.alignment || "").toLowerCase().includes("good")).length)],
-                  ["Evil-aligned", String(visible.filter(d => (d.alignment || "").toLowerCase().includes("evil")).length)],
-                  ["Neutral", String(visible.filter(d => { const a = (d.alignment || "").toLowerCase(); return !a.includes("good") && !a.includes("evil") && a !== ""; }).length)],
-                ].map(([k, v], i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", color: "var(--grim-ink-2)" }}>
-                    <span>{k}</span>
-                    <span style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", fontSize: 16 }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-        </div>
+          )}
+        </section>
       </div>
     </>
   );
