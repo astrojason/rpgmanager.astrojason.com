@@ -21,8 +21,6 @@ function statusChipClass(status?: string): string {
 }
 
 export default function NPCsPage() {
-  const [hoveredNPC, setHoveredNPC] = useState<NPC | null>(null);
-  const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [npcData, setNpcData] = useState<NPC[]>([]);
@@ -144,7 +142,6 @@ export default function NPCsPage() {
     setShowAddForm(true);
   };
 
-  const previewNPC = selectedNPC || sortedNPCs[0] || null;
 
   if (loading) {
     return (
@@ -313,175 +310,104 @@ export default function NPCsPage() {
           </div>
         </section>
 
-        {/* Two-pane: card grid + sticky sidebar */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 22 }}>
+        {/* Card grid */}
+        <section>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+            <h2 className="grim-h-section">Of those who walk the Bounty</h2>
+            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+              sorted alphabetical · {sortedNPCs.length} of {visibleNPCs.length}
+            </div>
+          </div>
 
-          {/* NPC card grid */}
-          <section>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-              <h2 className="grim-h-section">Of those who walk the Bounty</h2>
-              <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
-                sorted alphabetical · {sortedNPCs.length} of {visibleNPCs.length}
+          {sortedNPCs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
+              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+                Adjust thy search or filters
               </div>
             </div>
-
-            {sortedNPCs.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
-                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
-                  Adjust thy search or filters
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
-                {sortedNPCs.map((npc) => (
-                  <div
-                    key={npc.id}
-                    onMouseEnter={() => setHoveredNPC(npc)}
-                    onMouseLeave={() => setHoveredNPC(null)}
-                    onClick={() => setSelectedNPC(npc)}
-                    className="grim-tome"
-                    style={{
-                      padding: 0,
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      display: "grid",
-                      gridTemplateColumns: "40% 1fr",
-                      border: `1px solid ${selectedNPC?.id === npc.id ? "var(--grim-ember)" : hoveredNPC?.id === npc.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
-                      transform: hoveredNPC?.id === npc.id ? "translateY(-2px)" : "none",
-                      transition: "transform 0.15s ease, border-color 0.15s ease",
-                    }}
-                  >
-                    {/* Left: portrait at 1:1 */}
-                    <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
-                      {hasValidImage(npc.image) ? (
-                        <Image
-                          src={safeImageSrc(npc.image)!}
-                          alt={displayName(npc) || ""}
-                          fill
-                          style={{ objectFit: "cover", objectPosition: "center top", filter: npc.status?.toLowerCase() === "deceased" ? "grayscale(0.7)" : "none" }}
-                        />
-                      ) : (
-                        <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
-                      )}
-                      <div style={{ position: "absolute", top: 7, left: 7, display: "flex", flexDirection: "column", gap: 3 }}>
-                        <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
-                        {npc.hidden && (isDM || isAdmin) && (
-                          <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.06 285 / 0.85)", color: "var(--grim-arcane)", border: "1px solid var(--grim-arcane)" }}>hidden</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right: card body */}
-                    <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {displayName(npc) || "Unknown"}
-                      </div>
-                      {npc.pronunciation && !isNameHidden(npc) && (
-                        <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
-                          ({npc.pronunciation})
-                        </div>
-                      )}
-                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {npc.race}{npc.gender ? ` · ${npc.gender}` : ""}
-                      </div>
-                      {npc.description && (
-                        <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                          &ldquo;{npc.description}&rdquo;
-                        </div>
-                      )}
-                      {npc.factions && npc.factions.length > 0 && (
-                        <div style={{ marginTop: 8, paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
-                          <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            ⚑ {getFactionName(npc.factions[0])}
-                          </div>
-                        </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {sortedNPCs.map((npc) => (
+                <div
+                  key={npc.id}
+                  onClick={() => router.push(`/campaign/npcs/${npc.id}`)}
+                  className="grim-tome"
+                  style={{
+                    padding: 0,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    display: "grid",
+                    gridTemplateColumns: "38% 1fr",
+                    border: "1px solid var(--grim-line)",
+                    transition: "transform 0.15s ease, border-color 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-gold-2)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
+                >
+                  {/* Portrait */}
+                  <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
+                    {hasValidImage(npc.image) ? (
+                      <Image
+                        src={safeImageSrc(npc.image)!}
+                        alt={displayName(npc) || ""}
+                        fill
+                        style={{ objectFit: "cover", objectPosition: "center top", filter: npc.status?.toLowerCase() === "deceased" ? "grayscale(0.7)" : "none" }}
+                      />
+                    ) : (
+                      <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+                    )}
+                    <div style={{ position: "absolute", top: 7, left: 7, display: "flex", flexDirection: "column", gap: 3 }}>
+                      <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
+                      {npc.hidden && (isDM || isAdmin) && (
+                        <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.06 285 / 0.85)", color: "var(--grim-arcane)", border: "1px solid var(--grim-arcane)" }}>hidden</span>
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
 
-          {/* Right sidebar: hover preview + tally */}
-          <aside style={{ position: "sticky", top: 0, alignSelf: "flex-start" }}>
-            {/* Hover preview */}
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden", marginBottom: 14 }}>
-              <div style={{ position: "relative", height: 200 }}>
-                {previewNPC && hasValidImage(previewNPC.image) ? (
-                  <Image
-                    src={safeImageSrc(previewNPC.image)!}
-                    alt={displayName(previewNPC) || ""}
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center top", filter: previewNPC.status?.toLowerCase() === "deceased" ? "grayscale(0.6)" : "none" }}
-                  />
-                ) : (
-                  <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
-                )}
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, oklch(0.10 0.025 290 / 0.85))" }} />
-              </div>
-              <div style={{ padding: 16 }}>
-                {previewNPC ? (
-                  <>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>Ledger Entry</div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-gold)", lineHeight: 1, marginTop: 2 }}>{displayName(previewNPC)}</div>
-                    {previewNPC.pronunciation && !isNameHidden(previewNPC) && (
-                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em", marginTop: 3 }}>
-                        ({previewNPC.pronunciation})
+                  {/* Card body */}
+                  <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {displayName(npc) || "Unknown"}
+                    </div>
+                    {npc.pronunciation && !isNameHidden(npc) && (
+                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
+                        ({npc.pronunciation})
                       </div>
                     )}
-                    <hr className="grim-rule" />
-                    <div className="grim-stack" style={{ gap: 7, fontSize: 12 }}>
-                      {[
-                        ["Race", previewNPC.race],
-                        ["Status", previewNPC.status],
-                        ["Location", previewNPC.location],
-                        ["Faction", previewNPC.factions?.[0] ? getFactionName(previewNPC.factions[0]) : "—"],
-                      ].map(([k, v], i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingBottom: 4, borderBottom: i < 3 ? "1px dotted var(--grim-line)" : "none" }}>
-                          <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: 12, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
-                        </div>
-                      ))}
+                    <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {npc.race}{npc.gender ? ` · ${npc.gender}` : ""}
                     </div>
-                    <hr className="grim-rule" />
-                    <button
-                      className="grim-btn is-ember"
-                      style={{ width: "100%", justifyContent: "center" }}
-                      onClick={() => router.push(`/campaign/npcs/${previewNPC.id}`)}
-                    >
-                      Open Dossier ›
-                    </button>
-                  </>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "12px 0", color: "var(--grim-ink-4)" }}>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase" }}>Hover to preview</div>
+                    {npc.location && (
+                      <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".10em", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        ⌖ {npc.location}
+                      </div>
+                    )}
+                    {npc.description && (
+                      <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        &ldquo;{npc.description}&rdquo;
+                      </div>
+                    )}
+                    {npc.factions && npc.factions.length > 0 && (
+                      <div style={{ marginTop: "auto", paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
+                        <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          ⚑ {getFactionName(npc.factions[0])}
+                        </div>
+                      </div>
+                    )}
+                    {(isDM || isAdmin) && npc.roleplaying_notes && (
+                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px dashed oklch(0.65 0.150 285 / 0.25)" }}>
+                        <div style={{ fontSize: 11, color: "oklch(0.70 0.12 285)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {npc.roleplaying_notes}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-
-            {/* Tally */}
-            <div className="grim-tome">
-              <h3 className="grim-tome-title" style={{ fontSize: 13, marginBottom: 0 }}>Tally of the Codex</h3>
-              <hr className="grim-rule" style={{ margin: "10px 0 12px" }} />
-              <div className="grim-stack" style={{ gap: 6, fontSize: 12 }}>
-                {[
-                  ["Souls inscribed", String(visibleNPCs.length)],
-                  ["Living", String(aliveCount)],
-                  ["Unknown", String(unknownCount)],
-                  ["Departed", String(deceasedCount)],
-                ].map(([k, v], i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", color: "var(--grim-ink-2)" }}>
-                    <span>{k}</span>
-                    <span style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", fontSize: 16 }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-        </div>
+          )}
+        </section>
       </div>
     </>
   );
