@@ -329,6 +329,26 @@ export default function NPCDetailPage() {
                   </label>
                 ))}
               </div>
+              <div>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Linked NPCs</label>
+                <div style={{ maxHeight: 160, overflowY: "auto", border: "1px solid var(--grim-line-2)", padding: "6px 10px", background: "var(--grim-bg-3)" }}>
+                  {allNpcs.filter(n => String(n.id) !== id).map(n => (
+                    <label key={n.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={(editingNPC.linked_npcs ?? []).includes(String(n.id))}
+                        onChange={(e) => {
+                          const current = editingNPC.linked_npcs ?? [];
+                          const nid = String(n.id);
+                          setEditingNPC({ ...editingNPC, linked_npcs: e.target.checked ? [...current, nid] : current.filter(x => x !== nid) });
+                        }}
+                        style={{ accentColor: "var(--grim-ember)" }}
+                      />
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>{n.name || n.aka || n.display_name || `#${n.id}`}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
                 <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingNPC({}); setError(""); }}>Cancel</button>
@@ -579,6 +599,36 @@ export default function NPCDetailPage() {
                 </div>
               </section>
             )}
+
+            {/* Linked NPCs */}
+            {(() => {
+              const linkedNpcs = (npc.linked_npcs ?? [])
+                .map(lid => allNpcs.find(n => String(n.id) === lid))
+                .filter((n): n is NPC => n !== undefined && (!n.hidden || dmMode));
+              return linkedNpcs.length > 0 ? (
+                <section className="grim-tome">
+                  <div className="grim-tome-head">
+                    <h3 className="grim-tome-title">Connected Souls</h3>
+                    <span className="grim-tome-sub">{linkedNpcs.length} {linkedNpcs.length === 1 ? "connection" : "connections"}</span>
+                  </div>
+                  <div className="grim-stack" style={{ gap: 8 }}>
+                    {linkedNpcs.map(linked => (
+                      <Link key={linked.id} href={`/campaign/npcs/${linked.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
+                          {hasValidImage(linked.image) && (
+                            <Image src={safeImageSrc(linked.image)!} alt={displayName(linked)} width={28} height={36} style={{ objectFit: "cover", objectPosition: "center top", border: "1px solid var(--grim-gold-2)", flexShrink: 0 }} />
+                          )}
+                          <div>
+                            <div style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
+                            {linked.race && <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em" }}>{linked.race}</div>}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ) : null;
+            })()}
 
             {/* Session appearances */}
             {appearances.length > 0 && (

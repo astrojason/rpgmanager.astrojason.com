@@ -650,6 +650,14 @@ body {
 .grim-parchment::before { top: 0; }
 .grim-parchment::after  { bottom: 0; transform: scaleY(-1); }
 
+.grim-parchment a, .grim-parchment a.grim-link {
+  color: var(--grim-blood);
+  border-bottom-color: oklch(0.52 0.180 22 / 0.4);
+}
+.grim-parchment a:hover, .grim-parchment a.grim-link:hover {
+  color: var(--grim-blood-2);
+}
+
 .grim-parchment .drop {
   float: left;
   font-family: var(--font-display);

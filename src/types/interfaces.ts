@@ -59,6 +59,7 @@ export interface NPC {
   hide_name?: boolean; // legacy/alt flag in data
   notes?: UserNote[]; // Reuse the same note structure as quests
   gm_notes?: string;
+  linked_npcs?: string[];
 }
 
 export interface PC {

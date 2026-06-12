@@ -6,8 +6,9 @@ import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 
 const TABLE = 'npcs';
 const JUNCTION = 'npc_factions';
+const LINKED = 'npc_linked_npcs';
 
-function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
+function rowToNPC(row: Record<string, unknown>, factions: string[], linked_npcs: string[]): NPC {
     return {
         id: String(row.id),
         name: sanitizeOptionalText(row.name),
@@ -28,6 +29,7 @@ function rowToNPC(row: Record<string, unknown>, factions: string[]): NPC {
         hide_name: row.hide_name ? true : false,
         notes: row.notes ? JSON.parse(String(row.notes)) : [],
         gm_notes: sanitizeOptionalText(row.gm_notes),
+        linked_npcs,
     };
 }
 
@@ -37,9 +39,10 @@ export async function GET(request?: NextRequest) {
 
     try {
         const db = getDb();
-        const [base, jf] = await db.batch([
+        const [base, jf, jl] = await db.batch([
             `SELECT * FROM ${TABLE}`,
             `SELECT npc_id, faction_id FROM ${JUNCTION}`,
+            `SELECT npc_id, linked_npc_id FROM ${LINKED}`,
         ], "read");
         const map = new Map<number, string[]>();
         for (const r of jf.rows as unknown[]) {
@@ -49,8 +52,18 @@ export async function GET(request?: NextRequest) {
             if (!map.has(nid)) map.set(nid, []);
             map.get(nid)!.push(fid);
         }
+        const linkedMap = new Map<number, string[]>();
+        for (const r of jl.rows as unknown[]) {
+            const row = r as Record<string, unknown>;
+            const nid = Number(row.npc_id);
+            const lid = Number(row.linked_npc_id);
+            if (!linkedMap.has(nid)) linkedMap.set(nid, []);
+            if (!linkedMap.get(nid)!.includes(String(lid))) linkedMap.get(nid)!.push(String(lid));
+            if (!linkedMap.has(lid)) linkedMap.set(lid, []);
+            if (!linkedMap.get(lid)!.includes(String(nid))) linkedMap.get(lid)!.push(String(nid));
+        }
         const out: NPC[] = [];
-        for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? []));
+        for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? [], linkedMap.get(Number((row as Record<string, unknown>).id)) ?? []));
         return NextResponse.json(out);
     } catch (error) {
         console.error('Error loading NPCs:', error);
@@ -94,6 +107,11 @@ export async function POST(request: NextRequest) {
             if (factions.length > 0) {
                 const placeholders = factions.map(() => '(?,?)').join(',');
                 await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [newId, fid]) });
+            }
+            const linkedNpcs = Array.isArray(body.linked_npcs) ? body.linked_npcs : [];
+            if (linkedNpcs.length > 0) {
+                const placeholders = linkedNpcs.map(() => '(?,?)').join(',');
+                await tx.execute({ sql: `INSERT OR IGNORE INTO ${LINKED} (npc_id,linked_npc_id) VALUES ${placeholders}`, args: linkedNpcs.flatMap(lid => [newId, lid]) });
             }
             await tx.commit();
             return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
@@ -150,6 +168,12 @@ export async function PUT(request: NextRequest) {
                 const placeholders = factions.map(() => '(?,?)').join(',');
                 await tx.execute({ sql: `INSERT OR IGNORE INTO ${JUNCTION} (npc_id,faction_id) VALUES ${placeholders}`, args: factions.flatMap(fid => [idNum, fid]) });
             }
+            const linkedNpcs = Array.isArray(body.linked_npcs) ? body.linked_npcs : [];
+            await tx.execute({ sql: `DELETE FROM ${LINKED} WHERE npc_id=?`, args: [idNum] });
+            if (linkedNpcs.length > 0) {
+                const placeholders = linkedNpcs.map(() => '(?,?)').join(',');
+                await tx.execute({ sql: `INSERT OR IGNORE INTO ${LINKED} (npc_id,linked_npc_id) VALUES ${placeholders}`, args: linkedNpcs.flatMap(lid => [idNum, lid]) });
+            }
             await tx.commit();
             return NextResponse.json({ success: true, data: body });
         } catch (e) {
@@ -197,10 +221,8 @@ export async function DELETE(request: NextRequest) {
         // Use transaction to ensure junction table records are deleted atomically
         const tx = await db.transaction('write');
         try {
-            // Delete junction table entries first
             await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE npc_id=?`, args: [idNum] });
-
-            // Then delete the NPC
+            await tx.execute({ sql: `DELETE FROM ${LINKED} WHERE npc_id=? OR linked_npc_id=?`, args: [idNum, idNum] });
             const res = await tx.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] });
 
             if ((res.rowsAffected ?? 0) === 0) {

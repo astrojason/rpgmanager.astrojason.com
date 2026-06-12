@@ -69,7 +69,8 @@ describe('API null/blank handling', () => {
           },
         ],
       }) // select npcs
-      .mockResolvedValueOnce({ rows: [] }); // junction rows
+      .mockResolvedValueOnce({ rows: [] }) // npc_factions junction
+      .mockResolvedValueOnce({ rows: [] }); // npc_linked_npcs junction
 
     const { GET } = await import('@/app/api/data/npcs/route');
     const res = await GET({} as any);
