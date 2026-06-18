@@ -43,6 +43,12 @@ function getCategoryColor(categoryId: string | null, categories: CalendarCategor
   return cat?.color || "var(--grim-ink-3)";
 }
 
+const AB_OFFSET = 1308; // Tyr'amryn year = AB year + AB_OFFSET
+
+function yearLabel(abYear: number): string {
+  return `AB ${abYear} / T ${abYear + AB_OFFSET}`;
+}
+
 function buildDateLabel(event: CalendarEvent, months: { name: string }[]): string {
   const monthName = months[event.date.month - 1]?.name || `Month ${event.date.month}`;
   const sd = dayStart(event.date.day);
@@ -51,12 +57,12 @@ function buildDateLabel(event: CalendarEvent, months: { name: string }[]): strin
     const endMonthName = months[event.end.month - 1]?.name || `Month ${event.end.month}`;
     const endDay = dayStart(event.end.day);
     if (event.end.month === event.date.month && event.end.year === event.date.year) {
-      return `${monthName} ${sd}–${endDay} · Year ${event.date.year}`;
+      return `${monthName} ${sd}–${endDay} · ${yearLabel(event.date.year)}`;
     }
-    return `${monthName} ${sd} – ${endMonthName} ${endDay} · Year ${event.date.year}`;
+    return `${monthName} ${sd} – ${endMonthName} ${endDay} · ${yearLabel(event.date.year)}`;
   }
-  if (ed !== sd) return `${monthName} ${sd}–${ed} · Year ${event.date.year}`;
-  return `${monthName} ${sd} · Year ${event.date.year}`;
+  if (ed !== sd) return `${monthName} ${sd}–${ed} · ${yearLabel(event.date.year)}`;
+  return `${monthName} ${sd} · ${yearLabel(event.date.year)}`;
 }
 
 const TENDAY_LABELS = ["I", "II", "III", "IV", "V"];
@@ -238,7 +244,7 @@ export default function CalendarPage() {
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <span className="grim-flame" style={{ width: 6, height: 6 }} />
           <span className="grim-mono" style={{ fontSize: 11, letterSpacing: ".14em", color: "var(--grim-ink-2)", textTransform: "uppercase" }}>
-            Now · {curWeekdayName}, {curMonthName} {initialCurrent.day}, Yr {initialCurrent.year}
+            Now · {curWeekdayName}, {curMonthName} {initialCurrent.day} · {yearLabel(initialCurrent.year)}
           </span>
           {isAdmin && !editingDate && (
             <button
@@ -280,11 +286,20 @@ export default function CalendarPage() {
               </select>
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR</div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
               <input
                 type="number" min={1}
                 value={dateForm.year}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
+                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
+              <input
+                type="number" min={AB_OFFSET + 1}
+                value={dateForm.year ? dateForm.year + AB_OFFSET : ""}
+                onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) - AB_OFFSET }))}
                 style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
               />
             </div>
@@ -304,7 +319,7 @@ export default function CalendarPage() {
           <div className="grim-page-eyebrow">The Reckoning · Calendar of the Bounty</div>
           <h1 className="grim-page-title" style={{ fontSize: 78, marginBottom: 4 }}>{monthName}</h1>
           <div className="grim-page-sub" style={{ marginBottom: 0 }}>
-            The <b style={{ color: "var(--grim-gold-2)" }}>{moonOrdinal} moon</b> of the year {viewYear} · {daysInMonth} days, {tendayCount} {tendayCount === 1 ? "tenday" : "tendays"}
+            The <b style={{ color: "var(--grim-gold-2)" }}>{moonOrdinal} moon</b> · AB {viewYear} / T {viewYear + AB_OFFSET} · {daysInMonth} days, {tendayCount} {tendayCount === 1 ? "tenday" : "tendays"}
           </div>
         </div>
 
@@ -312,8 +327,9 @@ export default function CalendarPage() {
         <div style={{ display: "flex", gap: 6, flexShrink: 0, paddingBottom: 8 }}>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y - 1)} title="Previous year">«</button>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToPrevMonth} title="Previous month">‹ {prevMonthName}</button>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-gold)", padding: "0 10px", minWidth: 128, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {monthName} · {viewYear}
+          <div style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-gold)", padding: "0 10px", minWidth: 160, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.3 }}>
+            <span>{monthName}</span>
+            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-3)", marginTop: 2 }}>{yearLabel(viewYear)}</span>
           </div>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToNextMonth} title="Next month">{nextMonthName} ›</button>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y + 1)} title="Next year">»</button>
@@ -460,7 +476,7 @@ export default function CalendarPage() {
                 {selWeekdayName} · {selTenday}
               </div>
               <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 3 }}>
-                {monthName} {selectedDay} · Year {viewYear}{isCurrentDay(selectedDay) ? " · present" : ""}
+                {monthName} {selectedDay} · {yearLabel(viewYear)}{isCurrentDay(selectedDay) ? " · present" : ""}
               </div>
 
               <div className="grim-rule" />

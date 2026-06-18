@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CalendarData, CalendarEvent } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 
+const AB_OFFSET = 1308; // Tyr'amryn year = AB year + AB_OFFSET
+
 const inputStyle: React.CSSProperties = {
   background: "var(--grim-bg-3)",
   border: "1px solid var(--grim-line-2)",
@@ -222,8 +224,13 @@ export default function CalendarManagementPage() {
         <div>
           <div className="grim-label" style={{ marginBottom: 4 }}>Current In-Game Date</div>
           {calendarData?.current ? (
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)" }}>
-              Day {calendarData.current.day} · Month {calendarData.current.month} · Year {calendarData.current.year}
+            <div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)" }}>
+                Day {calendarData.current.day} · {calendarData.static.months[calendarData.current.month - 1]?.name ?? `Month ${calendarData.current.month}`} · AB {calendarData.current.year}
+              </div>
+              <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em", marginTop: 2 }}>
+                Tyr&apos;amryn Year {calendarData.current.year + AB_OFFSET}
+              </div>
             </div>
           ) : (
             <div style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 14 }}>Not set</div>
@@ -246,7 +253,7 @@ export default function CalendarManagementPage() {
             <div>
               <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
               <input
-                type="number" min={1}
+                type="number" min={1} max={60}
                 value={dateForm.day}
                 onChange={e => setDateForm(f => ({ ...f, day: Number(e.target.value) }))}
                 style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
@@ -254,19 +261,31 @@ export default function CalendarManagementPage() {
             </div>
             <div>
               <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
-              <input
-                type="number" min={1}
+              <select
                 value={dateForm.month}
                 onChange={e => setDateForm(f => ({ ...f, month: Number(e.target.value) }))}
-                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
-              />
+                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, padding: "6px 10px", outline: "none" }}
+              >
+                {(calendarData?.static.months ?? []).map((m, idx) => (
+                  <option key={idx} value={idx + 1}>{m.name}</option>
+                ))}
+              </select>
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR</div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
               <input
                 type="number" min={1}
                 value={dateForm.year}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
+                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
+              <input
+                type="number" min={1}
+                value={dateForm.year ? dateForm.year + AB_OFFSET : ""}
+                onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) - AB_OFFSET }))}
                 style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
               />
             </div>
@@ -334,7 +353,7 @@ export default function CalendarManagementPage() {
                         {event.name}
                       </div>
                       <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 3 }}>
-                        {event.date.day}/{event.date.month}/{event.date.year}
+                        {calendarData?.static.months[event.date.month - 1]?.name ?? `Month ${event.date.month}`} {Array.isArray(event.date.day) ? `${event.date.day[0]}–${event.date.day[event.date.day.length - 1]}` : event.date.day} · AB {event.date.year} / T {event.date.year + AB_OFFSET}
                       </div>
                       {event.category && (
                         <span className="grim-chip is-ember" style={{ marginTop: 4, display: "inline-block" }}>
@@ -397,7 +416,7 @@ export default function CalendarManagementPage() {
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, marginBottom: 8 }}>
                   <div>
                     <label className="grim-label">Day</label>
                     <input
@@ -413,26 +432,49 @@ export default function CalendarManagementPage() {
                   </div>
                   <div>
                     <label className="grim-label">Month</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.date?.month?.toString() || "1"}
+                    <select
+                      value={formData.date?.month ?? 1}
                       onChange={(e) => setFormData({
                         ...formData,
                         date: { ...formData.date, month: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
+                      })}
+                      style={{ ...inputStyle, cursor: "pointer" }}
+                    >
+                      {(calendarData?.static.months ?? []).map((m, idx) => (
+                        <option key={idx} value={idx + 1}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <label className="grim-label">Year — Azorian&apos;s Bounty</label>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 427"
+                      value={formData.date?.year?.toString() || ""}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        date: { ...formData.date, year: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
                       })}
                       style={inputStyle}
                     />
                   </div>
                   <div>
-                    <label className="grim-label">Year</label>
+                    <label className="grim-label">Year — Tyr&apos;amryn</label>
                     <input
                       type="number"
-                      value={formData.date?.year?.toString() || "1"}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        date: { ...formData.date, year: parseInt(e.target.value) || 1 } as { month: number; day: number | number[]; year: number }
-                      })}
+                      min={AB_OFFSET + 1}
+                      placeholder="e.g. 1735"
+                      value={formData.date?.year ? (formData.date.year + AB_OFFSET).toString() : ""}
+                      onChange={(e) => {
+                        const t = parseInt(e.target.value) || AB_OFFSET + 1;
+                        setFormData({
+                          ...formData,
+                          date: { ...formData.date, year: t - AB_OFFSET } as { month: number; day: number | number[]; year: number }
+                        });
+                      }}
                       style={inputStyle}
                     />
                   </div>
@@ -467,8 +509,10 @@ export default function CalendarManagementPage() {
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
                     <span className="grim-chip">
-                      {selectedEvent.date.day}/{selectedEvent.date.month}/{selectedEvent.date.year}
+                      {calendarData?.static.months[selectedEvent.date.month - 1]?.name ?? `Month ${selectedEvent.date.month}`}{" "}
+                      {Array.isArray(selectedEvent.date.day) ? `${selectedEvent.date.day[0]}–${selectedEvent.date.day[selectedEvent.date.day.length - 1]}` : selectedEvent.date.day}
                     </span>
+                    <span className="grim-chip">AB {selectedEvent.date.year} / T {selectedEvent.date.year + AB_OFFSET}</span>
                     {selectedEvent.category && (
                       <span className="grim-chip is-ember">{selectedEvent.category}</span>
                     )}
