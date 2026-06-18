@@ -25,6 +25,9 @@ export default function CalendarManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<CalendarEvent>>({});
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateForm, setDateForm] = useState({ day: 0, month: 0, year: 0 });
+  const [savingDate, setSavingDate] = useState(false);
 
   // Load calendar data
   useEffect(() => {
@@ -80,6 +83,33 @@ export default function CalendarManagementPage() {
     setFormData({});
   };
 
+  const persistCalendar = async (updated: CalendarData): Promise<void> => {
+    const res = await authFetch('/api/data/calendar', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    if (!res.ok) throw new Error(`Failed to save calendar (${res.status})`);
+  };
+
+  const handleSaveCurrentDate = async () => {
+    if (!calendarData) return;
+    setSavingDate(true);
+    setError("");
+    try {
+      const updated = { ...calendarData, current: dateForm };
+      await persistCalendar(updated);
+      setCalendarData(updated);
+      setEditingDate(false);
+      setSuccess("Current date updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save current date");
+    } finally {
+      setSavingDate(false);
+    }
+  };
+
   const handleSave = async () => {
     try {
       if (!formData.name || !formData.description) {
@@ -92,23 +122,19 @@ export default function CalendarManagementPage() {
       let updatedEvents;
       if (isCreating) {
         updatedEvents = [...events, eventData];
-        setSuccess("Calendar event created successfully!");
       } else {
         updatedEvents = events.map(event => event.id === eventData.id ? eventData : event);
-        setSuccess("Calendar event updated successfully!");
       }
 
-      // Update calendar data
-      const updatedCalendarData = {
-        ...calendarData!,
-        events: updatedEvents
-      };
+      const updatedCalendarData = { ...calendarData!, events: updatedEvents };
+      await persistCalendar(updatedCalendarData);
       setCalendarData(updatedCalendarData);
 
       setIsCreating(false);
       setIsEditing(false);
       setSelectedEvent(eventData);
 
+      setSuccess(isCreating ? "Calendar event created successfully!" : "Calendar event updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save calendar event");
@@ -120,10 +146,8 @@ export default function CalendarManagementPage() {
 
     try {
       const updatedEvents = events.filter(e => e.id !== event.id);
-      const updatedCalendarData = {
-        ...calendarData!,
-        events: updatedEvents
-      };
+      const updatedCalendarData = { ...calendarData!, events: updatedEvents };
+      await persistCalendar(updatedCalendarData);
       setCalendarData(updatedCalendarData);
       setSelectedEvent(null);
       setSuccess("Calendar event deleted successfully!");
@@ -192,6 +216,69 @@ export default function CalendarManagementPage() {
           {success}
         </div>
       )}
+
+      {/* Current Date */}
+      <div className="grim-tome" style={{ padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+        <div>
+          <div className="grim-label" style={{ marginBottom: 4 }}>Current In-Game Date</div>
+          {calendarData?.current ? (
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)" }}>
+              Day {calendarData.current.day} · Month {calendarData.current.month} · Year {calendarData.current.year}
+            </div>
+          ) : (
+            <div style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 14 }}>Not set</div>
+          )}
+        </div>
+        {!editingDate && (
+          <button
+            className="grim-btn is-ghost"
+            style={{ padding: "6px 14px", fontSize: 13 }}
+            onClick={() => {
+              setDateForm(calendarData?.current ?? { day: 1, month: 1, year: 1 });
+              setEditingDate(true);
+            }}
+          >
+            ✎ Set Date
+          </button>
+        )}
+        {editingDate && (
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
+              <input
+                type="number" min={1}
+                value={dateForm.day}
+                onChange={e => setDateForm(f => ({ ...f, day: Number(e.target.value) }))}
+                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
+              <input
+                type="number" min={1}
+                value={dateForm.month}
+                onChange={e => setDateForm(f => ({ ...f, month: Number(e.target.value) }))}
+                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div>
+              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR</div>
+              <input
+                type="number" min={1}
+                value={dateForm.year}
+                onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
+                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="grim-btn is-ghost" onClick={() => setEditingDate(false)}>Cancel</button>
+              <button className="grim-btn is-ember" onClick={handleSaveCurrentDate} disabled={savingDate}>
+                {savingDate ? "Saving…" : "Save Date"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Two-column layout */}
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
