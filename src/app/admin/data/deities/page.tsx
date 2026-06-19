@@ -8,6 +8,7 @@ import UserNotesEditor from "@/components/UserNotesEditor";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 import Image from "next/image";
 import { safeImageSrc } from "@/utils/sanitize";
 
@@ -44,6 +45,7 @@ export default function DeitiesManagementPage() {
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<Partial<Deity>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     if (!auth) return;
@@ -123,18 +125,23 @@ export default function DeitiesManagementPage() {
     }
   };
 
-  const handleDelete = async (d: Deity) => {
-    if (!confirm(`Delete "${d.name}"?`)) return;
-    try {
-      const res = await authFetch(`/api/data/deities?id=${d.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
-      await load();
-      setSelected(null);
-      setSuccess("Deity deleted.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e) {
-      setError(toErrorMessage(e));
-    }
+  const handleDelete = (d: Deity) => {
+    setConfirmState({
+      message: `Delete "${d.name}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res = await authFetch(`/api/data/deities?id=${d.id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error(await res.text());
+          await load();
+          setSelected(null);
+          setSuccess("Deity deleted.");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (e) {
+          setError(toErrorMessage(e));
+        }
+      },
+    });
   };
 
   if (loading) {
@@ -403,6 +410,13 @@ export default function DeitiesManagementPage() {
           )}
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

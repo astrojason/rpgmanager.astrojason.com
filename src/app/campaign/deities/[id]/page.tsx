@@ -15,6 +15,7 @@ import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
 import Link from "next/link";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const ALIGNMENTS = [
   "Lawful Good", "Neutral Good", "Chaotic Good",
@@ -39,6 +40,7 @@ export default function DeityDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingDeity, setEditingDeity] = useState<Partial<Deity>>({});
   const [dmMode, setDmMode] = useState(false);
@@ -111,15 +113,21 @@ export default function DeityDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deity || !confirm("Are you sure you want to delete this deity?")) return;
-    try {
-      const res = await authFetch(`/api/data/deities?id=${deity.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
-      router.push("/campaign/deities");
-    } catch (e) {
-      setError(toErrorMessage(e));
-    }
+  const handleDelete = () => {
+    if (!deity) return;
+    setConfirmState({
+      message: "Are you sure you want to delete this deity?",
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res = await authFetch(`/api/data/deities?id=${deity.id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error(await res.text());
+          router.push("/campaign/deities");
+        } catch (e) {
+          setError(toErrorMessage(e));
+        }
+      },
+    });
   };
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
@@ -567,6 +575,13 @@ export default function DeityDetailPage() {
           </div>
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </>
   );
 }

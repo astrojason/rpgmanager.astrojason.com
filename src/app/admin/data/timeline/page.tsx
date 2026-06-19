@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface TimelineEvent {
   id: string;
@@ -35,6 +36,7 @@ export default function TimelineManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<TimelineEvent>>({});
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     loadEvents();
@@ -161,18 +163,22 @@ export default function TimelineManagementPage() {
     }
   };
 
-  const handleDelete = async (event: TimelineEvent) => {
-    if (!confirm(`Are you sure you want to delete "${event.title}"?`)) return;
-
-    try {
-      const updatedEvents = events.filter(e => e.id !== event.id);
-      setEvents(updatedEvents);
-      setSelectedEvent(null);
-      setSuccess("Event deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete Event");
-    }
+  const handleDelete = (event: TimelineEvent) => {
+    setConfirmState({
+      message: `Are you sure you want to delete "${event.title}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const updatedEvents = events.filter(e => e.id !== event.id);
+          setEvents(updatedEvents);
+          setSelectedEvent(null);
+          setSuccess("Event deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete Event");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -433,6 +439,13 @@ export default function TimelineManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

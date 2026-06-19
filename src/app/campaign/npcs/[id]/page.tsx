@@ -11,6 +11,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks, AutoLinkEntity } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
@@ -41,6 +42,7 @@ export default function NPCDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showEditForm, setShowEditForm] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
@@ -152,19 +154,25 @@ export default function NPCDetailPage() {
     }
   };
 
-  const handleDeleteNPC = async () => {
-    if (!npc || !confirm("Are you sure you want to delete this NPC?")) return;
-    setError("");
-    try {
-      const response = await authFetch(`/api/data/npcs?id=${npc.id}`, { method: "DELETE" });
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(body.error ?? `Server error ${response.status}`);
-      }
-      router.push("/campaign/npcs");
-    } catch (e) {
-      setError(toErrorMessage(e));
-    }
+  const handleDeleteNPC = () => {
+    if (!npc) return;
+    setConfirmState({
+      message: "Are you sure you want to delete this NPC?",
+      onConfirm: async () => {
+        setConfirmState(null);
+        setError("");
+        try {
+          const response = await authFetch(`/api/data/npcs?id=${npc.id}`, { method: "DELETE" });
+          if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body.error ?? `Server error ${response.status}`);
+          }
+          router.push("/campaign/npcs");
+        } catch (e) {
+          setError(toErrorMessage(e));
+        }
+      },
+    });
   };
 
   const handleUpdateNPCNotes = async (updatedNotes: UserNote[]) => {
@@ -680,6 +688,13 @@ export default function NPCDetailPage() {
           </div>
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </>
   );
 }

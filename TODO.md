@@ -10,6 +10,9 @@
 - [x] Timeline page — vertical timeline of major in-world events with category filtering, search, and full CRUD for admin/DM
 - [x] Calendar dual-calendar year system — event creation uses month dropdown + Azorian's Bounty / Tyr'amryn year fields (AB + 1308 = T); all date displays updated throughout
 
+- [x] Replace all JS confirm() dialogs with HTML modal component (ConfirmModal)
+- [x] Enable Timeline link in side navigation
+
 ## Enhancements
 - [x] Fix slow SQL queries: batch junction queries to reduce network round trips, add indexes on junction FKs
 - [x] NPC list for linking NPCs should be filterable and alphabetized

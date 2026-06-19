@@ -7,6 +7,7 @@ import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LocationsManagementPage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -19,6 +20,7 @@ export default function LocationsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Location>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     loadLocations();
@@ -148,18 +150,22 @@ export default function LocationsManagementPage() {
     }
   };
 
-  const handleDelete = async (location: Location) => {
-    if (!confirm(`Are you sure you want to delete ${location.name}?`)) return;
-
-    try {
-      const updatedLocations = locations.filter(l => l.id !== location.id);
-      setLocations(updatedLocations);
-      setSelectedLocation(null);
-      setSuccess("Location deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete Location");
-    }
+  const handleDelete = (location: Location) => {
+    setConfirmState({
+      message: `Are you sure you want to delete ${location.name}?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const updatedLocations = locations.filter(l => l.id !== location.id);
+          setLocations(updatedLocations);
+          setSelectedLocation(null);
+          setSuccess("Location deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete Location");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -602,6 +608,13 @@ export default function LocationsManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Link from "next/link";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface EntityItem { id: string; name: string; }
 
@@ -22,6 +23,7 @@ export default function RecapsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<SessionRecap>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
 
@@ -168,31 +170,36 @@ export default function RecapsManagementPage() {
     }
   };
 
-  const handleDelete = async (recap: SessionRecap) => {
-    if (!confirm(`Are you sure you want to delete the recap for "${recap.title}"?`)) return;
-    setError("");
-    setSuccess("");
+  const handleDelete = (recap: SessionRecap) => {
+    setConfirmState({
+      message: `Are you sure you want to delete the recap for "${recap.title}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        setError("");
+        setSuccess("");
 
-    if (!recap.id) {
-      setError("Unable to delete recap: missing identifier.");
-      return;
-    }
+        if (!recap.id) {
+          setError("Unable to delete recap: missing identifier.");
+          return;
+        }
 
-    try {
-      const targetId = recap.id ?? recap.date;
-      const response = await authFetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete session recap");
+        try {
+          const targetId = recap.id ?? recap.date;
+          const response = await authFetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Failed to delete session recap");
 
-      const updatedRecaps = recaps.filter((r) => (r.id ?? r.date) !== targetId);
-      setRecaps(updatedRecaps);
-      setSelectedRecap((current) => ((current && (current.id ?? current.date) === targetId) ? null : current));
-      setSuccess("Session recap deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete session recap");
-    }
+          const updatedRecaps = recaps.filter((r) => (r.id ?? r.date) !== targetId);
+          setRecaps(updatedRecaps);
+          setSelectedRecap((current) => ((current && (current.id ?? current.date) === targetId) ? null : current));
+          setSuccess("Session recap deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete session recap");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -432,6 +439,13 @@ export default function RecapsManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

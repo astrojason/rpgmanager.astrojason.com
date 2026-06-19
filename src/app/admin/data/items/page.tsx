@@ -6,6 +6,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Item, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -33,6 +34,7 @@ export default function ItemsManagementPage() {
   const [formData, setFormData] = useState<Partial<Item>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const [availableNpcs, setAvailableNpcs] = useState<EntityItem[]>([]);
   const [availablePcs, setAvailablePcs] = useState<EntityItem[]>([]);
@@ -135,19 +137,24 @@ export default function ItemsManagementPage() {
     }
   };
 
-  const handleDelete = async (item: Item) => {
-    if (!confirm(`Delete "${item.name}"?`)) return;
-    try {
-      const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
-      const re = await authFetch("/api/data/items");
-      setItems(await re.json());
-      setSelectedItem(null);
-      setSuccess("Item deleted.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete item");
-    }
+  const handleDelete = (item: Item) => {
+    setConfirmState({
+      message: `Delete "${item.name}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error("Failed to delete");
+          const re = await authFetch("/api/data/items");
+          setItems(await re.json());
+          setSelectedItem(null);
+          setSuccess("Item deleted.");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete item");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -434,6 +441,13 @@ export default function ItemsManagementPage() {
           )}
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

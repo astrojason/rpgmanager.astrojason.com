@@ -12,6 +12,7 @@ import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
 
 interface EntityItem { id: string; name: string; }
@@ -28,6 +29,7 @@ export default function QuestsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Quest>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
   const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
   const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
@@ -229,26 +231,30 @@ export default function QuestsManagementPage() {
     }
   };
 
-  const handleDelete = async (quest: Quest) => {
-    if (!confirm(`Are you sure you want to delete "${quest.name}"?`)) return;
+  const handleDelete = (quest: Quest) => {
+    setConfirmState({
+      message: `Are you sure you want to delete "${quest.name}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const response = await authFetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
+            method: 'DELETE',
+          });
 
-    try {
-      const response = await authFetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
-        method: 'DELETE',
-      });
+          if (!response.ok) {
+            throw new Error('Failed to delete quest');
+          }
 
-      if (!response.ok) {
-        throw new Error('Failed to delete quest');
-      }
-
-      const updatedQuests = quests.filter(q => q.id !== quest.id);
-      setQuests(updatedQuests);
-      setSelectedQuest(null);
-      setSuccess("Quest deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete Quest");
-    }
+          const updatedQuests = quests.filter(q => q.id !== quest.id);
+          setQuests(updatedQuests);
+          setSelectedQuest(null);
+          setSuccess("Quest deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete Quest");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -703,6 +709,13 @@ export default function QuestsManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

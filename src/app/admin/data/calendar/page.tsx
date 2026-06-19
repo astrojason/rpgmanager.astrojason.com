@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { CalendarData, CalendarEvent } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const AB_OFFSET = 1308; // Tyr'amryn year = AB year + AB_OFFSET
 
@@ -30,6 +31,7 @@ export default function CalendarManagementPage() {
   const [editingDate, setEditingDate] = useState(false);
   const [dateForm, setDateForm] = useState({ day: 0, month: 0, year: 0 });
   const [savingDate, setSavingDate] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Load calendar data
   useEffect(() => {
@@ -143,20 +145,24 @@ export default function CalendarManagementPage() {
     }
   };
 
-  const handleDelete = async (event: CalendarEvent) => {
-    if (!confirm(`Are you sure you want to delete "${event.name}"?`)) return;
-
-    try {
-      const updatedEvents = events.filter(e => e.id !== event.id);
-      const updatedCalendarData = { ...calendarData!, events: updatedEvents };
-      await persistCalendar(updatedCalendarData);
-      setCalendarData(updatedCalendarData);
-      setSelectedEvent(null);
-      setSuccess("Calendar event deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete calendar event");
-    }
+  const handleDelete = (event: CalendarEvent) => {
+    setConfirmState({
+      message: `Are you sure you want to delete "${event.name}"?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const updatedEvents = events.filter(e => e.id !== event.id);
+          const updatedCalendarData = { ...calendarData!, events: updatedEvents };
+          await persistCalendar(updatedCalendarData);
+          setCalendarData(updatedCalendarData);
+          setSelectedEvent(null);
+          setSuccess("Calendar event deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete calendar event");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -547,6 +553,13 @@ export default function CalendarManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

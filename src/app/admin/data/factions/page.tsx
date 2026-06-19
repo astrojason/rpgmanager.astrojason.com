@@ -7,6 +7,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -30,6 +31,7 @@ export default function FactionsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<Faction>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Load Factions data
   useEffect(() => {
@@ -166,19 +168,23 @@ export default function FactionsManagementPage() {
     }
   };
 
-  const handleDelete = async (faction: Faction) => {
-    if (!confirm(`Are you sure you want to delete ${faction.name}?`)) return;
-
-    try {
-      const updatedFactions = factions.filter(f => f.id !== faction.id);
-      // TODO: Save to backend/API
-      setFactions(updatedFactions);
-      setSelectedFaction(null);
-      setSuccess("Faction deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete Faction");
-    }
+  const handleDelete = (faction: Faction) => {
+    setConfirmState({
+      message: `Are you sure you want to delete ${faction.name}?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const updatedFactions = factions.filter(f => f.id !== faction.id);
+          // TODO: Save to backend/API
+          setFactions(updatedFactions);
+          setSelectedFaction(null);
+          setSuccess("Faction deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete Faction");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -542,6 +548,13 @@ export default function FactionsManagementPage() {
         </div>
 
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

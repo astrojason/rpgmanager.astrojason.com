@@ -925,4 +925,37 @@ button:not(.grim-btn):active:not(:disabled) {
 }
 
 .grim-chronicle::-webkit-scrollbar { width: 4px; }
+
+/* ── Confirm Modal ────────────────────────────────────────── */
+.grim-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: oklch(0 0 0 / 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.grim-modal {
+  background: var(--grim-bg-2);
+  border: 1px solid var(--grim-line-2);
+  padding: 28px 32px;
+  max-width: 420px;
+  width: 90%;
+}
+
+.grim-modal-message {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--grim-ink);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.grim-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
 .grim-chronicle::-webkit-scrollbar-thumb { background: var(--grim-line-2); border-radius: 999px; }

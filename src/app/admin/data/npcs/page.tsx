@@ -7,6 +7,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -47,6 +48,7 @@ export default function NPCsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<NPC>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Load NPCs data
   useEffect(() => {
@@ -277,21 +279,25 @@ export default function NPCsManagementPage() {
     }
   };
 
-  const handleDelete = async (npc: NPC) => {
-    if (!confirm(`Are you sure you want to delete ${npc.name}?`)) return;
-
-    try {
-      const resp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
-      if (!resp.ok) throw new Error('Failed to delete NPC');
-      const re = await authFetch('/api/data/npcs');
-      const updatedNpcs = await re.json();
-      setNpcs(updatedNpcs);
-      setSelectedNpc(null);
-      setSuccess("NPC deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete NPC");
-    }
+  const handleDelete = (npc: NPC) => {
+    setConfirmState({
+      message: `Are you sure you want to delete ${npc.name}?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const resp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
+          if (!resp.ok) throw new Error('Failed to delete NPC');
+          const re = await authFetch('/api/data/npcs');
+          const updatedNpcs = await re.json();
+          setNpcs(updatedNpcs);
+          setSelectedNpc(null);
+          setSuccess("NPC deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete NPC");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -1074,6 +1080,13 @@ export default function NPCsManagementPage() {
           )}
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }

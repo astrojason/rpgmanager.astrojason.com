@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { id: "session",      label: "Next Session",       sub: "Summoning & agenda",            icon: "moon",    href: "/campaign/next-session" },
   { id: "locations",    label: "Locations",          sub: "Towns, cities, landmarks",      icon: "pin",     href: "/campaign/locations" },
   { id: "calendar",     label: "Calendar",           sub: "World calendar & events",       icon: "cal",     href: "/campaign/calendar" },
-  { id: "timeline",     label: "Timeline",           sub: "Major events of the realm",     icon: "scroll",  href: "/campaign/timeline",     dim: true },
+  { id: "timeline",     label: "Timeline",           sub: "Major events of the realm",     icon: "scroll",  href: "/campaign/timeline" },
   { id: "npcs",         label: "NPCs",               sub: "Characters & merchants",        icon: "skull",   href: "/campaign/npcs" },
   { id: "pcs",          label: "Player Characters",  sub: "The party",                     icon: "shield",  href: "/campaign/pcs" },
   { id: "factions",     label: "Factions",           sub: "Guilds, politics, cabals",      icon: "banner",  href: "/campaign/factions" },

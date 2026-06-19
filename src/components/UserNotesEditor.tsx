@@ -12,6 +12,7 @@ import {
   CheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import ConfirmModal from './ConfirmModal';
 
 interface UserNotesEditorProps {
   notes: UserNote[];
@@ -39,6 +40,7 @@ export default function UserNotesEditor({
   const [editingContent, setEditingContent] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const canEdit = (note: UserNote) => {
     const uid = getUid();
@@ -78,10 +80,14 @@ export default function UserNotesEditor({
   const handleDeleteNote = (index: number) => {
     const note = notes[index];
     if (!getUid() || !canEdit(note)) return;
-    if (confirm("Are you sure you want to delete this note?")) {
-      const updatedNotes = notes.filter((_, i) => i !== index);
-      onChange(updatedNotes);
-    }
+    setConfirmState({
+      message: "Are you sure you want to delete this note?",
+      onConfirm: () => {
+        setConfirmState(null);
+        const updatedNotes = notes.filter((_, i) => i !== index);
+        onChange(updatedNotes);
+      },
+    });
   };
 
   const handleAddNote = () => {
@@ -245,6 +251,13 @@ export default function UserNotesEditor({
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No notes yet. Click &ldquo;Add Note&rdquo; to create your first note.</p>
         </div>
+      )}
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
       )}
     </div>
   );

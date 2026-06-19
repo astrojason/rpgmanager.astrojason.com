@@ -10,6 +10,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
@@ -37,6 +38,7 @@ export default function ItemDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
   const [dmMode, setDmMode] = useState(false);
@@ -126,19 +128,25 @@ export default function ItemDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!item || !confirm("Are you sure you want to delete this item?")) return;
-    setError("");
-    try {
-      const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Server error ${res.status}`);
-      }
-      router.push("/campaign/items");
-    } catch (e) {
-      setError(toErrorMessage(e));
-    }
+  const handleDelete = () => {
+    if (!item) return;
+    setConfirmState({
+      message: "Are you sure you want to delete this item?",
+      onConfirm: async () => {
+        setConfirmState(null);
+        setError("");
+        try {
+          const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error ?? `Server error ${res.status}`);
+          }
+          router.push("/campaign/items");
+        } catch (e) {
+          setError(toErrorMessage(e));
+        }
+      },
+    });
   };
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
@@ -552,6 +560,13 @@ export default function ItemDetailPage() {
           </div>
         </div>
       </div>
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </>
   );
 }

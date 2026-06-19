@@ -7,6 +7,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { PC, Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface UserData {
   uid: string;
@@ -38,6 +39,7 @@ export default function PCsManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<Partial<PC>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Load PCs data and users
   useEffect(() => {
@@ -233,26 +235,30 @@ export default function PCsManagementPage() {
     }
   };
 
-  const handleDelete = async (pc: PC) => {
-    if (!confirm(`Are you sure you want to delete ${pc.name}?`)) return;
+  const handleDelete = (pc: PC) => {
+    setConfirmState({
+      message: `Are you sure you want to delete ${pc.name}?`,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          const response = await authFetch(`/api/data/pcs?id=${pc.id}`, {
+            method: 'DELETE',
+          });
 
-    try {
-      const response = await authFetch(`/api/data/pcs?id=${pc.id}`, {
-        method: 'DELETE',
-      });
+          if (!response.ok) {
+            throw new Error('Failed to delete PC');
+          }
 
-      if (!response.ok) {
-        throw new Error('Failed to delete PC');
-      }
-
-      const updatedPcs = pcs.filter(p => p.id !== pc.id);
-      setPcs(updatedPcs);
-      setSelectedPc(null);
-      setSuccess("PC deleted successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete PC");
-    }
+          const updatedPcs = pcs.filter(p => p.id !== pc.id);
+          setPcs(updatedPcs);
+          setSelectedPc(null);
+          setSuccess("PC deleted successfully!");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete PC");
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -719,7 +725,13 @@ export default function PCsManagementPage() {
           )}
         </div>
       </div>
-
+      {confirmState && (
+        <ConfirmModal
+          message={confirmState.message}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
+      )}
     </div>
   );
 }
