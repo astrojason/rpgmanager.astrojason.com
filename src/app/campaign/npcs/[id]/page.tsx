@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -29,17 +30,6 @@ export default function NPCDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [npc, setNpc] = useState<NPC | null>(null);
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [appearances, setAppearances] = useState<SessionRecap[]>([]);
-  const [deities, setDeities] = useState<Deity[]>([]);
-  const [allDeities, setAllDeities] = useState<Deity[]>([]);
-  const [allNpcs, setAllNpcs] = useState<NPC[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
@@ -52,62 +42,48 @@ export default function NPCDetailPage() {
   const userId = useEffectiveUserId();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [npcsResponse, factionsResponse, recapsResponse, deitiesResponse, pcsResponse, locsResponse, itemsResponse] = await Promise.all([
-          authFetch("/api/data/npcs"),
-          authFetch("/api/data/factions"),
-          authFetch("/api/data/session-recaps"),
-          authFetch("/api/data/deities"),
-          authFetch("/api/data/pcs"),
-          authFetch("/api/data/locations"),
-          authFetch("/api/data/items"),
-        ]);
-        const npcs: NPC[] = await npcsResponse.json();
-        const factions = await factionsResponse.json();
-        const recaps: SessionRecap[] = recapsResponse.ok ? await recapsResponse.json() : [];
-        const found = npcs.find((n: NPC) => String(n.id) === id);
-        if (!found) {
-          setNotFound(true);
-        } else {
-          setNpc(found);
-        }
-        setAllNpcs(Array.isArray(npcs) ? npcs : []);
-        setFactionData(factions);
-        const tagged = recaps
-          .filter(r => (r.tagged_npcs ?? []).includes(id))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setAppearances(tagged);
-        if (deitiesResponse.ok) {
-          const deitiesData: Deity[] = await deitiesResponse.json();
-          setAllDeities(deitiesData);
-          setDeities(deitiesData.filter(d => (d.follower_npcs ?? []).includes(id)));
-        }
-        if (pcsResponse.ok) {
-          setPcs(await pcsResponse.json());
-        }
-        if (locsResponse.ok) {
-          setLocations(await locsResponse.json());
-        }
-        if (itemsResponse.ok) {
-          setItems(await itemsResponse.json());
-        }
-      } catch {
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [id]);
+  const { data: allNpcs = [], isPending: loading } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/npcs"); if (!r.ok) throw new Error("Failed to load NPCs"); return r.json(); },
+  });
+  const { data: factionData = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: async () => { const r = await authFetch("/api/data/factions"); if (!r.ok) throw new Error("Failed to load factions"); return r.json(); },
+  });
+  const { data: allRecaps = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+  const { data: allDeities = [] } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: async () => { const r = await authFetch("/api/data/deities"); if (!r.ok) throw new Error("Failed to load deities"); return r.json(); },
+  });
+  const { data: pcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
+  const { data: locations = [] } = useQuery<Location[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: async () => { const r = await authFetch("/api/data/locations"); if (!r.ok) throw new Error("Failed to load locations"); return r.json(); },
+  });
+  const { data: items = [] } = useQuery<Item[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: async () => { const r = await authFetch("/api/data/items"); if (!r.ok) throw new Error("Failed to load items"); return r.json(); },
+  });
 
-  useEffect(() => {
-    setDmMode(isDM || isAdmin);
-  }, [isDM, isAdmin]);
+  const npc = useMemo(() => allNpcs.find((n: NPC) => String(n.id) === id) ?? null, [allNpcs, id]);
+  const notFound = !loading && !npc;
+  const appearances = useMemo(() =>
+    allRecaps.filter(r => (r.tagged_npcs ?? []).includes(id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [allRecaps, id]
+  );
+  const deities = useMemo(() => allDeities.filter(d => (d.follower_npcs ?? []).includes(id)), [allDeities, id]);
+
+  useEffect(() => { setDmMode(isDM || isAdmin); }, [isDM, isAdmin]);
 
   const cleanText = (value?: string | null) => sanitizeOptionalText(value) ?? "";
   const isNameHidden = (n: NPC) => Boolean(n.nameHidden || n.hide_name);
@@ -124,13 +100,6 @@ export default function NPCDetailPage() {
     return faction ? faction.name : factionId;
   };
 
-  const refreshNpc = async () => {
-    const npcsResponse = await authFetch("/api/data/npcs");
-    const npcs = await npcsResponse.json();
-    const updated = npcs.find((n: NPC) => String(n.id) === id);
-    if (updated) setNpc(updated);
-  };
-
   const handleSaveNPC = async (data: Partial<NPC>) => {
     setIsSaving(true);
     setError("");
@@ -144,7 +113,7 @@ export default function NPCDetailPage() {
         const body = await response.json().catch(() => ({}));
         throw new Error(body.error ?? `Server error ${response.status}`);
       }
-      await refreshNpc();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
       setShowEditForm(false);
       setEditingNPC({});
     } catch (e) {
@@ -188,7 +157,7 @@ export default function NPCDetailPage() {
         const body = await response.json().catch(() => ({}));
         throw new Error(body.error ?? `Server error ${response.status}`);
       }
-      await refreshNpc();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -35,9 +36,6 @@ export default function DeityDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [deity, setDeity] = useState<Deity | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
@@ -45,53 +43,38 @@ export default function DeityDetailPage() {
   const [editingDeity, setEditingDeity] = useState<Partial<Deity>>({});
   const [dmMode, setDmMode] = useState(false);
 
-  const [recaps, setRecaps] = useState<SessionRecap[]>([]);
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [npcs, setNpcs] = useState<NPC[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
-
   const userId = useEffectiveUserId();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  const loadAll = async () => {
-    try {
-      const [deitiesRes, recapsRes, questsRes, npcsRes, pcsRes] = await Promise.all([
-        authFetch("/api/data/deities"),
-        authFetch("/api/data/session-recaps"),
-        authFetch("/api/data/quests"),
-        authFetch("/api/data/npcs"),
-        authFetch("/api/data/pcs"),
-      ]);
-      const allDeities: Deity[] = deitiesRes.ok ? await deitiesRes.json() : [];
-      const found = allDeities.find(d => String(d.id) === id);
-      if (!found) { setNotFound(true); return; }
-      setDeity(found);
-      setRecaps(recapsRes.ok ? await recapsRes.json() : []);
-      setQuests(questsRes.ok ? await questsRes.json() : []);
-      setNpcs(npcsRes.ok ? await npcsRes.json() : []);
-      setPcs(pcsRes.ok ? await pcsRes.json() : []);
-    } catch (e) {
-      setError(toErrorMessage(e));
-      setNotFound(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: allDeities = [], isPending: loading } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: async () => { const r = await authFetch("/api/data/deities"); if (!r.ok) throw new Error("Failed to load deities"); return r.json(); },
+  });
+  const { data: recaps = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+  const { data: quests = [] } = useQuery<Quest[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => { const r = await authFetch("/api/data/quests"); if (!r.ok) throw new Error("Failed to load quests"); return r.json(); },
+  });
+  const { data: npcs = [] } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/npcs"); if (!r.ok) throw new Error("Failed to load NPCs"); return r.json(); },
+  });
+  const { data: pcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
 
-  useEffect(() => { loadAll(); }, [id]);
+  const deity = useMemo(() => allDeities.find(d => String(d.id) === id) ?? null, [allDeities, id]);
+  const notFound = !loading && !deity;
+
   useEffect(() => { setDmMode(isDM || isAdmin); }, [isDM, isAdmin]);
-
-  const refreshDeity = async () => {
-    const res = await authFetch("/api/data/deities");
-    if (res.ok) {
-      const all: Deity[] = await res.json();
-      const updated = all.find(d => String(d.id) === id);
-      if (updated) setDeity(updated);
-    }
-  };
 
   const handleSave = async (data: Partial<Deity>) => {
     setIsSaving(true);
@@ -103,7 +86,7 @@ export default function DeityDetailPage() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(await res.text());
-      await refreshDeity();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
       setShowEditForm(false);
       setEditingDeity({});
     } catch (e) {
@@ -139,7 +122,7 @@ export default function DeityDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: deity.id, notes }),
       });
-      if (res.ok) await refreshDeity();
+      if (res.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
       else throw new Error(await res.text());
     } catch (e) {
       setError(toErrorMessage(e));

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { authFetch } from "@/utils/authFetch";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -78,7 +79,6 @@ function AdminTome({ glyph, title, sub, count, tint, href }: {
 }
 
 export default function AdminPage() {
-  const [counts, setCounts] = useState<Counts>({});
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -87,40 +87,19 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadCounts() {
-      try {
-        const [npcsRes, questsRes, locationsRes, factionsRes, pcsRes] = await Promise.all([
-          authFetch('/api/data/npcs', { cache: 'no-store' }),
-          authFetch('/api/data/quests', { cache: 'no-store' }),
-          authFetch('/api/data/locations', { cache: 'no-store' }),
-          authFetch('/api/data/factions', { cache: 'no-store' }),
-          authFetch('/api/data/pcs', { cache: 'no-store' }),
-        ]);
-        const [npcs, quests, locations, factions, pcs] = await Promise.all([
-          npcsRes.ok ? npcsRes.json() : Promise.resolve([]),
-          questsRes.ok ? questsRes.json() : Promise.resolve([]),
-          locationsRes.ok ? locationsRes.json() : Promise.resolve([]),
-          factionsRes.ok ? factionsRes.json() : Promise.resolve([]),
-          pcsRes.ok ? pcsRes.json() : Promise.resolve([]),
-        ]);
-        if (!cancelled) {
-          setCounts({
-            npcs:      Array.isArray(npcs)      ? npcs.length      : 0,
-            quests:    Array.isArray(quests)    ? quests.length    : 0,
-            locations: Array.isArray(locations) ? locations.length : 0,
-            factions:  Array.isArray(factions)  ? factions.length  : 0,
-            pcs:       Array.isArray(pcs)       ? pcs.length       : 0,
-          });
-        }
-      } catch {
-        if (!cancelled) setCounts((c) => ({ ...c }));
-      }
-    }
-    loadCounts();
-    return () => { cancelled = true; };
-  }, []);
+  const { data: npcsData = [] } = useQuery<unknown[]>({ queryKey: ['/api/data/npcs'], queryFn: () => authFetch('/api/data/npcs').then(r => r.ok ? r.json() : []) });
+  const { data: questsData = [] } = useQuery<unknown[]>({ queryKey: ['/api/data/quests'], queryFn: () => authFetch('/api/data/quests').then(r => r.ok ? r.json() : []) });
+  const { data: locationsData = [] } = useQuery<unknown[]>({ queryKey: ['/api/data/locations'], queryFn: () => authFetch('/api/data/locations').then(r => r.ok ? r.json() : []) });
+  const { data: factionsData = [] } = useQuery<unknown[]>({ queryKey: ['/api/data/factions'], queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []) });
+  const { data: pcsData = [] } = useQuery<unknown[]>({ queryKey: ['/api/data/pcs'], queryFn: () => authFetch('/api/data/pcs').then(r => r.ok ? r.json() : []) });
+
+  const counts: Counts = {
+    npcs: npcsData.length,
+    quests: questsData.length,
+    locations: locationsData.length,
+    factions: factionsData.length,
+    pcs: pcsData.length,
+  };
 
   return (
     <div style={{ padding: "36px 48px 80px" }}>

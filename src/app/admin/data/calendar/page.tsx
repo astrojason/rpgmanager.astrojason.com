@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarData, CalendarEvent } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -19,8 +20,6 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function CalendarManagementPage() {
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -33,24 +32,15 @@ export default function CalendarManagementPage() {
   const [savingDate, setSavingDate] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  // Load calendar data
-  useEffect(() => {
-    loadCalendar();
-  }, []);
+  const queryClient = useQueryClient();
 
-  const loadCalendar = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/calendar');
-      if (!response.ok) throw new Error('Failed to load calendar');
-      const data = await response.json();
-      setCalendarData(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load calendar');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: calendarData = null, isPending: loading, error: queryError } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: () => authFetch('/api/data/calendar').then(r => {
+      if (!r.ok) throw new Error('Failed to load calendar');
+      return r.json();
+    }),
+  });
 
   const events = calendarData?.events || [];
   const filteredEvents = events.filter(event =>
@@ -103,7 +93,7 @@ export default function CalendarManagementPage() {
     try {
       const updated = { ...calendarData, current: dateForm };
       await persistCalendar(updated);
-      setCalendarData(updated);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/calendar'] });
       setEditingDate(false);
       setSuccess("Current date updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
@@ -132,8 +122,7 @@ export default function CalendarManagementPage() {
 
       const updatedCalendarData = { ...calendarData!, events: updatedEvents };
       await persistCalendar(updatedCalendarData);
-      setCalendarData(updatedCalendarData);
-
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/calendar'] });
       setIsCreating(false);
       setIsEditing(false);
       setSelectedEvent(eventData);
@@ -154,7 +143,7 @@ export default function CalendarManagementPage() {
           const updatedEvents = events.filter(e => e.id !== event.id);
           const updatedCalendarData = { ...calendarData!, events: updatedEvents };
           await persistCalendar(updatedCalendarData);
-          setCalendarData(updatedCalendarData);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/calendar'] });
           setSelectedEvent(null);
           setSuccess("Calendar event deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
@@ -197,7 +186,7 @@ export default function CalendarManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && (
+      {(error || queryError) && (
         <div style={{
           background: "oklch(0.25 0.12 22 / 0.4)",
           border: "1px solid var(--grim-blood-2)",
@@ -207,7 +196,7 @@ export default function CalendarManagementPage() {
           fontFamily: "var(--font-body)",
           fontSize: 14,
         }}>
-          {error}
+          {error || queryError?.message}
         </div>
       )}
 

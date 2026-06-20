@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
@@ -47,15 +48,23 @@ const BLANK_EVENT: Omit<TimelineEvent, "id"> = {
 };
 
 export default function TimelinePage() {
-  const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
   const canEdit = isAdmin || isDM;
+
+  const { data: events = [], isPending: loading, error: queryError } = useQuery<TimelineEvent[]>({
+    queryKey: ['/api/data/timeline'],
+    queryFn: async () => {
+      const res = await authFetch("/api/data/timeline");
+      if (!res.ok) throw new Error("Failed to load timeline");
+      return res.json();
+    },
+  });
 
   const [isCreating, setIsCreating] = useState(false);
   const [newEvent, setNewEvent] = useState<Omit<TimelineEvent, "id">>({ ...BLANK_EVENT });
@@ -66,21 +75,6 @@ export default function TimelinePage() {
   const [editError, setEditError] = useState("");
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await authFetch("/api/data/timeline");
-        if (!res.ok) throw new Error("Failed to load timeline");
-        setEvents(await res.json());
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
 
   const allCategories = Array.from(
     new Set(events.map(e => e.category).filter(Boolean) as string[])
@@ -109,8 +103,8 @@ export default function TimelinePage() {
         body: JSON.stringify({ ...newEvent, category: newEvent.category || null, gm_notes: newEvent.gm_notes || null }),
       });
       if (!res.ok) throw new Error("Failed to create event");
-      const result = await res.json();
-      setEvents(prev => [...prev, result.data]);
+      await res.json();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
       setIsCreating(false);
       setNewEvent({ ...BLANK_EVENT });
     } catch (e) {
@@ -136,7 +130,7 @@ export default function TimelinePage() {
         body: JSON.stringify({ ...editingEvent, category: editingEvent.category || null, gm_notes: editingEvent.gm_notes || null }),
       });
       if (!res.ok) throw new Error("Failed to save event");
-      setEvents(prev => prev.map(e => e.id === editingEvent.id ? editingEvent : e));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
       setEditingId(null);
       setEditingEvent(null);
     } catch (e) {
@@ -149,7 +143,7 @@ export default function TimelinePage() {
     try {
       const res = await authFetch(`/api/data/timeline?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete event");
-      setEvents(prev => prev.filter(e => e.id !== id));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
     } catch (e) {
       setError(toErrorMessage(e));
     } finally {
@@ -181,7 +175,7 @@ export default function TimelinePage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%", maxWidth: 900, margin: "0 auto" }}>
-      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
+      {(error || queryError) && <ErrorBlock error={error ?? queryError?.message ?? ''} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

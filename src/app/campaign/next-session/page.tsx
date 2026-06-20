@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useIsAdmin } from "@/utils/adminCheck";
 import Link from "next/link";
 import {
@@ -51,11 +52,19 @@ const QUICK_LINKS = [
 ];
 
 export default function NextSessionPage() {
-  const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<Countdown>({ h: 0, m: 0, s: 0 });
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
+
+  const { data: sessionData = null, isPending: loading } = useQuery<NextSessionData | null>({
+    queryKey: ['/api/data/next-session'],
+    queryFn: async () => {
+      const r = await authFetch("/api/data/next-session");
+      if (!r.ok) throw new Error("Failed to load session data");
+      return r.json();
+    },
+  });
 
   const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingSessionDate = useMemo(
@@ -64,14 +73,6 @@ export default function NextSessionPage() {
     [sessionData]
   );
   const daysUntil = useMemo(() => calculateDaysUntil(upcomingSessionDate, new Date()), [upcomingSessionDate]);
-
-  useEffect(() => {
-    authFetch("/api/data/next-session")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setSessionData(d); })
-      .catch((e: unknown) => setError(toErrorMessage(e)))
-      .finally(() => setLoading(false));
-  }, []);
 
   // Live countdown ticker
   useEffect(() => {
@@ -117,7 +118,7 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, agenda, notes, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) setSessionData(updated);
+      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -128,7 +129,7 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, isSkipped: true, skipReason: reason, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) setSessionData(updated);
+      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -137,7 +138,7 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, isSkipped: false, skipReason: "", lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) setSessionData(updated);
+      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -148,7 +149,7 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, date: current.toISOString().split("T")[0], isSkipped: false, skipReason: "", lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) setSessionData(updated);
+      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 

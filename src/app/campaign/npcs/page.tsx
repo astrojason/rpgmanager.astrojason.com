@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -23,10 +24,6 @@ function statusChipClass(status?: string): string {
 export default function NPCsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [npcData, setNpcData] = useState<NPC[]>([]);
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [pcData, setPcData] = useState<PC[]>([]);
-  const [loading, setLoading] = useState(true);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -34,31 +31,22 @@ export default function NPCsPage() {
   const router = useRouter();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [npcsResponse, factionsResponse, pcsResponse] = await Promise.all([
-          authFetch("/api/data/npcs"),
-          authFetch("/api/data/factions"),
-          authFetch("/api/data/pcs"),
-        ]);
-        const npcs = await npcsResponse.json();
-        const factions = await factionsResponse.json();
-        const pcs = pcsResponse.ok ? await pcsResponse.json() : [];
-        setNpcData(npcs);
-        setFactionData(factions);
-        setPcData(Array.isArray(pcs) ? pcs : []);
-      } catch {
-        /* noop */
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const { data: npcData = [], isPending: loading } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
+  });
+  const { data: factionData = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
+  });
+  const { data: pcData = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.ok ? r.json() : []),
+  });
 
   const visibleNPCs = npcData.filter((npc: NPC) => !npc.hidden || isDM || isAdmin);
 
@@ -126,9 +114,7 @@ export default function NPCsPage() {
         body: JSON.stringify(data),
       });
       if (response.ok) {
-        const npcsResponse = await authFetch("/api/data/npcs");
-        const npcs = await npcsResponse.json();
-        setNpcData(npcs);
+        await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
         setShowAddForm(false);
         setEditingNPC({});
       }

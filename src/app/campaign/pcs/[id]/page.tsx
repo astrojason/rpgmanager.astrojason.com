@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsDM } from "@/utils/role";
@@ -27,11 +28,6 @@ export default function PCDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [pc, setPc] = useState<PC | null>(null);
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [deities, setDeities] = useState<Deity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
   const [showGif, setShowGif] = useState(false);
   const [fadeGif, setFadeGif] = useState(false);
@@ -40,8 +36,26 @@ export default function PCDetailPage() {
   const isDM = useIsDM();
   const isAdmin = useIsAdmin();
   const userId = useEffectiveUserId();
+  const queryClient = useQueryClient();
 
   usePageTracking();
+
+  const { data: allPcs = [], isPending: loading } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
+  const { data: factionData = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: async () => { const r = await authFetch("/api/data/factions"); if (!r.ok) throw new Error("Failed to load factions"); return r.json(); },
+  });
+  const { data: allDeitiesData = [] } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: async () => { const r = await authFetch("/api/data/deities"); if (!r.ok) throw new Error("Failed to load deities"); return r.json(); },
+  });
+
+  const pc = useMemo(() => allPcs.find((p: PC) => String(p.id) === id) ?? null, [allPcs, id]);
+  const notFound = !loading && !pc;
+  const deities = useMemo(() => allDeitiesData.filter(d => (d.follower_pcs ?? []).includes(id)), [allDeitiesData, id]);
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!pc) return;
@@ -53,41 +67,11 @@ export default function PCDetailPage() {
         body: JSON.stringify({ id: pc.id, notes }),
       });
       if (!res.ok) throw new Error(await res.text());
-      setPc({ ...pc, notes });
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }
   };
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [pcsResponse, factionsResponse, deitiesResponse] = await Promise.all([
-          authFetch("/api/data/pcs"),
-          authFetch("/api/data/factions"),
-          authFetch("/api/data/deities"),
-        ]);
-        const pcs = await pcsResponse.json();
-        const factions = await factionsResponse.json();
-        const found = pcs.find((p: PC) => String(p.id) === id);
-        if (!found) {
-          setNotFound(true);
-        } else {
-          setPc(found);
-        }
-        setFactionData(factions);
-        if (deitiesResponse.ok) {
-          const allDeities: Deity[] = await deitiesResponse.json();
-          setDeities(allDeities.filter(d => (d.follower_pcs ?? []).includes(id)));
-        }
-      } catch {
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [id]);
 
   const selectedImage = safeImageSrc(pc?.image);
   const selectedGif = safeImageSrc(pc?.gif);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
@@ -27,8 +28,6 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function TimelineManagementPage() {
-  const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
@@ -38,23 +37,14 @@ export default function TimelineManagementPage() {
   const [formData, setFormData] = useState<Partial<TimelineEvent>>({});
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  useEffect(() => {
-    loadEvents();
-  }, []);
-
-  const loadEvents = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/timeline');
-      if (!response.ok) throw new Error('Failed to load Timeline');
-      const data = await response.json();
-      setEvents(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Timeline');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const queryClient = useQueryClient();
+  const { data: events = [], isPending: loading, error: queryError } = useQuery<TimelineEvent[]>({
+    queryKey: ['/api/data/timeline'],
+    queryFn: () => authFetch('/api/data/timeline').then(r => {
+      if (!r.ok) throw new Error('Failed to load Timeline');
+      return r.json().then(d => Array.isArray(d) ? d : []);
+    }),
+  });
 
   const filteredEvents = events.filter(event =>
     event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -143,20 +133,24 @@ export default function TimelineManagementPage() {
 
       const eventData = formData as TimelineEvent;
 
-      let updatedEvents;
-      if (isCreating) {
-        updatedEvents = [...events, eventData];
-        setSuccess("Event created successfully!");
-      } else {
-        updatedEvents = events.map(event => event.id === eventData.id ? eventData : event);
-        setSuccess("Event updated successfully!");
+      const method = isCreating ? 'POST' : 'PUT';
+      const response = await authFetch('/api/data/timeline', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to save event');
       }
+      const { data: saved } = await response.json();
 
-      setEvents(updatedEvents);
       setIsCreating(false);
       setIsEditing(false);
-      setSelectedEvent(eventData);
-
+      setFormData({});
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
+      setSelectedEvent(saved);
+      setSuccess(isCreating ? "Event created successfully!" : "Event updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Event");
@@ -169,9 +163,13 @@ export default function TimelineManagementPage() {
       onConfirm: async () => {
         setConfirmState(null);
         try {
-          const updatedEvents = events.filter(e => e.id !== event.id);
-          setEvents(updatedEvents);
+          const response = await authFetch(`/api/data/timeline?id=${event.id}`, { method: 'DELETE' });
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to delete event');
+          }
           setSelectedEvent(null);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
           setSuccess("Event deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
         } catch (err) {
@@ -213,7 +211,7 @@ export default function TimelineManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && (
+      {(error || queryError) && (
         <div style={{
           background: "oklch(0.25 0.12 22 / 0.4)",
           border: "1px solid var(--grim-blood-2)",
@@ -223,7 +221,7 @@ export default function TimelineManagementPage() {
           fontFamily: "var(--font-body)",
           fontSize: 14,
         }}>
-          {error}
+          {error || queryError?.message}
         </div>
       )}
 

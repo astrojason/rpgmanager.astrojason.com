@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SessionRecap } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
@@ -13,8 +14,6 @@ import ConfirmModal from "@/components/ConfirmModal";
 interface EntityItem { id: string; name: string; }
 
 export default function RecapsManagementPage() {
-  const [recaps, setRecaps] = useState<SessionRecap[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedRecap, setSelectedRecap] = useState<SessionRecap | null>(null);
@@ -24,39 +23,42 @@ export default function RecapsManagementPage() {
   const [formData, setFormData] = useState<Partial<SessionRecap>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
-  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
 
-  useEffect(() => {
-    loadRecaps();
-    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
-      setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load NPCs'));
-    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
-      const flat: EntityItem[] = [];
-      for (const loc of data) {
-        flat.push({ id: String(loc.id), name: loc.name });
-        for (const sub of loc.locations ?? []) {
-          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
-        }
+  const queryClient = useQueryClient();
+
+  const { data: recaps = [], isPending: loading, error: queryError } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: () => authFetch('/api/data/session-recaps').then(r => {
+      if (!r.ok) throw new Error('Failed to load session recaps');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
+
+  const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; display_name?: string }[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
+  });
+
+  const { data: rawLocations = [] } = useQuery<{ id: string; name: string; locations?: { id: string; name: string }[] }[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => r.json()),
+  });
+
+  const availableNPCs = useMemo<EntityItem[]>(() =>
+    rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })),
+    [rawNpcs]
+  );
+
+  const availableLocations = useMemo<EntityItem[]>(() => {
+    const flat: EntityItem[] = [];
+    for (const loc of rawLocations) {
+      flat.push({ id: String(loc.id), name: loc.name });
+      for (const sub of loc.locations ?? []) {
+        flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
       }
-      setAvailableLocations(flat);
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load locations'));
-  }, []);
-
-  const loadRecaps = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/session-recaps');
-      if (!response.ok) throw new Error('Failed to load session recaps');
-      const data = await response.json();
-      setRecaps(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load session recaps');
-    } finally {
-      setLoading(false);
     }
-  };
+    return flat;
+  }, [rawLocations]);
 
   const filteredRecaps = recaps
     .filter(recap =>
@@ -151,13 +153,7 @@ export default function RecapsManagementPage() {
 
       if (!savedRecap) return;
 
-      const identifier = savedRecap.id ?? savedRecap.date;
-      const nextRecaps = [
-        ...recaps.filter((recap) => (recap.id ?? recap.date) !== identifier),
-        savedRecap,
-      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-      setRecaps(nextRecaps);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
       setIsCreating(false);
       setIsEditing(false);
       setSelectedRecap(savedRecap);
@@ -190,8 +186,7 @@ export default function RecapsManagementPage() {
           });
           if (!response.ok) throw new Error("Failed to delete session recap");
 
-          const updatedRecaps = recaps.filter((r) => (r.id ?? r.date) !== targetId);
-          setRecaps(updatedRecaps);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
           setSelectedRecap((current) => ((current && (current.id ?? current.date) === targetId) ? null : current));
           setSuccess("Session recap deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
@@ -240,7 +235,7 @@ export default function RecapsManagementPage() {
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Inscribe Recap</button>
       </header>
 
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}

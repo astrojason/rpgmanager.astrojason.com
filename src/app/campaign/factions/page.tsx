@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import Image from "next/image";
@@ -8,6 +8,7 @@ import { Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { useQuery } from "@tanstack/react-query";
 
 const FACTION_CRESTS: Record<string, string> = {
   "Ship Crew": "☾",
@@ -33,8 +34,6 @@ function statusChipClass(status?: string): string {
 }
 
 export default function FactionsPage() {
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -42,20 +41,13 @@ export default function FactionsPage() {
   const router = useRouter();
   usePageTracking();
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const res = await authFetch("/api/data/factions");
-        if (!res.ok) throw new Error(`Failed to load factions (${res.status})`);
-        setFactionData(await res.json());
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const { data: factionData = [], isPending: loading, error: queryError } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => {
+      if (!r.ok) throw new Error(`Failed to load factions (${r.status})`);
+      return r.json();
+    }),
+  });
 
   const filtered = factionData.filter((faction) => {
     const term = searchTerm.trim().toLowerCase();
@@ -85,7 +77,7 @@ export default function FactionsPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
       {/* Page header */}
       <div style={{ marginBottom: 22 }}>

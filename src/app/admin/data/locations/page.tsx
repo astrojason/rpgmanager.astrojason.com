@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Image from "next/image";
 import { Location } from "@/types/interfaces";
@@ -10,8 +11,6 @@ import ErrorBlock from "@/components/ErrorBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LocationsManagementPage() {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
@@ -22,23 +21,13 @@ export default function LocationsManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  useEffect(() => {
-    loadLocations();
-  }, []);
-
-  const loadLocations = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/locations');
-      if (!response.ok) throw new Error('Failed to load Locations');
-      const data = await response.json();
-      setLocations(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Locations');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: locations = [], isPending: loading, error: queryError } = useQuery<Location[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => {
+      if (!r.ok) throw new Error('Failed to load Locations');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
 
   const filteredLocations = locations.filter(location =>
     location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,24 +114,8 @@ export default function LocationsManagementPage() {
         return;
       }
       setIsSaving(true);
-
-      const locationData = formData as Location;
-
-      let updatedLocations;
-      if (isCreating) {
-        updatedLocations = [...locations, locationData];
-        setSuccess("Location created successfully!");
-      } else {
-        updatedLocations = locations.map(location => location.id === locationData.id ? locationData : location);
-        setSuccess("Location updated successfully!");
-      }
-
-      setLocations(updatedLocations);
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedLocation(locationData);
-
-      setTimeout(() => setSuccess(""), 3000);
+      // TODO: Save to backend/API
+      setError("Location save not yet implemented");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Location");
     } finally {
@@ -155,15 +128,8 @@ export default function LocationsManagementPage() {
       message: `Are you sure you want to delete ${location.name}?`,
       onConfirm: async () => {
         setConfirmState(null);
-        try {
-          const updatedLocations = locations.filter(l => l.id !== location.id);
-          setLocations(updatedLocations);
-          setSelectedLocation(null);
-          setSuccess("Location deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete Location");
-        }
+        // TODO: Save to backend/API
+        setError("Location delete not yet implemented");
       },
     });
   };
@@ -210,7 +176,7 @@ export default function LocationsManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{

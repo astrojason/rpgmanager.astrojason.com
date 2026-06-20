@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -18,18 +19,45 @@ export default function LocationDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [location, setLocation] = useState<Location | null>(null);
-  const [appearances, setAppearances] = useState<SessionRecap[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [dmMode, setDmMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
   const userId = useEffectiveUserId();
+  const queryClient = useQueryClient();
 
   usePageTracking();
+
+  const { data: allLocations = [], isPending: loading } = useQuery<Location[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: async () => { const r = await authFetch("/api/data/locations"); if (!r.ok) throw new Error("Failed to load locations"); return r.json(); },
+  });
+  const { data: allRecaps = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+
+  const location = useMemo(() => {
+    let found = allLocations.find(loc => String(loc.id) === id);
+    if (!found) {
+      for (const parent of allLocations) {
+        if (parent.locations) {
+          found = parent.locations.find(sub => String(sub.id) === id);
+          if (found) break;
+        }
+      }
+    }
+    return found ?? null;
+  }, [allLocations, id]);
+
+  const notFound = !loading && !location;
+  const appearances = useMemo(() =>
+    allRecaps.filter(r => (r.tagged_locations ?? []).includes(id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [allRecaps, id]
+  );
+
+  useEffect(() => { setDmMode(isDM || isAdmin); }, [isDM, isAdmin]);
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!location) return;
@@ -41,58 +69,11 @@ export default function LocationDetailPage() {
         body: JSON.stringify({ id: location.id, notes }),
       });
       if (!res.ok) throw new Error(await res.text());
-      setLocation({ ...location, notes });
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/locations'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }
   };
-
-  useEffect(() => {
-    const loadLocation = async () => {
-      try {
-        const [locResponse, recapsResponse] = await Promise.all([
-          authFetch("/api/data/locations"),
-          authFetch("/api/data/session-recaps"),
-        ]);
-        if (!locResponse.ok) throw new Error("Failed to load locations");
-        const data: Location[] = await locResponse.json();
-        const recaps: SessionRecap[] = recapsResponse.ok ? await recapsResponse.json() : [];
-
-        let found: Location | undefined;
-
-        found = data.find((loc) => String(loc.id) === id);
-
-        if (!found) {
-          for (const parent of data) {
-            if (parent.locations) {
-              found = parent.locations.find((sub) => String(sub.id) === id);
-              if (found) break;
-            }
-          }
-        }
-
-        if (!found) {
-          setNotFound(true);
-        } else {
-          setLocation(found);
-        }
-
-        const tagged = recaps
-          .filter(r => (r.tagged_locations ?? []).includes(id))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setAppearances(tagged);
-      } catch {
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadLocation();
-  }, [id]);
-
-  useEffect(() => {
-    setDmMode(isDM || isAdmin);
-  }, [isDM, isAdmin]);
 
   const parseMarkdown = useMemo(
     () => (markdown: string) => renderMarkdownWithLinks(markdown, isAdmin),

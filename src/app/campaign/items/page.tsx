@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -30,8 +31,6 @@ function categoryChipStyle(category: string): React.CSSProperties {
 }
 
 export default function ItemsPage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -40,22 +39,14 @@ export default function ItemsPage() {
   const router = useRouter();
   const isAdmin = useIsAdmin();
   const userId = useEffectiveUserId();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  const loadItems = async () => {
-    try {
-      const res = await authFetch("/api/data/items");
-      if (res.ok) {
-        const data: Item[] = await res.json();
-        setItems(data);
-      }
-    } catch { /* noop */ } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadItems(); }, []);
+  const { data: items = [], isPending: loading } = useQuery<Item[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: () => authFetch('/api/data/items').then(r => r.ok ? r.json() : []),
+  });
 
   const visibleItems = items.filter(it => isAdmin || !it.hidden);
 
@@ -80,7 +71,7 @@ export default function ItemsPage() {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        await loadItems();
+        await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
         setShowAddForm(false);
         setEditingItem({});
       }

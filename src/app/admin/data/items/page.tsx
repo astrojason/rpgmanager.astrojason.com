@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Item, NPC, PC } from "@/types/interfaces";
@@ -24,8 +25,6 @@ const CATEGORIES = ["Magic Item", "Artifact", "Stolen Journal", "Weapon", "Armor
 interface EntityItem { id: string; name: string; }
 
 export default function ItemsManagementPage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -36,46 +35,44 @@ export default function ItemsManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  const [availableNpcs, setAvailableNpcs] = useState<EntityItem[]>([]);
-  const [availablePcs, setAvailablePcs] = useState<EntityItem[]>([]);
-  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
+  const queryClient = useQueryClient();
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [itemsRes, npcsRes, pcsRes, locsRes] = await Promise.all([
-        authFetch("/api/data/items"),
-        authFetch("/api/data/npcs"),
-        authFetch("/api/data/pcs"),
-        authFetch("/api/data/locations"),
-      ]);
-      if (!itemsRes.ok) throw new Error("Failed to load items");
-      const itemsData: Item[] = await itemsRes.json();
-      setItems(itemsData);
+  const { data: items = [], isPending: loading, error: queryError } = useQuery<Item[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: () => authFetch('/api/data/items').then(r => {
+      if (!r.ok) throw new Error('Failed to load items');
+      return r.json();
+    }),
+  });
+  const { data: rawNpcs = [] } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
+  });
+  const { data: rawPCs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.json()),
+  });
+  const { data: rawLocations = [] } = useQuery<{ id: string; name: string; locations?: { id: string; name: string }[] }[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => r.json()),
+  });
 
-      const npcsData: NPC[] = npcsRes.ok ? await npcsRes.json() : [];
-      setAvailableNpcs(npcsData.map(n => ({ id: String(n.id), name: n.name || String(n.aka) || String(n.id) })));
-
-      const pcsData: PC[] = pcsRes.ok ? await pcsRes.json() : [];
-      setAvailablePcs(pcsData.map(p => ({ id: String(p.id), name: p.name })));
-
-      const rawLocs = locsRes.ok ? await locsRes.json() : [];
-      const flat: EntityItem[] = [];
-      for (const loc of rawLocs) {
-        flat.push({ id: String(loc.id), name: loc.name });
-        for (const sub of loc.locations ?? []) {
-          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
-        }
-      }
-      setAvailableLocations(flat);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load items");
-    } finally {
-      setLoading(false);
+  const availableNpcs = useMemo<EntityItem[]>(() =>
+    rawNpcs.map(n => ({ id: String(n.id), name: n.name || String(n.aka) || String(n.id) })),
+    [rawNpcs]
+  );
+  const availablePcs = useMemo<EntityItem[]>(() =>
+    rawPCs.map(p => ({ id: String(p.id), name: p.name })),
+    [rawPCs]
+  );
+  const availableLocations = useMemo<EntityItem[]>(() => {
+    const flat: EntityItem[] = [];
+    for (const loc of rawLocations) {
+      flat.push({ id: String(loc.id), name: loc.name });
+      for (const sub of loc.locations ?? []) flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
     }
-  };
-
-  useEffect(() => { loadData(); }, []);
+    return flat;
+  }, [rawLocations]);
 
   const filteredItems = items.filter(it => {
     const term = searchTerm.toLowerCase();
@@ -119,16 +116,11 @@ export default function ItemsManagementPage() {
         body: JSON.stringify(formData),
       });
       if (!res.ok) throw new Error("Failed to save item");
-      const re = await authFetch("/api/data/items");
-      const updated: Item[] = await re.json();
-      setItems(updated);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
       setSuccess(isCreating ? "Item created!" : "Item updated!");
       setIsCreating(false);
       setIsEditing(false);
-      if (formData.id) {
-        const fresh = updated.find(it => String(it.id) === String(formData.id));
-        setSelectedItem(fresh || null);
-      }
+      setSelectedItem(null);
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save item");
@@ -145,8 +137,7 @@ export default function ItemsManagementPage() {
         try {
           const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
           if (!res.ok) throw new Error("Failed to delete");
-          const re = await authFetch("/api/data/items");
-          setItems(await re.json());
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
           setSelectedItem(null);
           setSuccess("Item deleted.");
           setTimeout(() => setSuccess(""), 3000);
@@ -194,7 +185,7 @@ export default function ItemsManagementPage() {
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Catalogue New</button>
       </header>
 
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}

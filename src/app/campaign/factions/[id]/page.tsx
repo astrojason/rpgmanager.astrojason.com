@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useIsDM } from "@/utils/role";
@@ -43,18 +44,47 @@ export default function FactionDetailPage() {
   const router = useRouter();
   const isDM = useIsDM();
 
-  const [faction, setFaction] = useState<Faction | null>(null);
-  const [members, setMembers] = useState<NPC[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
-  const [recaps, setRecaps] = useState<{ id?: string; title: string; date: string; tagged_factions?: string[] }[]>([]);
-  const [quests, setQuests] = useState<{ id: string; name: string; status: string; tagged_factions?: string[] }[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFullImage, setShowFullImage] = useState(false);
 
   const isAdmin = useIsAdmin();
   const userId = useEffectiveUserId();
+  const queryClient = useQueryClient();
+
+  const { data: allFactions = [], isPending: loading } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: async () => { const r = await authFetch("/api/data/factions"); if (!r.ok) throw new Error("Failed to load factions"); return r.json(); },
+  });
+  const { data: allNpcs = [] } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/npcs"); if (!r.ok) throw new Error("Failed to load NPCs"); return r.json(); },
+  });
+  const { data: allPcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
+  const { data: allRecaps = [] } = useQuery<{ id?: string; title: string; date: string; tagged_factions?: string[] }[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+  const { data: allQuests = [] } = useQuery<{ id: string; name: string; status: string; tagged_factions?: string[] }[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => { const r = await authFetch("/api/data/quests"); if (!r.ok) throw new Error("Failed to load quests"); return r.json(); },
+  });
+
+  const faction = useMemo(() => allFactions.find(f => String(f.id) === id) ?? null, [allFactions, id]);
+  const notFound = !loading && !faction;
+  const members = useMemo(() => {
+    if (!faction) return [];
+    const m = allNpcs.filter(n => n.factions?.includes(faction.id));
+    m.sort((a, b) => ((a.name || a.aka || "") < (b.name || b.aka || "") ? -1 : 1));
+    return m;
+  }, [allNpcs, faction]);
+  const pcs = useMemo(() => faction ? allPcs.filter(p => p.factions?.includes(faction.id)) : [], [allPcs, faction]);
+  const recaps = useMemo(() => faction
+    ? allRecaps.filter(r => (r.tagged_factions ?? []).includes(faction.id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    : [], [allRecaps, faction]);
+  const quests = useMemo(() => faction ? allQuests.filter(q => (q.tagged_factions ?? []).includes(faction.id)) : [], [allQuests, faction]);
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!faction) return;
@@ -66,47 +96,11 @@ export default function FactionDetailPage() {
         body: JSON.stringify({ id: faction.id, notes }),
       });
       if (!res.ok) throw new Error(await res.text());
-      setFaction({ ...faction, notes });
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/factions'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }
   };
-
-  useEffect(() => {
-    const loadAll = async () => {
-      try {
-        const [factionsRes, npcsRes, pcsRes, recapsRes, questsRes] = await Promise.all([
-          authFetch("/api/data/factions"),
-          authFetch("/api/data/npcs"),
-          authFetch("/api/data/pcs"),
-          authFetch("/api/data/session-recaps"),
-          authFetch("/api/data/quests"),
-        ]);
-        const allFactions: Faction[] = factionsRes.ok ? await factionsRes.json() : [];
-        const found = allFactions.find(f => String(f.id) === id);
-        if (!found) { setNotFound(true); return; }
-        setFaction(found);
-
-        const allNpcs: NPC[] = npcsRes.ok ? await npcsRes.json() : [];
-        const allPcs: PC[] = pcsRes.ok ? await pcsRes.json() : [];
-        const npcMembers = allNpcs.filter(n => n.factions?.includes(found.id));
-        npcMembers.sort((a, b) => ((a.name || a.aka || "") < (b.name || b.aka || "") ? -1 : 1));
-        setMembers(npcMembers);
-        setPcs(allPcs.filter(p => p.factions?.includes(found.id)));
-
-        const allRecaps: { id?: string; title: string; date: string; tagged_factions?: string[] }[] = recapsRes.ok ? await recapsRes.json() : [];
-        setRecaps(allRecaps.filter(r => (r.tagged_factions ?? []).includes(found.id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-
-        const allQuests: { id: string; name: string; status: string; tagged_factions?: string[] }[] = questsRes.ok ? await questsRes.json() : [];
-        setQuests(allQuests.filter(q => (q.tagged_factions ?? []).includes(found.id)));
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadAll();
-  }, [id]);
 
   if (loading) {
     return (

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { NPC, Location, Faction, Item, Deity, CalendarWeekday, CalendarMonth, CalendarData } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 const FILTERS = [
   { id: "all",       label: "All Tongues" },
@@ -46,40 +46,31 @@ function PronSection({ glyph, title, items }: { glyph: string; title: string; it
 export default function PronunciationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [npcData, setNpcData] = useState<NPC[]>([]);
-  const [locationData, setLocationData] = useState<Location[]>([]);
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [itemData, setItemData] = useState<Item[]>([]);
-  const [deityData, setDeityData] = useState<Deity[]>([]);
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [npcsRes, locsRes, factRes, itemsRes, deitiesRes, calRes] = await Promise.all([
-          authFetch('/api/data/npcs'),
-          authFetch('/api/data/locations'),
-          authFetch('/api/data/factions'),
-          authFetch('/api/data/items'),
-          authFetch('/api/data/deities'),
-          authFetch('/api/data/calendar'),
-        ]);
-        if (npcsRes.ok) setNpcData(await npcsRes.json());
-        if (locsRes.ok) setLocationData(await locsRes.json());
-        if (factRes.ok) setFactionData(await factRes.json());
-        if (itemsRes.ok) setItemData(await itemsRes.json());
-        if (deitiesRes.ok) setDeityData(await deitiesRes.json());
-        if (calRes.ok) setCalendarData(await calRes.json());
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const { data: npcData = [], isPending: loading } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.ok ? r.json() : []),
+  });
+  const { data: locationData = [] } = useQuery<Location[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => r.ok ? r.json() : []),
+  });
+  const { data: factionData = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
+  });
+  const { data: itemData = [] } = useQuery<Item[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: () => authFetch('/api/data/items').then(r => r.ok ? r.json() : []),
+  });
+  const { data: deityData = [] } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: () => authFetch('/api/data/deities').then(r => r.ok ? r.json() : []),
+  });
+  const { data: calendarData = null } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: () => authFetch('/api/data/calendar').then(r => r.ok ? r.json() : null),
+  });
 
   if (loading) {
     return (
@@ -140,7 +131,6 @@ export default function PronunciationsPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
-      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

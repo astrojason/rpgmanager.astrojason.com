@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockAuthFetch = vi.fn();
 const mockUseIsAdmin = vi.fn(() => false);
@@ -68,6 +69,14 @@ function setupFetch(npcs: unknown[]) {
   });
 }
 
+const createTestClient = () => new QueryClient({
+  defaultOptions: { queries: { retry: false, staleTime: 0, gcTime: 0 } },
+});
+
+function renderWithClient(ui: React.ReactElement) {
+  return render(<QueryClientProvider client={createTestClient()}>{ui}</QueryClientProvider>);
+}
+
 describe('NPC list page DM visibility', () => {
   beforeEach(() => {
     mockAuthFetch.mockReset();
@@ -78,7 +87,7 @@ describe('NPC list page DM visibility', () => {
   it('player does not see hidden NPCs', async () => {
     setupFetch([npc({ id: '1', name: 'Visible', hidden: false }), npc({ id: '2', name: 'Secret NPC', hidden: true })]);
     const { default: NPCsPage } = await import('@/app/campaign/npcs/page');
-    render(<NPCsPage />);
+    renderWithClient(<NPCsPage />);
     await waitFor(() => expect(screen.getAllByText('Visible')[0]).toBeInTheDocument());
     expect(screen.queryByText('Secret NPC')).toBeNull();
   });
@@ -87,14 +96,14 @@ describe('NPC list page DM visibility', () => {
     mockUseIsDM.mockReturnValue(true);
     setupFetch([npc({ id: '2', name: 'Secret NPC', hidden: true })]);
     const { default: NPCsPage } = await import('@/app/campaign/npcs/page');
-    render(<NPCsPage />);
+    renderWithClient(<NPCsPage />);
     await waitFor(() => expect(screen.getAllByText('Secret NPC')[0]).toBeInTheDocument());
   });
 
   it('player sees display name for name-hidden NPCs', async () => {
     setupFetch([npc({ id: '3', nameHidden: true })]);
     const { default: NPCsPage } = await import('@/app/campaign/npcs/page');
-    render(<NPCsPage />);
+    renderWithClient(<NPCsPage />);
     await waitFor(() => expect(screen.getAllByText('The Stranger')[0]).toBeInTheDocument());
     expect(screen.queryByText('True Name')).toBeNull();
   });
@@ -103,7 +112,7 @@ describe('NPC list page DM visibility', () => {
     mockUseIsDM.mockReturnValue(true);
     setupFetch([npc({ id: '3', nameHidden: true })]);
     const { default: NPCsPage } = await import('@/app/campaign/npcs/page');
-    render(<NPCsPage />);
+    renderWithClient(<NPCsPage />);
     await waitFor(() => expect(screen.getAllByText('True Name')[0]).toBeInTheDocument());
     expect(screen.queryByText('The Stranger')).toBeNull();
   });
@@ -112,7 +121,7 @@ describe('NPC list page DM visibility', () => {
     mockUseIsAdmin.mockReturnValue(true);
     setupFetch([]);
     const { default: NPCsPage } = await import('@/app/campaign/npcs/page');
-    render(<NPCsPage />);
+    renderWithClient(<NPCsPage />);
     await waitFor(() => expect(screen.queryByText(/consulting/i)).toBeNull());
     fireEvent.click(screen.getByText('+ Inscribe New'));
     await waitFor(() => expect(screen.getByText('Roleplaying Notes')).toBeInTheDocument());

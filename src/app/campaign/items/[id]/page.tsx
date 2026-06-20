@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -33,9 +34,6 @@ export default function ItemDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [item, setItem] = useState<Item | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
@@ -43,67 +41,46 @@ export default function ItemDetailPage() {
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
   const [dmMode, setDmMode] = useState(false);
 
-  const [recaps, setRecaps] = useState<SessionRecap[]>([]);
-  const [npcs, setNpcs] = useState<NPC[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
-  const [locations, setLocations] = useState<EntityItem[]>([]);
-
   const userId = useEffectiveUserId();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  const loadAll = async () => {
-    try {
-      const [itemsRes, recapsRes, npcsRes, pcsRes, locsRes] = await Promise.all([
-        authFetch("/api/data/items"),
-        authFetch("/api/data/session-recaps"),
-        authFetch("/api/data/npcs"),
-        authFetch("/api/data/pcs"),
-        authFetch("/api/data/locations"),
-      ]);
-      const allItems: Item[] = itemsRes.ok ? await itemsRes.json() : [];
-      const found = allItems.find(it => String(it.id) === id);
-      if (!found) { setNotFound(true); return; }
-      setItem(found);
+  const { data: allItems = [], isPending: loading } = useQuery<Item[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: async () => { const r = await authFetch("/api/data/items"); if (!r.ok) throw new Error("Failed to load items"); return r.json(); },
+  });
+  const { data: recaps = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+  const { data: npcs = [] } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/npcs"); if (!r.ok) throw new Error("Failed to load NPCs"); return r.json(); },
+  });
+  const { data: pcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
+  const { data: rawLocs = [] } = useQuery<{ id: string; name: string; locations?: { id: string; name: string }[] }[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: async () => { const r = await authFetch("/api/data/locations"); if (!r.ok) throw new Error("Failed to load locations"); return r.json(); },
+  });
 
-      const allRecaps: SessionRecap[] = recapsRes.ok ? await recapsRes.json() : [];
-      setRecaps(allRecaps);
-
-      const allNpcs: NPC[] = npcsRes.ok ? await npcsRes.json() : [];
-      setNpcs(allNpcs);
-
-      const allPcs: PC[] = pcsRes.ok ? await pcsRes.json() : [];
-      setPcs(allPcs);
-
-      const rawLocs = locsRes.ok ? await locsRes.json() : [];
-      const flat: EntityItem[] = [];
-      for (const loc of rawLocs) {
-        flat.push({ id: String(loc.id), name: loc.name });
-        for (const sub of loc.locations ?? []) {
-          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
-        }
-      }
-      setLocations(flat);
-    } catch {
-      setNotFound(true);
-    } finally {
-      setLoading(false);
+  const item = useMemo(() => allItems.find(it => String(it.id) === id) ?? null, [allItems, id]);
+  const notFound = !loading && !item;
+  const locations = useMemo(() => {
+    const flat: EntityItem[] = [];
+    for (const loc of rawLocs) {
+      flat.push({ id: String(loc.id), name: loc.name });
+      for (const sub of loc.locations ?? []) flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
     }
-  };
+    return flat;
+  }, [rawLocs]);
 
-  useEffect(() => { loadAll(); }, [id]);
   useEffect(() => { setDmMode(isDM || isAdmin); }, [isDM, isAdmin]);
-
-  const refreshItem = async () => {
-    const res = await authFetch("/api/data/items");
-    if (res.ok) {
-      const all: Item[] = await res.json();
-      const updated = all.find(it => String(it.id) === id);
-      if (updated) setItem(updated);
-    }
-  };
 
   const handleSave = async (data: Partial<Item>) => {
     setIsSaving(true);
@@ -118,7 +95,7 @@ export default function ItemDetailPage() {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? `Server error ${res.status}`);
       }
-      await refreshItem();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
       setShowEditForm(false);
       setEditingItem({});
     } catch (e) {
@@ -162,7 +139,7 @@ export default function ItemDetailPage() {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? `Server error ${res.status}`);
       }
-      await refreshItem();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }

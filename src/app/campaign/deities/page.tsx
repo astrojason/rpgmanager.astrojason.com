@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
@@ -25,8 +26,6 @@ function alignmentChipClass(alignment?: string): string {
 }
 
 export default function DeitiesPage() {
-  const [deities, setDeities] = useState<Deity[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -34,22 +33,17 @@ export default function DeitiesPage() {
 
   const router = useRouter();
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
 
   usePageTracking();
 
-  const loadDeities = async () => {
-    try {
-      const res = await authFetch("/api/data/deities");
-      if (!res.ok) throw new Error(`Failed to load deities (${res.status})`);
-      setDeities(await res.json());
-    } catch (e) {
-      setError(toErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadDeities(); }, []);
+  const { data: deities = [], isPending: loading, error: queryError } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: () => authFetch('/api/data/deities').then(r => {
+      if (!r.ok) throw new Error(`Failed to load deities (${r.status})`);
+      return r.json();
+    }),
+  });
 
   const visible = deities.filter(d => isAdmin || !d.hidden);
 
@@ -72,7 +66,7 @@ export default function DeitiesPage() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(await res.text());
-      await loadDeities();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
       setShowAddForm(false);
       setEditingDeity({});
     } catch (e) {
@@ -182,7 +176,7 @@ export default function DeitiesPage() {
       {/* DEITY LIST */}
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
 
-        {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
+        {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
 
         {/* Page header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

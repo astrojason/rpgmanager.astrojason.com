@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -36,26 +37,14 @@ export default function RecapDetailPage() {
   const urlId = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [recap, setRecap] = useState<Recap | null>(null);
-  const [sessionNo, setSessionNo] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
   const [editingRecap, setEditingRecap] = useState<Partial<Recap>>({});
 
-  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
-  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
-  const [availableQuests, setAvailableQuests] = useState<EntityItem[]>([]);
-  const [availableItems, setAvailableItems] = useState<(EntityItem & { hidden?: boolean })[]>([]);
-  const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
-  const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
-  const [allNPCData, setAllNPCData] = useState<{ id: string; name?: string; aka?: string; hidden?: boolean; nameHidden?: boolean }[]>([]);
-  const [allPCData, setAllPCData] = useState<{ id: string; name: string; nickname?: string }[]>([]);
-
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!auth) return;
@@ -63,63 +52,64 @@ export default function RecapDetailPage() {
     return () => unsub();
   }, []);
 
-  useEffect(() => {
-    const loadAll = async () => {
-      try {
-        const [recapsRes, npcsRes, locsRes, questsRes, itemsRes, factionsRes, deitiesRes, pcsRes] = await Promise.all([
-          authFetch("/api/data/session-recaps"),
-          authFetch("/api/data/npcs"),
-          authFetch("/api/data/locations"),
-          authFetch("/api/data/quests"),
-          authFetch("/api/data/items"),
-          authFetch("/api/data/factions"),
-          authFetch("/api/data/deities"),
-          authFetch("/api/data/pcs"),
-        ]);
+  const { data: allRecaps = [], isPending: loading } = useQuery<Recap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
+  const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; display_name?: string; aka?: string; hidden?: boolean; nameHidden?: boolean }[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/npcs"); if (!r.ok) throw new Error("Failed to load NPCs"); return r.json(); },
+  });
+  const { data: rawLocs = [] } = useQuery<{ id: string; name: string; locations?: { id: string; name: string }[] }[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: async () => { const r = await authFetch("/api/data/locations"); if (!r.ok) throw new Error("Failed to load locations"); return r.json(); },
+  });
+  const { data: rawQuests = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => { const r = await authFetch("/api/data/quests"); if (!r.ok) throw new Error("Failed to load quests"); return r.json(); },
+  });
+  const { data: rawItems = [] } = useQuery<{ id: string; name: string; hidden?: boolean }[]>({
+    queryKey: ['/api/data/items'],
+    queryFn: async () => { const r = await authFetch("/api/data/items"); if (!r.ok) throw new Error("Failed to load items"); return r.json(); },
+  });
+  const { data: rawFactions = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: async () => { const r = await authFetch("/api/data/factions"); if (!r.ok) throw new Error("Failed to load factions"); return r.json(); },
+  });
+  const { data: rawDeities = [] } = useQuery<{ id: string; name: string; hidden?: boolean }[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: async () => { const r = await authFetch("/api/data/deities"); if (!r.ok) throw new Error("Failed to load deities"); return r.json(); },
+  });
+  const { data: allPCData = [] } = useQuery<{ id: string; name: string; nickname?: string }[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: async () => { const r = await authFetch("/api/data/pcs"); if (!r.ok) throw new Error("Failed to load PCs"); return r.json(); },
+  });
 
-        const allRecaps: Recap[] = recapsRes.ok ? await recapsRes.json() : [];
-        const found = allRecaps.find(r => (r.id ?? r.date) === urlId || r.id === urlId || r.date === urlId);
-        if (!found) { setNotFound(true); return; }
-        setRecap(found);
-
-        const sorted = [...allRecaps].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const idx = sorted.findIndex(r => (r.id ?? r.date) === (found.id ?? found.date));
-        if (idx !== -1) setSessionNo(idx + 1);
-
-        const npcData: { id: string; name?: string; display_name?: string; hidden?: boolean; nameHidden?: boolean }[] = npcsRes.ok ? await npcsRes.json() : [];
-        setAllNPCData(npcData);
-        setAvailableNPCs(npcData.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
-
-        const locData: { id: string; name: string; locations?: { id: string; name: string }[] }[] = locsRes.ok ? await locsRes.json() : [];
-        const flat: EntityItem[] = [];
-        for (const loc of locData) {
-          flat.push({ id: String(loc.id), name: loc.name });
-          for (const sub of loc.locations ?? []) flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
-        }
-        setAvailableLocations(flat);
-
-        const questData: { id: string; name: string }[] = questsRes.ok ? await questsRes.json() : [];
-        setAvailableQuests(questData.map(q => ({ id: String(q.id), name: q.name })));
-
-        const itemData: { id: string; name: string; hidden?: boolean }[] = itemsRes.ok ? await itemsRes.json() : [];
-        setAvailableItems(itemData.map(it => ({ id: String(it.id), name: it.name, hidden: it.hidden })));
-
-        const factionData: { id: string; name: string }[] = factionsRes.ok ? await factionsRes.json() : [];
-        setAvailableFactions(factionData.map(f => ({ id: String(f.id), name: f.name })));
-
-        const deityData: { id: string; name: string; hidden?: boolean }[] = deitiesRes.ok ? await deitiesRes.json() : [];
-        setAvailableDeities(deityData.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })));
-
-        const pcData: { id: string; name: string; nickname?: string }[] = pcsRes.ok ? await pcsRes.json() : [];
-        setAllPCData(pcData);
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadAll();
-  }, [urlId]);
+  const recap = useMemo(() =>
+    allRecaps.find(r => (r.id ?? r.date) === urlId || r.id === urlId || r.date === urlId) ?? null,
+    [allRecaps, urlId]
+  );
+  const notFound = !loading && !recap;
+  const sessionNo = useMemo(() => {
+    if (!recap) return null;
+    const sorted = [...allRecaps].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const idx = sorted.findIndex(r => (r.id ?? r.date) === (recap.id ?? recap.date));
+    return idx !== -1 ? idx + 1 : null;
+  }, [allRecaps, recap]);
+  const allNPCData = rawNpcs;
+  const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })), [rawNpcs]);
+  const availableLocations = useMemo(() => {
+    const flat: EntityItem[] = [];
+    for (const loc of rawLocs) {
+      flat.push({ id: String(loc.id), name: loc.name });
+      for (const sub of loc.locations ?? []) flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
+    }
+    return flat;
+  }, [rawLocs]);
+  const availableQuests = useMemo(() => rawQuests.map(q => ({ id: String(q.id), name: q.name })), [rawQuests]);
+  const availableItems = useMemo(() => rawItems.map(it => ({ id: String(it.id), name: it.name, hidden: it.hidden })), [rawItems]);
+  const availableFactions = useMemo(() => rawFactions.map(f => ({ id: String(f.id), name: f.name })), [rawFactions]);
+  const availableDeities = useMemo(() => rawDeities.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })), [rawDeities]);
 
   const canEdit = (r: Recap) => {
     const uid = user?.uid;
@@ -137,10 +127,7 @@ export default function RecapDetailPage() {
         body: JSON.stringify(editingRecap),
       });
       if (!res.ok) throw new Error("Failed to save recap");
-      const refreshed = await authFetch("/api/data/session-recaps");
-      const all: Recap[] = refreshed.ok ? await refreshed.json() : [];
-      const updated = all.find(r => r.id === recap.id);
-      if (updated) setRecap(updated);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
       setEditing(false);
       setEditingRecap({});
     } catch (e) {
@@ -160,7 +147,7 @@ export default function RecapDetailPage() {
         body: JSON.stringify({ id: recap.id, notes: updatedNotes }),
       });
       if (!res.ok) throw new Error("Failed to update notes");
-      setRecap({ ...recap, notes: updatedNotes });
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
     } catch (e) {
       setError(toErrorMessage(e));
     }

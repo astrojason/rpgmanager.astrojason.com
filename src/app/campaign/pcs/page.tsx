@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
 import Image from "next/image";
@@ -16,32 +17,20 @@ function statusChipClass(status?: string): string {
 }
 
 export default function PCsPage() {
-  const [pcsData, setPcsData] = useState<PC[]>([]);
-  const [factionData, setFactionData] = useState<Faction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("active");
   const [searchTerm, setSearchTerm] = useState("");
 
   const router = useRouter();
   usePageTracking();
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [pcsResponse, factionsResponse] = await Promise.all([
-          authFetch("/api/data/pcs"),
-          authFetch("/api/data/factions"),
-        ]);
-        if (pcsResponse.ok) setPcsData(await pcsResponse.json());
-        if (factionsResponse.ok) setFactionData(await factionsResponse.json());
-      } catch {
-        /* noop */
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  const { data: pcsData = [], isPending: loading } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.ok ? r.json() : []),
+  });
+  const { data: factionData = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
+  });
 
   const getFactionName = (factionId: string) => {
     const faction = factionData.find((f) => f.id === factionId);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
 import ReactMarkdown from 'react-markdown';
@@ -35,10 +36,25 @@ const FILTERS = [
 
 export default function QuestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [questsData, setQuestsData] = useState<Quest[]>([]);
-  const [recapsData, setRecapsData] = useState<SessionRecap[]>([]);
-  const [loading, setLoading] = useState(true);
   const userId = useEffectiveUserId();
+  const queryClient = useQueryClient();
+  const { data: questsData = [], isPending: loading } = useQuery<Quest[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => {
+      const res = await authFetch('/api/data/quests');
+      if (!res.ok) throw new Error('Failed to load quests');
+      return res.json();
+    },
+  });
+  const { data: recapsData = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => {
+      const res = await authFetch('/api/data/session-recaps');
+      if (!res.ok) throw new Error('Failed to load recaps');
+      return res.json();
+    },
+  });
+
   const [activeFilter, setActiveFilter] = useState("active");
   const [activeQuest, setActiveQuest] = useState<string | null>(null);
   const questRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -56,25 +72,6 @@ export default function QuestsPage() {
   const [newQuestStatus, setNewQuestStatus] = useState("active");
   const [createError, setCreateError] = useState("");
   const [noteError, setNoteError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [questsRes, recapsRes] = await Promise.all([
-          authFetch('/api/data/quests'),
-          authFetch('/api/data/session-recaps'),
-        ]);
-        if (!questsRes.ok) throw new Error('Failed to load quests');
-        setQuestsData(await questsRes.json());
-        if (recapsRes.ok) setRecapsData(await recapsRes.json());
-      } catch (e) {
-        setCreateError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
 
   useEffect(() => {
     const questId = searchParams.get("quest");
@@ -130,9 +127,8 @@ export default function QuestsPage() {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Failed to create quest');
-      const result = await response.json();
-      const created: Quest = result.data ?? payload;
-      setQuestsData([created, ...questsData]);
+      await response.json();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setIsCreating(false);
       setNewQuestName("");
       setNewQuestStatus("active");
@@ -168,7 +164,7 @@ export default function QuestsPage() {
         body: JSON.stringify(updatedQuest),
       });
       if (!response.ok) throw new Error('Failed to save note');
-      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setNewNoteContent("");
       setEditingNote(null);
     } catch (e) {
@@ -199,7 +195,7 @@ export default function QuestsPage() {
         body: JSON.stringify(updatedQuest),
       });
       if (!response.ok) throw new Error('Failed to update note');
-      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setEditingNoteId(null);
       setEditingNoteContent("");
     } catch (e) {
@@ -219,7 +215,7 @@ export default function QuestsPage() {
         body: JSON.stringify(updatedQuest),
       });
       if (!response.ok) throw new Error('Failed to delete note');
-      setQuestsData(questsData.map(q => q.id === questId ? updatedQuest : q));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
     } catch (e) {
       setNoteError(toErrorMessage(e));
     }

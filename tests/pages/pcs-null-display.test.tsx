@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockAuthFetch = vi.fn();
 
@@ -54,7 +55,8 @@ describe('PCsPage null handling', () => {
 
   it('renders placeholder instead of string "null" values and missing images', async () => {
     const { default: PCsPage } = await import('@/app/campaign/pcs/page');
-    const { container } = render(<PCsPage />);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 0, gcTime: 0 } } });
+    const { container } = render(<QueryClientProvider client={client}><PCsPage /></QueryClientProvider>);
 
     await waitFor(() => expect(screen.getAllByText('Nullmage')[0]).toBeInTheDocument());
 

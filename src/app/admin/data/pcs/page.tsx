@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -27,10 +28,7 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function PCsManagementPage() {
-  const [pcs, setPcs] = useState<PC[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
-  const [factions, setFactions] = useState<Faction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedPc, setSelectedPc] = useState<PC | null>(null);
@@ -41,44 +39,28 @@ export default function PCsManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  // Load PCs data and users
+  const queryClient = useQueryClient();
+
+  const { data: pcs = [], isPending: loading, error: queryError } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => {
+      if (!r.ok) throw new Error('Failed to load PCs');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
+  const { data: factions = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+  });
+
+  // Firebase Functions can't go in useQuery — load users via effect
   useEffect(() => {
-    loadData();
+    const functions = getFunctions();
+    const listUsers = httpsCallable(functions, 'listUsers');
+    listUsers()
+      .then(result => setUsers(result.data as UserData[]))
+      .catch(userError => setError(userError instanceof Error ? userError.message : 'Failed to load users'));
   }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      // Load PCs
-      const pcsResponse = await authFetch('/api/data/pcs');
-      if (!pcsResponse.ok) throw new Error('Failed to load PCs');
-      const pcsData = await pcsResponse.json();
-      setPcs(Array.isArray(pcsData) ? pcsData : []);
-
-      // Load Users
-      try {
-        const functions = getFunctions();
-        const listUsers = httpsCallable(functions, 'listUsers');
-        const result = await listUsers();
-        setUsers(result.data as UserData[]);
-      } catch (userError) {
-        setError(userError instanceof Error ? userError.message : 'Failed to load users');
-      }
-      try {
-        const factionsResp = await authFetch('/api/data/factions');
-        if (factionsResp.ok) {
-          const factionsData = await factionsResp.json();
-          setFactions(Array.isArray(factionsData) ? factionsData : []);
-        }
-      } catch (factionError) {
-        setError(factionError instanceof Error ? factionError.message : 'Failed to load factions');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filteredPcs = pcs.filter(pc =>
     pc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -213,15 +195,7 @@ export default function PCsManagementPage() {
         throw new Error('Failed to save PC');
       }
 
-      // Update local state
-      let updatedPcs;
-      if (isCreating) {
-        updatedPcs = [...pcs, pcData];
-      } else {
-        updatedPcs = pcs.map(pc => pc.id === pcData.id ? pcData : pc);
-      }
-
-      setPcs(updatedPcs);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
       setIsCreating(false);
       setIsEditing(false);
       setSelectedPc(pcData);
@@ -249,8 +223,7 @@ export default function PCsManagementPage() {
             throw new Error('Failed to delete PC');
           }
 
-          const updatedPcs = pcs.filter(p => p.id !== pc.id);
-          setPcs(updatedPcs);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
           setSelectedPc(null);
           setSuccess("PC deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
@@ -299,7 +272,7 @@ export default function PCsManagementPage() {
       </header>
 
       {/* Status messages */}
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{

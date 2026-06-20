@@ -16,3 +16,4 @@
 ## Enhancements
 - [x] Fix slow SQL queries: batch junction queries to reduce network round trips, add indexes on junction FKs
 - [x] NPC list for linking NPCs should be filterable and alphabetized
+- [x] Migrate all data-fetching to TanStack Query (`@tanstack/react-query`) — 1-day stale/gc cache, `useQuery` replaces all `useEffect + setState` patterns, mutations use `invalidateQueries`

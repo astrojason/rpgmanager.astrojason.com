@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
@@ -28,13 +29,9 @@ function statusChipClass(status: string | undefined): string {
 }
 
 export default function NPCsManagementPage() {
-  const [npcs, setNpcs] = useState<NPC[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
-  const [factions, setFactions] = useState<Faction[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
@@ -50,35 +47,23 @@ export default function NPCsManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  // Load NPCs data
-  useEffect(() => {
-    loadNpcs();
-  }, []);
+  const queryClient = useQueryClient();
 
-  const loadNpcs = async () => {
-    setLoading(true);
-    try {
-      const [npcsRes, factionsRes, pcsRes] = await Promise.all([
-        authFetch('/api/data/npcs'),
-        authFetch('/api/data/factions'),
-        authFetch('/api/data/pcs'),
-      ]);
-      if (!npcsRes.ok) throw new Error('Failed to load NPCs');
-      if (!factionsRes.ok) throw new Error('Failed to load factions');
-      const [npcsData, factionsData, pcsData] = await Promise.all([
-        npcsRes.json(),
-        factionsRes.json(),
-        pcsRes.ok ? pcsRes.json() : Promise.resolve([]),
-      ]);
-      setNpcs(Array.isArray(npcsData) ? npcsData : []);
-      setFactions(Array.isArray(factionsData) ? factionsData : []);
-      setPcs(Array.isArray(pcsData) ? pcsData : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load NPCs');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: npcs = [], isPending: loading, error: queryError } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => {
+      if (!r.ok) throw new Error('Failed to load NPCs');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
+  const { data: factions = [] } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+  });
+  const { data: pcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.json()),
+  });
 
   const getFactionName = (factionId: string) => {
     const f = factions.find((x) => x.id === factionId);
@@ -242,7 +227,6 @@ export default function NPCsManagementPage() {
 
       const npcData = formData as NPC;
 
-      let updatedNpcs;
       if (isCreating) {
         // Create via API
         const response = await authFetch('/api/data/npcs', {
@@ -251,8 +235,6 @@ export default function NPCsManagementPage() {
           body: JSON.stringify(npcData),
         });
         if (!response.ok) throw new Error('Failed to create NPC');
-        const re = await authFetch('/api/data/npcs');
-        updatedNpcs = await re.json();
         setSuccess("NPC created successfully!");
       } else {
         const response = await authFetch('/api/data/npcs', {
@@ -261,12 +243,10 @@ export default function NPCsManagementPage() {
           body: JSON.stringify(npcData),
         });
         if (!response.ok) throw new Error('Failed to update NPC');
-        const re = await authFetch('/api/data/npcs');
-        updatedNpcs = await re.json();
         setSuccess("NPC updated successfully!");
       }
 
-      setNpcs(updatedNpcs);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
       setIsCreating(false);
       setIsEditing(false);
       setSelectedNpc(npcData);
@@ -287,9 +267,7 @@ export default function NPCsManagementPage() {
         try {
           const resp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
           if (!resp.ok) throw new Error('Failed to delete NPC');
-          const re = await authFetch('/api/data/npcs');
-          const updatedNpcs = await re.json();
-          setNpcs(updatedNpcs);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
           setSelectedNpc(null);
           setSuccess("NPC deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
@@ -426,12 +404,8 @@ export default function NPCsManagementPage() {
       // Delete source
       const delResp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(mergeCandidate.id)}`, { method: 'DELETE' });
       if (!delResp.ok) throw new Error('Failed to delete merged-from NPC');
-      // Reload
-      const re = await authFetch('/api/data/npcs');
-      const updated = await re.json();
-      setNpcs(updated);
-      const fresh = updated.find((n: NPC) => n.id === merged.id) || merged;
-      setSelectedNpc(fresh);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
+      setSelectedNpc(merged);
       setIsMerging(false);
       setMergeWithId("");
       setSuccess('Merged successfully');
@@ -501,7 +475,7 @@ export default function NPCsManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}

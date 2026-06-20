@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 import { authFetch } from "@/utils/authFetch";
@@ -16,7 +17,7 @@ import {
   parseSessionDate,
 } from "@/utils/nextSession";
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ErrorBlock from "@/components/ErrorBlock";
 
 interface NextSessionData {
   date: string;
@@ -123,11 +124,39 @@ function statusLabel(status?: string) {
 
 export default function CampaignHome() {
   const router = useRouter();
-  const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
-  const [recentNPCs, setRecentNPCs] = useState<NPC[]>([]);
-  const [activeQuests, setActiveQuests] = useState<Quest[]>([]);
-  const [latestRecap, setLatestRecap] = useState<SessionRecap | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const { data: sessionData = null, error: sessionError } = useQuery<NextSessionData | null>({
+    queryKey: ['/api/data/next-session'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/next-session');
+      if (!r.ok) throw new Error(`Failed to load session (${r.status})`);
+      return r.json();
+    },
+  });
+  const { data: allNpcs = [], error: npcsError } = useQuery<NPC[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/npcs');
+      if (!r.ok) throw new Error(`Failed to load NPCs (${r.status})`);
+      return r.json();
+    },
+  });
+  const { data: allRecaps = [], error: recapsError } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/session-recaps');
+      if (!r.ok) throw new Error(`Failed to load recaps (${r.status})`);
+      return r.json();
+    },
+  });
+  const { data: allQuests = [], error: questsError } = useQuery<Quest[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/quests');
+      if (!r.ok) throw new Error(`Failed to load quests (${r.status})`);
+      return r.json();
+    },
+  });
 
   useEffect(() => {
     if (!auth) return;
@@ -137,33 +166,23 @@ export default function CampaignHome() {
     return () => unsubscribe();
   }, [router]);
 
-  useEffect(() => {
-    authFetch('/api/data/next-session')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setSessionData(d); })
-      .catch((e: unknown) => setError(toErrorMessage(e)));
+  const latestRecap = useMemo(() => {
+    const sorted = [...allRecaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return sorted.length > 0 ? sorted[0] : null;
+  }, [allRecaps]);
 
-    Promise.all([
-      authFetch('/api/data/npcs').then(r => r.json()),
-      authFetch('/api/data/session-recaps').then(r => r.json()),
-    ]).then(([npcs, recaps]: [NPC[], SessionRecap[]]) => {
-      const sorted = [...recaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      if (sorted.length > 0) setLatestRecap(sorted[0]);
+  const recentNPCs = useMemo(() => {
+    const sorted = [...allRecaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const tagged = getRecentlyTaggedNpcs(sorted, allNpcs);
+    return tagged.length > 0 ? tagged : allNpcs.filter((n: NPC) => !n.hidden).slice(0, 6);
+  }, [allRecaps, allNpcs]);
 
-      const tagged = getRecentlyTaggedNpcs(sorted, npcs);
-      const visible = tagged.length > 0
-        ? tagged
-        : npcs.filter((n: NPC) => !n.hidden).slice(0, 6);
-      setRecentNPCs(visible);
-    }).catch((e: unknown) => setError(toErrorMessage(e)));
+  const activeQuests = useMemo(() =>
+    allQuests.filter((q: Quest) => q.status === 'active').slice(0, 4),
+    [allQuests]
+  );
 
-    authFetch('/api/data/quests')
-      .then(r => r.json())
-      .then((quests: Quest[]) => {
-        setActiveQuests(quests.filter((q: Quest) => q.status === 'active').slice(0, 4));
-      })
-      .catch((e: unknown) => setError(toErrorMessage(e)));
-  }, []);
+  const queryError = sessionError || npcsError || recapsError || questsError;
 
   const storedDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingDate = useMemo(() => determineUpcomingSessionDate(sessionData, new Date()), [sessionData]);
@@ -180,7 +199,7 @@ export default function CampaignHome() {
 
   return (
     <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
-      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
+      {queryError && <ErrorBlock error={queryError.message} />}
 
       {/* Masthead */}
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>

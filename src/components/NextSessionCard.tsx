@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useIsAdmin } from "@/utils/adminCheck";
 import {
   daysUntil as calculateDaysUntil,
@@ -23,81 +24,40 @@ interface NextSessionData {
 }
 
 export default function NextSessionCard() {
-  const [sessionData, setSessionData] = useState<NextSessionData | null>(null);
-  const [loading, setLoading] = useState(true);
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
 
-  // Load session data on mount
-  useEffect(() => {
-    const loadSessionData = async () => {
-      try {
-        const response = await authFetch('/api/data/next-session');
-        if (response.ok) {
-          const data = await response.json();
-          setSessionData(data);
-        }
-      } catch (error) {
-        console.error('Error loading session data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: sessionData = null, isPending: loading } = useQuery<NextSessionData | null>({
+    queryKey: ['/api/data/next-session'],
+    queryFn: async () => {
+      const response = await authFetch('/api/data/next-session');
+      if (!response.ok) throw new Error('Failed to load session data');
+      return response.json();
+    },
+  });
 
-    loadSessionData();
-  }, []);
-
-  // Handle skip/resume session
   const handleSkipSession = async () => {
     if (!sessionData) return;
-    
     const reason = prompt('Reason for skipping this session (optional):');
-    if (reason === null) return; // User cancelled
-
-    try {
-      const updatedData = {
-        ...sessionData,
-        isSkipped: true,
-        skipReason: reason,
-        lastUpdated: new Date().toISOString().split('T')[0]
-      };
-
-      const response = await authFetch('/api/data/next-session', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (response.ok) {
-        setSessionData(updatedData);
-      }
-    } catch (error) {
-      console.error('Error skipping session:', error);
-    }
+    if (reason === null) return;
+    const updatedData = { ...sessionData, isSkipped: true, skipReason: reason, lastUpdated: new Date().toISOString().split('T')[0] };
+    const response = await authFetch('/api/data/next-session', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData),
+    });
+    if (response.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
   };
 
   const handleResumeSession = async () => {
     if (!sessionData) return;
-
-    try {
-      const updatedData = {
-        ...sessionData,
-        isSkipped: false,
-        skipReason: '',
-        lastUpdated: new Date().toISOString().split('T')[0]
-      };
-
-      const response = await authFetch('/api/data/next-session', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (response.ok) {
-        setSessionData(updatedData);
-      }
-    } catch (error) {
-      console.error('Error resuming session:', error);
-    }
+    const updatedData = { ...sessionData, isSkipped: false, skipReason: '', lastUpdated: new Date().toISOString().split('T')[0] };
+    const response = await authFetch('/api/data/next-session', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData),
+    });
+    if (response.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
   };
 
   const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);

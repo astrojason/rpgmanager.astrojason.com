@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Deity, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -32,11 +33,7 @@ const ALIGNMENTS = [
 interface EntityItem { id: string; name: string; }
 
 export default function DeitiesManagementPage() {
-  const [deities, setDeities] = useState<Deity[]>([]);
-  const [npcs, setNpcs] = useState<EntityItem[]>([]);
-  const [pcs, setPcs] = useState<EntityItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState("");
   const [selected, setSelected] = useState<Deity | null>(null);
@@ -47,38 +44,38 @@ export default function DeitiesManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     if (!auth) return;
     const unsub = onAuthStateChanged(auth, u => setUser(u));
     return () => unsub();
   }, []);
 
-  useEffect(() => { load(); }, []);
+  const { data: deities = [], isPending: loading, error: queryError } = useQuery<Deity[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: () => authFetch('/api/data/deities').then(r => {
+      if (!r.ok) throw new Error(`Failed to load deities (${r.status})`);
+      return r.json();
+    }),
+  });
+  const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; aka?: string; hidden?: boolean }[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
+  });
+  const { data: rawPCs = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.json()),
+  });
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const [dRes, nRes, pRes] = await Promise.all([
-        authFetch("/api/data/deities"),
-        authFetch("/api/data/npcs"),
-        authFetch("/api/data/pcs"),
-      ]);
-      if (!dRes.ok) throw new Error(`Failed to load deities (${dRes.status})`);
-      setDeities(await dRes.json());
-      if (nRes.ok) {
-        const raw = await nRes.json();
-        setNpcs(raw.filter((n: { hidden?: boolean }) => !n.hidden).map((n: { id: string; name?: string; aka?: string }) => ({ id: String(n.id), name: n.name || n.aka || String(n.id) })));
-      }
-      if (pRes.ok) {
-        const raw = await pRes.json();
-        setPcs(raw.map((p: { id: string; name: string }) => ({ id: String(p.id), name: p.name })));
-      }
-    } catch (e) {
-      setError(toErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const npcs = useMemo<EntityItem[]>(() =>
+    rawNpcs.filter(n => !n.hidden).map(n => ({ id: String(n.id), name: n.name || n.aka || String(n.id) })),
+    [rawNpcs]
+  );
+  const pcs = useMemo<EntityItem[]>(() =>
+    rawPCs.map(p => ({ id: String(p.id), name: p.name })),
+    [rawPCs]
+  );
 
   const filtered = deities.filter(d =>
     d.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -112,8 +109,8 @@ export default function DeitiesManagementPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       const result = await res.json();
-      await load();
-      setSelected(creating ? result.data : deities.find(d => d.id === form.id) ?? result.data);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
+      setSelected(result.data);
       setEditing(false);
       setCreating(false);
       setSuccess(creating ? "Deity created." : "Deity updated.");
@@ -133,7 +130,7 @@ export default function DeitiesManagementPage() {
         try {
           const res = await authFetch(`/api/data/deities?id=${d.id}`, { method: "DELETE" });
           if (!res.ok) throw new Error(await res.text());
-          await load();
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
           setSelected(null);
           setSuccess("Deity deleted.");
           setTimeout(() => setSuccess(""), 3000);
@@ -169,7 +166,7 @@ export default function DeitiesManagementPage() {
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Deity</button>
       </header>
 
-      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
           {success}

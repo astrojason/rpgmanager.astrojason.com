@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { Faction } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -21,8 +22,6 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function FactionsManagementPage() {
-  const [factions, setFactions] = useState<Faction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
@@ -33,24 +32,13 @@ export default function FactionsManagementPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  // Load Factions data
-  useEffect(() => {
-    loadFactions();
-  }, []);
-
-  const loadFactions = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/factions');
-      if (!response.ok) throw new Error('Failed to load Factions');
-      const data = await response.json();
-      setFactions(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Factions');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: factions = [], isPending: loading, error: queryError } = useQuery<Faction[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => {
+      if (!r.ok) throw new Error('Failed to load Factions');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
 
   const filteredFactions = factions.filter(faction =>
     faction.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -143,24 +131,8 @@ export default function FactionsManagementPage() {
       }
       setIsSaving(true);
 
-      const factionData = formData as Faction;
-
-      let updatedFactions;
-      if (isCreating) {
-        updatedFactions = [...factions, factionData];
-        setSuccess("Faction created successfully!");
-      } else {
-        updatedFactions = factions.map(faction => faction.id === factionData.id ? factionData : faction);
-        setSuccess("Faction updated successfully!");
-      }
-
       // TODO: Save to backend/API
-      setFactions(updatedFactions);
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedFaction(factionData);
-
-      setTimeout(() => setSuccess(""), 3000);
+      setError("Faction save not yet implemented");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save Faction");
     } finally {
@@ -173,16 +145,8 @@ export default function FactionsManagementPage() {
       message: `Are you sure you want to delete ${faction.name}?`,
       onConfirm: async () => {
         setConfirmState(null);
-        try {
-          const updatedFactions = factions.filter(f => f.id !== faction.id);
-          // TODO: Save to backend/API
-          setFactions(updatedFactions);
-          setSelectedFaction(null);
-          setSuccess("Faction deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete Faction");
-        }
+        // TODO: Save to backend/API
+        setError("Faction delete not yet implemented");
       },
     });
   };
@@ -217,7 +181,7 @@ export default function FactionsManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
@@ -45,8 +46,12 @@ const SELECT_STYLE: React.CSSProperties = {
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
-  const [pcs, setPcs] = useState<PC[]>([]);
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: pcs = [] } = useQuery<PC[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.ok ? r.json() : []),
+  });
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [editingUser, setEditingUser] = useState<string | null>(null);
@@ -68,34 +73,22 @@ export default function UserManagementPage() {
       const listUsers = httpsCallable(functions, 'listUsers');
       const result = await listUsers();
       const userData = result.data as UserData[];
-
-      const normalizeRole = (role: string) => {
-        return role === 'admin' || role === 'dm' || role === 'player' ? role : 'player';
-      };
-
-      // Load PCs to get character assignments
-      const pcsResponse = await authFetch('/api/data/pcs');
-      if (pcsResponse.ok) {
-        const pcsData = await pcsResponse.json();
-        setPcs(pcsData);
-
-        // Map character assignments to users
-        const usersWithCharacters = userData.map(user => ({
-          ...user,
-          role: normalizeRole(user.role),
-          assignedCharacter: pcsData.find((pc: PC) => pc.player === user.uid)?.id || null
-        }));
-
-        setUsers(usersWithCharacters);
-      } else {
-        setUsers(userData.map(u => ({ ...u, role: normalizeRole(u.role) })));
-      }
+      const normalizeRole = (role: string) => role === 'admin' || role === 'dm' || role === 'player' ? role : 'player';
+      setUsers(userData.map(u => ({ ...u, role: normalizeRole(u.role) })));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load users");
     } finally {
       setLoading(false);
     }
   };
+
+  const usersWithCharacters = useMemo(() =>
+    users.map(user => ({
+      ...user,
+      assignedCharacter: pcs.find(pc => pc.player === user.uid)?.id || null,
+    })),
+    [users, pcs]
+  );
 
   const updateUserRole = async (uid: string, role: string) => {
     setLoading(true);
@@ -160,13 +153,7 @@ export default function UserManagementPage() {
         throw new Error('Failed to save character assignment');
       }
 
-      // Update local state
-      setPcs(updatedPcs);
-
-      // Update local user state
-      setUsers(users.map(user =>
-        user.uid === uid ? { ...user, assignedCharacter: characterId } : user
-      ));
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
 
       const characterName = characterId ? pcs.find(pc => pc.id === characterId)?.name : 'None';
       setSuccess(`Character assignment updated to ${characterName} successfully!`);
@@ -182,7 +169,7 @@ export default function UserManagementPage() {
 
   const handleSaveChanges = async () => {
     if (editingUser && (newRole || newCharacter !== undefined)) {
-      const user = users.find(u => u.uid === editingUser);
+      const user = usersWithCharacters.find(u => u.uid === editingUser);
       if (!user) return;
 
       // Update role if changed
@@ -340,22 +327,22 @@ export default function UserManagementPage() {
       <section>
         <h2 className="grim-h-section">
           Souls Registered
-          {users.length > 0 && (
+          {usersWithCharacters.length > 0 && (
             <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", marginLeft: 12, fontWeight: "normal", letterSpacing: ".08em" }}>
-              {users.length}
+              {usersWithCharacters.length}
             </span>
           )}
         </h2>
 
         {/* Loading — no users yet */}
-        {loading && users.length === 0 ? (
+        {loading && usersWithCharacters.length === 0 ? (
           <div className="grim-tome" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, padding: "48px 28px" }}>
             <span className="grim-flame" style={{ display: "inline-block" }} />
             <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-3)" }}>Consulting the registry…</span>
           </div>
 
         /* Empty state */
-        ) : users.length === 0 ? (
+        ) : usersWithCharacters.length === 0 ? (
           <div className="grim-tome" style={{ textAlign: "center", padding: "56px 28px" }}>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-ink-4)", marginBottom: 14 }}>⊕</div>
             <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>No souls registered</div>
@@ -381,7 +368,7 @@ export default function UserManagementPage() {
               <span className="grim-label" style={{ textAlign: "right" }}>Edit</span>
             </div>
 
-            {users.map((user) => {
+            {usersWithCharacters.map((user) => {
               const isEditing = editingUser === user.uid;
               const initials = getInitials(user.displayName, user.email);
               const charName = user.assignedCharacter

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarData, CalendarEvent, CalendarCategory } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { usePageTracking } from "@/utils/referrerTracking";
@@ -80,8 +81,6 @@ const MOON_ORDINALS = [
 ];
 
 export default function CalendarPage() {
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [viewYear, setViewYear] = useState<number>(427);
   const [viewMonth, setViewMonth] = useState<number>(1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -90,8 +89,23 @@ export default function CalendarPage() {
   const [savingDate, setSavingDate] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
   const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
 
   usePageTracking();
+
+  const { data: calendarData = null, isPending: loading } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: () => authFetch('/api/data/calendar').then(r => r.ok ? r.json() : null),
+  });
+
+  useEffect(() => {
+    if (calendarData?.current) {
+      setViewYear(calendarData.current.year);
+      setViewMonth(calendarData.current.month);
+      setSelectedDay(calendarData.current.day);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calendarData?.current?.year, calendarData?.current?.month, calendarData?.current?.day]);
 
   const handleSaveCurrentDate = async () => {
     if (!calendarData) return;
@@ -104,8 +118,7 @@ export default function CalendarPage() {
         body: JSON.stringify({ ...calendarData, current: dateForm }),
       });
       if (!res.ok) throw new Error(`Failed to save date (${res.status})`);
-      const updated = await res.json();
-      setCalendarData(prev => prev ? { ...prev, current: updated.data?.current ?? dateForm } : prev);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/calendar'] });
       setEditingDate(false);
     } catch (e) {
       setDateError(toErrorMessage(e));
@@ -113,28 +126,6 @@ export default function CalendarPage() {
       setSavingDate(false);
     }
   };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await authFetch("/api/data/calendar");
-        if (res.ok) {
-          const data = await res.json();
-          setCalendarData(data);
-          if (data.current) {
-            setViewYear(data.current.year);
-            setViewMonth(data.current.month);
-            setSelectedDay(data.current.day);
-          }
-        }
-      } catch (e) {
-        console.error("Error loading calendar:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
 
   // Must be before early returns to satisfy Rules of Hooks
   const monthEvents = useMemo(() => {

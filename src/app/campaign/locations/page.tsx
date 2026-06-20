@@ -7,12 +7,11 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import InteractiveImage from "@/components/InteractiveImage";
 import { Location } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ErrorBlock from "@/components/ErrorBlock";
+import { useQuery } from "@tanstack/react-query";
 
 export default function LocationsPage() {
   const [selectedArea, setSelectedArea] = useState<Location | null>(null);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isAdmin = useIsAdmin();
   const router = useRouter();
@@ -20,22 +19,10 @@ export default function LocationsPage() {
 
   usePageTracking();
 
-  useEffect(() => {
-    const loadLocations = async () => {
-      try {
-        const response = await authFetch("/api/data/locations");
-        if (response.ok) {
-          const data = await response.json();
-          setLocations(data);
-        }
-      } catch (e) {
-        setError(toErrorMessage(e));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadLocations();
-  }, []);
+  const { data: locations = [], isPending: loading, error: queryError } = useQuery<Location[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => r.json()),
+  });
 
   const mainLocation = locations.length > 0 ? locations[0] : null;
   const sublocations = useMemo(() => mainLocation?.locations || [], [mainLocation]);
@@ -100,7 +87,7 @@ export default function LocationsPage() {
 
   return (
     <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-      {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>

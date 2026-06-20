@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockAuthFetch = vi.fn();
 const mockUseIsAdmin = vi.fn(() => true);
@@ -86,6 +87,10 @@ function setupFetch() {
   });
 }
 
+const createTestClient = () => new QueryClient({
+  defaultOptions: { queries: { retry: false, staleTime: 0, gcTime: 0 } },
+});
+
 describe('NPC detail page — linked NPC list', () => {
   beforeEach(() => {
     mockAuthFetch.mockReset();
@@ -96,7 +101,7 @@ describe('NPC detail page — linked NPC list', () => {
 
   async function openEditForm() {
     const { default: NPCDetailPage } = await import('@/app/campaign/npcs/[id]/page');
-    render(<NPCDetailPage />);
+    render(<QueryClientProvider client={createTestClient()}><NPCDetailPage /></QueryClientProvider>);
     await waitFor(() => expect(screen.getByText('Aldric')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Edit'));
     await waitFor(() => expect(screen.getByText('Linked NPCs')).toBeInTheDocument());

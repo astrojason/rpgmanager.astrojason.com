@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
@@ -18,9 +19,7 @@ import Link from "next/link";
 interface EntityItem { id: string; name: string; }
 
 export default function QuestsManagementPage() {
-  const [quests, setQuests] = useState<Quest[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
@@ -30,62 +29,60 @@ export default function QuestsManagementPage() {
   const [formData, setFormData] = useState<Partial<Quest>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-  const [availableNPCs, setAvailableNPCs] = useState<EntityItem[]>([]);
-  const [availableLocations, setAvailableLocations] = useState<EntityItem[]>([]);
-  const [availableFactions, setAvailableFactions] = useState<EntityItem[]>([]);
-  const [availableDeities, setAvailableDeities] = useState<EntityItem[]>([]);
-  const [availablePCs, setAvailablePCs] = useState<EntityItem[]>([]);
+
+  const queryClient = useQueryClient();
 
   // Authentication state
   useEffect(() => {
     if (!auth) return;
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
+    const unsubscribe = onAuthStateChanged(auth, (user) => { setUser(user); });
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    loadQuests();
-    authFetch('/api/data/npcs').then(r => r.json()).then((data: { id: string; name?: string; display_name?: string }[]) => {
-      setAvailableNPCs(data.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load NPCs'));
-    authFetch('/api/data/locations').then(r => r.json()).then((data: { id: string; name: string; locations?: { id: string; name: string }[] }[]) => {
-      const flat: EntityItem[] = [];
-      for (const loc of data) {
-        flat.push({ id: String(loc.id), name: loc.name });
-        for (const sub of loc.locations ?? []) {
-          flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
-        }
-      }
-      setAvailableLocations(flat);
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load locations'));
-    authFetch('/api/data/factions').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailableFactions(data.map(f => ({ id: String(f.id), name: f.name })));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load factions'));
-    authFetch('/api/data/deities').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailableDeities(data.map(d => ({ id: String(d.id), name: d.name })));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load deities'));
-    authFetch('/api/data/pcs').then(r => r.json()).then((data: { id: string; name: string }[]) => {
-      setAvailablePCs(data.map(p => ({ id: String(p.id), name: p.name })));
-    }).catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load PCs'));
-  }, []);
+  const { data: quests = [], isPending: loading, error: queryError } = useQuery<Quest[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: () => authFetch('/api/data/quests').then(r => {
+      if (!r.ok) throw new Error('Failed to load Quests');
+      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
+    }),
+  });
 
-  const loadQuests = async () => {
-    setLoading(true);
-    try {
-      const response = await authFetch('/api/data/quests');
-      if (!response.ok) throw new Error('Failed to load Quests');
-      const data = await response.json();
-      setQuests(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Quests');
-    } finally {
-      setLoading(false);
+  const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; display_name?: string }[]>({
+    queryKey: ['/api/data/npcs'],
+    queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
+  });
+  const { data: rawLocations = [] } = useQuery<{ id: string; name: string; locations?: { id: string; name: string }[] }[]>({
+    queryKey: ['/api/data/locations'],
+    queryFn: () => authFetch('/api/data/locations').then(r => r.json()),
+  });
+  const { data: rawFactions = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/factions'],
+    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+  });
+  const { data: rawDeities = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/deities'],
+    queryFn: () => authFetch('/api/data/deities').then(r => r.json()),
+  });
+  const { data: rawPCs = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ['/api/data/pcs'],
+    queryFn: () => authFetch('/api/data/pcs').then(r => r.json()),
+  });
+
+  const availableNPCs = useMemo<EntityItem[]>(() =>
+    rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })),
+    [rawNpcs]
+  );
+  const availableLocations = useMemo<EntityItem[]>(() => {
+    const flat: EntityItem[] = [];
+    for (const loc of rawLocations) {
+      flat.push({ id: String(loc.id), name: loc.name });
+      for (const sub of loc.locations ?? []) flat.push({ id: String(sub.id), name: `${loc.name} · ${sub.name}` });
     }
-  };
+    return flat;
+  }, [rawLocations]);
+  const availableFactions = useMemo<EntityItem[]>(() => rawFactions.map(f => ({ id: String(f.id), name: f.name })), [rawFactions]);
+  const availableDeities = useMemo<EntityItem[]>(() => rawDeities.map(d => ({ id: String(d.id), name: d.name })), [rawDeities]);
+  const availablePCs = useMemo<EntityItem[]>(() => rawPCs.map(p => ({ id: String(p.id), name: p.name })), [rawPCs]);
 
   const filteredQuests = quests.filter(quest => {
     const searchLower = searchTerm.toLowerCase();
@@ -195,8 +192,7 @@ export default function QuestsManagementPage() {
         }
 
         const result = await response.json();
-        const updatedQuests = [...quests, result.data];
-        setQuests(updatedQuests);
+        await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
         setSelectedQuest(result.data);
         setSuccess("Quest created successfully!");
       } else {
@@ -214,8 +210,7 @@ export default function QuestsManagementPage() {
         }
 
         const result = await response.json();
-        const updatedQuests = quests.map(quest => quest.id === questData.id ? result.data : quest);
-        setQuests(updatedQuests);
+        await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
         setSelectedQuest(result.data);
         setSuccess("Quest updated successfully!");
       }
@@ -245,8 +240,7 @@ export default function QuestsManagementPage() {
             throw new Error('Failed to delete quest');
           }
 
-          const updatedQuests = quests.filter(q => q.id !== quest.id);
-          setQuests(updatedQuests);
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
           setSelectedQuest(null);
           setSuccess("Quest deleted successfully!");
           setTimeout(() => setSuccess(""), 3000);
@@ -328,7 +322,7 @@ export default function QuestsManagementPage() {
       </header>
 
       {/* Status banners */}
-      {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
       {success && (
         <div style={{

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import ReactMarkdown from "react-markdown";
@@ -32,12 +33,7 @@ export default function QuestDetailPage() {
   const id = Array.isArray(params.id) ? params.id[0] : String(params.id ?? "");
   const router = useRouter();
 
-  const [quest, setQuest] = useState<Quest | null>(null);
-  const [recapsData, setRecapsData] = useState<SessionRecap[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [editingNote, setEditingNote] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -47,26 +43,19 @@ export default function QuestDetailPage() {
   const userId = useEffectiveUserId();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
 
-  const loadAll = async () => {
-    try {
-      const [questsRes, recapsRes] = await Promise.all([
-        authFetch("/api/data/quests"),
-        authFetch("/api/data/session-recaps"),
-      ]);
-      const allQuests: Quest[] = questsRes.ok ? await questsRes.json() : [];
-      const found = allQuests.find(q => String(q.id) === id);
-      if (!found) { setNotFound(true); return; }
-      setQuest(found);
-      if (recapsRes.ok) setRecapsData(await recapsRes.json());
-    } catch (e) {
-      setError(toErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: allQuests = [], isPending: loading } = useQuery<Quest[]>({
+    queryKey: ['/api/data/quests'],
+    queryFn: async () => { const r = await authFetch("/api/data/quests"); if (!r.ok) throw new Error("Failed to load quests"); return r.json(); },
+  });
+  const { data: recapsData = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
+  });
 
-  useEffect(() => { loadAll(); }, [id]);
+  const quest = useMemo(() => allQuests.find(q => String(q.id) === id) ?? null, [allQuests, id]);
+  const notFound = !loading && !quest;
 
   const canEditNote = (note: UserNote) => !!userId && (isAdmin || userId === note.author);
 
@@ -87,7 +76,7 @@ export default function QuestDetailPage() {
         body: JSON.stringify({ id: quest.id, notes: updatedNotes }),
       });
       if (!res.ok) throw new Error("Failed to save note");
-      setQuest(updatedQuest);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setNewNoteContent("");
       setEditingNote(false);
     } catch (e) {
@@ -108,7 +97,7 @@ export default function QuestDetailPage() {
         body: JSON.stringify({ id: quest.id, notes }),
       });
       if (!res.ok) throw new Error("Failed to update note");
-      setQuest(updatedQuest);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setEditingNoteId(null);
       setEditingNoteContent("");
     } catch (e) {
@@ -127,7 +116,7 @@ export default function QuestDetailPage() {
         body: JSON.stringify({ id: quest.id, notes }),
       });
       if (!res.ok) throw new Error("Failed to delete note");
-      setQuest(updatedQuest);
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
     } catch (e) {
       setNoteError(toErrorMessage(e));
     }

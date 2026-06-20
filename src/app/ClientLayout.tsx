@@ -1,6 +1,8 @@
 "use client";
 import { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import SideNavigation from "@/components/SideNavigation";
 import { ImpersonationContext } from "@/lib/ImpersonationContext";
 
@@ -37,14 +39,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
   const effectiveKey = `${realUserId || "nouser"}-${impersonatedUserId || "noimpersonation"}`;
   return (
-    <ImpersonationContext.Provider value={contextValue}>
-      <ImpersonationToolbarWrapper />
-      <div key={effectiveKey} className="grim-screen">
-        <SideNavigation />
-        <main className="grim-main" style={{ padding: 0 }}>
-          <Suspense>{children}</Suspense>
-        </main>
-      </div>
-    </ImpersonationContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <ImpersonationContext.Provider value={contextValue}>
+        <ImpersonationToolbarWrapper />
+        <div key={effectiveKey} className="grim-screen">
+          <SideNavigation />
+          <main className="grim-main" style={{ padding: 0 }}>
+            <Suspense>{children}</Suspense>
+          </main>
+        </div>
+      </ImpersonationContext.Provider>
+    </QueryClientProvider>
   );
 }
