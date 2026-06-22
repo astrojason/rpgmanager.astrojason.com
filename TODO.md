@@ -3,6 +3,7 @@
 - [x] DMs should see hidden NPC names and hidden NPCs
 - [x] link color on .grim-parchment components is too light, hard to read.
 - [x] cannot update current calendar (fantasy) date
+- [x] "Game Date" on campaign homepage and sidebar were hardcoded; now read live from /api/data/calendar
 
 ## Features
 - [x] change "personality" to "roleplaying notes" on the NPC page and hide it from players, only show to DM and Admins

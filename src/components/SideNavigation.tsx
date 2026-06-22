@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useIsAdmin } from '@/utils/adminCheck';
 import SignOutButton from "@/components/SignOutButton";
+import { authFetch } from "@/utils/authFetch";
+import { CalendarData } from "@/types/interfaces";
 
 const NAV_ITEMS = [
   { id: "home",         label: "Campaign Home",     sub: "Dashboard of the Bounty",       icon: "home",    href: "/campaign" },
@@ -51,6 +54,17 @@ export default function SideNavigation() {
   const pathname = usePathname();
   const isAdmin = useIsAdmin();
   const [collapsed, setCollapsed] = useState(false);
+
+  const { data: calendarData } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: () => authFetch('/api/data/calendar').then(r => r.ok ? r.json() : null),
+  });
+
+  const calCurrent = calendarData?.current;
+  const calMonths = calendarData?.static?.months ?? [];
+  const monthName = calCurrent ? (calMonths[calCurrent.month - 1]?.name ?? `Month ${calCurrent.month}`) : null;
+  const gameDateLine1 = calCurrent && monthName ? `${monthName} ${calCurrent.day}` : null;
+  const gameDateLine2 = calCurrent ? `year ${calCurrent.year} of the Bounty` : null;
 
   useEffect(() => {
     const saved = localStorage.getItem("sidenav-collapsed");
@@ -139,12 +153,18 @@ export default function SideNavigation() {
 
       <div className="grim-sidebar-footer">
         <div className="grim-label" style={{ marginBottom: 6 }}>Game Date</div>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1.1 }}>
-          Miriandar 36
-        </div>
-        <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
-          year 427 of the Bounty
-        </div>
+        {gameDateLine1 ? (
+          <>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1.1 }}>
+              {gameDateLine1}
+            </div>
+            <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+              {gameDateLine2}
+            </div>
+          </>
+        ) : (
+          <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>not set</div>
+        )}
       </div>
       <div className="grim-sidebar-signout">
         <SignOutButton />

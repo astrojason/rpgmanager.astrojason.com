@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 import { authFetch } from "@/utils/authFetch";
-import { NPC, Quest, SessionRecap, UserNote } from "@/types/interfaces";
+import { CalendarData, NPC, Quest, SessionRecap, UserNote } from "@/types/interfaces";
 import { safeImageSrc } from "@/utils/sanitize";
 import Image from "next/image";
 import Link from "next/link";
@@ -158,6 +158,14 @@ export default function CampaignHome() {
     },
   });
 
+  const { data: calendarData = null } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/calendar');
+      return r.ok ? r.json() : null;
+    },
+  });
+
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -183,6 +191,14 @@ export default function CampaignHome() {
   );
 
   const queryError = sessionError || npcsError || recapsError || questsError;
+
+  const currentGameDate = useMemo(() => {
+    const cur = calendarData?.current;
+    const months = calendarData?.static?.months ?? [];
+    if (!cur || !cur.day || !cur.month || !cur.year) return null;
+    const monthName = months[cur.month - 1]?.name ?? `Month ${cur.month}`;
+    return `${monthName} ${cur.day}, ${cur.year}`;
+  }, [calendarData]);
 
   const storedDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingDate = useMemo(() => determineUpcomingSessionDate(sessionData, new Date()), [sessionData]);
@@ -251,7 +267,7 @@ export default function CampaignHome() {
               <div>
                 <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
-                  {sessionData?.currentGameDate || "Miriandar 36, 427"}
+                  {currentGameDate ?? "—"}
                 </div>
               </div>
               {sessionData?.location && (
