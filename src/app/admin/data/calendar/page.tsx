@@ -248,9 +248,15 @@ export default function CalendarManagementPage() {
             <div>
               <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
               <input
-                type="number" min={1} max={60}
+                type="number"
                 value={dateForm.day}
-                onChange={e => setDateForm(f => ({ ...f, day: Number(e.target.value) }))}
+                onChange={e => {
+                  const val = parseInt(e.target.value, 10);
+                  if (isNaN(val)) return;
+                  if (val > 40) setDateForm(f => ({ ...f, day: 1 }));
+                  else if (val < 1) setDateForm(f => ({ ...f, day: 40 }));
+                  else setDateForm(f => ({ ...f, day: val }));
+                }}
                 style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
               />
             </div>
