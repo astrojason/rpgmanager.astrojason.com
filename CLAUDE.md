@@ -20,3 +20,10 @@ A task is not done until:
 Nothing is allowed to fail silently. Every error must be surfaced in the UI as a copyable block containing the full error message. Never swallow errors with empty catch blocks or display vague fallback text.
 
 ---
+
+## Versioning
+
+The app version lives in `package.json` and must be displayed in the UI footer.
+
+- Any commit touching files other than `CLAUDE.md` must include a version bump — patch for fixes, minor for new features, major for breaking changes. CLAUDE.md-only commits may use `--no-verify` to skip the bump.
+- The version in the footer must be a clickable link to `/changelog`. The changelog page renders the git log — each entry shows the short hash and commit message (`git log --pretty=format:"%h %s" -n 50`). Implement as an API route if not already present.
