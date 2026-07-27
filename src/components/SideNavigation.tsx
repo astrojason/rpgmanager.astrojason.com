@@ -8,6 +8,7 @@ import { useIsAdmin } from '@/utils/adminCheck';
 import SignOutButton from "@/components/SignOutButton";
 import { authFetch } from "@/utils/authFetch";
 import { CalendarData } from "@/types/interfaces";
+import pkg from "../../package.json";
 
 const NAV_ITEMS = [
   { id: "home",         label: "Campaign Home",     sub: "Dashboard of the Bounty",       icon: "home",    href: "/campaign" },
@@ -168,6 +169,16 @@ export default function SideNavigation() {
       </div>
       <div className="grim-sidebar-signout">
         <SignOutButton />
+      </div>
+      <div style={{ padding: '8px 12px', textAlign: 'right' }}>
+        <Link
+          href="/changelog"
+          className="grim-mono"
+          style={{ fontSize: 11, color: 'var(--grim-ink-4)', letterSpacing: '.1em', textDecoration: 'none' }}
+          title="Changelog"
+        >
+          v{pkg.version}
+        </Link>
       </div>
     </aside>
   );
