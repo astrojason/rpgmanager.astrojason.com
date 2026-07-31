@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 // Ensure Node.js runtime and disable caching for fresh reads/writes
 export const runtime = 'nodejs';
@@ -34,7 +35,7 @@ export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const [base, jf] = await db.batch([
       `SELECT * FROM ${TABLE}`,
@@ -50,17 +51,14 @@ export async function GET(request?: NextRequest) {
     }
     const out = (base.rows as unknown[]).map(r => rowToPC(r as Record<string, unknown>, byPc.get(Number((r as Record<string, unknown>).id)) ?? []));
     return NextResponse.json(out);
-  } catch (error) {
-    console.error('Error reading PCs file:', error);
-    return NextResponse.json({ error: 'Failed to load PCs' }, { status: 500 });
-  }
+  }, 'Error reading PCs file:', 'Failed to load PCs');
 }
 
 export async function POST(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const body = await request.json();
     const factions: string[] = Array.isArray(body.factions) ? body.factions : [];
@@ -78,17 +76,14 @@ export async function POST(request: NextRequest) {
       await tx.commit();
       return NextResponse.json({ success: true, data: { ...body, id: String(newId) } });
     } catch (e) { await tx.rollback(); throw e; }
-  } catch (error) {
-    console.error('Error creating PC:', error);
-    return NextResponse.json({ error: 'Failed to create PC' }, { status: 500 });
-  }
+  }, 'Error creating PC:', 'Failed to create PC');
 }
 
 export async function PUT(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const body = await request.json();
     const idNum = Number(body.id);
@@ -99,7 +94,7 @@ export async function PUT(request: NextRequest) {
         sql: `UPDATE ${TABLE} SET name=?,nickname=?,race=?,hometown=?,status=?,class=?,image=?,gif=?,player=?,gm_notes=?,notes=? WHERE id=?`,
         args: [body.name ?? null, body.nickname ?? null, body.race ?? null, body.hometown ?? null, body.status ?? null, body.class ?? null, body.image ?? null, body.gif ?? null, body.player ?? null, body.gm_notes ?? null, JSON.stringify(body.notes ?? []), idNum]
       });
-      if ((res.rowsAffected ?? 0) === 0) { await tx.rollback(); return NextResponse.json({ error: 'PC not found' }, { status: 404 }); }
+      if ((res.rowsAffected ?? 0) === 0) { await tx.rollback(); return notFound('PC not found'); }
       await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE pc_id=?`, args: [idNum] });
       if (factions.length > 0) {
         const placeholders = factions.map(() => '(?,?)').join(',');
@@ -108,10 +103,7 @@ export async function PUT(request: NextRequest) {
       await tx.commit();
       return NextResponse.json({ success: true, data: body });
     } catch (e) { await tx.rollback(); throw e; }
-  } catch (error) {
-    console.error('Error updating PC:', error);
-    return NextResponse.json({ error: 'Failed to update PC' }, { status: 500 });
-  }
+  }, 'Error updating PC:', 'Failed to update PC');
 }
 
 export async function PATCH(request: NextRequest) {
@@ -179,12 +171,12 @@ export async function DELETE(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ("errorResponse" in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'PC ID is required' }, { status: 400 });
-    const idNum = Number(id);
+    const idResult = requireId(searchParams, 'PC ID is required');
+    if ('error' in idResult) return idResult.error;
+    const idNum = Number(idResult.id);
 
     // Use transaction to ensure junction table records are deleted atomically
     const tx = await db.transaction('write');
@@ -197,7 +189,7 @@ export async function DELETE(request: NextRequest) {
 
       if ((res.rowsAffected ?? 0) === 0) {
         await tx.rollback();
-        return NextResponse.json({ error: 'PC not found' }, { status: 404 });
+        return notFound('PC not found');
       }
 
       await tx.commit();
@@ -206,8 +198,5 @@ export async function DELETE(request: NextRequest) {
       await tx.rollback();
       throw e;
     }
-  } catch (error) {
-    console.error('Error deleting PC:', error);
-    return NextResponse.json({ error: 'Failed to delete PC' }, { status: 500 });
-  }
+  }, 'Error deleting PC:', 'Failed to delete PC');
 }

@@ -3,6 +3,8 @@ import { Faction } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { genUUID } from '@/lib/id';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'factions';
 
@@ -10,7 +12,7 @@ export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const res = await db.execute(`SELECT * FROM ${TABLE}`);
     const data = res.rows.map((r: Record<string, unknown>) => ({
@@ -29,22 +31,18 @@ export async function GET(request?: NextRequest) {
       notes: r.notes ? JSON.parse(String(r.notes)) : [],
     } as Faction));
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error reading Factions file:', error);
-    return NextResponse.json({ error: 'Failed to load Factions' }, { status: 500 });
-  }
+  }, 'Error reading Factions file:', 'Failed to load Factions');
 }
 
 export async function POST(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const f: Faction = await request.json();
     if (!f.id) {
-      const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
-      f.id = gt.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      f.id = genUUID();
     }
     await db.execute({
       sql: `INSERT INTO ${TABLE} (id,name,pronunciation,type,description,location,status,goals,background,relationships,image,gm_notes,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
@@ -54,17 +52,14 @@ export async function POST(request: NextRequest) {
       ]
     });
     return NextResponse.json({ success: true, data: f });
-  } catch (error) {
-    console.error('Error creating Faction:', error);
-    return NextResponse.json({ error: 'Failed to create Faction' }, { status: 500 });
-  }
+  }, 'Error creating Faction:', 'Failed to create Faction');
 }
 
 export async function PUT(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const f: Faction = await request.json();
     const res = await db.execute({
@@ -74,49 +69,31 @@ export async function PUT(request: NextRequest) {
         f.goals, f.background ?? null, JSON.stringify(f.relationships ?? null), f.image ?? null, f.gm_notes ?? null, JSON.stringify(f.notes ?? []), f.id
       ]
     });
-    if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Faction not found' }, { status: 404 });
+    if ((res.rowsAffected ?? 0) === 0) return notFound('Faction not found');
     return NextResponse.json({ success: true, data: f });
-  } catch (error) {
-    console.error('Error updating Faction:', error);
-    return NextResponse.json({ error: 'Failed to update Faction' }, { status: 500 });
-  }
+  }, 'Error updating Faction:', 'Failed to update Faction');
 }
 
-export async function PATCH(request: NextRequest) {
-  const authResult = await verifyRequestAuth(request);
-  if ('errorResponse' in authResult) return authResult.errorResponse;
-
-  try {
-    const db = getDb();
-    const body: { id?: string; notes?: unknown[] } = await request.json();
-    if (!body.id) return NextResponse.json({ error: 'Faction ID is required' }, { status: 400 });
-
-    const res = await db.execute({
-      sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-      args: [JSON.stringify(body.notes ?? []), body.id],
-    });
-    if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Faction not found' }, { status: 404 });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error updating Faction notes:', error);
-    return NextResponse.json({ error: 'Failed to update Faction notes' }, { status: 500 });
-  }
-}
+export const PATCH = notesPatchHandler({
+  table: TABLE,
+  idRequiredMessage: 'Faction ID is required',
+  notFoundMessage: 'Faction not found',
+  updateFailedMessage: 'Failed to update Faction notes',
+  logLabel: 'Error updating Faction notes:',
+  idType: 'string',
+});
 
 export async function DELETE(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'Faction ID is required' }, { status: 400 });
-    const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [id] });
-    if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Faction not found' }, { status: 404 });
+    const idResult = requireId(searchParams, 'Faction ID is required');
+    if ('error' in idResult) return idResult.error;
+    const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idResult.id] });
+    if ((res.rowsAffected ?? 0) === 0) return notFound('Faction not found');
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting Faction:', error);
-    return NextResponse.json({ error: 'Failed to delete Faction' }, { status: 500 });
-  }
+  }, 'Error deleting Faction:', 'Failed to delete Faction');
 }

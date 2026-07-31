@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'quests';
 
@@ -38,7 +39,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const [res, npcRows, locRows, factionRows, deityRows] = await db.batch([
             `SELECT * FROM ${TABLE}`,
@@ -66,77 +67,55 @@ export async function GET(request?: NextRequest) {
             };
         });
         return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error reading Quests file:', error);
-        return NextResponse.json({ error: 'Failed to load Quests' }, { status: 500 });
-    }
+    }, 'Error reading Quests file:', 'Failed to load Quests');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes) VALUES (?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null] });
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceTagsForQuest(db, newId, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...q, id: String(newId) } });
-    } catch (error) {
-        console.error('Error creating Quest:', error);
-        return NextResponse.json({ error: 'Failed to create Quest' }, { status: 500 });
-    }
+    }, 'Error creating Quest:', 'Failed to create Quest');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
         const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, Number(q.id)] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+        if ((res.rowsAffected ?? 0) === 0) return notFound('Quest not found');
         await replaceTagsForQuest(db, q.id, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: q });
-    } catch (error) {
-        console.error('Error updating Quest:', error);
-        return NextResponse.json({ error: 'Failed to update Quest' }, { status: 500 });
-    }
+    }, 'Error updating Quest:', 'Failed to update Quest');
 }
 
-export async function PATCH(request: NextRequest) {
-    const authResult = await verifyRequestAuth(request);
-    if ('errorResponse' in authResult) return authResult.errorResponse;
-
-    try {
-        const db = getDb();
-        const body: { id?: string; notes?: unknown[] } = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
-
-        const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
-        });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating Quest notes:', error);
-        return NextResponse.json({ error: 'Failed to update Quest notes' }, { status: 500 });
-    }
-}
+export const PATCH = notesPatchHandler({
+    table: TABLE,
+    idRequiredMessage: 'Quest ID is required',
+    notFoundMessage: 'Quest not found',
+    updateFailedMessage: 'Failed to update Quest notes',
+    logLabel: 'Error updating Quest notes:',
+});
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'Quest ID is required' }, { status: 400 });
-        const idNum = Number(id);
+        const idResult = requireId(searchParams, 'Quest ID is required');
+        if ('error' in idResult) return idResult.error;
+        const idNum = Number(idResult.id);
         const results = await db.batch([
             { sql: `DELETE FROM quest_npcs WHERE quest_id=?`, args: [idNum] },
             { sql: `DELETE FROM quest_locations WHERE quest_id=?`, args: [idNum] },
@@ -144,10 +123,7 @@ export async function DELETE(request: NextRequest) {
             { sql: `DELETE FROM quest_deities WHERE quest_id=?`, args: [idNum] },
             { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
         ], "write");
-        if ((results[4].rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
+        if ((results[4].rowsAffected ?? 0) === 0) return notFound('Quest not found');
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting Quest:', error);
-        return NextResponse.json({ error: 'Failed to delete Quest' }, { status: 500 });
-    }
+    }, 'Error deleting Quest:', 'Failed to delete Quest');
 }

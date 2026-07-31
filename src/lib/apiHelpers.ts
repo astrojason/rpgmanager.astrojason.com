@@ -1,53 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyRequestAuth, VerifiedUser } from '@/lib/apiAuth';
+import { getDb } from '@/lib/turso';
+import { verifyRequestAuth } from '@/lib/apiAuth';
 
-/**
- * Standard API route handler wrapper
- * Handles auth verification and schema initialization
- */
-export async function withApiHandler(
-  request: NextRequest,
-  handler: (user: VerifiedUser | null) => Promise<NextResponse>,
-  options?: {
-    allowedRoles?: Array<'admin' | 'dm' | 'player'>;
-    allowUnauthenticated?: boolean;
+export function requireId(
+  searchParams: URLSearchParams,
+  idRequiredMessage: string
+): { id: string } | { error: NextResponse } {
+  const id = searchParams.get('id');
+  if (!id) {
+    return { error: NextResponse.json({ error: idRequiredMessage }, { status: 400 }) };
   }
-): Promise<NextResponse> {
-  const authResult = await verifyRequestAuth(request, options);
+  return { id };
+}
 
-  if ('errorResponse' in authResult) {
-    return authResult.errorResponse;
-  }
+export function notFound(notFoundMessage: string): NextResponse {
+  return NextResponse.json({ error: notFoundMessage }, { status: 404 });
+}
 
+export async function withErrorHandling<T>(
+  operation: () => Promise<T>,
+  logLabel: string,
+  failureMessage: string
+): Promise<T | NextResponse> {
   try {
-    return await handler(authResult.user);
+    return await operation();
   } catch (error) {
-    console.error('API handler error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error(logLabel, error);
+    return NextResponse.json({ error: failureMessage }, { status: 500 });
   }
 }
 
+interface NotesPatchConfig {
+  table: string;
+  idRequiredMessage: string;
+  notFoundMessage: string;
+  updateFailedMessage: string;
+  logLabel: string;
+  /** Most tables use an autoincrement integer id; a few (e.g. factions) use a string UUID id. */
+  idType?: 'number' | 'string';
+}
+
 /**
- * Helper to extract and validate ID from query params
+ * Factory for the "notes-only" PATCH handler shape repeated verbatim across most
+ * /api/data/<entity> routes: validate id, overwrite the notes column, 404 if no row matched.
  */
-export function getRequiredParam(
-  request: NextRequest,
-  param: string
-): { value: string } | { error: NextResponse } {
-  const { searchParams } = new URL(request.url);
-  const value = searchParams.get(param);
+export function notesPatchHandler(config: NotesPatchConfig) {
+  return async function PATCH(request: NextRequest) {
+    const authResult = await verifyRequestAuth(request);
+    if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  if (!value) {
-    return {
-      error: NextResponse.json(
-        { error: `${param} is required` },
-        { status: 400 }
-      ),
-    };
-  }
+    return withErrorHandling(async () => {
+      const db = getDb();
+      const body: { id?: string; notes?: unknown[] } = await request.json();
+      if (!body.id) return NextResponse.json({ error: config.idRequiredMessage }, { status: 400 });
 
-  return { value };
+      const idArg = config.idType === 'string' ? body.id : Number(body.id);
+      const res = await db.execute({
+        sql: `UPDATE ${config.table} SET notes=? WHERE id=?`,
+        args: [JSON.stringify(body.notes ?? []), idArg],
+      });
+      if ((res.rowsAffected ?? 0) === 0) return notFound(config.notFoundMessage);
+      return NextResponse.json({ success: true });
+    }, config.logLabel, config.updateFailedMessage);
+  };
 }

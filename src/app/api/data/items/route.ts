@@ -3,6 +3,7 @@ import { Item } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'items';
 
@@ -53,7 +54,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const [res, npcRows, pcRows, locRows, recapRows] = await db.batch([
             `SELECT * FROM ${TABLE}`,
@@ -98,17 +99,14 @@ export async function GET(request?: NextRequest) {
             );
         });
         return NextResponse.json(items);
-    } catch (error) {
-        console.error('Error loading items:', error);
-        return NextResponse.json({ error: 'Failed to load items' }, { status: 500 });
-    }
+    }, 'Error loading items:', 'Failed to load items');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const body: Item = await request.json();
         const tx = await db.transaction('write');
@@ -136,17 +134,14 @@ export async function POST(request: NextRequest) {
             await tx.rollback();
             throw e;
         }
-    } catch (error) {
-        console.error('Error creating item:', error);
-        return NextResponse.json({ error: 'Failed to create item' }, { status: 500 });
-    }
+    }, 'Error creating item:', 'Failed to create item');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const body: Item = await request.json();
         const idNum = Number(body.id);
@@ -167,47 +162,31 @@ export async function PUT(request: NextRequest) {
             ],
         });
         if ((res.rowsAffected ?? 0) === 0) {
-            return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+            return notFound('Item not found');
         }
         await replaceItemTags(db, idNum, body.tagged_npcs ?? [], body.tagged_pcs ?? [], body.tagged_locations ?? []);
         return NextResponse.json({ success: true, data: body });
-    } catch (error) {
-        console.error('Error updating item:', error);
-        return NextResponse.json({ error: 'Failed to update item' }, { status: 500 });
-    }
+    }, 'Error updating item:', 'Failed to update item');
 }
 
-export async function PATCH(request: NextRequest) {
-    const authResult = await verifyRequestAuth(request);
-    if ('errorResponse' in authResult) return authResult.errorResponse;
-
-    try {
-        const db = getDb();
-        const body: { id?: string; notes?: unknown[] } = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
-
-        const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
-        });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating item notes:', error);
-        return NextResponse.json({ error: 'Failed to update item notes' }, { status: 500 });
-    }
-}
+export const PATCH = notesPatchHandler({
+    table: TABLE,
+    idRequiredMessage: 'Item ID is required',
+    notFoundMessage: 'Item not found',
+    updateFailedMessage: 'Failed to update item notes',
+    logLabel: 'Error updating item notes:',
+});
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
-        const idNum = Number(id);
+        const idResult = requireId(searchParams, 'Item ID is required');
+        if ('error' in idResult) return idResult.error;
+        const idNum = Number(idResult.id);
         const results = await db.batch([
             { sql: `DELETE FROM item_npcs WHERE item_id=?`, args: [idNum] },
             { sql: `DELETE FROM item_pcs WHERE item_id=?`, args: [idNum] },
@@ -216,11 +195,8 @@ export async function DELETE(request: NextRequest) {
             { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
         ], "write");
         if ((results[4].rowsAffected ?? 0) === 0) {
-            return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+            return notFound('Item not found');
         }
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting item:', error);
-        return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });
-    }
+    }, 'Error deleting item:', 'Failed to delete item');
 }

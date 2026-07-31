@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'calendar';
 
@@ -8,7 +9,7 @@ export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const res = await db.execute(`SELECT * FROM ${TABLE} LIMIT 1`);
     if (res.rows.length === 0) return NextResponse.json({});
@@ -23,17 +24,14 @@ export async function GET(request?: NextRequest) {
       categories: r.categories ? JSON.parse(String(r.categories)) : [],
     };
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error reading Calendar file:', error);
-    return NextResponse.json({ error: 'Failed to load Calendar' }, { status: 500 });
-  }
+  }, 'Error reading Calendar file:', 'Failed to load Calendar');
 }
 
 export async function PUT(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const body = await request.json();
     const payload = {
@@ -73,8 +71,5 @@ export async function PUT(request: NextRequest) {
       ]
     });
     return NextResponse.json({ success: true, data: body });
-  } catch (error) {
-    console.error('Error updating Calendar:', error);
-    return NextResponse.json({ error: 'Failed to update Calendar' }, { status: 500 });
-  }
+  }, 'Error updating Calendar:', 'Failed to update Calendar');
 }

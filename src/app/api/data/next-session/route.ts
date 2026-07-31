@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'next_session';
 
@@ -8,7 +9,7 @@ export async function GET(request?: NextRequest) {
   const authResult = await verifyRequestAuth(request);
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const res = await db.execute(`SELECT * FROM ${TABLE} LIMIT 1`);
     if (res.rows.length === 0) return NextResponse.json({});
@@ -25,17 +26,14 @@ export async function GET(request?: NextRequest) {
       skipReason: r.skipReason ?? undefined,
     };
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error reading Next Session file:', error);
-    return NextResponse.json({ error: 'Failed to load Next Session data' }, { status: 500 });
-  }
+  }, 'Error reading Next Session file:', 'Failed to load Next Session data');
 }
 
 export async function PUT(request: NextRequest) {
   const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
   if ('errorResponse' in authResult) return authResult.errorResponse;
 
-  try {
+  return withErrorHandling(async () => {
     const db = getDb();
     const body = await request.json();
     const payload = {
@@ -65,8 +63,5 @@ export async function PUT(request: NextRequest) {
       args: [payload.date, payload.agenda, payload.reminders, payload.currentGameDate, payload.location, payload.notes, payload.lastUpdated, payload.isSkipped, payload.skipReason]
     });
     return NextResponse.json({ success: true, data: body });
-  } catch (error) {
-    console.error('Error updating Next Session:', error);
-    return NextResponse.json({ error: 'Failed to update Next Session' }, { status: 500 });
-  }
+  }, 'Error updating Next Session:', 'Failed to update Next Session');
 }

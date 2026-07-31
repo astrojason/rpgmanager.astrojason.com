@@ -3,6 +3,7 @@ import { NPC } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'npcs';
 const JUNCTION = 'npc_factions';
@@ -37,7 +38,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const [base, jf, jl] = await db.batch([
             `SELECT * FROM ${TABLE}`,
@@ -65,17 +66,14 @@ export async function GET(request?: NextRequest) {
         const out: NPC[] = [];
         for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? [], linkedMap.get(Number((row as Record<string, unknown>).id)) ?? []));
         return NextResponse.json(out);
-    } catch (error) {
-        console.error('Error loading NPCs:', error);
-        return NextResponse.json({ error: 'Failed to load NPCs' }, { status: 500 });
-    }
+    }, 'Error loading NPCs:', 'Failed to load NPCs');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const body: NPC = await request.json();
         const factions = Array.isArray(body.factions) ? body.factions : [];
@@ -119,17 +117,14 @@ export async function POST(request: NextRequest) {
             await tx.rollback();
             throw e;
         }
-    } catch (error) {
-        console.error('Error creating NPC:', error);
-        return NextResponse.json({ error: 'Failed to create NPC' }, { status: 500 });
-    }
+    }, 'Error creating NPC:', 'Failed to create NPC');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const body: NPC = await request.json();
         const idNum = Number(body.id);
@@ -161,7 +156,7 @@ export async function PUT(request: NextRequest) {
             });
             if ((res.rowsAffected ?? 0) === 0) {
                 await tx.rollback();
-                return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
+                return notFound('NPC not found');
             }
             await tx.execute({ sql: `DELETE FROM ${JUNCTION} WHERE npc_id=?`, args: [idNum] });
             if (factions.length > 0) {
@@ -180,43 +175,27 @@ export async function PUT(request: NextRequest) {
             await tx.rollback();
             throw e;
         }
-    } catch (error) {
-        console.error('Error updating NPC:', error);
-        return NextResponse.json({ error: 'Failed to update NPC' }, { status: 500 });
-    }
+    }, 'Error updating NPC:', 'Failed to update NPC');
 }
 
-export async function PATCH(request: NextRequest) {
-    const authResult = await verifyRequestAuth(request);
-    if ("errorResponse" in authResult) return authResult.errorResponse;
-
-    try {
-        const db = getDb();
-        const body: { id?: string; notes?: unknown[] } = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'NPC ID is required' }, { status: 400 });
-
-        const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
-        });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating NPC notes:', error);
-        return NextResponse.json({ error: 'Failed to update NPC notes' }, { status: 500 });
-    }
-}
+export const PATCH = notesPatchHandler({
+    table: TABLE,
+    idRequiredMessage: 'NPC ID is required',
+    notFoundMessage: 'NPC not found',
+    updateFailedMessage: 'Failed to update NPC notes',
+    logLabel: 'Error updating NPC notes:',
+});
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ("errorResponse" in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'NPC ID is required' }, { status: 400 });
-        const idNum = Number(id);
+        const idResult = requireId(searchParams, 'NPC ID is required');
+        if ('error' in idResult) return idResult.error;
+        const idNum = Number(idResult.id);
 
         // Use transaction to ensure junction table records are deleted atomically
         const tx = await db.transaction('write');
@@ -227,7 +206,7 @@ export async function DELETE(request: NextRequest) {
 
             if ((res.rowsAffected ?? 0) === 0) {
                 await tx.rollback();
-                return NextResponse.json({ error: 'NPC not found' }, { status: 404 });
+                return notFound('NPC not found');
             }
 
             await tx.commit();
@@ -236,8 +215,5 @@ export async function DELETE(request: NextRequest) {
             await tx.rollback();
             throw e;
         }
-    } catch (error) {
-        console.error('Error deleting NPC:', error);
-        return NextResponse.json({ error: 'Failed to delete NPC' }, { status: 500 });
-    }
+    }, 'Error deleting NPC:', 'Failed to delete NPC');
 }

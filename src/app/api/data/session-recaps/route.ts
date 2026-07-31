@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { SessionRecap } from '@/types/interfaces';
 import { verifyRequestAuth } from '@/lib/apiAuth';
+import { genUUID } from '@/lib/id';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 async function replaceTagsForRecap(
     db: ReturnType<typeof getDb>,
@@ -32,7 +34,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const [res, npcRows, locRows, questRows, itemRows, factionRows, deityRows] = await db.batch([
             `SELECT * FROM ${TABLE}`,
@@ -82,23 +84,6 @@ export async function GET(request?: NextRequest) {
         let mutated = false;
         const used = new Set<string>();
         for (const r of data) if (r.id) used.add(r.id);
-        const genUUID = () => {
-            const gt = globalThis as unknown as { crypto?: { randomUUID?: () => string } };
-            const g = gt.crypto?.randomUUID?.bind(gt.crypto);
-            if (g) return g();
-            const rnd = (n = 16) => Array.from({ length: n }, () => (Math.random() * 256) | 0);
-            const bytes = rnd(16);
-            bytes[6] = (bytes[6] & 0x0f) | 0x40;
-            bytes[8] = (bytes[8] & 0x3f) | 0x80;
-            const hex = bytes.map((b) => b.toString(16).padStart(2, '0'));
-            return (
-                hex.slice(0, 4).join('') + '-' +
-                hex.slice(4, 6).join('') + '-' +
-                hex.slice(6, 8).join('') + '-' +
-                hex.slice(8, 10).join('') + '-' +
-                hex.slice(10, 16).join('')
-            );
-        };
         for (const recap of data) {
             if (!recap.id) {
                 let id: string;
@@ -133,17 +118,14 @@ export async function GET(request?: NextRequest) {
             }
         }
         return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error reading Session Recaps file:', error);
-        return NextResponse.json({ error: 'Failed to load Session Recaps' }, { status: 500 });
-    }
+    }, 'Error reading Session Recaps file:', 'Failed to load Session Recaps');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const newRecap: SessionRecap = await request.json();
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
@@ -151,60 +133,41 @@ export async function POST(request: NextRequest) {
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? [], newRecap.tagged_items ?? [], newRecap.tagged_factions ?? [], newRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...newRecap, id: String(newId) } });
-    } catch (error) {
-        console.error('Error creating Session Recap:', error);
-        return NextResponse.json({ error: 'Failed to create Session Recap' }, { status: 500 });
-    }
+    }, 'Error creating Session Recap:', 'Failed to create Session Recap');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const updatedRecap: SessionRecap = await request.json();
         const res = await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=? WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), Number(updatedRecap.id)] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
+        if ((res.rowsAffected ?? 0) === 0) return notFound('Session Recap not found');
         await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? [], updatedRecap.tagged_items ?? [], updatedRecap.tagged_factions ?? [], updatedRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: updatedRecap });
-    } catch (error) {
-        console.error('Error updating Session Recap:', error);
-        return NextResponse.json({ error: 'Failed to update Session Recap' }, { status: 500 });
-    }
+    }, 'Error updating Session Recap:', 'Failed to update Session Recap');
 }
 
-export async function PATCH(request: NextRequest) {
-    const authResult = await verifyRequestAuth(request);
-    if ('errorResponse' in authResult) return authResult.errorResponse;
-
-    try {
-        const db = getDb();
-        const body: { id?: string; notes?: unknown[] } = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'Recap ID is required' }, { status: 400 });
-
-        const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
-        });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Recap not found' }, { status: 404 });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating recap notes:', error);
-        return NextResponse.json({ error: 'Failed to update recap notes' }, { status: 500 });
-    }
-}
+export const PATCH = notesPatchHandler({
+    table: TABLE,
+    idRequiredMessage: 'Recap ID is required',
+    notFoundMessage: 'Recap not found',
+    updateFailedMessage: 'Failed to update recap notes',
+    logLabel: 'Error updating recap notes:',
+});
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 });
-        const idNum = Number(id);
+        const idResult = requireId(searchParams, 'ID is required');
+        if ('error' in idResult) return idResult.error;
+        const idNum = Number(idResult.id);
         const results = await db.batch([
             { sql: `DELETE FROM recap_npcs WHERE recap_id=?`, args: [idNum] },
             { sql: `DELETE FROM recap_locations WHERE recap_id=?`, args: [idNum] },
@@ -214,10 +177,7 @@ export async function DELETE(request: NextRequest) {
             { sql: `DELETE FROM recap_deities WHERE recap_id=?`, args: [idNum] },
             { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
         ], "write");
-        if ((results[6].rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Session Recap not found' }, { status: 404 });
+        if ((results[6].rowsAffected ?? 0) === 0) return notFound('Session Recap not found');
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting Session Recap:', error);
-        return NextResponse.json({ error: 'Failed to delete Session Recap' }, { status: 500 });
-    }
+    }, 'Error deleting Session Recap:', 'Failed to delete Session Recap');
 }

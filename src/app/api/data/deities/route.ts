@@ -3,6 +3,7 @@ import { Deity } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'deities';
 
@@ -19,7 +20,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const [res, recapRows, questRows, npcRows, pcRows] = await db.batch([
             `SELECT * FROM ${TABLE}`,
@@ -70,17 +71,14 @@ export async function GET(request?: NextRequest) {
             };
         });
         return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error reading Deities:', error);
-        return NextResponse.json({ error: 'Failed to load Deities' }, { status: 500 });
-    }
+    }, 'Error reading Deities:', 'Failed to load Deities');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const d: Deity = await request.json();
         const res = await db.execute({
@@ -90,17 +88,14 @@ export async function POST(request: NextRequest) {
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceFollowers(db, newId, d.follower_npcs ?? [], d.follower_pcs ?? []);
         return NextResponse.json({ success: true, data: { ...d, id: String(newId) } });
-    } catch (error) {
-        console.error('Error creating Deity:', error);
-        return NextResponse.json({ error: 'Failed to create Deity' }, { status: 500 });
-    }
+    }, 'Error creating Deity:', 'Failed to create Deity');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const d: Deity = await request.json();
         const idNum = Number(d.id);
@@ -108,46 +103,30 @@ export async function PUT(request: NextRequest) {
             sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,domain=?,alignment=?,status=?,description=?,image=?,hidden=?,gm_notes=?,notes=?,symbol=?,church=?,garments=?,tenets=?,lore=? WHERE id=?`,
             args: [d.name, d.pronunciation ?? null, d.domain ?? null, d.alignment ?? null, d.status ?? null, d.description ?? null, d.image ?? null, d.hidden ? 1 : 0, d.gm_notes ?? null, JSON.stringify(d.notes ?? []), d.symbol ?? null, d.church ?? null, d.garments ?? null, d.tenets ?? null, d.lore ?? null, idNum],
         });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
+        if ((res.rowsAffected ?? 0) === 0) return notFound('Deity not found');
         await replaceFollowers(db, idNum, d.follower_npcs ?? [], d.follower_pcs ?? []);
         return NextResponse.json({ success: true, data: d });
-    } catch (error) {
-        console.error('Error updating Deity:', error);
-        return NextResponse.json({ error: 'Failed to update Deity' }, { status: 500 });
-    }
+    }, 'Error updating Deity:', 'Failed to update Deity');
 }
 
-export async function PATCH(request: NextRequest) {
-    const authResult = await verifyRequestAuth(request);
-    if ('errorResponse' in authResult) return authResult.errorResponse;
-
-    try {
-        const db = getDb();
-        const body: { id?: string; notes?: unknown[] } = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'Deity ID is required' }, { status: 400 });
-
-        const res = await db.execute({
-            sql: `UPDATE ${TABLE} SET notes=? WHERE id=?`,
-            args: [JSON.stringify(body.notes ?? []), Number(body.id)],
-        });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating deity notes:', error);
-        return NextResponse.json({ error: 'Failed to update deity notes' }, { status: 500 });
-    }
-}
+export const PATCH = notesPatchHandler({
+    table: TABLE,
+    idRequiredMessage: 'Deity ID is required',
+    notFoundMessage: 'Deity not found',
+    updateFailedMessage: 'Failed to update deity notes',
+    logLabel: 'Error updating deity notes:',
+});
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'Deity ID is required' }, { status: 400 });
-        const idNum = Number(id);
+        const idResult = requireId(searchParams, 'Deity ID is required');
+        if ('error' in idResult) return idResult.error;
+        const idNum = Number(idResult.id);
         const results = await db.batch([
             { sql: `DELETE FROM recap_deities WHERE deity_id=?`, args: [idNum] },
             { sql: `DELETE FROM quest_deities WHERE deity_id=?`, args: [idNum] },
@@ -155,10 +134,7 @@ export async function DELETE(request: NextRequest) {
             { sql: `DELETE FROM deity_follower_pcs WHERE deity_id=?`, args: [idNum] },
             { sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [idNum] },
         ], "write");
-        if ((results[4].rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Deity not found' }, { status: 404 });
+        if ((results[4].rowsAffected ?? 0) === 0) return notFound('Deity not found');
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting Deity:', error);
-        return NextResponse.json({ error: 'Failed to delete Deity' }, { status: 500 });
-    }
+    }, 'Error deleting Deity:', 'Failed to delete Deity');
 }

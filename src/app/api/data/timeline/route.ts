@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
+import { notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 // Interface for timeline event data
 interface TimelineEvent { id: string; title: string; date: string; description: string; category?: string; gm_notes?: string }
@@ -11,7 +12,7 @@ export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const res = await db.execute(`SELECT * FROM ${TABLE}`);
         const data = res.rows.map((r: Record<string, unknown>) => ({
@@ -23,58 +24,46 @@ export async function GET(request?: NextRequest) {
             gm_notes: sanitizeOptionalText(r.gm_notes)
         }));
         return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error reading Timeline file:', error);
-        return NextResponse.json({ error: 'Failed to load Timeline' }, { status: 500 });
-    }
+    }, 'Error reading Timeline file:', 'Failed to load Timeline');
 }
 
 export async function POST(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const e = await request.json();
         const res = await db.execute({ sql: `INSERT INTO ${TABLE} (title,date,description,category,gm_notes) VALUES (?,?,?,?,?)`, args: [e.title, e.date, e.description, e.category ?? null, e.gm_notes ?? null] });
         const newId = Number(res.lastInsertRowid ?? 0);
         return NextResponse.json({ success: true, data: { ...e, id: String(newId) } });
-    } catch (error) {
-        console.error('Error creating Timeline event:', error);
-        return NextResponse.json({ error: 'Failed to create Timeline event' }, { status: 500 });
-    }
+    }, 'Error creating Timeline event:', 'Failed to create Timeline event');
 }
 
 export async function PUT(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const e: TimelineEvent = await request.json();
         const res = await db.execute({ sql: `UPDATE ${TABLE} SET title=?,date=?,description=?,category=?,gm_notes=? WHERE id=?`, args: [e.title, e.date, e.description, e.category ?? null, e.gm_notes ?? null, Number(e.id)] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Timeline event not found' }, { status: 404 });
+        if ((res.rowsAffected ?? 0) === 0) return notFound('Timeline event not found');
         return NextResponse.json({ success: true, data: e });
-    } catch (error) {
-        console.error('Error updating Timeline event:', error);
-        return NextResponse.json({ error: 'Failed to update Timeline event' }, { status: 500 });
-    }
+    }, 'Error updating Timeline event:', 'Failed to update Timeline event');
 }
 
 export async function DELETE(request: NextRequest) {
     const authResult = await verifyRequestAuth(request, { allowedRoles: ['admin', 'dm'] });
     if ('errorResponse' in authResult) return authResult.errorResponse;
 
-    try {
+    return withErrorHandling(async () => {
         const db = getDb();
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
-        if (!id) return NextResponse.json({ error: 'Timeline event ID is required' }, { status: 400 });
-        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(id)] });
-        if ((res.rowsAffected ?? 0) === 0) return NextResponse.json({ error: 'Timeline event not found' }, { status: 404 });
+        const idResult = requireId(searchParams, 'Timeline event ID is required');
+        if ('error' in idResult) return idResult.error;
+        const res = await db.execute({ sql: `DELETE FROM ${TABLE} WHERE id=?`, args: [Number(idResult.id)] });
+        if ((res.rowsAffected ?? 0) === 0) return notFound('Timeline event not found');
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting Timeline event:', error);
-        return NextResponse.json({ error: 'Failed to delete Timeline event' }, { status: 500 });
-    }
+    }, 'Error deleting Timeline event:', 'Failed to delete Timeline event');
 }
