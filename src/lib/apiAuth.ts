@@ -28,12 +28,24 @@ function getBearerToken(request?: NextRequest | Request): string | null {
 
 const DEV_USER: VerifiedUser = { uid: "dev-user", role: "admin", email: "dev@local" };
 
+/**
+ * In tests, verifyRequestAuth bypasses real token verification (and the allowedRoles
+ * check below, which only runs on the real-token path). Tests that need to exercise
+ * role-based behavior (e.g. GET filtering) can opt into a specific role via this header;
+ * it has no effect outside NODE_ENV === "test".
+ */
+function getTestRole(request?: NextRequest | Request): ServerUserRole {
+  const header = request && "headers" in request ? request.headers.get("x-test-role") : null;
+  if (header === "admin" || header === "dm" || header === "player") return header;
+  return "admin";
+}
+
 export async function verifyRequestAuth(
   request?: NextRequest | Request,
   options: VerifyOptions = {}
 ): Promise<AuthResult> {
   if (process.env.NODE_ENV === "test") {
-    return { user: null };
+    return { user: { uid: "test-user", role: getTestRole(request), email: "test@local" } };
   }
 
   if (process.env.NODE_ENV === "development") {

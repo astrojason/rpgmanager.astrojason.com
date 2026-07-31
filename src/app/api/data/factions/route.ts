@@ -4,7 +4,7 @@ import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
 import { genUUID } from '@/lib/id';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'factions';
 
@@ -30,7 +30,7 @@ export async function GET(request?: NextRequest) {
       gm_notes: sanitizeOptionalText(r.gm_notes),
       notes: r.notes ? JSON.parse(String(r.notes)) : [],
     } as Faction));
-    return NextResponse.json(data);
+    return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
   }, 'Error reading Factions file:', 'Failed to load Factions');
 }
 

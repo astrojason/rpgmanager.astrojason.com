@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
 
 describe('timeline endpoint', () => {
   it('returns timeline entries', async () => {
@@ -15,6 +15,16 @@ describe('timeline endpoint', () => {
     expect(await res.json()).toEqual([
       { id: '1', title: 'Event', date: '2025-01-01', description: 'desc', category: 'cat', gm_notes: 'notes' },
     ]);
+  });
+
+  it('strips gm_notes from timeline events for players', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [{ id: 1, title: 'Event', date: '2025-01-01', description: 'desc', category: 'cat', gm_notes: 'notes' }],
+    });
+    const { GET } = await import('@/app/api/data/timeline/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].gm_notes).toBeUndefined();
   });
 
   it('creates a timeline event', async () => {

@@ -1,5 +1,45 @@
 import { describe, expect, it, vi } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
+
+describe('npcs endpoint role-based visibility', () => {
+  const mockRows = () => {
+    mockDb.execute
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 1, name: 'Barkeep', pronunciation: '', race: '', gender: '', location: '', status: '', description: '', notes: '[]', hidden: 0, nameHidden: 0, hide_name: 0, gm_notes: 'plot hook' },
+          { id: 2, name: 'Secret Villain', pronunciation: '', race: '', gender: '', location: '', status: '', description: '', notes: '[]', hidden: 1, nameHidden: 0, hide_name: 0, gm_notes: 'twist' },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] }) // npc_factions
+      .mockResolvedValueOnce({ rows: [] }); // npc_linked_npcs
+  };
+
+  it('returns hidden NPCs and gm_notes to admins', async () => {
+    mockRows();
+    const { GET } = await import('@/app/api/data/npcs/route');
+    const res = await GET(requestAsRole('admin') as any);
+    const data = await res.json();
+    expect(data.map((n: { id: string }) => n.id)).toEqual(['1', '2']);
+    expect(data.find((n: { id: string }) => n.id === '1').gm_notes).toBe('plot hook');
+  });
+
+  it('returns hidden NPCs and gm_notes to DMs', async () => {
+    mockRows();
+    const { GET } = await import('@/app/api/data/npcs/route');
+    const res = await GET(requestAsRole('dm') as any);
+    const data = await res.json();
+    expect(data.map((n: { id: string }) => n.id)).toEqual(['1', '2']);
+  });
+
+  it('hides hidden NPCs and strips gm_notes for players', async () => {
+    mockRows();
+    const { GET } = await import('@/app/api/data/npcs/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data.map((n: { id: string }) => n.id)).toEqual(['1']);
+    expect(data[0].gm_notes).toBeUndefined();
+  });
+});
 
 describe('npcs endpoint', () => {
   it('returns NPCs with factions and notes', async () => {

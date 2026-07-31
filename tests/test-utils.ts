@@ -12,3 +12,8 @@ export function jsonRequest(url: string, method: string, body: unknown) {
 export function requestWithQuery(url: string) {
   return new Request(url);
 }
+
+/** Builds a GET request carrying the test-only `x-test-role` header (see apiAuth.ts). */
+export function requestAsRole(role: 'admin' | 'dm' | 'player', url = 'http://test/api') {
+  return new Request(url, { headers: { 'x-test-role': role } });
+}

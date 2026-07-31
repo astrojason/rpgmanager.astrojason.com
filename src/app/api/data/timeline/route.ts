@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 // Interface for timeline event data
 interface TimelineEvent { id: string; title: string; date: string; description: string; category?: string; gm_notes?: string }
@@ -23,7 +23,7 @@ export async function GET(request?: NextRequest) {
             category: sanitizeOptionalText(r.category),
             gm_notes: sanitizeOptionalText(r.gm_notes)
         }));
-        return NextResponse.json(data);
+        return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
     }, 'Error reading Timeline file:', 'Failed to load Timeline');
 }
 

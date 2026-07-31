@@ -3,7 +3,7 @@ import { Item } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'items';
 
@@ -98,7 +98,7 @@ export async function GET(request?: NextRequest) {
                 recapMap.get(id) ?? [],
             );
         });
-        return NextResponse.json(items);
+        return NextResponse.json(filterForRole(items, authResult.user?.role ?? null));
     }, 'Error loading items:', 'Failed to load items');
 }
 

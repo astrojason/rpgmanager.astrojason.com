@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
-import { verifyRequestAuth } from '@/lib/apiAuth';
+import { ServerUserRole, verifyRequestAuth } from '@/lib/apiAuth';
+
+export function isPrivilegedRole(role: ServerUserRole): boolean {
+  return role === 'admin' || role === 'dm';
+}
+
+/**
+ * Server-side enforcement of the "hidden from players" / "GM notes" concepts: drops rows
+ * marked hidden and strips gm_notes for anyone who isn't admin/dm. Must run on every GET
+ * route that returns hidden/gm_notes fields — the client-side badges/filters are a UX
+ * layer on top, not the access-control boundary.
+ */
+export function filterForRole<T extends { hidden?: boolean; gm_notes?: string | null }>(
+  rows: T[],
+  role: ServerUserRole
+): T[] {
+  if (isPrivilegedRole(role)) return rows;
+  return rows
+    .filter(row => !row.hidden)
+    .map(row => {
+      if (row.gm_notes === undefined) return row;
+      const copy = { ...row };
+      delete copy.gm_notes;
+      return copy;
+    });
+}
 
 export function requireId(
   searchParams: URLSearchParams,

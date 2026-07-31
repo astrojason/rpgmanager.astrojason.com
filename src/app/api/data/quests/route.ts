@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'quests';
 
@@ -66,7 +66,7 @@ export async function GET(request?: NextRequest) {
                 tagged_deities: deityMap.get(id) ?? [],
             };
         });
-        return NextResponse.json(data);
+        return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
     }, 'Error reading Quests file:', 'Failed to load Quests');
 }
 

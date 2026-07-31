@@ -3,7 +3,7 @@ import { Deity } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'deities';
 
@@ -70,7 +70,7 @@ export async function GET(request?: NextRequest) {
                 follower_pcs: pcMap.get(id) ?? [],
             };
         });
-        return NextResponse.json(data);
+        return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
     }, 'Error reading Deities:', 'Failed to load Deities');
 }
 

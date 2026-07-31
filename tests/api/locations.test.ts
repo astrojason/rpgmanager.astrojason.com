@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
 
 describe('locations endpoint', () => {
   it('returns locations with parsed fields', async () => {
@@ -42,6 +42,19 @@ describe('locations endpoint', () => {
         notes: [],
       },
     ]);
+  });
+
+  it('strips gm_notes from locations for players', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        { id: 7, name: 'Sandhaven', teaser: 'teaser', detail: 'detail', gm_notes: 'secret' },
+      ],
+    });
+
+    const { GET } = await import('@/app/api/data/locations/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].gm_notes).toBeUndefined();
   });
 
   it('creates location and returns new id', async () => {

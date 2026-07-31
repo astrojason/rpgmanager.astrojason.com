@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
 
 describe('pcs endpoint', () => {
   it('returns PCs with faction ids', async () => {
@@ -34,6 +34,17 @@ describe('pcs endpoint', () => {
         factions: ['3'],
       },
     ]);
+  });
+
+  it('strips gm_notes from PCs for players', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ id: 1, name: 'Weledor', gm_notes: 'secret backstory' }] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    const { GET } = await import('@/app/api/data/pcs/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].gm_notes).toBeUndefined();
   });
 
   it('creates PC within transaction', async () => {

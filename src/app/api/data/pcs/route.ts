@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 // Ensure Node.js runtime and disable caching for fresh reads/writes
 export const runtime = 'nodejs';
@@ -50,7 +50,7 @@ export async function GET(request?: NextRequest) {
       byPc.get(pid)!.push(fid);
     }
     const out = (base.rows as unknown[]).map(r => rowToPC(r as Record<string, unknown>, byPc.get(Number((r as Record<string, unknown>).id)) ?? []));
-    return NextResponse.json(out);
+    return NextResponse.json(filterForRole(out, authResult.user?.role ?? null));
   }, 'Error reading PCs file:', 'Failed to load PCs');
 }
 

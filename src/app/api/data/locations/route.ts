@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'locations';
 
@@ -28,7 +28,7 @@ export async function GET(request?: NextRequest) {
       notes: r.notes ? JSON.parse(String(r.notes)) : [],
       locations: r.locations ? JSON.parse(String(r.locations)) : undefined,
     }));
-    return NextResponse.json(data);
+    return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
   }, 'Error reading Locations file:', 'Failed to load Locations');
 }
 

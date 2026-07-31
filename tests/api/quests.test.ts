@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
 
 describe('quests endpoint', () => {
   it('lists quests with parsed notes', async () => {
@@ -18,6 +18,19 @@ describe('quests endpoint', () => {
     expect(await res.json()).toEqual([
       { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [], tagged_factions: [], tagged_deities: [] },
     ]);
+  });
+
+  it('strips gm_notes from quests for players', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ id: 1, name: 'Quest', notes: '[]', status: 'active', gm_notes: 'secret' }] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/quests/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].gm_notes).toBeUndefined();
   });
 
   it('creates quest and returns id', async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { jsonRequest, mockDb } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole } from '../test-utils';
 
 describe('calendar endpoint', () => {
   it('returns parsed calendar entry', async () => {
@@ -31,6 +31,52 @@ describe('calendar endpoint', () => {
       events: [{ name: 'Festival' }],
       categories: ['seasonal'],
     });
+  });
+
+  it('hides dmOnly events from players', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        {
+          name: 'Azorian',
+          description: 'desc',
+          showIntercalarySeparately: 1,
+          current_day: 5,
+          current_month: 4,
+          current_year: 427,
+          static: JSON.stringify({ months: [] }),
+          events: JSON.stringify([{ name: 'Festival' }, { name: 'Secret Cabal Meeting', dmOnly: true }]),
+          categories: JSON.stringify(['seasonal']),
+        },
+      ],
+    });
+
+    const { GET } = await import('@/app/api/data/calendar/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data.events).toEqual([{ name: 'Festival' }]);
+  });
+
+  it('returns dmOnly events to admins and DMs', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        {
+          name: 'Azorian',
+          description: 'desc',
+          showIntercalarySeparately: 1,
+          current_day: 5,
+          current_month: 4,
+          current_year: 427,
+          static: JSON.stringify({ months: [] }),
+          events: JSON.stringify([{ name: 'Festival' }, { name: 'Secret Cabal Meeting', dmOnly: true }]),
+          categories: JSON.stringify(['seasonal']),
+        },
+      ],
+    });
+
+    const { GET } = await import('@/app/api/data/calendar/route');
+    const res = await GET(requestAsRole('dm') as any);
+    const data = await res.json();
+    expect(data.events).toEqual([{ name: 'Festival' }, { name: 'Secret Cabal Meeting', dmOnly: true }]);
   });
 
   it('returns empty object when no calendar row exists', async () => {

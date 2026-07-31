@@ -3,7 +3,7 @@ import { NPC } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'npcs';
 const JUNCTION = 'npc_factions';
@@ -65,7 +65,7 @@ export async function GET(request?: NextRequest) {
         }
         const out: NPC[] = [];
         for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? [], linkedMap.get(Number((row as Record<string, unknown>).id)) ?? []));
-        return NextResponse.json(out);
+        return NextResponse.json(filterForRole(out, authResult.user?.role ?? null));
     }, 'Error loading NPCs:', 'Failed to load NPCs');
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { jsonRequest, mockDb, requestWithQuery } from '../test-utils';
+import { jsonRequest, mockDb, requestAsRole, requestWithQuery } from '../test-utils';
 
 describe('factions endpoint', () => {
   it('returns transformed factions list', async () => {
@@ -42,6 +42,17 @@ describe('factions endpoint', () => {
         notes: [],
       },
     ]);
+  });
+
+  it('strips gm_notes from factions for players', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [{ id: '1', name: 'Order of Dawn', gm_notes: 'secret' }],
+    });
+
+    const { GET } = await import('@/app/api/data/factions/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].gm_notes).toBeUndefined();
   });
 
   it('creates a faction with provided id', async () => {

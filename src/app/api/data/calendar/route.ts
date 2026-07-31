@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
-import { withErrorHandling } from '@/lib/apiHelpers';
+import { isPrivilegedRole, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'calendar';
 
@@ -14,13 +14,15 @@ export async function GET(request?: NextRequest) {
     const res = await db.execute(`SELECT * FROM ${TABLE} LIMIT 1`);
     if (res.rows.length === 0) return NextResponse.json({});
     const r: Record<string, unknown> = res.rows[0];
+    const role = authResult.user?.role ?? null;
+    const events: { dmOnly?: boolean }[] = r.events ? JSON.parse(String(r.events)) : [];
     const data = {
       name: r.name ?? '',
       description: r.description ?? '',
       showIntercalarySeparately: !!r.showIntercalarySeparately,
       current: { day: Number(r.current_day ?? 0), month: Number(r.current_month ?? 0), year: Number(r.current_year ?? 0) },
       static: r.static ? JSON.parse(String(r.static)) : {},
-      events: r.events ? JSON.parse(String(r.events)) : [],
+      events: isPrivilegedRole(role) ? events : events.filter(e => !e.dmOnly),
       categories: r.categories ? JSON.parse(String(r.categories)) : [],
     };
     return NextResponse.json(data);
