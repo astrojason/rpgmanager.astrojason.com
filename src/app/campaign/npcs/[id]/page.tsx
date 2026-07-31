@@ -453,12 +453,14 @@ export default function NPCDetailPage() {
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingTop: 4 }}>
             <div>
               <div className="grim-page-eyebrow">Dossier of an Encountered Soul</div>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
-                {displayName(npc) || "Unknown"}
-              </h1>
-              {isNameHidden(npc) && dmMode && (
-                <span className="grim-chip" style={{ fontSize: 10, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden from players</span>
-              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
+                  {displayName(npc) || "Unknown"}
+                </h1>
+                {isNameHidden(npc) && dmMode && (
+                  <span className="grim-chip" style={{ fontSize: 10, flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden from players</span>
+                )}
+              </div>
               {!isNameHidden(npc) && npc.pronunciation && (
                 <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 17 }}>
                   pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{npc.pronunciation}</b>

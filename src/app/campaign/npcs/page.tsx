@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePageTracking } from "@/utils/referrerTracking";
@@ -14,6 +14,8 @@ import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
 
+const PAGE_SIZE = 24;
+
 function statusChipClass(status?: string): string {
   const s = (status || "").toLowerCase();
   if (s === "alive") return "grim-chip is-alive";
@@ -24,6 +26,7 @@ function statusChipClass(status?: string): string {
 export default function NPCsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -91,6 +94,18 @@ export default function NPCsPage() {
     const lb = displayName(b).toLowerCase() || (b.id || "").toLowerCase();
     return la.localeCompare(lb);
   });
+
+  const totalPages = Math.max(1, Math.ceil(sortedNPCs.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, statusFilter]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pagedNPCs = sortedNPCs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const aliveCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "alive").length;
   const unknownCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "unknown").length;
@@ -316,7 +331,7 @@ export default function NPCsPage() {
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-              {sortedNPCs.map((npc) => (
+              {pagedNPCs.map((npc) => (
                 <div
                   key={npc.id}
                   onClick={() => router.push(`/campaign/npcs/${npc.id}`)}
@@ -350,16 +365,18 @@ export default function NPCsPage() {
                       {npc.hidden && (isDM || isAdmin) && (
                         <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.06 285 / 0.85)", color: "var(--grim-arcane)", border: "1px solid var(--grim-arcane)" }}>hidden</span>
                       )}
-                      {isNameHidden(npc) && (isDM || isAdmin) && (
-                        <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
-                      )}
                     </div>
                   </div>
 
                   {/* Card body */}
                   <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {displayName(npc) || "Unknown"}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {displayName(npc) || "Unknown"}
+                      </div>
+                      {isNameHidden(npc) && (isDM || isAdmin) && (
+                        <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
+                      )}
                     </div>
                     {npc.pronunciation && !isNameHidden(npc) && (
                       <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
@@ -396,6 +413,30 @@ export default function NPCsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: 22 }}>
+              <button
+                className="grim-btn is-ghost"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                style={{ opacity: page === 1 ? 0.4 : 1, cursor: page === 1 ? "default" : "pointer" }}
+              >
+                ‹ Prev
+              </button>
+              <span className="grim-mono" style={{ fontSize: 11, letterSpacing: ".14em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                className="grim-btn is-ghost"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                style={{ opacity: page === totalPages ? 0.4 : 1, cursor: page === totalPages ? "default" : "pointer" }}
+              >
+                Next ›
+              </button>
             </div>
           )}
         </section>
