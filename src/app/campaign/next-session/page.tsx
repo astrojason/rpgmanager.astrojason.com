@@ -12,6 +12,7 @@ import {
 } from "@/utils/nextSession";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { CalendarData, SessionRecap } from "@/types/interfaces";
 
 interface NextSessionData {
   date: string;
@@ -45,10 +46,10 @@ function sigilStyle(tint: string): React.CSSProperties {
   return { ...base, background: "linear-gradient(180deg, oklch(0.45 0.10 80), oklch(0.30 0.08 78))", border: "1px solid var(--grim-gold-2)" };
 }
 
-const QUICK_LINKS = [
-  { sigil: "☾", title: "Last Session Recap", sub: "A Desperate Flight",   tint: "gold",   href: "/campaign/recaps" },
-  { sigil: "⚔", title: "Player Characters",  sub: "The fellowship",        tint: "ember",  href: "/campaign/pcs" },
-  { sigil: "✠", title: "Campaign Calendar",  sub: "Miriandar · 4th moon", tint: "arcane", href: "/campaign/calendar" },
+const QUICK_LINK_META = [
+  { sigil: "☾", title: "Last Session Recap", tint: "gold",   href: "/campaign/recaps" },
+  { sigil: "⚔", title: "Player Characters",  tint: "ember",  href: "/campaign/pcs" },
+  { sigil: "✠", title: "Campaign Calendar",  tint: "arcane", href: "/campaign/calendar" },
 ];
 
 export default function NextSessionPage() {
@@ -65,6 +66,41 @@ export default function NextSessionPage() {
       return r.json();
     },
   });
+
+  const { data: calendarData = null } = useQuery<CalendarData | null>({
+    queryKey: ['/api/data/calendar'],
+    queryFn: async () => {
+      const r = await authFetch("/api/data/calendar");
+      return r.ok ? r.json() : null;
+    },
+  });
+
+  const { data: recaps = [] } = useQuery<SessionRecap[]>({
+    queryKey: ['/api/data/session-recaps'],
+    queryFn: async () => {
+      const r = await authFetch("/api/data/session-recaps");
+      return r.ok ? r.json() : [];
+    },
+  });
+
+  const currentGameDate = useMemo(() => {
+    const cur = calendarData?.current;
+    const months = calendarData?.static?.months ?? [];
+    if (!cur || !cur.day || !cur.month || !cur.year) return sessionData?.currentGameDate ?? null;
+    const monthName = months[cur.month - 1]?.name ?? `Month ${cur.month}`;
+    return `${monthName} ${cur.day}, ${cur.year}`;
+  }, [calendarData, sessionData?.currentGameDate]);
+
+  const latestRecap = useMemo(() => {
+    const sorted = [...recaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return sorted.length > 0 ? sorted[0] : null;
+  }, [recaps]);
+
+  const quickLinks = useMemo(() => [
+    { ...QUICK_LINK_META[0], sub: latestRecap?.title ?? "No recap yet" },
+    { ...QUICK_LINK_META[1], sub: "The fellowship" },
+    { ...QUICK_LINK_META[2], sub: currentGameDate ?? "Date unknown" },
+  ], [latestRecap, currentGameDate]);
 
   const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingSessionDate = useMemo(
@@ -234,7 +270,7 @@ export default function NextSessionPage() {
             <div style={{ display: "flex", gap: 30, marginTop: 24, paddingTop: 16, borderTop: "1px dashed oklch(0.55 0.08 50 / 0.5)", flexWrap: "wrap" }}>
               <div>
                 <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{sessionData.currentGameDate}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{currentGameDate ?? "—"}</div>
               </div>
               {sessionData.location && (
                 <div>
@@ -363,7 +399,7 @@ export default function NextSessionPage() {
       <section style={{ marginTop: 6 }}>
         <h2 className="grim-h-section">Threads Within Reach</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-          {QUICK_LINKS.map((s, i) => (
+          {quickLinks.map((s, i) => (
             <Link
               key={i}
               href={s.href}
