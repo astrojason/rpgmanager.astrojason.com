@@ -176,7 +176,7 @@ export default function ItemDetailPage() {
 
   // Backlinks
   const linkedRecaps = recaps.filter(r => (r.tagged_items ?? []).includes(id));
-  const linkedNpcs = npcs.filter(n => (item.tagged_npcs ?? []).includes(String(n.id)));
+  const linkedNpcs = npcs.filter(n => (item.tagged_npcs ?? []).includes(String(n.id)) && (!n.hidden || isAdmin || isDM));
   const linkedPcs = pcs.filter(p => (item.tagged_pcs ?? []).includes(String(p.id)));
   const linkedLocations = locations.filter(l => (item.tagged_locations ?? []).includes(l.id));
 
@@ -420,7 +420,10 @@ export default function ItemDetailPage() {
                   {linkedNpcs.map(n => (
                     <Link key={n.id} href={`/campaign/npcs/${n.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
+                        <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
+                          {n.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                        </span>
                         <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "—"}</span>
                       </div>
                     </Link>

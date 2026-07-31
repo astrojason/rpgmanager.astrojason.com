@@ -76,10 +76,10 @@ export default function FactionDetailPage() {
   const notFound = !loading && !faction;
   const members = useMemo(() => {
     if (!faction) return [];
-    const m = allNpcs.filter(n => n.factions?.includes(faction.id));
+    const m = allNpcs.filter(n => n.factions?.includes(faction.id) && (!n.hidden || isAdmin || isDM));
     m.sort((a, b) => ((a.name || a.aka || "") < (b.name || b.aka || "") ? -1 : 1));
     return m;
-  }, [allNpcs, faction]);
+  }, [allNpcs, faction, isAdmin, isDM]);
   const pcs = useMemo(() => faction ? allPcs.filter(p => p.factions?.includes(faction.id)) : [], [allPcs, faction]);
   const recaps = useMemo(() => faction
     ? allRecaps.filter(r => (r.tagged_factions ?? []).includes(faction.id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -246,6 +246,7 @@ export default function FactionDetailPage() {
                 sub={[npc.description, npc.gender, npc.location].filter(Boolean).join(" · ")}
                 deceased={npc.status === "Deceased"}
                 href={`/campaign/npcs/${npc.id}`}
+                hidden={npc.hidden && (isAdmin || isDM)}
               />
             ))}
           </div>
@@ -376,7 +377,7 @@ function BannerText({ faction, totalMembers }: { faction: Faction; totalMembers:
   );
 }
 
-function MemberCard({ image, name, sub, deceased, href }: { image?: string; name: string; sub: string; deceased?: boolean; href: string }) {
+function MemberCard({ image, name, sub, deceased, href, hidden }: { image?: string; name: string; sub: string; deceased?: boolean; href: string; hidden?: boolean }) {
   return (
     <Link href={href} style={{ textDecoration: "none" }}>
       <div
@@ -399,8 +400,11 @@ function MemberCard({ image, name, sub, deceased, href }: { image?: string; name
           )}
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: deceased ? "var(--grim-ink-3)" : "var(--grim-ink)", letterSpacing: ".02em", textDecoration: deceased ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {name}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: deceased ? "var(--grim-ink-3)" : "var(--grim-ink)", letterSpacing: ".02em", textDecoration: deceased ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {name}
+            </div>
+            {hidden && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0 }}>hidden</span>}
           </div>
           <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".10em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {sub}

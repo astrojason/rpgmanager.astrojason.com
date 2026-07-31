@@ -55,7 +55,7 @@ export default function PCDetailPage() {
 
   const pc = useMemo(() => allPcs.find((p: PC) => String(p.id) === id) ?? null, [allPcs, id]);
   const notFound = !loading && !pc;
-  const deities = useMemo(() => allDeitiesData.filter(d => (d.follower_pcs ?? []).includes(id)), [allDeitiesData, id]);
+  const deities = useMemo(() => allDeitiesData.filter(d => (d.follower_pcs ?? []).includes(id) && (!d.hidden || isAdmin || isDM)), [allDeitiesData, id, isAdmin, isDM]);
 
   const handleUpdateNotes = async (notes: UserNote[]) => {
     if (!pc) return;
@@ -292,7 +292,10 @@ export default function PCDetailPage() {
               {deities.map(d => (
                 <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                    <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                      <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                      {d.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                    </span>
                     <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
                   </div>
                 </Link>

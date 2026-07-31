@@ -81,7 +81,7 @@ export default function NPCDetailPage() {
     allRecaps.filter(r => (r.tagged_npcs ?? []).includes(id)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     [allRecaps, id]
   );
-  const deities = useMemo(() => allDeities.filter(d => (d.follower_npcs ?? []).includes(id)), [allDeities, id]);
+  const deities = useMemo(() => allDeities.filter(d => (d.follower_npcs ?? []).includes(id) && (!d.hidden || dmMode)), [allDeities, id, dmMode]);
 
   useEffect(() => { setDmMode(isDM || isAdmin); }, [isDM, isAdmin]);
 
@@ -592,7 +592,10 @@ export default function NPCDetailPage() {
                   {deities.map(d => (
                     <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                        <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                          {d.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                        </span>
                         <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
                       </div>
                     </Link>
@@ -620,7 +623,10 @@ export default function NPCDetailPage() {
                             <Image src={safeImageSrc(linked.image)!} alt={displayName(linked)} width={28} height={36} style={{ objectFit: "cover", objectPosition: "center top", border: "1px solid var(--grim-gold-2)", flexShrink: 0 }} />
                           )}
                           <div>
-                            <div style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                              <div style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
+                              {linked.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                            </div>
                             {linked.race && <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em" }}>{linked.race}</div>}
                           </div>
                         </div>

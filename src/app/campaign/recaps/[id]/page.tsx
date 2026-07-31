@@ -97,7 +97,7 @@ export default function RecapDetailPage() {
     return idx !== -1 ? idx + 1 : null;
   }, [allRecaps, recap]);
   const allNPCData = rawNpcs;
-  const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id) })), [rawNpcs]);
+  const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id), hidden: n.hidden })), [rawNpcs]);
   const availableLocations = useMemo(() => {
     const flat: EntityItem[] = [];
     for (const loc of rawLocs) {
@@ -109,7 +109,7 @@ export default function RecapDetailPage() {
   const availableQuests = useMemo(() => rawQuests.map(q => ({ id: String(q.id), name: q.name })), [rawQuests]);
   const availableItems = useMemo(() => rawItems.map(it => ({ id: String(it.id), name: it.name, hidden: it.hidden })), [rawItems]);
   const availableFactions = useMemo(() => rawFactions.map(f => ({ id: String(f.id), name: f.name })), [rawFactions]);
-  const availableDeities = useMemo(() => rawDeities.filter(d => !d.hidden).map(d => ({ id: String(d.id), name: d.name })), [rawDeities]);
+  const availableDeities = useMemo(() => rawDeities.filter(d => !d.hidden || isAdmin).map(d => ({ id: String(d.id), name: d.name, hidden: d.hidden })), [rawDeities, isAdmin]);
 
   const canEdit = (r: Recap) => {
     const uid = user?.uid;
@@ -278,7 +278,13 @@ export default function RecapDetailPage() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {(recap.tagged_npcs ?? []).map(id => {
                 const n = availableNPCs.find(x => x.id === id);
-                return n ? <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none" }}>{n.name}</Link> : null;
+                if (!n || (n.hidden && !isAdmin)) return null;
+                return (
+                  <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    {n.name}
+                    {n.hidden && <span style={{ fontSize: 9, opacity: 0.75 }}>(hidden)</span>}
+                  </Link>
+                );
               })}
               {(recap.tagged_locations ?? []).map(id => {
                 const l = availableLocations.find(x => x.id === id);
@@ -290,7 +296,13 @@ export default function RecapDetailPage() {
               })}
               {(recap.tagged_items ?? []).map(id => {
                 const it = availableItems.find(x => x.id === id);
-                return it ? <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>⚔ {it.name}</Link> : null;
+                if (!it || (it.hidden && !isAdmin)) return null;
+                return (
+                  <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                    ⚔ {it.name}
+                    {it.hidden && <span style={{ fontSize: 9, opacity: 0.75 }}>(hidden)</span>}
+                  </Link>
+                );
               })}
               {(recap.tagged_factions ?? []).map(id => {
                 const f = availableFactions.find(x => x.id === id);
@@ -298,7 +310,13 @@ export default function RecapDetailPage() {
               })}
               {(recap.tagged_deities ?? []).map(id => {
                 const d = availableDeities.find(x => x.id === id);
-                return d ? <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>✦ {d.name}</Link> : null;
+                if (!d) return null;
+                return (
+                  <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: 11, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                    ✦ {d.name}
+                    {d.hidden && <span style={{ fontSize: 9, opacity: 0.75 }}>(hidden)</span>}
+                  </Link>
+                );
               })}
             </div>
           </div>
