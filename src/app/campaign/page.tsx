@@ -260,8 +260,12 @@ export default function CampaignHome() {
             <div style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "oklch(0.28 0.03 50)", lineHeight: 1.6, marginTop: 12 }}>
               {sessionDateStr ? (
                 <>Hark and attend! The party is bid to gather upon{" "}
-                <b style={{ fontFamily: "var(--font-head)" }}>{sessionDateStr}</b>,
-                that we may continue the bloody business of <i>Stormharbor</i>.</>
+                <b style={{ fontFamily: "var(--font-head)" }}>{sessionDateStr}</b>
+                {sessionData?.location ? (
+                  <>, that we may continue the bloody business of <i>{sessionData.location}</i>.</>
+                ) : (
+                  <>, that we may continue the party&apos;s bloody business.</>
+                )}</>
               ) : (
                 <>The next session date is yet to be proclaimed. Watch the skies, adventurer.</>
               )}

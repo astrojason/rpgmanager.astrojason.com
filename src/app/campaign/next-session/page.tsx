@@ -147,11 +147,13 @@ export default function NextSessionPage() {
 
   const handleEditSession = async () => {
     if (!sessionData) return;
+    const location = prompt("Edit session location:", sessionData.location || "");
+    if (location === null) return;
     const agenda = prompt("Edit session agenda:", sessionData.agenda || "");
     if (agenda === null) return;
     const notes = prompt("Edit session notes:", sessionData.notes || "");
     if (notes === null) return;
-    const updated = { ...sessionData, agenda, notes, lastUpdated: new Date().toISOString().split("T")[0] };
+    const updated = { ...sessionData, location, agenda, notes, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
@@ -259,8 +261,12 @@ export default function NextSessionPage() {
                 )}</>
               ) : displayDate ? (
                 <>Hark and attend. The fellowship shall convene upon{" "}
-                  <b style={{ fontFamily: "var(--font-head)" }}>{formatSessionDate(displayDate)}</b>,
-                  that the bloody business of Sandhaven be carried to its end.
+                  <b style={{ fontFamily: "var(--font-head)" }}>{formatSessionDate(displayDate)}</b>
+                  {sessionData.location ? (
+                    <>, that the bloody business of <i>{sessionData.location}</i> be carried to its end.</>
+                  ) : (
+                    <>, that the party&apos;s bloody business be carried to its end.</>
+                  )}
                 </>
               ) : (
                 <>The next session date is yet to be proclaimed. Watch the skies, adventurer.</>
