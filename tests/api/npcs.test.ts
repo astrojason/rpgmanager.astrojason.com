@@ -41,6 +41,37 @@ describe('npcs endpoint role-based visibility', () => {
   });
 });
 
+describe('npcs endpoint name-hidden masking', () => {
+  const mockNameHiddenRows = () => {
+    mockDb.execute
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 1, name: 'Azrakhan the Undying', display_name: 'The Hooded Stranger', pronunciation: '', race: '', gender: '', location: '', status: '', description: '', notes: '[]', hidden: 0, nameHidden: 1, hide_name: 0 },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+  };
+
+  it('returns the real name to admins and DMs', async () => {
+    mockNameHiddenRows();
+    const { GET } = await import('@/app/api/data/npcs/route');
+    const res = await GET(requestAsRole('admin') as any);
+    const data = await res.json();
+    expect(data[0].name).toBe('Azrakhan the Undying');
+    expect(data[0].display_name).toBe('The Hooded Stranger');
+  });
+
+  it('strips the real name from players, keeping display_name', async () => {
+    mockNameHiddenRows();
+    const { GET } = await import('@/app/api/data/npcs/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data[0].name).toBeUndefined();
+    expect(data[0].display_name).toBe('The Hooded Stranger');
+  });
+});
+
 describe('npcs endpoint', () => {
   it('returns NPCs with factions and notes', async () => {
     mockDb.execute

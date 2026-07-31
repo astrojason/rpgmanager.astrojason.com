@@ -456,6 +456,9 @@ export default function NPCDetailPage() {
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: 72, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
                 {displayName(npc) || "Unknown"}
               </h1>
+              {isNameHidden(npc) && dmMode && (
+                <span className="grim-chip" style={{ fontSize: 10, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden from players</span>
+              )}
               {!isNameHidden(npc) && npc.pronunciation && (
                 <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 17 }}>
                   pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{npc.pronunciation}</b>
@@ -626,6 +629,7 @@ export default function NPCDetailPage() {
                             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                               <div style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
                               {linked.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                              {isNameHidden(linked) && dmMode && <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
                             </div>
                             {linked.race && <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em" }}>{linked.race}</div>}
                           </div>

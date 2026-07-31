@@ -33,6 +33,7 @@ function categoryChipStyle(category: string): React.CSSProperties {
 export default function ItemsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [hiddenOnly, setHiddenOnly] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
 
@@ -49,6 +50,7 @@ export default function ItemsPage() {
   });
 
   const visibleItems = items.filter(it => isAdmin || !it.hidden);
+  const hiddenCount = visibleItems.filter(it => it.hidden).length;
 
   const filteredItems = visibleItems.filter(it => {
     const term = searchTerm.trim().toLowerCase();
@@ -58,7 +60,8 @@ export default function ItemsPage() {
       (it.description ?? "").toLowerCase().includes(term) ||
       (it.category ?? "").toLowerCase().includes(term);
     const matchCategory = categoryFilter === "all" || it.category === categoryFilter;
-    return matchSearch && matchCategory;
+    const matchHidden = !hiddenOnly || it.hidden;
+    return matchSearch && matchCategory && matchHidden;
   });
 
   const sortedItems = [...filteredItems].sort((a, b) => a.name.localeCompare(b.name));
@@ -206,6 +209,16 @@ export default function ItemsPage() {
               </button>
             ))}
           </div>
+          {isAdmin && (
+            <button
+              onClick={() => setHiddenOnly(v => !v)}
+              className={`grim-btn ${hiddenOnly ? "is-blood" : "is-ghost"}`}
+              style={{ padding: "6px 12px", border: `1px solid ${hiddenOnly ? "var(--grim-blood-2)" : "var(--grim-line)"}`, background: hiddenOnly ? undefined : "transparent" }}
+            >
+              Hidden Only
+              <span className="grim-mono" style={{ fontSize: 10, opacity: 0.7, marginLeft: 6 }}>{hiddenCount}</span>
+            </button>
+          )}
         </section>
 
         {/* Item grid */}

@@ -113,7 +113,7 @@ export default function RecapsPage() {
   });
 
   const allNPCData = rawNpcs;
-  const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id), hidden: n.hidden })), [rawNpcs]);
+  const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id), hidden: n.hidden, nameHidden: n.nameHidden })), [rawNpcs]);
   const availableLocations = useMemo(() => {
     const flat: EntityItem[] = [];
     for (const loc of rawLocations) {
@@ -543,6 +543,7 @@ export default function RecapsPage() {
                             <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: 11, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
                               {n.name}
                               {n.hidden && <span style={{ fontSize: 9, opacity: 0.75 }}>(hidden)</span>}
+                              {n.nameHidden && isAdmin && <span style={{ fontSize: 9, opacity: 0.75 }}>(name hidden)</span>}
                             </Link>
                           );
                         })}

@@ -67,7 +67,6 @@ export default function NPCsPage() {
 
   const filteredNPCs = visibleNPCs.filter((npc) => {
     const term = searchTerm.trim().toLowerCase();
-    if (term !== "" && npc.hidden) return false;
     const allowRealName = !isNameHidden(npc);
     const matchesSearch =
       term === "" ||
@@ -80,6 +79,7 @@ export default function NPCsPage() {
     const s = (npc.status || "").toLowerCase();
     const matchesStatus =
       statusFilter === "all" ||
+      (statusFilter === "hidden" && npc.hidden) ||
       (statusFilter === "alive" && s === "alive") ||
       (statusFilter === "unknown" && s === "unknown") ||
       (statusFilter === "deceased" && (s === "deceased" || s === "dead"));
@@ -98,12 +98,14 @@ export default function NPCsPage() {
     const s = (n.status || "").toLowerCase();
     return s === "deceased" || s === "dead";
   }).length;
+  const hiddenCount = visibleNPCs.filter((n) => n.hidden).length;
 
   const FILTERS = [
     { id: "all", label: "All Souls", count: visibleNPCs.length },
     { id: "alive", label: "Alive", count: aliveCount },
     { id: "unknown", label: "Unknown", count: unknownCount },
     { id: "deceased", label: "Departed", count: deceasedCount },
+    ...((isAdmin || isDM) ? [{ id: "hidden", label: "Hidden", count: hiddenCount }] : []),
   ];
 
   const handleAddNPC = async (data: Partial<NPC>) => {
@@ -347,6 +349,9 @@ export default function NPCsPage() {
                       <span className={statusChipClass(npc.status)} style={{ fontSize: 9, padding: "2px 6px" }}>{npc.status || "Unknown"}</span>
                       {npc.hidden && (isDM || isAdmin) && (
                         <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.06 285 / 0.85)", color: "var(--grim-arcane)", border: "1px solid var(--grim-arcane)" }}>hidden</span>
+                      )}
+                      {isNameHidden(npc) && (isDM || isAdmin) && (
+                        <span className="grim-chip" style={{ fontSize: 9, padding: "2px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
                       )}
                     </div>
                   </div>

@@ -421,8 +421,9 @@ export default function ItemDetailPage() {
                     <Link key={n.id} href={`/campaign/npcs/${n.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
                         <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.display_name || n.aka || "Unknown"}</span>
                           {n.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                          {(n.nameHidden || n.hide_name) && (isAdmin || isDM) && <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
                         </span>
                         <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "—"}</span>
                       </div>

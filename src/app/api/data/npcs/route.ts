@@ -3,11 +3,22 @@ import { NPC } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, isPrivilegedRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { ServerUserRole } from '@/lib/apiAuth';
 
 const TABLE = 'npcs';
 const JUNCTION = 'npc_factions';
 const LINKED = 'npc_linked_npcs';
+
+/**
+ * The real `name` is only for DM/admin eyes when nameHidden/hide_name is set — display_name
+ * (or aka) is the public-facing substitute. Client code picks which to render, but the real
+ * name must never reach a non-privileged client in the first place.
+ */
+function maskHiddenNames(npcs: NPC[], role: ServerUserRole): NPC[] {
+    if (isPrivilegedRole(role)) return npcs;
+    return npcs.map(n => (n.nameHidden || n.hide_name) ? { ...n, name: undefined } : n);
+}
 
 function rowToNPC(row: Record<string, unknown>, factions: string[], linked_npcs: string[]): NPC {
     return {
@@ -65,7 +76,8 @@ export async function GET(request?: NextRequest) {
         }
         const out: NPC[] = [];
         for (const row of base.rows as unknown[]) out.push(rowToNPC(row as Record<string, unknown>, map.get(Number((row as Record<string, unknown>).id)) ?? [], linkedMap.get(Number((row as Record<string, unknown>).id)) ?? []));
-        return NextResponse.json(filterForRole(out, authResult.user?.role ?? null));
+        const role = authResult.user?.role ?? null;
+        return NextResponse.json(maskHiddenNames(filterForRole(out, role), role));
     }, 'Error loading NPCs:', 'Failed to load NPCs');
 }
 

@@ -28,6 +28,7 @@ function alignmentChipClass(alignment?: string): string {
 export default function DeitiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hiddenOnly, setHiddenOnly] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingDeity, setEditingDeity] = useState<Partial<Deity>>({});
 
@@ -46,14 +47,17 @@ export default function DeitiesPage() {
   });
 
   const visible = deities.filter(d => isAdmin || !d.hidden);
+  const hiddenCount = visible.filter(d => d.hidden).length;
 
   const filtered = visible.filter(d => {
     const term = searchTerm.trim().toLowerCase();
-    return term === "" ||
+    const matchesSearch = term === "" ||
       d.name.toLowerCase().includes(term) ||
       (d.domain || "").toLowerCase().includes(term) ||
       (d.alignment || "").toLowerCase().includes(term) ||
       (d.description || "").toLowerCase().includes(term);
+    const matchesHidden = !hiddenOnly || d.hidden;
+    return matchesSearch && matchesHidden;
   });
 
   const sorted = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
@@ -201,6 +205,16 @@ export default function DeitiesPage() {
             />
             <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18 }}>✦</span>
           </div>
+          {isAdmin && (
+            <button
+              onClick={() => setHiddenOnly(v => !v)}
+              className={`grim-btn ${hiddenOnly ? "is-blood" : "is-ghost"}`}
+              style={{ padding: "6px 12px", border: `1px solid ${hiddenOnly ? "var(--grim-blood-2)" : "var(--grim-line)"}`, background: hiddenOnly ? undefined : "transparent" }}
+            >
+              Hidden Only
+              <span className="grim-mono" style={{ fontSize: 10, opacity: 0.7, marginLeft: 6 }}>{hiddenCount}</span>
+            </button>
+          )}
         </section>
 
         {/* Deity card grid */}

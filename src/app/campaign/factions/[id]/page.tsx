@@ -247,6 +247,7 @@ export default function FactionDetailPage() {
                 deceased={npc.status === "Deceased"}
                 href={`/campaign/npcs/${npc.id}`}
                 hidden={npc.hidden && (isAdmin || isDM)}
+                nameHidden={Boolean(npc.nameHidden || npc.hide_name) && (isAdmin || isDM)}
               />
             ))}
           </div>
@@ -377,7 +378,7 @@ function BannerText({ faction, totalMembers }: { faction: Faction; totalMembers:
   );
 }
 
-function MemberCard({ image, name, sub, deceased, href, hidden }: { image?: string; name: string; sub: string; deceased?: boolean; href: string; hidden?: boolean }) {
+function MemberCard({ image, name, sub, deceased, href, hidden, nameHidden }: { image?: string; name: string; sub: string; deceased?: boolean; href: string; hidden?: boolean; nameHidden?: boolean }) {
   return (
     <Link href={href} style={{ textDecoration: "none" }}>
       <div
@@ -405,6 +406,7 @@ function MemberCard({ image, name, sub, deceased, href, hidden }: { image?: stri
               {name}
             </div>
             {hidden && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0 }}>hidden</span>}
+            {nameHidden && <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
           </div>
           <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".10em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {sub}

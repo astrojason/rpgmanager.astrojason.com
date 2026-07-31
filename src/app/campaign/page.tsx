@@ -18,6 +18,8 @@ import {
 } from "@/utils/nextSession";
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
 import ErrorBlock from "@/components/ErrorBlock";
+import { useIsAdmin } from "@/utils/adminCheck";
+import { useIsDM } from "@/utils/role";
 
 interface NextSessionData {
   date: string;
@@ -124,6 +126,8 @@ function statusLabel(status?: string) {
 
 export default function CampaignHome() {
   const router = useRouter();
+  const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
 
   const { data: sessionData = null, error: sessionError } = useQuery<NextSessionData | null>({
     queryKey: ['/api/data/next-session'],
@@ -357,7 +361,9 @@ export default function CampaignHome() {
           <div className="grim-stack" style={{ gap: 10 }}>
             {recentNPCs.map((npc, i) => {
               const imgSrc = safeImageSrc(npc.image);
-              const name = (npc.nameHidden || npc.hide_name) ? (npc.display_name || npc.aka || "Unknown") : (npc.name || npc.aka || "Unknown");
+              const nameIsHidden = Boolean(npc.nameHidden || npc.hide_name);
+              const showRealName = !nameIsHidden || isAdmin || isDM;
+              const name = showRealName ? (npc.name || npc.aka || "Unknown") : (npc.display_name || npc.aka || "Unknown");
               return (
                 <Link key={npc.id} href={`/campaign/npcs/${npc.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "6px 0", borderBottom: i < recentNPCs.length - 1 ? "1px dashed var(--grim-line)" : "none", paddingBottom: i < recentNPCs.length - 1 ? 10 : 0 }}>
@@ -371,7 +377,10 @@ export default function CampaignHome() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                         <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", letterSpacing: ".02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
-                        {npc.pronunciation && !npc.nameHidden && !npc.hide_name && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
+                        {nameIsHidden && (isAdmin || isDM) && (
+                          <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
+                        )}
+                        {npc.pronunciation && !nameIsHidden && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
                       </div>
                       <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {[npc.race, npc.location].filter(Boolean).join(" · ")}
