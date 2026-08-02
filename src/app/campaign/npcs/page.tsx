@@ -10,6 +10,7 @@ import Image from "next/image";
 import { NPC, Faction, PC } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import UserNotesEditor from "@/components/UserNotesEditor";
+import { renderMarkdown } from "@/utils/markdown";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
@@ -392,9 +393,11 @@ export default function NPCsPage() {
                       </div>
                     )}
                     {npc.description && (
-                      <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                        &ldquo;{npc.description}&rdquo;
-                      </div>
+                      <div
+                        className="grim-card-md is-quoted"
+                        style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.4, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(npc.description) }}
+                      />
                     )}
                     {npc.factions && npc.factions.length > 0 && (
                       <div style={{ marginTop: "auto", paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
@@ -405,9 +408,11 @@ export default function NPCsPage() {
                     )}
                     {(isDM || isAdmin) && npc.roleplaying_notes && (
                       <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px dashed oklch(0.65 0.150 285 / 0.25)" }}>
-                        <div style={{ fontSize: 11, color: "oklch(0.70 0.12 285)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                          {npc.roleplaying_notes}
-                        </div>
+                        <div
+                          className="grim-card-md"
+                          style={{ fontSize: 11, color: "oklch(0.70 0.12 285)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(npc.roleplaying_notes) }}
+                        />
                       </div>
                     )}
                   </div>
