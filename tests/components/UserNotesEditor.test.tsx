@@ -17,16 +17,12 @@ vi.mock('@/components/MarkdownEditor', () => ({
 const baseNote = { id: 'n1', content: 'hello', timestamp: '2024-01-01T00:00:00Z', author: 'user-1' };
 
 describe('UserNotesEditor', () => {
-  const originalConfirm = global.confirm;
-
   beforeEach(() => {
     vi.useFakeTimers().setSystemTime(new Date('2024-05-01T00:00:00Z'));
-    global.confirm = vi.fn().mockReturnValue(true);
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    global.confirm = originalConfirm;
   });
 
   it('adds a new note for the current user', async () => {
@@ -70,6 +66,7 @@ describe('UserNotesEditor', () => {
     render(<UserNotesEditor notes={[baseNote]} onChange={onChange} currentUser="user-1" />);
 
     fireEvent.click(screen.getByTitle('Delete'));
+    fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
     expect(onChange).toHaveBeenCalledWith([]);
   });
 });

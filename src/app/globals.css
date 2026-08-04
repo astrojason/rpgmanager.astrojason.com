@@ -80,7 +80,7 @@ body {
   padding: 1px 3px;
   border-radius: 2px;
   font-family: monospace;
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 
 .tooltip-content ul,
@@ -236,14 +236,14 @@ body {
 
   --grim-ink:       oklch(0.94 0.020 85);
   --grim-ink-2:     oklch(0.78 0.030 85);
-  --grim-ink-3:     oklch(0.58 0.025 85);
-  --grim-ink-4:     oklch(0.42 0.020 85);
+  --grim-ink-3:     oklch(0.68 0.025 85);
+  --grim-ink-4:     oklch(0.60 0.020 85);
 
   --grim-ember:     oklch(0.72 0.165 48);
   --grim-ember-2:   oklch(0.82 0.165 62);
   --grim-gold:      oklch(0.84 0.115 85);
   --grim-gold-2:    oklch(0.68 0.115 82);
-  --grim-blood:     oklch(0.52 0.180 22);
+  --grim-blood:     oklch(0.44 0.180 22);
   --grim-blood-2:   oklch(0.62 0.180 22);
   --grim-moss:      oklch(0.55 0.090 145);
   --grim-bone:      oklch(0.70 0.045 78);
@@ -269,7 +269,7 @@ body {
     var(--grim-bg);
   color: var(--grim-ink);
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 1.0625rem;
   line-height: 1.55;
   overflow: hidden;
   position: relative;
@@ -331,7 +331,7 @@ body {
 .grim-sidebar.is-collapsed .grim-brand-mark {
   width: 28px;
   height: 28px;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .grim-brand-mark {
@@ -341,7 +341,7 @@ body {
   box-shadow: 0 0 24px oklch(0.72 0.165 48 / 0.45), inset 0 0 8px oklch(0.30 0.05 30 / 0.6), 0 0 0 1px var(--grim-gold-2);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 1.375rem;
   color: oklch(0.20 0.04 40);
   flex-shrink: 0;
 }
@@ -360,7 +360,7 @@ body {
 
 .grim-brand-name {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 1.375rem;
   color: var(--grim-gold);
   letter-spacing: 0.02em;
   line-height: 1.05;
@@ -370,7 +370,7 @@ body {
 
 .grim-brand-sub {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--grim-ink-3);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -402,7 +402,7 @@ body {
 
 .grim-nav-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   color: var(--grim-ink-4);
   text-transform: uppercase;
@@ -433,7 +433,7 @@ body {
   gap: 12px;
   padding: 9px 12px;
   font-family: var(--font-head);
-  font-size: 14px;
+  font-size: 0.9375rem;
   letter-spacing: 0.04em;
   color: var(--grim-ink-2);
   border-radius: 3px;
@@ -444,7 +444,7 @@ body {
 
 .grim-nav-item .grim-nav-sub {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--grim-ink-4);
   letter-spacing: 0;
   font-style: italic;
@@ -555,7 +555,7 @@ body {
 
 .grim-page-eyebrow {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--grim-ember);
@@ -564,7 +564,7 @@ body {
 
 .grim-page-title {
   font-family: var(--font-display);
-  font-size: 64px;
+  font-size: 4rem;
   color: var(--grim-gold);
   margin: 0 0 6px;
   line-height: 0.95;
@@ -574,7 +574,7 @@ body {
 
 .grim-page-sub {
   font-family: var(--font-head);
-  font-size: 14px;
+  font-size: 0.9375rem;
   color: var(--grim-ink-3);
   font-style: italic;
   margin: 0 0 28px;
@@ -615,7 +615,7 @@ body {
 
 .grim-tome-title {
   font-family: var(--font-head);
-  font-size: 18px;
+  font-size: 1.125rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--grim-gold);
@@ -625,7 +625,7 @@ body {
 .grim-tome-sub {
   font-family: var(--font-body);
   font-style: italic;
-  font-size: 13px;
+  font-size: 0.875rem;
   color: var(--grim-ink-3);
 }
 
@@ -652,7 +652,7 @@ body {
 
 .grim-parchment a, .grim-parchment a.grim-link {
   color: var(--grim-blood);
-  border-bottom-color: oklch(0.52 0.180 22 / 0.4);
+  border-bottom-color: oklch(0.44 0.180 22 / 0.4);
 }
 .grim-parchment a:hover, .grim-parchment a.grim-link:hover {
   color: var(--grim-blood-2);
@@ -661,7 +661,7 @@ body {
 .grim-parchment .drop {
   float: left;
   font-family: var(--font-display);
-  font-size: 64px;
+  font-size: 4rem;
   line-height: 0.85;
   color: var(--grim-blood);
   padding: 4px 8px 0 0;
@@ -673,7 +673,7 @@ body {
   align-items: center;
   gap: 8px;
   font-family: var(--font-head);
-  font-size: 12px;
+  font-size: 1rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: 8px 14px;
@@ -715,7 +715,7 @@ body {
   align-items: center;
   gap: 6px;
   font-family: var(--font-head);
-  font-size: 11px;
+  font-size: 0.8125rem;
   letter-spacing: 0.10em;
   padding: 3px 9px;
   border: 1px solid var(--grim-line-2);
@@ -739,7 +739,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
   color: oklch(0.90 0.06 60);
-  font-size: 30px;
+  font-size: 1.875rem;
   box-shadow: inset -2px -3px 6px oklch(0.25 0.10 22 / 0.6), inset 3px 4px 6px oklch(0.85 0.15 30 / 0.4), 0 6px 18px oklch(0.30 0.12 22 / 0.5), 0 0 0 2px oklch(0.25 0.08 22) inset;
   position: relative;
   transform: rotate(-8deg);
@@ -779,7 +779,7 @@ body {
   border: 1px solid var(--grim-line);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 0.8125rem;
   color: var(--grim-ink-3);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -801,7 +801,7 @@ body {
 
 .grim-h-section {
   font-family: var(--font-head);
-  font-size: 13px;
+  font-size: 0.875rem;
   letter-spacing: 0.20em;
   text-transform: uppercase;
   color: var(--grim-ember-2);
@@ -810,7 +810,7 @@ body {
 
 .grim-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.8125rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--grim-ink-4);
@@ -844,7 +844,7 @@ body {
 
 .grim-rule-ornament-glyph {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1;
 }
 
@@ -876,7 +876,7 @@ button:not(.grim-btn):active:not(:disabled) {
 /* Chronicle body — rendered markdown with drop cap on first paragraph */
 .grim-chronicle {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 1.0625rem;
   line-height: 1.7;
   color: var(--grim-ink);
 }
@@ -892,7 +892,7 @@ button:not(.grim-btn):active:not(:disabled) {
 .grim-chronicle p:first-child::first-letter {
   float: left;
   font-family: var(--font-display);
-  font-size: 52px;
+  font-size: 3.25rem;
   line-height: 0.8;
   color: var(--grim-ember-2);
   padding: 4px 10px 0 0;
@@ -964,7 +964,7 @@ button:not(.grim-btn):active:not(:disabled) {
 
 .grim-modal-message {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 1rem;
   color: var(--grim-ink);
   margin: 0 0 24px;
   line-height: 1.5;
