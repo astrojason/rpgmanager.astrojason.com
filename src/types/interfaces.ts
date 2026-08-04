@@ -9,6 +9,7 @@ export interface Location {
   height?: number; // percentage
   teaser: string;
   detail: string;
+  hidden?: boolean;
   gm_notes?: string;
   notes?: UserNote[];
   isEditing?: boolean; // Optional field for admin use
@@ -93,6 +94,7 @@ export interface Faction {
     description?: string;
   }[];
   image?: string;
+  hidden?: boolean;
   gm_notes?: string;
   notes?: UserNote[];
 }

@@ -3,7 +3,6 @@ import { Faction } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { genUUID } from '@/lib/id';
 import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'factions';
@@ -27,6 +26,7 @@ export async function GET(request?: NextRequest) {
       background: sanitizeOptionalText(r.background),
       relationships: r.relationships ? JSON.parse(String(r.relationships)) : undefined,
       image: safeImageSrc(r.image),
+      hidden: !!r.hidden,
       gm_notes: sanitizeOptionalText(r.gm_notes),
       notes: r.notes ? JSON.parse(String(r.notes)) : [],
     } as Faction));
@@ -41,17 +41,15 @@ export async function POST(request: NextRequest) {
   return withErrorHandling(async () => {
     const db = getDb();
     const f: Faction = await request.json();
-    if (!f.id) {
-      f.id = genUUID();
-    }
-    await db.execute({
-      sql: `INSERT INTO ${TABLE} (id,name,pronunciation,type,description,location,status,goals,background,relationships,image,gm_notes,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    const res = await db.execute({
+      sql: `INSERT INTO ${TABLE} (name,pronunciation,type,description,location,status,goals,background,relationships,image,hidden,gm_notes,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       args: [
-        f.id, f.name, f.pronunciation, f.type, f.description, f.location, f.status,
-        f.goals, f.background ?? null, JSON.stringify(f.relationships ?? null), f.image ?? null, f.gm_notes ?? null, JSON.stringify(f.notes ?? [])
+        f.name, f.pronunciation ?? null, f.type ?? null, f.description ?? null, f.location ?? null, f.status ?? null,
+        f.goals ?? null, f.background ?? null, JSON.stringify(f.relationships ?? null), f.image ?? null, f.hidden ? 1 : 0, f.gm_notes ?? null, JSON.stringify(f.notes ?? [])
       ]
     });
-    return NextResponse.json({ success: true, data: f });
+    const newId = Number(res.lastInsertRowid ?? 0);
+    return NextResponse.json({ success: true, data: { ...f, id: String(newId) } });
   }, 'Error creating Faction:', 'Failed to create Faction');
 }
 
@@ -63,10 +61,10 @@ export async function PUT(request: NextRequest) {
     const db = getDb();
     const f: Faction = await request.json();
     const res = await db.execute({
-      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,type=?,description=?,location=?,status=?,goals=?,background=?,relationships=?,image=?,gm_notes=?,notes=? WHERE id=?`,
+      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,type=?,description=?,location=?,status=?,goals=?,background=?,relationships=?,image=?,hidden=?,gm_notes=?,notes=? WHERE id=?`,
       args: [
-        f.name, f.pronunciation, f.type, f.description, f.location, f.status,
-        f.goals, f.background ?? null, JSON.stringify(f.relationships ?? null), f.image ?? null, f.gm_notes ?? null, JSON.stringify(f.notes ?? []), f.id
+        f.name, f.pronunciation ?? null, f.type ?? null, f.description ?? null, f.location ?? null, f.status ?? null,
+        f.goals ?? null, f.background ?? null, JSON.stringify(f.relationships ?? null), f.image ?? null, f.hidden ? 1 : 0, f.gm_notes ?? null, JSON.stringify(f.notes ?? []), f.id
       ]
     });
     if ((res.rowsAffected ?? 0) === 0) return notFound('Faction not found');

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Image from "next/image";
 import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { authFetch } from "@/utils/authFetch";
-import ErrorBlock from "@/components/ErrorBlock";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LocationsManagementPage() {
@@ -20,6 +20,8 @@ export default function LocationsManagementPage() {
   const [formData, setFormData] = useState<Partial<Location>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+  const queryClient = useQueryClient();
 
   const { data: locations = [], isPending: loading, error: queryError } = useQuery<Location[]>({
     queryKey: ['/api/data/locations'],
@@ -88,7 +90,8 @@ export default function LocationsManagementPage() {
       id: `location-${Date.now()}`,
       name: "",
       teaser: "",
-      detail: ""
+      detail: "",
+      hidden: false,
     });
   };
 
@@ -108,16 +111,29 @@ export default function LocationsManagementPage() {
 
   const handleSave = async () => {
     setError("");
+    if (!formData.name || !formData.teaser || !formData.detail) {
+      setError("Please fill in all required fields");
+      return;
+    }
+    setIsSaving(true);
     try {
-      if (!formData.name || !formData.teaser || !formData.detail) {
-        setError("Please fill in all required fields");
-        return;
-      }
-      setIsSaving(true);
-      // TODO: Save to backend/API
-      setError("Location save not yet implemented");
+      const method = isCreating ? "POST" : "PUT";
+      const res = await authFetch("/api/data/locations", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const result = await res.json();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/locations'] });
+      setSelectedLocation(result.data);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setSuccess(isCreating ? "Location created." : "Location updated.");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save Location");
+      setError(toErrorMessage(err));
     } finally {
       setIsSaving(false);
     }
@@ -128,8 +144,16 @@ export default function LocationsManagementPage() {
       message: `Are you sure you want to delete ${location.name}?`,
       onConfirm: async () => {
         setConfirmState(null);
-        // TODO: Save to backend/API
-        setError("Location delete not yet implemented");
+        try {
+          const res = await authFetch(`/api/data/locations?id=${location.id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error(await res.text());
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/locations'] });
+          setSelectedLocation(null);
+          setSuccess("Location deleted.");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(toErrorMessage(err));
+        }
       },
     });
   };
@@ -257,6 +281,7 @@ export default function LocationsManagementPage() {
                       <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
                         {location.teaser}
                       </div>
+                      {location.hidden && <span className="grim-chip is-dead" style={{ fontSize: 9, marginTop: 4 }}>hidden</span>}
                     </div>
                     <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
                       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -444,6 +469,14 @@ export default function LocationsManagementPage() {
                     </div>
                   </div>
 
+                  {/* Hidden from players */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                      <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
+                      Hidden from players
+                    </label>
+                  </div>
+
                   {/* Action buttons */}
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8 }}>
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
@@ -485,6 +518,7 @@ export default function LocationsManagementPage() {
                       {selectedLocation.pronunciation}
                     </div>
                   )}
+                  {selectedLocation.hidden && <span className="grim-chip is-dead" style={{ marginTop: 6, display: "inline-block" }}>hidden</span>}
                 </div>
                 <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 4 }}>
                   <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedLocation)}>

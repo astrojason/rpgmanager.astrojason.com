@@ -18,6 +18,7 @@ describe('locations endpoint', () => {
             teaser: 'teaser',
             detail: 'detail',
             gm_notes: 'secret',
+            hidden: 0,
             locations: JSON.stringify(['Inner Harbor']),
           },
         ],
@@ -38,6 +39,7 @@ describe('locations endpoint', () => {
         teaser: 'teaser',
         detail: 'detail',
         gm_notes: 'secret',
+        hidden: false,
         locations: ['Inner Harbor'],
         notes: [],
       },
@@ -57,6 +59,30 @@ describe('locations endpoint', () => {
     expect(data[0].gm_notes).toBeUndefined();
   });
 
+  it('hides hidden locations for players but not for admins', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        { id: 7, name: 'Sandhaven', teaser: 't', detail: 'd', hidden: 0 },
+        { id: 8, name: 'Obsidian Spire', teaser: 't', detail: 'd', hidden: 1 },
+      ],
+    });
+    const { GET } = await import('@/app/api/data/locations/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data.map((l: { id: string }) => l.id)).toEqual(['7']);
+  });
+
+  it('returns hidden locations to admins', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [{ id: 8, name: 'Obsidian Spire', teaser: 't', detail: 'd', hidden: 1 }],
+    });
+    const { GET } = await import('@/app/api/data/locations/route');
+    const res = await GET(requestAsRole('admin') as any);
+    const data = await res.json();
+    expect(data.map((l: { id: string }) => l.id)).toEqual(['8']);
+    expect(data[0].hidden).toBe(true);
+  });
+
   it('creates location and returns new id', async () => {
     mockDb.execute.mockResolvedValueOnce({ lastInsertRowid: 9 });
     const { POST } = await import('@/app/api/data/locations/route');
@@ -65,7 +91,14 @@ describe('locations endpoint', () => {
         name: 'Sandhaven',
         teaser: 'teaser',
         detail: 'detail',
+        hidden: true,
       }) as any
+    );
+    expect(mockDb.execute).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        sql: expect.stringContaining('INSERT INTO locations'),
+        args: expect.arrayContaining([1]),
+      })
     );
     expect(await res.json()).toMatchObject({
       success: true,

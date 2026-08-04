@@ -18,6 +18,7 @@ describe('factions endpoint', () => {
             background: 'background',
             relationships: JSON.stringify(['ally']),
             image: 'img.png',
+            hidden: 0,
             gm_notes: 'secret',
           },
         ],
@@ -38,6 +39,7 @@ describe('factions endpoint', () => {
         background: 'background',
         relationships: ['ally'],
         image: 'img.png',
+        hidden: false,
         gm_notes: 'secret',
         notes: [],
       },
@@ -55,15 +57,42 @@ describe('factions endpoint', () => {
     expect(data[0].gm_notes).toBeUndefined();
   });
 
-  it('creates a faction with provided id', async () => {
-    mockDb.execute.mockResolvedValueOnce({ rows: [] });
-    const payload = { id: 'abc', name: 'Order' };
+  it('hides hidden factions for players but not for admins', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        { id: '1', name: 'Order of Dawn', hidden: 0 },
+        { id: '2', name: 'The Gilded Coil', hidden: 1 },
+      ],
+    });
+    const { GET } = await import('@/app/api/data/factions/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data.map((f: { id: string }) => f.id)).toEqual(['1']);
+  });
+
+  it('returns hidden factions to admins', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [{ id: '2', name: 'The Gilded Coil', hidden: 1 }],
+    });
+    const { GET } = await import('@/app/api/data/factions/route');
+    const res = await GET(requestAsRole('admin') as any);
+    const data = await res.json();
+    expect(data.map((f: { id: string }) => f.id)).toEqual(['2']);
+    expect(data[0].hidden).toBe(true);
+  });
+
+  it('creates a faction and returns a new id', async () => {
+    mockDb.execute.mockResolvedValueOnce({ lastInsertRowid: 9 });
+    const payload = { name: 'Order', hidden: true };
     const { POST } = await import('@/app/api/data/factions/route');
     const res = await POST(jsonRequest('http://test/api/factions', 'POST', payload) as any);
     expect(mockDb.execute).toHaveBeenLastCalledWith(
-      expect.objectContaining({ sql: expect.stringContaining('INSERT INTO factions') })
+      expect.objectContaining({
+        sql: expect.stringContaining('INSERT INTO factions'),
+        args: expect.arrayContaining([1]),
+      })
     );
-    expect(await res.json()).toMatchObject({ success: true, data: payload });
+    expect(await res.json()).toMatchObject({ success: true, data: { ...payload, id: '9' } });
   });
 
   it('returns 404 when updating missing faction', async () => {

@@ -24,6 +24,7 @@ export async function GET(request?: NextRequest) {
       height: r.height != null ? Number(r.height) : undefined,
       teaser: sanitizeText(r.teaser),
       detail: sanitizeText(r.detail),
+      hidden: !!r.hidden,
       gm_notes: sanitizeOptionalText(r.gm_notes),
       notes: r.notes ? JSON.parse(String(r.notes)) : [],
       locations: r.locations ? JSON.parse(String(r.locations)) : undefined,
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
     const db = getDb();
     const l = await request.json();
     const res = await db.execute({
-      sql: `INSERT INTO ${TABLE} (name,pronunciation,mapImg,x,y,width,height,teaser,detail,gm_notes,locations,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? [])]
+      sql: `INSERT INTO ${TABLE} (name,pronunciation,mapImg,x,y,width,height,teaser,detail,hidden,gm_notes,locations,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.hidden ? 1 : 0, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? [])]
     });
     const newId = Number(res.lastInsertRowid ?? 0);
     return NextResponse.json({ success: true, data: { ...l, id: String(newId) } });
@@ -57,8 +58,8 @@ export async function PUT(request: NextRequest) {
     const l = await request.json();
     const idNum = Number(l.id);
     const res = await db.execute({
-      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,mapImg=?,x=?,y=?,width=?,height=?,teaser=?,detail=?,gm_notes=?,locations=?,notes=? WHERE id=?`,
-      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? []), idNum]
+      sql: `UPDATE ${TABLE} SET name=?,pronunciation=?,mapImg=?,x=?,y=?,width=?,height=?,teaser=?,detail=?,hidden=?,gm_notes=?,locations=?,notes=? WHERE id=?`,
+      args: [l.name, l.pronunciation ?? null, l.mapImg ?? null, l.x ?? null, l.y ?? null, l.width ?? null, l.height ?? null, l.teaser, l.detail, l.hidden ? 1 : 0, l.gm_notes ?? null, JSON.stringify(l.locations ?? null), JSON.stringify(l.notes ?? []), idNum]
     });
     if ((res.rowsAffected ?? 0) === 0) return notFound('Location not found');
     return NextResponse.json({ success: true, data: l });

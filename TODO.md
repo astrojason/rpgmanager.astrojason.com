@@ -1,6 +1,5 @@
 ## Bugs
 - [ ] Dashboard (`src/app/campaign/page.tsx:109`) uses `"grim-chip is-dead"` instead of `"grim-chip is-deceased"` used everywhere else — likely unintentional drift, fix alongside the chip-helper extraction below
-- [ ] `src/app/admin/data/factions/page.tsx` and `src/app/admin/data/locations/page.tsx` — save/delete handlers are non-functional stubs (`setError("...not yet implemented")`); create/edit/delete UI renders but silently does nothing
 - [ ] `src/app/admin/data/deities/page.tsx` and `src/app/admin/data/items/page.tsx` hand-roll relationship checkbox pickers instead of using the existing generic `EntityTagPicker` component (already used correctly by `quests`/`recaps` admin pages)
 
 ## Features

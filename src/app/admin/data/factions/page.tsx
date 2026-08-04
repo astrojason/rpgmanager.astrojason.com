@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Faction } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { authFetch } from "@/utils/authFetch";
-import ErrorBlock from "@/components/ErrorBlock";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 
 const inputStyle: React.CSSProperties = {
@@ -31,6 +31,8 @@ export default function FactionsManagementPage() {
   const [formData, setFormData] = useState<Partial<Faction>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+  const queryClient = useQueryClient();
 
   const { data: factions = [], isPending: loading, error: queryError } = useQuery<Faction[]>({
     queryKey: ['/api/data/factions'],
@@ -97,14 +99,14 @@ export default function FactionsManagementPage() {
     setIsEditing(false);
     setSelectedFaction(null);
     setFormData({
-      id: `faction-${Date.now()}`,
       name: "",
       type: "",
       location: "",
       status: "active",
       description: "",
       goals: "",
-      pronunciation: ""
+      pronunciation: "",
+      hidden: false,
     });
   };
 
@@ -124,17 +126,29 @@ export default function FactionsManagementPage() {
 
   const handleSave = async () => {
     setError("");
+    if (!formData.name || !formData.type || !formData.location || !formData.description || !formData.goals) {
+      setError("Please fill in all required fields");
+      return;
+    }
+    setIsSaving(true);
     try {
-      if (!formData.name || !formData.type || !formData.location || !formData.description || !formData.goals) {
-        setError("Please fill in all required fields");
-        return;
-      }
-      setIsSaving(true);
-
-      // TODO: Save to backend/API
-      setError("Faction save not yet implemented");
+      const method = isCreating ? "POST" : "PUT";
+      const res = await authFetch("/api/data/factions", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const result = await res.json();
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/factions'] });
+      setSelectedFaction(result.data);
+      setIsEditing(false);
+      setIsCreating(false);
+      setFormData({});
+      setSuccess(isCreating ? "Faction created." : "Faction updated.");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save Faction");
+      setError(toErrorMessage(err));
     } finally {
       setIsSaving(false);
     }
@@ -145,8 +159,16 @@ export default function FactionsManagementPage() {
       message: `Are you sure you want to delete ${faction.name}?`,
       onConfirm: async () => {
         setConfirmState(null);
-        // TODO: Save to backend/API
-        setError("Faction delete not yet implemented");
+        try {
+          const res = await authFetch(`/api/data/factions?id=${faction.id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error(await res.text());
+          await queryClient.invalidateQueries({ queryKey: ['/api/data/factions'] });
+          setSelectedFaction(null);
+          setSuccess("Faction deleted.");
+          setTimeout(() => setSuccess(""), 3000);
+        } catch (err) {
+          setError(toErrorMessage(err));
+        }
       },
     });
   };
@@ -235,6 +257,7 @@ export default function FactionsManagementPage() {
                     <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 2, textTransform: "uppercase", letterSpacing: ".10em" }}>
                       {faction.status}
                     </div>
+                    {faction.hidden && <span className="grim-chip is-dead" style={{ fontSize: 9, marginTop: 4 }}>hidden</span>}
                   </div>
                   <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                     <button
@@ -388,6 +411,13 @@ export default function FactionsManagementPage() {
                     />
                   </div>
 
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                      <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
+                      Hidden from players
+                    </label>
+                  </div>
+
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, paddingTop: 4 }}>
                     {isEditing && (
                       <button
@@ -439,6 +469,7 @@ export default function FactionsManagementPage() {
                         <span className={`grim-chip ${selectedFaction.status === 'active' ? 'is-faction' : 'is-dead'}`} style={{ textTransform: "capitalize" }}>
                           {selectedFaction.status}
                         </span>
+                        {selectedFaction.hidden && <span className="grim-chip is-dead">hidden</span>}
                       </div>
                     </div>
                   </div>
