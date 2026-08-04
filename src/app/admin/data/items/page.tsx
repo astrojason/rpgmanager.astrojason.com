@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { Item, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 import EntityTagPicker from "@/components/EntityTagPicker";
+import { useCrudResource } from "@/hooks/useCrudResource";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -26,25 +28,39 @@ const CATEGORIES = ["Magic Item", "Artifact", "Stolen Journal", "Weapon", "Armor
 interface EntityItem { id: string; name: string; }
 
 export default function ItemsManagementPage() {
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState<Partial<Item>>({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-
-  const queryClient = useQueryClient();
-
-  const { data: items = [], isPending: loading, error: queryError } = useQuery<Item[]>({
-    queryKey: ['/api/data/items'],
-    queryFn: () => authFetch('/api/data/items').then(r => {
-      if (!r.ok) throw new Error('Failed to load items');
-      return r.json();
-    }),
+  const {
+    items,
+    loading,
+    queryError,
+    selected: selectedItem,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createItem,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<Item>({
+    endpoint: "/api/data/items",
+    getId: (it) => it.id,
+    validate: (f) => (!f.name ? "Name is required" : null),
+    selectAfterSave: false,
+    successMessage: (creating) => (creating ? "Item created!" : "Item updated!"),
+    deleteConfirmMessage: (it) => `Delete "${it.name}"?`,
+    deleteSuccessMessage: "Item deleted.",
   });
+
   const { data: rawNpcs = [] } = useQuery<NPC[]>({
     queryKey: ['/api/data/npcs'],
     queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
@@ -85,75 +101,7 @@ export default function ItemsManagementPage() {
   }).sort((a, b) => a.name.localeCompare(b.name));
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedItem(null);
-    setFormData({ name: "", category: "Magic Item", pronunciation: "", type_tag: "", description: "", properties: "", gm_notes: "", image: "", hidden: false, notes: [], tagged_npcs: [], tagged_pcs: [], tagged_locations: [] });
-  };
-
-  const handleEdit = (item: Item) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedItem(item);
-    setFormData({ ...item });
-  };
-
-  const handleView = (item: Item) => {
-    setSelectedItem(item);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    try {
-      if (!formData.name) { setError("Name is required"); return; }
-      setIsSaving(true);
-      const method = isCreating ? "POST" : "PUT";
-      const res = await authFetch("/api/data/items", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Failed to save item");
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
-      setSuccess(isCreating ? "Item created!" : "Item updated!");
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedItem(null);
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save item");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (item: Item) => {
-    setConfirmState({
-      message: `Delete "${item.name}"?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await authFetch(`/api/data/items?id=${item.id}`, { method: "DELETE" });
-          if (!res.ok) throw new Error("Failed to delete");
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
-          setSelectedItem(null);
-          setSuccess("Item deleted.");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete item");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
+    createItem({ name: "", category: "Magic Item", pronunciation: "", type_tag: "", description: "", properties: "", gm_notes: "", image: "", hidden: false, notes: [], tagged_npcs: [], tagged_pcs: [], tagged_locations: [] });
   };
 
   if (loading) {
@@ -187,11 +135,7 @@ export default function ItemsManagementPage() {
       </header>
 
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
-      {success && (
-        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
 
@@ -393,7 +337,7 @@ export default function ItemsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

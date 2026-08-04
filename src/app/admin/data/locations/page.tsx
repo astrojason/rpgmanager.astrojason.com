@@ -1,34 +1,47 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { Location } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
-import { authFetch } from "@/utils/authFetch";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { renderMarkdownWithLinks } from "@/utils/markdown";
+import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 
 export default function LocationsManagementPage() {
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<Location>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-
-  const queryClient = useQueryClient();
-
-  const { data: locations = [], isPending: loading, error: queryError } = useQuery<Location[]>({
-    queryKey: ['/api/data/locations'],
-    queryFn: () => authFetch('/api/data/locations').then(r => {
-      if (!r.ok) throw new Error('Failed to load Locations');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
+  const {
+    items: locations,
+    loading,
+    queryError,
+    selected: selectedLocation,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createLocation,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<Location>({
+    endpoint: "/api/data/locations",
+    getId: (l) => l.id,
+    validate: (f) => (!f.name || !f.teaser || !f.detail ? "Please fill in all required fields" : null),
+    successMessage: (creating) => (creating ? "Location created." : "Location updated."),
+    deleteConfirmMessage: (l) => `Are you sure you want to delete ${l.name}?`,
+    deleteSuccessMessage: "Location deleted.",
   });
 
   const filteredLocations = locations.filter(location =>
@@ -37,132 +50,22 @@ export default function LocationsManagementPage() {
     location.detail?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Arrow key navigation similar to NPCs editor
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = el as HTMLElement;
-      return !!node.closest('input, textarea, select, [contenteditable="true"]');
-    };
-    const moveSelection = (delta: number) => {
-      if (filteredLocations.length === 0) return;
-      const idx = selectedLocation ? filteredLocations.findIndex(n => n.id === selectedLocation.id) : -1;
-      if (idx === -1) {
-        const nextIdx = delta > 0 ? 0 : filteredLocations.length - 1;
-        const next = filteredLocations[nextIdx];
-        if (next) {
-          setSelectedLocation(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          setTimeout(() => {
-            document.querySelector(`[data-location-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= filteredLocations.length) return;
-      const next = filteredLocations[nextIdx];
-      if (!next) return;
-      setSelectedLocation(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-location-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [filteredLocations, selectedLocation, setSelectedLocation, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: filteredLocations,
+    selected: selectedLocation,
+    getId: (l) => l.id,
+    dataAttr: "data-location-id",
+    onSelect: handleView,
+  });
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedLocation(null);
-    setFormData({
+    createLocation({
       id: `location-${Date.now()}`,
       name: "",
       teaser: "",
       detail: "",
       hidden: false,
     });
-  };
-
-  const handleEdit = (location: Location) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedLocation(location);
-    setFormData({ ...location });
-  };
-
-  const handleView = (location: Location) => {
-    setSelectedLocation(location);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    if (!formData.name || !formData.teaser || !formData.detail) {
-      setError("Please fill in all required fields");
-      return;
-    }
-    setIsSaving(true);
-    try {
-      const method = isCreating ? "POST" : "PUT";
-      const res = await authFetch("/api/data/locations", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const result = await res.json();
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/locations'] });
-      setSelectedLocation(result.data);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setSuccess(isCreating ? "Location created." : "Location updated.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(toErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (location: Location) => {
-    setConfirmState({
-      message: `Are you sure you want to delete ${location.name}?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await authFetch(`/api/data/locations?id=${location.id}`, { method: "DELETE" });
-          if (!res.ok) throw new Error(await res.text());
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/locations'] });
-          setSelectedLocation(null);
-          setSuccess("Location deleted.");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(toErrorMessage(err));
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   const fieldStyle: React.CSSProperties = {
@@ -201,20 +104,7 @@ export default function LocationsManagementPage() {
 
       {/* Status Messages */}
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
-
-      {success && (
-        <div style={{
-          background: "oklch(0.25 0.10 145 / 0.4)",
-          border: "1px solid oklch(0.55 0.090 145)",
-          color: "var(--grim-moss)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       {/* Two-column layout */}
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
@@ -612,7 +502,7 @@ export default function LocationsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ReactMarkdown from 'react-markdown';
@@ -13,24 +13,48 @@ import { Quest, UserNote } from '@/types/interfaces';
 import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/questUtils';
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 import Link from "next/link";
 
 interface EntityItem { id: string; name: string; }
 
 export default function QuestsManagementPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<Quest>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  const queryClient = useQueryClient();
+  const {
+    items: quests,
+    loading,
+    queryError,
+    selected: selectedQuest,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createQuest,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<Quest>({
+    endpoint: "/api/data/quests",
+    getId: (q) => q.id,
+    validate: (f) => (!f.name ? "Please fill in quest name" : null),
+    successMessage: (creating) => (creating ? "Quest created successfully!" : "Quest updated successfully!"),
+    deleteConfirmMessage: (q) => `Are you sure you want to delete "${q.name}"?`,
+    deleteSuccessMessage: "Quest deleted successfully!",
+  });
 
   // Authentication state
   useEffect(() => {
@@ -38,14 +62,6 @@ export default function QuestsManagementPage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => { setUser(user); });
     return () => unsubscribe();
   }, []);
-
-  const { data: quests = [], isPending: loading, error: queryError } = useQuery<Quest[]>({
-    queryKey: ['/api/data/quests'],
-    queryFn: () => authFetch('/api/data/quests').then(r => {
-      if (!r.ok) throw new Error('Failed to load Quests');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
-  });
 
   const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; display_name?: string }[]>({
     queryKey: ['/api/data/npcs'],
@@ -95,167 +111,21 @@ export default function QuestsManagementPage() {
       quest.status?.toLowerCase().includes(searchLower);
   });
 
-  // Arrow key navigation similar to NPCs editor
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = el as HTMLElement;
-      return !!node.closest('input, textarea, select, [contenteditable="true"]');
-    };
-    const moveSelection = (delta: number) => {
-      if (filteredQuests.length === 0) return;
-      const idx = selectedQuest ? filteredQuests.findIndex(n => n.id === selectedQuest.id) : -1;
-      if (idx === -1) {
-        const nextIdx = delta > 0 ? 0 : filteredQuests.length - 1;
-        const next = filteredQuests[nextIdx];
-        if (next) {
-          setSelectedQuest(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          setTimeout(() => {
-            document.querySelector(`[data-quest-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= filteredQuests.length) return;
-      const next = filteredQuests[nextIdx];
-      if (!next) return;
-      setSelectedQuest(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-quest-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [filteredQuests, selectedQuest, setSelectedQuest, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: filteredQuests,
+    selected: selectedQuest,
+    getId: (q) => q.id,
+    dataAttr: "data-quest-id",
+    onSelect: handleView,
+  });
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedQuest(null);
-    setFormData({
+    createQuest({
       id: `quest-${Date.now()}`,
       name: "",
       notes: [],
       status: "active"
     });
-  };
-
-  const handleEdit = (quest: Quest) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedQuest(quest);
-    setFormData({ ...quest });
-  };
-
-  const handleView = (quest: Quest) => {
-    setSelectedQuest(quest);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    try {
-      if (!formData.name) {
-        setError("Please fill in quest name");
-        return;
-      }
-      setIsSaving(true);
-
-      const questData = formData as Quest;
-
-      if (isCreating) {
-        // Create new quest
-        const response = await authFetch('/api/data/quests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(questData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create quest');
-        }
-
-        const result = await response.json();
-        await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
-        setSelectedQuest(result.data);
-        setSuccess("Quest created successfully!");
-      } else {
-        // Update existing quest
-        const response = await authFetch('/api/data/quests', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(questData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update quest');
-        }
-
-        const result = await response.json();
-        await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
-        setSelectedQuest(result.data);
-        setSuccess("Quest updated successfully!");
-      }
-
-      setIsCreating(false);
-      setIsEditing(false);
-
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save Quest");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (quest: Quest) => {
-    setConfirmState({
-      message: `Are you sure you want to delete "${quest.name}"?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const response = await authFetch(`/api/data/quests?id=${encodeURIComponent(quest.id)}`, {
-            method: 'DELETE',
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to delete quest');
-          }
-
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
-          setSelectedQuest(null);
-          setSuccess("Quest deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete Quest");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   const getStatusChipClass = (status: string) => {
@@ -324,19 +194,7 @@ export default function QuestsManagementPage() {
       {/* Status banners */}
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
-      {success && (
-        <div style={{
-          background: "oklch(0.25 0.10 145 / 0.4)",
-          border: "1px solid oklch(0.55 0.090 145)",
-          color: "var(--grim-moss)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       {/* Two-column layout */}
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
@@ -707,7 +565,7 @@ export default function QuestsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

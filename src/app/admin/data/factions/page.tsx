@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Faction } from "@/types/interfaces";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { authFetch } from "@/utils/authFetch";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -22,24 +22,36 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function FactionsManagementPage() {
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedFaction, setSelectedFaction] = useState<Faction | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<Faction>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-
-  const queryClient = useQueryClient();
-
-  const { data: factions = [], isPending: loading, error: queryError } = useQuery<Faction[]>({
-    queryKey: ['/api/data/factions'],
-    queryFn: () => authFetch('/api/data/factions').then(r => {
-      if (!r.ok) throw new Error('Failed to load Factions');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
+  const {
+    items: factions,
+    loading,
+    queryError,
+    selected: selectedFaction,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createFaction,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<Faction>({
+    endpoint: "/api/data/factions",
+    getId: (f) => f.id,
+    validate: (f) => (!f.name || !f.type || !f.location || !f.description || !f.goals ? "Please fill in all required fields" : null),
+    successMessage: (creating) => (creating ? "Faction created." : "Faction updated."),
+    deleteConfirmMessage: (f) => `Are you sure you want to delete ${f.name}?`,
+    deleteSuccessMessage: "Faction deleted.",
   });
 
   const filteredFactions = factions.filter(faction =>
@@ -49,56 +61,16 @@ export default function FactionsManagementPage() {
     faction.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Arrow key navigation similar to NPCs editor
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = el as HTMLElement;
-      return !!node.closest('input, textarea, select, [contenteditable="true"]');
-    };
-    const moveSelection = (delta: number) => {
-      if (filteredFactions.length === 0) return;
-      const idx = selectedFaction ? filteredFactions.findIndex(n => n.id === selectedFaction.id) : -1;
-      if (idx === -1) {
-        const nextIdx = delta > 0 ? 0 : filteredFactions.length - 1;
-        const next = filteredFactions[nextIdx];
-        if (next) {
-          setSelectedFaction(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          setTimeout(() => {
-            document.querySelector(`[data-faction-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= filteredFactions.length) return;
-      const next = filteredFactions[nextIdx];
-      if (!next) return;
-      setSelectedFaction(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-faction-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [filteredFactions, selectedFaction, setSelectedFaction, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: filteredFactions,
+    selected: selectedFaction,
+    getId: (f) => f.id,
+    dataAttr: "data-faction-id",
+    onSelect: handleView,
+  });
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedFaction(null);
-    setFormData({
+    createFaction({
       name: "",
       type: "",
       location: "",
@@ -108,76 +80,6 @@ export default function FactionsManagementPage() {
       pronunciation: "",
       hidden: false,
     });
-  };
-
-  const handleEdit = (faction: Faction) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedFaction(faction);
-    setFormData({ ...faction });
-  };
-
-  const handleView = (faction: Faction) => {
-    setSelectedFaction(faction);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    if (!formData.name || !formData.type || !formData.location || !formData.description || !formData.goals) {
-      setError("Please fill in all required fields");
-      return;
-    }
-    setIsSaving(true);
-    try {
-      const method = isCreating ? "POST" : "PUT";
-      const res = await authFetch("/api/data/factions", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const result = await res.json();
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/factions'] });
-      setSelectedFaction(result.data);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setSuccess(isCreating ? "Faction created." : "Faction updated.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(toErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (faction: Faction) => {
-    setConfirmState({
-      message: `Are you sure you want to delete ${faction.name}?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await authFetch(`/api/data/factions?id=${faction.id}`, { method: "DELETE" });
-          if (!res.ok) throw new Error(await res.text());
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/factions'] });
-          setSelectedFaction(null);
-          setSuccess("Faction deleted.");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(toErrorMessage(err));
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   if (loading) {
@@ -205,11 +107,7 @@ export default function FactionsManagementPage() {
       {/* Status Messages */}
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
-      {success && (
-        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
 
@@ -547,7 +445,7 @@ export default function FactionsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

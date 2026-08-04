@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Deity, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
-import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import Image from "next/image";
 import { safeImageSrc } from "@/utils/sanitize";
+import { useCrudResource } from "@/hooks/useCrudResource";
 
 const inputStyle: React.CSSProperties = {
   background: "var(--grim-bg-3)",
@@ -35,17 +37,38 @@ interface EntityItem { id: string; name: string; }
 
 export default function DeitiesManagementPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState("");
-  const [selected, setSelected] = useState<Deity | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [search, setSearch] = useState("");
-  const [form, setForm] = useState<Partial<Deity>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  const queryClient = useQueryClient();
+  const {
+    items: deities,
+    loading,
+    queryError,
+    selected,
+    isEditing: editing,
+    isCreating: creating,
+    isSaving,
+    formData: form,
+    setFormData: setForm,
+    searchTerm: search,
+    setSearchTerm: setSearch,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createDeity,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<Deity>({
+    endpoint: "/api/data/deities",
+    getId: (d) => d.id,
+    validate: (f) => (!f.name?.trim() ? "Name is required." : null),
+    successMessage: (creating) => (creating ? "Deity created." : "Deity updated."),
+    deleteConfirmMessage: (d) => `Delete "${d.name}"?`,
+    deleteSuccessMessage: "Deity deleted.",
+  });
 
   useEffect(() => {
     if (!auth) return;
@@ -53,13 +76,6 @@ export default function DeitiesManagementPage() {
     return () => unsub();
   }, []);
 
-  const { data: deities = [], isPending: loading, error: queryError } = useQuery<Deity[]>({
-    queryKey: ['/api/data/deities'],
-    queryFn: () => authFetch('/api/data/deities').then(r => {
-      if (!r.ok) throw new Error(`Failed to load deities (${r.status})`);
-      return r.json();
-    }),
-  });
   const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; aka?: string; hidden?: boolean }[]>({
     queryKey: ['/api/data/npcs'],
     queryFn: () => authFetch('/api/data/npcs').then(r => r.json()),
@@ -84,62 +100,7 @@ export default function DeitiesManagementPage() {
   );
 
   const handleCreate = () => {
-    setCreating(true);
-    setEditing(false);
-    setSelected(null);
-    setForm({ name: "", domain: "", alignment: "", status: "active", description: "", hidden: false, notes: [] });
-  };
-
-  const handleEdit = (d: Deity) => {
-    setEditing(true);
-    setCreating(false);
-    setSelected(d);
-    setForm({ ...d });
-  };
-
-  const handleSave = async () => {
-    setError(null);
-    if (!form.name?.trim()) { setError("Name is required."); return; }
-    setIsSaving(true);
-    try {
-      const method = creating ? "POST" : "PUT";
-      const res = await authFetch("/api/data/deities", {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const result = await res.json();
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
-      setSelected(result.data);
-      setEditing(false);
-      setCreating(false);
-      setSuccess(creating ? "Deity created." : "Deity updated.");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e) {
-      setError(toErrorMessage(e));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (d: Deity) => {
-    setConfirmState({
-      message: `Delete "${d.name}"?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const res = await authFetch(`/api/data/deities?id=${d.id}`, { method: "DELETE" });
-          if (!res.ok) throw new Error(await res.text());
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/deities'] });
-          setSelected(null);
-          setSuccess("Deity deleted.");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (e) {
-          setError(toErrorMessage(e));
-        }
-      },
-    });
+    createDeity({ name: "", domain: "", alignment: "", status: "active", description: "", hidden: false, notes: [] });
   };
 
   if (loading) {
@@ -167,12 +128,8 @@ export default function DeitiesManagementPage() {
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Deity</button>
       </header>
 
-      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
-      {success && (
-        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {success}
-        </div>
-      )}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
+      <SuccessBlock message={success} />
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
 
@@ -192,7 +149,7 @@ export default function DeitiesManagementPage() {
               return (
                 <div
                   key={d.id}
-                  onClick={() => { setSelected(d); setEditing(false); setCreating(false); }}
+                  onClick={() => handleView(d)}
                   style={{
                     borderBottom: "1px solid var(--grim-line)",
                     borderLeft: isSel ? "2px solid var(--grim-gold)" : "2px solid transparent",
@@ -230,7 +187,7 @@ export default function DeitiesManagementPage() {
               <div className="grim-tome-head" style={{ padding: "16px 24px" }}>
                 <div className="grim-tome-title">{creating ? "New Deity" : "Edit Deity"}</div>
                 <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                  <button type="button" onClick={() => { setCreating(false); setEditing(false); }} className="grim-btn is-ghost">✕ Cancel</button>
+                  <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${creating ? "Create Deity" : "Save Changes"}`}</button>
                 </div>
               </div>
@@ -337,7 +294,7 @@ export default function DeitiesManagementPage() {
                   </div>
 
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                    <button type="button" className="grim-btn is-ghost" onClick={() => { setCreating(false); setEditing(false); }}>Cancel</button>
+                    <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>Cancel</button>
                     <button type="submit" className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : (creating ? "Create Deity" : "Save Changes")}</button>
                   </div>
                 </form>
@@ -399,7 +356,7 @@ export default function DeitiesManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

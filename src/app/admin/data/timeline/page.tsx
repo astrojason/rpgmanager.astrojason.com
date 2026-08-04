@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
-import { authFetch } from "@/utils/authFetch";
+import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 
 interface TimelineEvent {
   id: string;
@@ -28,22 +29,38 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function TimelineManagementPage() {
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<TimelineEvent>>({});
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-
-  const queryClient = useQueryClient();
-  const { data: events = [], isPending: loading, error: queryError } = useQuery<TimelineEvent[]>({
-    queryKey: ['/api/data/timeline'],
-    queryFn: () => authFetch('/api/data/timeline').then(r => {
-      if (!r.ok) throw new Error('Failed to load Timeline');
-      return r.json().then(d => Array.isArray(d) ? d : []);
-    }),
+  const {
+    items: events,
+    loading,
+    queryError,
+    selected: selectedEvent,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createEvent,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<TimelineEvent>({
+    endpoint: "/api/data/timeline",
+    getId: (ev) => ev.id,
+    validate: (f) => (!f.title || !f.date || !f.description ? "Please fill in all required fields" : null),
+    successMessage: (creating) => (creating ? "Event created successfully!" : "Event updated successfully!"),
+    saveErrorMessage: () => "Failed to save event",
+    deleteConfirmMessage: (ev) => `Are you sure you want to delete "${ev.title}"?`,
+    deleteErrorMessage: "Failed to delete event",
+    deleteSuccessMessage: "Event deleted successfully!",
   });
 
   const filteredEvents = events.filter(event =>
@@ -52,138 +69,22 @@ export default function TimelineManagementPage() {
     event.date?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Arrow key navigation similar to NPCs editor
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = el as HTMLElement;
-      return !!node.closest('input, textarea, select, [contenteditable="true"]');
-    };
-    const moveSelection = (delta: number) => {
-      if (filteredEvents.length === 0) return;
-      const idx = selectedEvent ? filteredEvents.findIndex(n => n.id === selectedEvent.id) : -1;
-      if (idx === -1) {
-        const nextIdx = delta > 0 ? 0 : filteredEvents.length - 1;
-        const next = filteredEvents[nextIdx];
-        if (next) {
-          setSelectedEvent(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          setTimeout(() => {
-            document.querySelector(`[data-event-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= filteredEvents.length) return;
-      const next = filteredEvents[nextIdx];
-      if (!next) return;
-      setSelectedEvent(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-event-id=\"${next.id}\"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [filteredEvents, selectedEvent, setSelectedEvent, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: filteredEvents,
+    selected: selectedEvent,
+    getId: (ev) => ev.id,
+    dataAttr: "data-event-id",
+    onSelect: handleView,
+  });
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedEvent(null);
-    setFormData({
+    createEvent({
       id: `event-${Date.now()}`,
       title: "",
       date: "",
       description: "",
       category: ""
     });
-  };
-
-  const handleEdit = (event: TimelineEvent) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedEvent(event);
-    setFormData({ ...event });
-  };
-
-  const handleView = (event: TimelineEvent) => {
-    setSelectedEvent(event);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    try {
-      if (!formData.title || !formData.date || !formData.description) {
-        setError("Please fill in all required fields");
-        return;
-      }
-
-      const eventData = formData as TimelineEvent;
-
-      const method = isCreating ? 'POST' : 'PUT';
-      const response = await authFetch('/api/data/timeline', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData),
-      });
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Failed to save event');
-      }
-      const { data: saved } = await response.json();
-
-      setIsCreating(false);
-      setIsEditing(false);
-      setFormData({});
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
-      setSelectedEvent(saved);
-      setSuccess(isCreating ? "Event created successfully!" : "Event updated successfully!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save Event");
-    }
-  };
-
-  const handleDelete = (event: TimelineEvent) => {
-    setConfirmState({
-      message: `Are you sure you want to delete "${event.title}"?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const response = await authFetch(`/api/data/timeline?id=${event.id}`, { method: 'DELETE' });
-          if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error || 'Failed to delete event');
-          }
-          setSelectedEvent(null);
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/timeline'] });
-          setSuccess("Event deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete Event");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   if (loading) {
@@ -211,33 +112,8 @@ export default function TimelineManagementPage() {
       </header>
 
       {/* Status Messages */}
-      {(error || queryError) && (
-        <div style={{
-          background: "oklch(0.25 0.12 22 / 0.4)",
-          border: "1px solid var(--grim-blood-2)",
-          color: "oklch(0.85 0.08 30)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {error || queryError?.message}
-        </div>
-      )}
-
-      {success && (
-        <div style={{
-          background: "oklch(0.25 0.10 145 / 0.4)",
-          border: "1px solid oklch(0.55 0.090 145)",
-          color: "var(--grim-moss)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {success}
-        </div>
-      )}
+      {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
+      <SuccessBlock message={success} />
 
       {/* Two-column layout */}
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
@@ -386,8 +262,8 @@ export default function TimelineManagementPage() {
                     <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
                       Cancel
                     </button>
-                    <button type="submit" className="grim-btn is-ember">
-                      {isCreating ? "Mark Event" : "Save Changes"}
+                    <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
+                      {isSaving ? "Saving…" : (isCreating ? "Mark Event" : "Save Changes")}
                     </button>
                   </div>
                 </form>
@@ -441,7 +317,7 @@ export default function TimelineManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

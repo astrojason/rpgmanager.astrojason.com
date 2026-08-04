@@ -1,6 +1,6 @@
 ## Bugs
+- [ ] `GET /api/data/factions` 500s: a `relationships` column value in the live DB is plain text (e.g. `"The Breake..."`) instead of JSON, so `JSON.parse` in `src/app/api/data/factions/route.ts` throws. This cascades into every admin page that fetches factions as a side query without checking `res.ok` (quests, pcs, npcs) — their `rawFactions.map(...)` calls blow up with "not a function" once the malformed factions response comes back as an error object. Needs a DB data fix (correct or null out the bad `relationships` value) — confirmed pre-existing via `git stash`, unrelated to the admin CRUD consolidation.
 
 ## Features
 
 ## Enhancements
-- [ ] Admin CRUD page consolidation (`src/app/admin/data/*/page.tsx`, 10 files, ~6000 lines): shared scaffolding for state/query/save/delete/loading/error-success-banner/list-detail-layout/modal-wiring is reimplemented per entity. Needs characterization tests written first (currently zero test coverage on any admin/data page). Consider a `useCrudResource` hook + `SuccessBlock` component as the extraction targets; keep `npcs`' merge/review-mode features and `pcs`' relationship pickers entity-specific, not folded into the generic shape

@@ -8,7 +8,10 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import { NPC, Faction, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -29,11 +32,6 @@ function statusChipClass(status: string | undefined): string {
 }
 
 export default function NPCsManagementPage() {
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedNpc, setSelectedNpc] = useState<NPC | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
   const [mergeWithId, setMergeWithId] = useState<string>("");
   const [mergeChoice, setMergeChoice] = useState<Record<string, 'left' | 'right'>>({});
@@ -42,20 +40,45 @@ export default function NPCsManagementPage() {
   const [reviewMode, setReviewMode] = useState(false);
   const [doneIds, setDoneIds] = useState<Set<string>>(new Set());
   const [cursorId, setCursorId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<NPC>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
+
+  const {
+    items: npcs,
+    loading,
+    queryError,
+    selected: selectedNpc,
+    setSelected: setSelectedNpc,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    setSuccess,
+    confirmState,
+    closeConfirm,
+    handleCreate: createNpc,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<NPC>({
+    endpoint: "/api/data/npcs",
+    getId: (npc) => npc.id,
+    validate: (f) => (!f.name || !f.race || !f.location ? "Please fill in all required fields (Name, Race, Location)" : null),
+    successMessage: (creating) => (creating ? "NPC created successfully!" : "NPC updated successfully!"),
+    saveErrorMessage: (creating) => (creating ? "Failed to create NPC" : "Failed to update NPC"),
+    deleteConfirmMessage: (npc) => `Are you sure you want to delete ${npc.name}?`,
+    deleteErrorMessage: "Failed to delete NPC",
+    deleteSuccessMessage: "NPC deleted successfully!",
+  });
 
   const queryClient = useQueryClient();
 
-  const { data: npcs = [], isPending: loading, error: queryError } = useQuery<NPC[]>({
-    queryKey: ['/api/data/npcs'],
-    queryFn: () => authFetch('/api/data/npcs').then(r => {
-      if (!r.ok) throw new Error('Failed to load NPCs');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
-  });
   const { data: factions = [] } = useQuery<Faction[]>({
     queryKey: ['/api/data/factions'],
     queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
@@ -80,7 +103,7 @@ export default function NPCsManagementPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not restore review progress from localStorage');
     }
-  }, []);
+  }, [setError]);
 
   const persistProgress = (nextDone: Set<string>, nextCursorId: string | null) => {
     try {
@@ -108,62 +131,13 @@ export default function NPCsManagementPage() {
     return [...filteredNpcs].sort((a, b) => label(a).localeCompare(label(b)));
   }, [filteredNpcs]);
 
-  // Keyboard navigation: ArrowDown selects next, ArrowUp selects previous
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = (el as HTMLElement);
-      const editable = node.closest('input, textarea, select, [contenteditable="true"]');
-      return !!editable;
-    };
-
-    const moveSelection = (delta: number) => {
-      if (sortedNpcs.length === 0) return;
-      // Determine current index within the sorted list
-      const idx = selectedNpc ? sortedNpcs.findIndex(n => n.id === selectedNpc.id) : -1;
-      if (idx === -1) {
-        // If nothing selected, pick first/last depending on direction
-        const nextIdx = delta > 0 ? 0 : sortedNpcs.length - 1;
-        const next = sortedNpcs[nextIdx];
-        if (next) {
-          setSelectedNpc(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          // Scroll into view in the list panel
-          setTimeout(() => {
-            document.querySelector(`[data-npc-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= sortedNpcs.length) return; // clamp, no wrap
-      const next = sortedNpcs[nextIdx];
-      if (!next) return;
-      setSelectedNpc(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-npc-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return; // don't hijack typing in inputs
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        moveSelection(1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        moveSelection(-1);
-      }
-    };
-
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [sortedNpcs, selectedNpc, setSelectedNpc, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: sortedNpcs,
+    selected: selectedNpc,
+    getId: (npc) => npc.id,
+    dataAttr: "data-npc-id",
+    onSelect: handleView,
+  });
 
   const currentIndex = useMemo(() => {
     if (!reviewMode) return -1;
@@ -183,10 +157,7 @@ export default function NPCsManagementPage() {
   };
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedNpc(null);
-    setFormData({
+    createNpc({
       id: `npc-${Date.now()}`,
       name: "",
       display_name: "",
@@ -202,103 +173,17 @@ export default function NPCsManagementPage() {
     });
   };
 
-  const handleEdit = (npc: NPC) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedNpc(npc);
-    setFormData({ ...npc });
-  };
-
-  const handleView = (npc: NPC) => {
-    setSelectedNpc(npc);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    try {
-      if (!formData.name || !formData.race || !formData.location) {
-        setError("Please fill in all required fields (Name, Race, Location)");
-        return;
-      }
-      setIsSaving(true);
-
-      const npcData = formData as NPC;
-
-      if (isCreating) {
-        // Create via API
-        const response = await authFetch('/api/data/npcs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(npcData),
-        });
-        if (!response.ok) throw new Error('Failed to create NPC');
-        setSuccess("NPC created successfully!");
-      } else {
-        const response = await authFetch('/api/data/npcs', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(npcData),
-        });
-        if (!response.ok) throw new Error('Failed to update NPC');
-        setSuccess("NPC updated successfully!");
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedNpc(npcData);
-
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save NPC");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (npc: NPC) => {
-    setConfirmState({
-      message: `Are you sure you want to delete ${npc.name}?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const resp = await authFetch(`/api/data/npcs?id=${encodeURIComponent(npc.id)}`, { method: 'DELETE' });
-          if (!resp.ok) throw new Error('Failed to delete NPC');
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
-          setSelectedNpc(null);
-          setSuccess("NPC deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete NPC");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
-  };
-
   // Review mode actions
   const startReview = (resume = false) => {
     setReviewMode(true);
     const next = resume ? getNextUnreviewed(cursorId) : getNextUnreviewed(null);
     if (next) {
-      setSelectedNpc(next);
-      setFormData({ ...next });
-      setIsEditing(true);
-      setIsCreating(false);
+      handleEdit(next);
       setCursorId(next.id);
       persistProgress(doneIds, next.id);
     } else {
       setSelectedNpc(null);
-      setIsEditing(false);
+      handleCancel();
     }
   };
   const markDoneAndNext = () => {
@@ -308,18 +193,15 @@ export default function NPCsManagementPage() {
     setDoneIds(nextDone);
     const next = getNextUnreviewed(selectedNpc.id);
     if (next) {
-      setSelectedNpc(next);
-      setFormData({ ...next });
-      setIsEditing(true);
-      setIsCreating(false);
+      handleEdit(next);
       setCursorId(next.id);
       persistProgress(nextDone, next.id);
     } else {
       setCursorId(null);
       persistProgress(nextDone, null);
       setReviewMode(false);
-      setIsEditing(false);
       setSelectedNpc(null);
+      handleCancel();
       setSuccess('Review complete!');
       setTimeout(() => setSuccess(''), 3000);
     }
@@ -328,16 +210,13 @@ export default function NPCsManagementPage() {
     if (!selectedNpc) return;
     const next = getNextUnreviewed(selectedNpc.id);
     if (next) {
-      setSelectedNpc(next);
-      setFormData({ ...next });
-      setIsEditing(true);
-      setIsCreating(false);
+      handleEdit(next);
       setCursorId(next.id);
       persistProgress(doneIds, next.id);
     } else {
       setReviewMode(false);
-      setIsEditing(false);
       setSelectedNpc(null);
+      handleCancel();
     }
   };
   const resetProgress = () => {
@@ -476,11 +355,7 @@ export default function NPCsManagementPage() {
 
       {/* Status Messages */}
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
-      {success && (
-        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
 
@@ -1058,7 +933,7 @@ export default function NPCsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

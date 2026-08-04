@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { PC, Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
+import { useListArrowNav } from "@/hooks/useListArrowNav";
 
 interface UserData {
   uid: string;
@@ -29,25 +32,41 @@ const inputStyle: React.CSSProperties = {
 
 export default function PCsManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedPc, setSelectedPc] = useState<PC | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<PC>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
-  const queryClient = useQueryClient();
-
-  const { data: pcs = [], isPending: loading, error: queryError } = useQuery<PC[]>({
-    queryKey: ['/api/data/pcs'],
-    queryFn: () => authFetch('/api/data/pcs').then(r => {
-      if (!r.ok) throw new Error('Failed to load PCs');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
+  const {
+    items: pcs,
+    loading,
+    queryError,
+    selected: selectedPc,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createPc,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete,
+  } = useCrudResource<PC>({
+    endpoint: "/api/data/pcs",
+    getId: (pc) => pc.id,
+    validate: (f) => (!f.name || !f.race || !f.hometown || !f.class ? "Please fill in all required fields (Name, Race, Hometown, Class)" : null),
+    successMessage: (creating) => (creating ? "PC created successfully!" : "PC updated successfully!"),
+    saveErrorMessage: () => "Failed to save PC",
+    deleteConfirmMessage: (pc) => `Are you sure you want to delete ${pc.name}?`,
+    deleteErrorMessage: "Failed to delete PC",
+    deleteSuccessMessage: "PC deleted successfully!",
   });
+
   const { data: factions = [] } = useQuery<Faction[]>({
     queryKey: ['/api/data/factions'],
     queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
@@ -60,7 +79,7 @@ export default function PCsManagementPage() {
     listUsers()
       .then(result => setUsers(result.data as UserData[]))
       .catch(userError => setError(userError instanceof Error ? userError.message : 'Failed to load users'));
-  }, []);
+  }, [setError]);
 
   const filteredPcs = pcs.filter(pc =>
     pc.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,53 +94,13 @@ export default function PCsManagementPage() {
     return f ? f.name : factionId;
   };
 
-  // Arrow key navigation similar to NPCs editor
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      if (!el || !(el as HTMLElement).closest) return false;
-      const node = el as HTMLElement;
-      return !!node.closest('input, textarea, select, [contenteditable="true"]');
-    };
-
-    const moveSelection = (delta: number) => {
-      if (filteredPcs.length === 0) return;
-      const idx = selectedPc ? filteredPcs.findIndex(n => n.id === selectedPc.id) : -1;
-      if (idx === -1) {
-        const nextIdx = delta > 0 ? 0 : filteredPcs.length - 1;
-        const next = filteredPcs[nextIdx];
-        if (next) {
-          setSelectedPc(next);
-          setIsEditing(false);
-          setIsCreating(false);
-          setFormData({});
-          setTimeout(() => {
-            document.querySelector(`[data-pc-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-          }, 0);
-        }
-        return;
-      }
-      const nextIdx = idx + delta;
-      if (nextIdx < 0 || nextIdx >= filteredPcs.length) return;
-      const next = filteredPcs[nextIdx];
-      if (!next) return;
-      setSelectedPc(next);
-      setIsEditing(false);
-      setIsCreating(false);
-      setFormData({});
-      setTimeout(() => {
-        document.querySelector(`[data-pc-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
-      }, 0);
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditable(e.target)) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); }
-    };
-
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [filteredPcs, selectedPc, setSelectedPc, setIsEditing, setIsCreating]);
+  useListArrowNav({
+    items: filteredPcs,
+    selected: selectedPc,
+    getId: (pc) => pc.id,
+    dataAttr: "data-pc-id",
+    onSelect: handleView,
+  });
 
   const getUserForPc = (pc: PC) => {
     if (!pc.player) return null;
@@ -129,10 +108,7 @@ export default function PCsManagementPage() {
   };
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedPc(null);
-    setFormData({
+    createPc({
       id: `pc-${Date.now()}`,
       name: "",
       race: "",
@@ -141,104 +117,6 @@ export default function PCsManagementPage() {
       class: "",
       factions: []
     });
-  };
-
-  const handleEdit = (pc: PC) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedPc(pc);
-    setFormData({ ...pc });
-  };
-
-  const handleView = (pc: PC) => {
-    setSelectedPc(pc);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    try {
-      if (!formData.name || !formData.race || !formData.hometown || !formData.class) {
-        setError("Please fill in all required fields (Name, Race, Hometown, Class)");
-        return;
-      }
-      setIsSaving(true);
-
-      const pcData = formData as PC;
-
-      let response;
-      let successMessage;
-
-      if (isCreating) {
-        response = await authFetch('/api/data/pcs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(pcData),
-        });
-        successMessage = "PC created successfully!";
-      } else {
-        response = await authFetch('/api/data/pcs', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(pcData),
-        });
-        successMessage = "PC updated successfully!";
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to save PC');
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedPc(pcData);
-      setSuccess(successMessage);
-
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save PC");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (pc: PC) => {
-    setConfirmState({
-      message: `Are you sure you want to delete ${pc.name}?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        try {
-          const response = await authFetch(`/api/data/pcs?id=${pc.id}`, {
-            method: 'DELETE',
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to delete PC');
-          }
-
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/pcs'] });
-          setSelectedPc(null);
-          setSuccess("PC deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete PC");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   if (loading) {
@@ -274,19 +152,7 @@ export default function PCsManagementPage() {
       {/* Status messages */}
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
 
-      {success && (
-        <div style={{
-          background: "oklch(0.25 0.10 145 / 0.4)",
-          border: "1px solid oklch(0.55 0.090 145)",
-          color: "var(--grim-moss)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: 14,
-        }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       {/* Two-column layout */}
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
@@ -702,7 +568,7 @@ export default function PCsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>

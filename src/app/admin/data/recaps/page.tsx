@@ -1,38 +1,78 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { SessionRecap } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import SuccessBlock from "@/components/SuccessBlock";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import EntityTagPicker from "@/components/EntityTagPicker";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import Link from "next/link";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useCrudResource } from "@/hooks/useCrudResource";
 
 interface EntityItem { id: string; name: string; }
 
 export default function RecapsManagementPage() {
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const [selectedRecap, setSelectedRecap] = useState<SessionRecap | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState<Partial<SessionRecap>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null);
-
-  const queryClient = useQueryClient();
-
-  const { data: recaps = [], isPending: loading, error: queryError } = useQuery<SessionRecap[]>({
-    queryKey: ['/api/data/session-recaps'],
-    queryFn: () => authFetch('/api/data/session-recaps').then(r => {
-      if (!r.ok) throw new Error('Failed to load session recaps');
-      return r.json().then((d: unknown) => Array.isArray(d) ? d : []);
-    }),
+  const {
+    items: recaps,
+    loading,
+    queryError,
+    selected: selectedRecap,
+    isEditing,
+    isCreating,
+    isSaving,
+    formData,
+    setFormData,
+    searchTerm,
+    setSearchTerm,
+    error,
+    setError,
+    success,
+    confirmState,
+    closeConfirm,
+    handleCreate: createRecap,
+    handleEdit,
+    handleView,
+    handleCancel,
+    handleSave,
+    handleDelete: deleteRecap,
+  } = useCrudResource<SessionRecap>({
+    endpoint: "/api/data/session-recaps",
+    getId: (r) => String(r.id ?? r.date),
+    validate: (f, isCreating) => {
+      if (!f.title || !f.recap || !f.date) return "Please fill in all required fields (Date, Title, Recap)";
+      if (!isCreating && !f.id) return "Unable to update recap: missing identifier.";
+      return null;
+    },
+    buildPayload: (f) => ({ ...(f as SessionRecap), notes: Array.isArray(f.notes) ? f.notes : [] }),
+    resolveSelected: (payload, responseData) => {
+      const p = payload as SessionRecap;
+      const rd = responseData as SessionRecap | undefined;
+      const mergedNotes = Array.isArray(rd?.notes) ? rd.notes : p.notes;
+      return { ...p, ...(rd ?? {}), notes: mergedNotes ?? [], id: String(rd?.id ?? p.id ?? "") };
+    },
+    successMessage: (creating) => (creating ? "Session recap created successfully!" : "Session recap updated successfully!"),
+    saveErrorMessage: (creating) => (creating ? "Failed to create session recap" : "Failed to update session recap"),
+    deleteUrl: (r) => `/api/data/session-recaps?id=${encodeURIComponent(String(r.id))}`,
+    deleteConfirmMessage: (r) => `Are you sure you want to delete the recap for "${r.title}"?`,
+    deleteErrorMessage: "Failed to delete session recap",
+    deleteSuccessMessage: "Session recap deleted successfully!",
+    resolveAfterDelete: (current, deleted) => {
+      const targetId = deleted.id ?? deleted.date;
+      return current && (current.id ?? current.date) === targetId ? null : current;
+    },
   });
+
+  const handleDelete = (recap: SessionRecap) => {
+    if (!recap.id) {
+      setError("Unable to delete recap: missing identifier.");
+      return;
+    }
+    deleteRecap(recap);
+  };
 
   const { data: rawNpcs = [] } = useQuery<{ id: string; name?: string; display_name?: string }[]>({
     queryKey: ['/api/data/npcs'],
@@ -69,139 +109,11 @@ export default function RecapsManagementPage() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setIsEditing(false);
-    setSelectedRecap(null);
-    setFormData({
+    createRecap({
       date: new Date().toISOString().split('T')[0],
       title: "",
       recap: ""
     });
-  };
-
-  const handleEdit = (recap: SessionRecap) => {
-    setIsEditing(true);
-    setIsCreating(false);
-    setSelectedRecap(recap);
-    setFormData({ ...recap });
-  };
-
-  const handleView = (recap: SessionRecap) => {
-    setSelectedRecap(recap);
-    setIsEditing(false);
-    setIsCreating(false);
-    setFormData({});
-  };
-
-  const handleSave = async () => {
-    setError("");
-    setSuccess("");
-
-    if (!formData.title || !formData.recap || !formData.date) {
-      setError("Please fill in all required fields (Date, Title, Recap)");
-      return;
-    }
-
-    const payload: SessionRecap = {
-      ...(formData as SessionRecap),
-      notes: Array.isArray(formData.notes) ? formData.notes : [],
-    };
-
-    setIsSaving(true);
-    try {
-      let savedRecap: SessionRecap | null = null;
-
-      if (isCreating) {
-        const response = await authFetch("/api/data/session-recaps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!response.ok) throw new Error("Failed to create session recap");
-        const result = await response.json();
-        const responseData = result?.data as SessionRecap | undefined;
-        const mergedNotes = Array.isArray(responseData?.notes) ? responseData.notes : payload.notes;
-        savedRecap = {
-          ...payload,
-          ...(responseData ?? {}),
-          notes: mergedNotes ?? [],
-          id: String(responseData?.id ?? payload.id ?? ""),
-        };
-        setSuccess("Session recap created successfully!");
-      } else {
-        if (!payload.id) {
-          setError("Unable to update recap: missing identifier.");
-          return;
-        }
-        const response = await authFetch("/api/data/session-recaps", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!response.ok) throw new Error("Failed to update session recap");
-        const result = await response.json();
-        const responseData = result?.data as SessionRecap | undefined;
-        const mergedNotes = Array.isArray(responseData?.notes) ? responseData.notes : payload.notes;
-        savedRecap = {
-          ...payload,
-          ...(responseData ?? {}),
-          notes: mergedNotes ?? [],
-          id: String(responseData?.id ?? payload.id ?? ""),
-        };
-        setSuccess("Session recap updated successfully!");
-      }
-
-      if (!savedRecap) return;
-
-      await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
-      setIsCreating(false);
-      setIsEditing(false);
-      setSelectedRecap(savedRecap);
-
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save session recap");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = (recap: SessionRecap) => {
-    setConfirmState({
-      message: `Are you sure you want to delete the recap for "${recap.title}"?`,
-      onConfirm: async () => {
-        setConfirmState(null);
-        setError("");
-        setSuccess("");
-
-        if (!recap.id) {
-          setError("Unable to delete recap: missing identifier.");
-          return;
-        }
-
-        try {
-          const targetId = recap.id ?? recap.date;
-          const response = await authFetch(`/api/data/session-recaps?id=${encodeURIComponent(String(recap.id))}`, {
-            method: "DELETE",
-          });
-          if (!response.ok) throw new Error("Failed to delete session recap");
-
-          await queryClient.invalidateQueries({ queryKey: ['/api/data/session-recaps'] });
-          setSelectedRecap((current) => ((current && (current.id ?? current.date) === targetId) ? null : current));
-          setSuccess("Session recap deleted successfully!");
-          setTimeout(() => setSuccess(""), 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to delete session recap");
-        }
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    setIsCreating(false);
-    setIsEditing(false);
-    setFormData({});
-    setError("");
   };
 
   const formatDate = (dateString: string) => {
@@ -236,11 +148,7 @@ export default function RecapsManagementPage() {
       </header>
 
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
-      {success && (
-        <div style={{ background: "oklch(0.25 0.10 145 / 0.4)", border: "1px solid oklch(0.55 0.090 145)", color: "var(--grim-moss)", padding: "12px 16px", marginBottom: 16, fontFamily: "var(--font-body)", fontSize: 14 }}>
-          {success}
-        </div>
-      )}
+      <SuccessBlock message={success} />
 
       <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24 }}>
 
@@ -438,7 +346,7 @@ export default function RecapsManagementPage() {
         <ConfirmModal
           message={confirmState.message}
           onConfirm={confirmState.onConfirm}
-          onCancel={() => setConfirmState(null)}
+          onCancel={closeConfirm}
         />
       )}
     </div>
