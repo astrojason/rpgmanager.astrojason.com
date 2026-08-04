@@ -9,46 +9,52 @@ interface EntityItem {
 
 interface EntityTagPickerProps {
   npcs: EntityItem[];
-  locations: EntityItem[];
+  locations?: EntityItem[];
   quests?: EntityItem[];
   items?: EntityItem[];
   factions?: EntityItem[];
   deities?: EntityItem[];
+  pcs?: EntityItem[];
   selectedNpcs: string[];
-  selectedLocations: string[];
+  selectedLocations?: string[];
   selectedQuests?: string[];
   selectedItems?: string[];
   selectedFactions?: string[];
   selectedDeities?: string[];
+  selectedPcs?: string[];
   onNpcsChange: (ids: string[]) => void;
-  onLocationsChange: (ids: string[]) => void;
+  onLocationsChange?: (ids: string[]) => void;
   onQuestsChange?: (ids: string[]) => void;
   onItemsChange?: (ids: string[]) => void;
   onFactionsChange?: (ids: string[]) => void;
   onDeitiesChange?: (ids: string[]) => void;
+  onPcsChange?: (ids: string[]) => void;
 }
 
-type Tab = "npcs" | "locations" | "quests" | "items" | "factions" | "deities";
+type Tab = "npcs" | "locations" | "quests" | "items" | "factions" | "deities" | "pcs";
 
 export default function EntityTagPicker({
   npcs,
-  locations,
+  locations = [],
   quests = [],
   items = [],
   factions = [],
   deities = [],
+  pcs = [],
   selectedNpcs,
-  selectedLocations,
+  selectedLocations = [],
   selectedQuests = [],
   selectedItems = [],
   selectedFactions = [],
   selectedDeities = [],
+  selectedPcs = [],
   onNpcsChange,
   onLocationsChange,
   onQuestsChange,
   onItemsChange,
   onFactionsChange,
   onDeitiesChange,
+  onPcsChange,
 }: EntityTagPickerProps) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("npcs");
@@ -60,6 +66,7 @@ export default function EntityTagPicker({
   const filteredItems = items.filter(it => it.name.toLowerCase().includes(q));
   const filteredFactions = factions.filter(f => f.name.toLowerCase().includes(q));
   const filteredDeities = deities.filter(d => d.name.toLowerCase().includes(q));
+  const filteredPcs = pcs.filter(p => p.name.toLowerCase().includes(q));
 
   const toggle = (id: string, selected: string[], onChange: (ids: string[]) => void) => {
     onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
@@ -67,7 +74,7 @@ export default function EntityTagPicker({
 
   const totalSelected =
     selectedNpcs.length + selectedLocations.length + selectedQuests.length +
-    selectedItems.length + selectedFactions.length + selectedDeities.length;
+    selectedItems.length + selectedFactions.length + selectedDeities.length + selectedPcs.length;
 
   const tabStyle = (tab: Tab): React.CSSProperties => ({
     padding: "7px 14px",
@@ -125,8 +132,16 @@ export default function EntityTagPicker({
           {selectedLocations.map(id => {
             const l = locations.find(x => x.id === id);
             return l ? (
-              <span key={id} className="grim-chip is-arcane" style={{ fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }} onClick={() => toggle(id, selectedLocations, onLocationsChange)}>
+              <span key={id} className="grim-chip is-arcane" style={{ fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }} onClick={() => toggle(id, selectedLocations, onLocationsChange ?? (() => {}))}>
                 {l.name} ×
+              </span>
+            ) : null;
+          })}
+          {selectedPcs.map(id => {
+            const p = pcs.find(x => x.id === id);
+            return p ? (
+              <span key={id} className="grim-chip" style={{ fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }} onClick={() => toggle(id, selectedPcs, onPcsChange ?? (() => {}))}>
+                {p.name} ×
               </span>
             ) : null;
           })}
@@ -170,9 +185,16 @@ export default function EntityTagPicker({
           <button type="button" style={tabStyle("npcs")} onClick={() => setActiveTab("npcs")}>
             NPCs ({selectedNpcs.length}/{npcs.length})
           </button>
-          <button type="button" style={tabStyle("locations")} onClick={() => setActiveTab("locations")}>
-            Locations ({selectedLocations.length}/{locations.length})
-          </button>
+          {locations.length > 0 && onLocationsChange && (
+            <button type="button" style={tabStyle("locations")} onClick={() => setActiveTab("locations")}>
+              Locations ({selectedLocations.length}/{locations.length})
+            </button>
+          )}
+          {pcs.length > 0 && onPcsChange && (
+            <button type="button" style={tabStyle("pcs")} onClick={() => setActiveTab("pcs")}>
+              PCs ({selectedPcs.length}/{pcs.length})
+            </button>
+          )}
           {quests.length > 0 && onQuestsChange && (
             <button type="button" style={tabStyle("quests")} onClick={() => setActiveTab("quests")}>
               Quests ({selectedQuests.length}/{quests.length})
@@ -228,10 +250,12 @@ export default function EntityTagPicker({
               ? <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 13 }}>No locations found</div>
               : filteredLocations.map(l => (
                 <label key={l.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", cursor: "pointer", background: selectedLocations.includes(l.id) ? "oklch(0.55 0.15 285 / 0.12)" : "transparent" }}>
-                  <input type="checkbox" checked={selectedLocations.includes(l.id)} onChange={() => toggle(l.id, selectedLocations, onLocationsChange)} style={{ accentColor: "var(--grim-arcane)" }} />
+                  <input type="checkbox" checked={selectedLocations.includes(l.id)} onChange={() => toggle(l.id, selectedLocations, onLocationsChange ?? (() => {}))} style={{ accentColor: "var(--grim-arcane)" }} />
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{l.name}</span>
                 </label>
               ))
+          ) : activeTab === "pcs" ? (
+            renderList(filteredPcs, selectedPcs, onPcsChange, "var(--grim-moss)", "No PCs found")
           ) : activeTab === "quests" ? (
             renderList(filteredQuests, selectedQuests, onQuestsChange, "var(--grim-gold)", "No quests found")
           ) : activeTab === "items" ? (

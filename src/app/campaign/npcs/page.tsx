@@ -14,15 +14,9 @@ import { renderMarkdown } from "@/utils/markdown";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
+import { statusChipClass } from "@/utils/chipClass";
 
 const PAGE_SIZE = 24;
-
-function statusChipClass(status?: string): string {
-  const s = (status || "").toLowerCase();
-  if (s === "alive") return "grim-chip is-alive";
-  if (s === "deceased" || s === "dead") return "grim-chip is-deceased";
-  return "grim-chip is-unknown";
-}
 
 export default function NPCsPage() {
   const [searchTerm, setSearchTerm] = useState("");

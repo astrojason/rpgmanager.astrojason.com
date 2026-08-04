@@ -8,13 +8,7 @@ import Image from "next/image";
 import { PC, Faction } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc } from "@/utils/sanitize";
-
-function statusChipClass(status?: string): string {
-  const s = (status || "").toLowerCase();
-  if (s === "alive") return "grim-chip is-alive";
-  if (s === "deceased" || s === "dead") return "grim-chip is-deceased";
-  return "grim-chip is-unknown";
-}
+import { statusChipClass } from "@/utils/chipClass";
 
 export default function PCsPage() {
   const [statusFilter, setStatusFilter] = useState("active");

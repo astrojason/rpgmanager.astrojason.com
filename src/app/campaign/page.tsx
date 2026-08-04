@@ -17,6 +17,7 @@ import {
   parseSessionDate,
 } from "@/utils/nextSession";
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
+import { statusChipClass } from "@/utils/chipClass";
 import ErrorBlock from "@/components/ErrorBlock";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
@@ -106,14 +107,6 @@ function questDescription(quest: Quest): string {
   const last = quest.notes[quest.notes.length - 1];
   const raw = typeof last === 'string' ? last : (last as UserNote).content;
   return toPlainText(raw).slice(0, 120);
-}
-
-function statusChipClass(status?: string) {
-  if (!status) return "grim-chip is-unknown";
-  const s = status.toLowerCase();
-  if (s === "alive") return "grim-chip is-alive";
-  if (s === "deceased" || s === "dead") return "grim-chip is-dead";
-  return "grim-chip is-unknown";
 }
 
 function statusLabel(status?: string) {

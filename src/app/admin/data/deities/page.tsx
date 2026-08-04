@@ -10,6 +10,7 @@ import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import EntityTagPicker from "@/components/EntityTagPicker";
 import Image from "next/image";
 import { safeImageSrc } from "@/utils/sanitize";
 
@@ -308,28 +309,15 @@ export default function DeitiesManagementPage() {
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Notable Followers — NPCs</label>
-                    <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 160, overflowY: "auto", padding: "6px 0" }}>
-                      {npcs.map(n => (
-                        <label key={n.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (form.follower_npcs ?? []).includes(n.id) ? "oklch(0.72 0.165 48 / 0.12)" : "transparent" }}>
-                          <input type="checkbox" checked={(form.follower_npcs ?? []).includes(n.id)} onChange={e => { const cur = form.follower_npcs ?? []; setForm(f => ({ ...f, follower_npcs: e.target.checked ? [...cur, n.id] : cur.filter(x => x !== n.id) })); }} style={{ accentColor: "var(--grim-ember)" }} />
-                          <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{n.name}</span>
-                        </label>
-                      ))}
-                      {npcs.length === 0 && <div style={{ padding: "8px 14px", color: "var(--grim-ink-4)", fontSize: 13 }}>No NPCs found</div>}
-                    </div>
-                  </div>
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Notable Followers — PCs</label>
-                    <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 120, overflowY: "auto", padding: "6px 0" }}>
-                      {pcs.map(p => (
-                        <label key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (form.follower_pcs ?? []).includes(p.id) ? "oklch(0.55 0.090 145 / 0.12)" : "transparent" }}>
-                          <input type="checkbox" checked={(form.follower_pcs ?? []).includes(p.id)} onChange={e => { const cur = form.follower_pcs ?? []; setForm(f => ({ ...f, follower_pcs: e.target.checked ? [...cur, p.id] : cur.filter(x => x !== p.id) })); }} style={{ accentColor: "var(--grim-moss)" }} />
-                          <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{p.name}</span>
-                        </label>
-                      ))}
-                      {pcs.length === 0 && <div style={{ padding: "8px 14px", color: "var(--grim-ink-4)", fontSize: 13 }}>No PCs found</div>}
-                    </div>
+                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Notable Followers</label>
+                    <EntityTagPicker
+                      npcs={npcs}
+                      pcs={pcs}
+                      selectedNpcs={form.follower_npcs ?? []}
+                      selectedPcs={form.follower_pcs ?? []}
+                      onNpcsChange={ids => setForm(f => ({ ...f, follower_npcs: ids }))}
+                      onPcsChange={ids => setForm(f => ({ ...f, follower_pcs: ids }))}
+                    />
                   </div>
 
                   <div style={{ marginBottom: 16 }}>

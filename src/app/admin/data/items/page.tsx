@@ -8,6 +8,7 @@ import { Item, NPC, PC } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
 import ConfirmModal from "@/components/ConfirmModal";
+import EntityTagPicker from "@/components/EntityTagPicker";
 
 const fieldStyle: React.CSSProperties = {
   width: "100%",
@@ -302,64 +303,20 @@ export default function ItemsManagementPage() {
                   <MarkdownEditor value={formData.gm_notes || ""} onChange={v => setFormData({ ...formData, gm_notes: v })} rows={5} label="GM Notes" linkEntities={linkEntities} />
                 </div>
 
-                {/* NPC tags */}
+                {/* Entity tags */}
                 <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Associated NPCs</div>
-                  <div style={{ maxHeight: 140, overflowY: "auto", padding: "8px 12px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 14px" }}>
-                    {availableNpcs.map(n => {
-                      const checked = (formData.tagged_npcs ?? []).includes(n.id);
-                      return (
-                        <label key={n.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
-                          <input type="checkbox" checked={checked} onChange={e => {
-                            const cur = new Set(formData.tagged_npcs ?? []);
-                            if (e.target.checked) cur.add(n.id); else cur.delete(n.id);
-                            setFormData({ ...formData, tagged_npcs: Array.from(cur) });
-                          }} />
-                          <span>{n.name}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* PC tags */}
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Carried By (PCs)</div>
-                  <div style={{ maxHeight: 100, overflowY: "auto", padding: "8px 12px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 14px" }}>
-                    {availablePcs.map(p => {
-                      const checked = (formData.tagged_pcs ?? []).includes(p.id);
-                      return (
-                        <label key={p.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
-                          <input type="checkbox" checked={checked} onChange={e => {
-                            const cur = new Set(formData.tagged_pcs ?? []);
-                            if (e.target.checked) cur.add(p.id); else cur.delete(p.id);
-                            setFormData({ ...formData, tagged_pcs: Array.from(cur) });
-                          }} />
-                          <span>{p.name}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Location tags */}
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Associated Locations</div>
-                  <div style={{ maxHeight: 140, overflowY: "auto", padding: "8px 12px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 14px" }}>
-                    {availableLocations.map(l => {
-                      const checked = (formData.tagged_locations ?? []).includes(l.id);
-                      return (
-                        <label key={l.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>
-                          <input type="checkbox" checked={checked} onChange={e => {
-                            const cur = new Set(formData.tagged_locations ?? []);
-                            if (e.target.checked) cur.add(l.id); else cur.delete(l.id);
-                            setFormData({ ...formData, tagged_locations: Array.from(cur) });
-                          }} />
-                          <span>{l.name}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
+                  <div className="grim-label" style={{ marginBottom: 6 }}>Associations</div>
+                  <EntityTagPicker
+                    npcs={availableNpcs}
+                    pcs={availablePcs}
+                    locations={availableLocations}
+                    selectedNpcs={formData.tagged_npcs ?? []}
+                    selectedPcs={formData.tagged_pcs ?? []}
+                    selectedLocations={formData.tagged_locations ?? []}
+                    onNpcsChange={ids => setFormData({ ...formData, tagged_npcs: ids })}
+                    onPcsChange={ids => setFormData({ ...formData, tagged_pcs: ids })}
+                    onLocationsChange={ids => setFormData({ ...formData, tagged_locations: ids })}
+                  />
                 </div>
 
                 <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)", marginBottom: 20 }}>
