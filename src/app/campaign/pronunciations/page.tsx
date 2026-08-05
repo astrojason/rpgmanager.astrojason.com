@@ -21,8 +21,8 @@ function PronGrid({ items }: { items: Array<{ name: string; pronunciation?: stri
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
       {items.map((item, i) => (
         <div key={i} style={{ padding: "14px 16px", background: "oklch(0.14 0.025 290 / 0.6)", border: "1px solid var(--grim-line)", display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: "1.6667rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{item.name}</div>
-          <div className="grim-mono" style={{ fontSize: "1.4444rem", color: "var(--grim-ember-2)", letterSpacing: ".04em" }}>
+          <div style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{item.name}</div>
+          <div className="grim-mono" style={{ fontSize: "1.0833rem", color: "var(--grim-ember-2)", letterSpacing: ".04em" }}>
             {item.pronunciation || <span style={{ color: "var(--grim-ink-4)" }}>—</span>}
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function PronunciationsPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the appendix&hellip;
         </div>
@@ -139,7 +139,7 @@ export default function PronunciationsPage() {
           <h1 className="grim-page-title">How It Is Said</h1>
           <p className="grim-page-sub">A scrivener&apos;s guide to the names, places, and banners of the Bounty — that no DM stumble mid-sentence.</p>
         </div>
-        <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+        <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
           {totalResults} pronunciations
         </div>
       </div>
@@ -153,11 +153,11 @@ export default function PronunciationsPage() {
             placeholder="Sound out a name or place…"
             style={{
               width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.7778rem",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem",
               padding: "12px 16px 12px 42px", outline: "none",
             }}
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem", pointerEvents: "none" }}>✦</span>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
         </div>
         <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)" }}>
           {FILTERS.map((f) => (
@@ -203,8 +203,8 @@ export default function PronunciationsPage() {
       {/* Empty state */}
       {totalResults === 0 && (
         <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no tongues found ~</div>
-          <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 18 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no tongues found ~</div>
+          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 18 }}>
             Adjust your search or filter
           </div>
           <button

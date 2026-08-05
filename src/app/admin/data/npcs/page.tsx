@@ -19,7 +19,7 @@ const fieldStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: "1.6667rem",
+  fontSize: "1.25rem",
   padding: "9px 14px",
   outline: "none",
 };
@@ -298,7 +298,7 @@ export default function NPCsManagementPage() {
     return (
       <div style={{ padding: "36px 48px 80px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
             <span className="grim-flame" />
             Consulting the codex…
           </div>
@@ -320,7 +320,7 @@ export default function NPCsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Souls</div>
-          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>The Codex of Souls</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Codex of Souls</h1>
           <p className="grim-page-sub">Tend the register of NPCs — names, factions, and their fates.</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, paddingBottom: 6 }}>
@@ -368,12 +368,12 @@ export default function NPCsManagementPage() {
               placeholder="✦ Search souls…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "10px 14px", outline: "none" }}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "10px 14px", outline: "none" }}
             />
           </div>
 
           {/* Count label */}
-          <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
+          <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
             {sortedNpcs.length} {sortedNpcs.length === 1 ? "soul" : "souls"}
           </div>
 
@@ -395,13 +395,13 @@ export default function NPCsManagementPage() {
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", color: selectedNpc?.id === npc.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: selectedNpc?.id === npc.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
                         <span>{npc.name || (typeof npc.aka === 'string' ? npc.aka : '')}</span>
-                        {npc.hidden && <span title="Hidden from players" style={{ fontSize: "1.1111rem", color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
-                        {npc.nameHidden && <span title="Name hidden from players" style={{ fontSize: "1.1111rem", color: "var(--grim-gold-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>NAME?</span>}
+                        {npc.hidden && <span title="Hidden from players" style={{ fontSize: "0.8333rem", color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
+                        {npc.nameHidden && <span title="Name hidden from players" style={{ fontSize: "0.8333rem", color: "var(--grim-gold-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>NAME?</span>}
                       </div>
                       {npc.race && (
-                        <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", marginTop: 2 }}>
+                        <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 2 }}>
                           {npc.race}{npc.status ? ` · ${npc.status}` : ""}
                         </div>
                       )}
@@ -409,13 +409,13 @@ export default function NPCsManagementPage() {
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                       <a
                         className="grim-link"
-                        style={{ fontSize: "1.2222rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                        style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
                         onClick={(e) => { e.stopPropagation(); handleEdit(npc); }}
                       >
                         edit
                       </a>
                       <a
-                        style={{ fontSize: "1.2222rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                        style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
                         onClick={(e) => { e.stopPropagation(); handleDelete(npc); }}
                       >
                         del
@@ -433,7 +433,7 @@ export default function NPCsManagementPage() {
           {/* Review mode controls */}
           {reviewMode && selectedNpc && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "10px 14px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.2222rem", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--grim-ink-3)" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.9166rem", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--grim-ink-3)" }}>
                 Reviewing {currentIndex + 1} of {npcs.length} · Done: {doneIds.size}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
@@ -537,7 +537,7 @@ export default function NPCsManagementPage() {
                     {factions.map((f) => {
                       const checked = (formData.factions || []).includes(f.id);
                       return (
-                        <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>
+                        <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
                           <input
                             type="checkbox"
                             checked={checked}
@@ -633,7 +633,7 @@ export default function NPCsManagementPage() {
                 </div>
 
                 <div style={{ display: "flex", gap: 24, marginBottom: 20 }}>
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
                     <input
                       type="checkbox"
                       checked={formData.hidden || false}
@@ -641,7 +641,7 @@ export default function NPCsManagementPage() {
                     />
                     <span>Hidden from players</span>
                   </label>
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
                     <input
                       type="checkbox"
                       checked={formData.nameHidden || false}
@@ -669,7 +669,7 @@ export default function NPCsManagementPage() {
             <div className="grim-tome">
               <div className="grim-tome-head">
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>
                     {selectedNpc.name || String(selectedNpc.aka || "")}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
@@ -694,31 +694,31 @@ export default function NPCsManagementPage() {
                     {selectedNpc.name && (
                       <div>
                         <span className="grim-label">Name </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink)" }}>{selectedNpc.name}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink)" }}>{selectedNpc.name}</span>
                       </div>
                     )}
                     {selectedNpc.aka && (
                       <div>
                         <span className="grim-label">AKA </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink-2)" }}>{String(selectedNpc.aka)}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{String(selectedNpc.aka)}</span>
                       </div>
                     )}
                     {selectedNpc.pronunciation && (
                       <div>
                         <span className="grim-label">Pronunciation </span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.4444rem", color: "var(--grim-ink-3)" }}>{selectedNpc.pronunciation}</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.0833rem", color: "var(--grim-ink-3)" }}>{selectedNpc.pronunciation}</span>
                       </div>
                     )}
                     {selectedNpc.gender && (
                       <div>
                         <span className="grim-label">Gender </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink-2)" }}>{selectedNpc.gender}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{selectedNpc.gender}</span>
                       </div>
                     )}
                     {selectedNpc.location && (
                       <div>
                         <span className="grim-label">Location </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink-2)" }}>{selectedNpc.location}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{selectedNpc.location}</span>
                       </div>
                     )}
                   </div>
@@ -749,7 +749,7 @@ export default function NPCsManagementPage() {
                       />
                     </div>
                   ) : (
-                    <div style={{ width: 128, height: 128, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--grim-line)", background: "var(--grim-bg-3)", fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)" }}>
+                    <div style={{ width: 128, height: 128, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--grim-line)", background: "var(--grim-bg-3)", fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)" }}>
                       ☥
                     </div>
                   )}
@@ -781,9 +781,9 @@ export default function NPCsManagementPage() {
           ) : (
             /* ── Empty state ── */
             <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4.4444rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>☥</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.7778rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No soul selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: "1.5556rem" }}>Select a soul from the register to view, or inscribe a new one.</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>☥</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No soul selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: "1.1667rem" }}>Select a soul from the register to view, or inscribe a new one.</div>
             </div>
           )}
 
@@ -815,7 +815,7 @@ export default function NPCsManagementPage() {
                     {/* Keep (left) */}
                     <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
                       <div className="grim-label" style={{ marginBottom: 8 }}>Keep</div>
-                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.4444rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
+                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.0833rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
                         <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.name}</dd>
                         <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(selectedNpc.aka || "")}</dd>
                         <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.pronunciation}</dd>
@@ -831,7 +831,7 @@ export default function NPCsManagementPage() {
                     {/* Per-field chooser */}
                     <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-ember)", padding: 14 }}>
                       <div className="grim-label" style={{ marginBottom: 8 }}>Choose Per Field</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: "1.4444rem" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: "1.0833rem" }}>
                         {[
                           ['name','Name'],
                           ['aka','AKA'],
@@ -846,9 +846,9 @@ export default function NPCsManagementPage() {
                           ['image','Image URL'],
                         ].map(([key, label]) => (
                           <div key={key as string} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                            <span style={{ color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".12em", textTransform: "uppercase", minWidth: 80 }}>{label as string}</span>
+                            <span style={{ color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".12em", textTransform: "uppercase", minWidth: 80 }}>{label as string}</span>
                             <div style={{ display: "flex", gap: 10 }}>
-                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
                                 <input
                                   type="radio"
                                   name={`merge-${key}`}
@@ -857,7 +857,7 @@ export default function NPCsManagementPage() {
                                 />
                                 <span>Keep</span>
                               </label>
-                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
                                 <input
                                   type="radio"
                                   name={`merge-${key}`}
@@ -870,11 +870,11 @@ export default function NPCsManagementPage() {
                           </div>
                         ))}
                         <hr className="grim-rule" style={{ margin: "4px 0" }} />
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
+                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
                           <input type="checkbox" checked={mergeIncludeRightFactions} onChange={(e) => setMergeIncludeRightFactions(e.target.checked)} />
                           <span>Include factions from other</span>
                         </label>
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
+                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
                           <input type="checkbox" checked={mergeIncludeRightNotes} onChange={(e) => setMergeIncludeRightNotes(e.target.checked)} />
                           <span>Include notes from other</span>
                         </label>
@@ -884,7 +884,7 @@ export default function NPCsManagementPage() {
                     {/* Merge from (right) */}
                     <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
                       <div className="grim-label" style={{ marginBottom: 8 }}>Merge From</div>
-                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.4444rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
+                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.0833rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
                         <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.name}</dd>
                         <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(mergeCandidate.aka || "")}</dd>
                         <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.pronunciation}</dd>
@@ -902,7 +902,7 @@ export default function NPCsManagementPage() {
                 {previewMerged && (
                   <div style={{ marginTop: 14, padding: "12px 16px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-gold-2)" }}>
                     <div className="grim-label" style={{ marginBottom: 6 }}>Preview</div>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)", display: "flex", flexDirection: "column", gap: 3 }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)", display: "flex", flexDirection: "column", gap: 3 }}>
                       <div><span style={{ color: "var(--grim-ink-4)" }}>Name: </span>{previewMerged.name}</div>
                       {previewMerged.aka && <div><span style={{ color: "var(--grim-ink-4)" }}>AKA: </span>{String(previewMerged.aka)}</div>}
                       <div><span style={{ color: "var(--grim-ink-4)" }}>Race: </span>{previewMerged.race} · <span style={{ color: "var(--grim-ink-4)" }}>Gender: </span>{previewMerged.gender}</div>

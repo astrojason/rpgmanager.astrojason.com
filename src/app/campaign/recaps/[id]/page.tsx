@@ -156,7 +156,7 @@ export default function RecapDetailPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the chronicle&hellip;
         </div>
@@ -171,7 +171,7 @@ export default function RecapDetailPage() {
           ‹ Chronicle of Sessions
         </button>
         <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ session not found ~</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ session not found ~</div>
         </div>
       </div>
     );
@@ -213,7 +213,7 @@ export default function RecapDetailPage() {
       <article className="grim-tome is-bordered">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--grim-line)" }}>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
+            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
               {sessionNo ? `Session ${sessionNo} · ` : ""}{recap.date}
             </div>
             {editing ? (
@@ -221,10 +221,10 @@ export default function RecapDetailPage() {
                 type="text"
                 value={editingRecap.title as string}
                 onChange={e => setEditingRecap({ ...editingRecap, title: e.target.value })}
-                style={{ marginTop: 4, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "3.1111rem", padding: "6px 12px", outline: "none", width: "100%" }}
+                style={{ marginTop: 4, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "2.3333rem", padding: "6px 12px", outline: "none", width: "100%" }}
               />
             ) : (
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "4.4444rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
                 {recap.title}
               </h1>
             )}
@@ -233,8 +233,8 @@ export default function RecapDetailPage() {
             <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
               {editing ? (
                 <>
-                  <button onClick={() => { setEditing(false); setEditingRecap({}); setError(null); }} className="grim-btn is-ghost" style={{ padding: "6px 12px", fontSize: "1.2222rem" }}>Cancel</button>
-                  <button onClick={handleSaveEdit} className="grim-btn is-ember" style={{ padding: "6px 12px", fontSize: "1.2222rem" }} disabled={isSaving}>
+                  <button onClick={() => { setEditing(false); setEditingRecap({}); setError(null); }} className="grim-btn is-ghost" style={{ padding: "6px 12px", fontSize: "0.9166rem" }}>Cancel</button>
+                  <button onClick={handleSaveEdit} className="grim-btn is-ember" style={{ padding: "6px 12px", fontSize: "0.9166rem" }} disabled={isSaving}>
                     {isSaving ? <><span className="grim-flame" style={{ width: 7, height: 7 }} /> Saving…</> : "Save"}
                   </button>
                 </>
@@ -280,42 +280,42 @@ export default function RecapDetailPage() {
                 const n = availableNPCs.find(x => x.id === id);
                 if (!n || (n.hidden && !isAdmin)) return null;
                 return (
-                  <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
                     {n.name}
-                    {n.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
-                    {n.nameHidden && isAdmin && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(name hidden)</span>}
+                    {n.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                    {n.nameHidden && isAdmin && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(name hidden)</span>}
                   </Link>
                 );
               })}
               {(recap.tagged_locations ?? []).map(id => {
                 const l = availableLocations.find(x => x.id === id);
-                return l ? <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>{l.name}</Link> : null;
+                return l ? <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>{l.name}</Link> : null;
               })}
               {(recap.tagged_quests ?? []).map(id => {
                 const qt = availableQuests.find(x => x.id === id);
-                return qt ? <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>{qt.name}</Link> : null;
+                return qt ? <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>{qt.name}</Link> : null;
               })}
               {(recap.tagged_items ?? []).map(id => {
                 const it = availableItems.find(x => x.id === id);
                 if (!it || (it.hidden && !isAdmin)) return null;
                 return (
-                  <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                  <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
                     ⚔ {it.name}
-                    {it.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
+                    {it.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
                   </Link>
                 );
               })}
               {(recap.tagged_factions ?? []).map(id => {
                 const f = availableFactions.find(x => x.id === id);
-                return f ? <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>⚑ {f.name}</Link> : null;
+                return f ? <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>⚑ {f.name}</Link> : null;
               })}
               {(recap.tagged_deities ?? []).map(id => {
                 const d = availableDeities.find(x => x.id === id);
                 if (!d) return null;
                 return (
-                  <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                  <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
                     ✦ {d.name}
-                    {d.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
+                    {d.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
                   </Link>
                 );
               })}

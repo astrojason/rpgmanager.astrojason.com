@@ -74,7 +74,7 @@ export default function LocationsPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -98,7 +98,7 @@ export default function LocationsPage() {
             The known world, mapped in trembling ink.{sublocations.length > 0 ? ` ${sublocations.length} places of note.` : ""}
           </p>
         </div>
-        <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+        <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
           <div>scale ⋅ 1 league per inch</div>
           <div style={{ marginTop: 2 }}>scribed by Master · year 427</div>
         </div>
@@ -127,18 +127,18 @@ export default function LocationsPage() {
               {/* Header image slot */}
               <div style={{ position: "relative", height: 140, background: "var(--grim-bg-3)" }}>
                 <div className="grim-img-slot" style={{ width: "100%", height: "100%", borderRadius: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.2222rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
                 </div>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, oklch(0.13 0.030 290 / 0.95))" }} />
                 <div style={{ position: "absolute", bottom: 10, left: 14, right: 36 }}>
-                  <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ember-2)", letterSpacing: ".22em", textTransform: "uppercase" }}>
+                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ember-2)", letterSpacing: ".22em", textTransform: "uppercase" }}>
                     location
                   </div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-gold)", lineHeight: 1.1, marginTop: 2 }}>{selectedArea.name}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1.1, marginTop: 2 }}>{selectedArea.name}</div>
                 </div>
                 <button
                   onClick={handleCloseDetail}
-                  style={{ position: "absolute", top: 8, right: 8, background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-line)", color: "var(--grim-ink-3)", cursor: "pointer", padding: "2px 7px", fontFamily: "var(--font-mono)", fontSize: "1.4444rem", lineHeight: 1 }}
+                  style={{ position: "absolute", top: 8, right: 8, background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-line)", color: "var(--grim-ink-3)", cursor: "pointer", padding: "2px 7px", fontFamily: "var(--font-mono)", fontSize: "1.0833rem", lineHeight: 1 }}
                 >
                   ×
                 </button>
@@ -146,11 +146,11 @@ export default function LocationsPage() {
 
               <div style={{ padding: "14px 18px 18px" }}>
                 {selectedArea.pronunciation && (
-                  <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", marginBottom: 8 }}>
+                  <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", marginBottom: 8 }}>
                     pronounced {selectedArea.pronunciation}
                   </div>
                 )}
-                <p style={{ fontSize: "1.4444rem", color: "var(--grim-ink-2)", lineHeight: 1.5, margin: "0 0 12px" }}>
+                <p style={{ fontSize: "1.0833rem", color: "var(--grim-ink-2)", lineHeight: 1.5, margin: "0 0 12px" }}>
                   {selectedArea.teaser}
                 </p>
                 <div className="grim-rule" />
@@ -172,7 +172,7 @@ export default function LocationsPage() {
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
             <h2 className="grim-h-section">Places of the Bounty</h2>
-            <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
               {sublocations.length} locations charted
             </div>
           </div>
@@ -189,16 +189,16 @@ export default function LocationsPage() {
                   transition: "border-color 0.15s ease",
                 }}
               >
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", marginBottom: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", marginBottom: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {location.name}
                 </div>
                 {location.pronunciation && (
-                  <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", marginBottom: 6 }}>
+                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", marginBottom: 6 }}>
                     {location.pronunciation}
                   </div>
                 )}
                 {location.teaser && (
-                  <div style={{ fontSize: "1.3333rem", color: "var(--grim-ink-2)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                  <div style={{ fontSize: "1rem", color: "var(--grim-ink-2)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
                     {location.teaser}
                   </div>
                 )}

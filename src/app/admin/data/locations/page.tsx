@@ -73,7 +73,7 @@ export default function LocationsManagementPage() {
     border: "1px solid var(--grim-line-2)",
     color: "var(--grim-ink)",
     fontFamily: "var(--font-body)",
-    fontSize: "1.6667rem",
+    fontSize: "1.25rem",
     padding: "9px 14px",
     outline: "none",
     width: "100%",
@@ -96,7 +96,7 @@ export default function LocationsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Places</div>
-          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>Locations</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Locations</h1>
           <p className="grim-page-sub">Towns, cities, and landmarks — the places that shape the journey.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Chart Location</button>
@@ -124,7 +124,7 @@ export default function LocationsManagementPage() {
                 borderBottom: "1px solid var(--grim-line-2)",
                 color: "var(--grim-ink)",
                 fontFamily: "var(--font-body)",
-                fontSize: "1.6667rem",
+                fontSize: "1.25rem",
                 padding: "10px 14px",
                 outline: "none",
                 width: "100%",
@@ -135,7 +135,7 @@ export default function LocationsManagementPage() {
           {/* Location list */}
           <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
             {filteredLocations.length === 0 && (
-              <div style={{ padding: "24px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.4444rem" }}>
+              <div style={{ padding: "24px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.0833rem" }}>
                 No locations found.
               </div>
             )}
@@ -160,7 +160,7 @@ export default function LocationsManagementPage() {
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{
                         fontFamily: "var(--font-head)",
-                        fontSize: "1.5556rem",
+                        fontSize: "1.1667rem",
                         color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -168,16 +168,16 @@ export default function LocationsManagementPage() {
                       }}>
                         {location.name}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
                         {location.teaser}
                       </div>
-                      {location.hidden && <span className="grim-chip is-dead" style={{ fontSize: "1rem", marginTop: 4 }}>hidden</span>}
+                      {location.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.75rem", marginTop: 4 }}>hidden</span>}
                     </div>
                     <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
                       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                       <a
                         className="grim-link"
-                        style={{ fontSize: "1.3333rem", cursor: "pointer" }}
+                        style={{ fontSize: "1rem", cursor: "pointer" }}
                         onClick={(e) => { e.stopPropagation(); handleEdit(location); }}
                         title="Edit"
                       >
@@ -185,7 +185,7 @@ export default function LocationsManagementPage() {
                       </a>
                       <span style={{ color: "var(--grim-ink-4)" }}>·</span>
                       <a
-                        style={{ fontSize: "1.3333rem", cursor: "pointer", color: "var(--grim-blood-2)", fontFamily: "var(--font-body)", textDecoration: "none" }}
+                        style={{ fontSize: "1rem", cursor: "pointer", color: "var(--grim-blood-2)", fontFamily: "var(--font-body)", textDecoration: "none" }}
                         onClick={(e) => { e.stopPropagation(); handleDelete(location); }}
                         title="Delete"
                       >
@@ -293,7 +293,7 @@ export default function LocationsManagementPage() {
                   {/* Interactive Map Editor */}
                   {formData.mapImg && (
                     <div style={{ border: "1px solid var(--grim-line-2)", padding: 16 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3333rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
                         Map Hover Area Editor
                       </div>
                       <MapAreaEditor
@@ -361,7 +361,7 @@ export default function LocationsManagementPage() {
 
                   {/* Hidden from players */}
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
                       <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
                       Hidden from players
                     </label>
@@ -396,7 +396,7 @@ export default function LocationsManagementPage() {
                 <div>
                   <div style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "4rem",
+                    fontSize: "3rem",
                     color: "var(--grim-gold)",
                     lineHeight: 1.1,
                     marginBottom: 4,
@@ -404,7 +404,7 @@ export default function LocationsManagementPage() {
                     {selectedLocation.name}
                   </div>
                   {selectedLocation.pronunciation && (
-                    <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                    <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
                       {selectedLocation.pronunciation}
                     </div>
                   )}
@@ -457,8 +457,8 @@ export default function LocationsManagementPage() {
                         { label: "Height", value: selectedLocation.height },
                       ].map(({ label, value }) => (
                         <div key={label} style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", padding: "8px 12px" }}>
-                          <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
-                          <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
+                          <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
+                          <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
                             {value?.toFixed(1) ?? "—"}%
                           </div>
                         </div>
@@ -486,11 +486,11 @@ export default function LocationsManagementPage() {
           ) : (
             /* Empty state */
             <div className="grim-tome" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 40px", textAlign: "center", minHeight: 320 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "5.3333rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 No location selected
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-4)", maxWidth: 280 }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)", maxWidth: 280 }}>
                 Select a location from the list to view its details, or chart a new one.
               </div>
             </div>
@@ -604,7 +604,7 @@ function MapAreaEditor({
         />
       </div>
 
-      <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", marginTop: 8, letterSpacing: ".08em" }}>
+      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 8, letterSpacing: ".08em" }}>
         Drag the rectangle to reposition. Drag the corner handle to resize.
       </div>
     </div>

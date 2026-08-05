@@ -67,7 +67,7 @@ export default function FactionsPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Mustering the banners&hellip;
         </div>
@@ -93,15 +93,15 @@ export default function FactionsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Seek a banner, a cause, a seat of power…"
-            style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.7778rem", padding: "12px 16px 12px 42px", outline: "none" }}
+            style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem", padding: "12px 16px 12px 42px", outline: "none" }}
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem" }}>⚑</span>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem" }}>⚑</span>
         </div>
         {uniqueTypes.length > 1 && (
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: typeFilter ? "var(--grim-ink)" : "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.5556rem", padding: "12px 14px", outline: "none", cursor: "pointer" }}
+            style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: typeFilter ? "var(--grim-ink)" : "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.1667rem", padding: "12px 14px", outline: "none", cursor: "pointer" }}
           >
             <option value="">All Types</option>
             {uniqueTypes.map((type) => (
@@ -115,15 +115,15 @@ export default function FactionsPage() {
       <section>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
           <h2 className="grim-h-section">Of those who hold power</h2>
-          <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+          <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
             sorted alphabetical · {sorted.length} of {factionData.length}
           </div>
         </div>
 
         {sorted.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-ink-3)" }}>~ no banners found ~</div>
-            <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ no banners found ~</div>
+            <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
@@ -155,11 +155,11 @@ export default function FactionsPage() {
                     <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, oklch(0.22 0.06 290) 0%, oklch(0.20 0.08 40) 100%)" }} />
                   )}
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, oklch(0.10 0.025 290 / 0.75))" }} />
-                  <div style={{ position: "absolute", top: 8, left: 10, fontFamily: "var(--font-display)", fontSize: "2.4444rem", color: "var(--grim-gold)" }}>
+                  <div style={{ position: "absolute", top: 8, left: 10, fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "var(--grim-gold)" }}>
                     {getFactionCrest(faction.type)}
                   </div>
                   <div style={{ position: "absolute", top: 8, right: 8 }}>
-                    <span className={statusChipClass(faction.status)} style={{ fontSize: "1rem", padding: "2px 6px" }}>
+                    <span className={statusChipClass(faction.status)} style={{ fontSize: "0.75rem", padding: "2px 6px" }}>
                       {faction.status || "Unknown"}
                     </span>
                   </div>
@@ -167,14 +167,14 @@ export default function FactionsPage() {
 
                 {/* Card body */}
                 <div style={{ padding: "10px 14px 14px" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "var(--grim-gold)", lineHeight: 1.1, letterSpacing: ".01em" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1.1, letterSpacing: ".01em" }}>
                     {faction.name}
                   </div>
-                  <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3 }}>
+                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3 }}>
                     {faction.type}{faction.location ? ` · ${faction.location}` : ""}
                   </div>
                   {faction.description && (
-                    <div style={{ fontSize: "1.3333rem", color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    <div style={{ fontSize: "1rem", color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {faction.description}
                     </div>
                   )}

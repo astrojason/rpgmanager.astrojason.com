@@ -234,7 +234,7 @@ export default function RecapsPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the chronicle&hellip;
         </div>
@@ -285,12 +285,12 @@ export default function RecapsPage() {
                 border: "1px solid var(--grim-line-2)",
                 color: "var(--grim-ink)",
                 fontFamily: "var(--font-body)",
-                fontSize: "1.7778rem",
+                fontSize: "1.3334rem",
                 padding: "12px 16px 12px 42px",
                 outline: "none",
               }}
             />
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem", pointerEvents: "none" }}>✦</span>
+            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
           </div>
           <button
             className="grim-btn is-ghost"
@@ -325,7 +325,7 @@ export default function RecapsPage() {
                     border: "1px solid var(--grim-line-2)",
                     color: "var(--grim-ink)",
                     fontFamily: "var(--font-body)",
-                    fontSize: "1.6667rem",
+                    fontSize: "1.25rem",
                     padding: "10px 14px",
                     outline: "none",
                   }}
@@ -343,7 +343,7 @@ export default function RecapsPage() {
                     border: "1px solid var(--grim-line-2)",
                     color: "var(--grim-ink)",
                     fontFamily: "var(--font-body)",
-                    fontSize: "1.6667rem",
+                    fontSize: "1.25rem",
                     padding: "10px 14px",
                     outline: "none",
                   }}
@@ -396,10 +396,10 @@ export default function RecapsPage() {
         <div className="grim-stack" style={{ gap: 22 }}>
           {filteredRecaps.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 ~ no sessions found ~
               </div>
-              <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+              <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
                 Adjust your search
               </div>
             </div>
@@ -420,7 +420,7 @@ export default function RecapsPage() {
                   {/* Entry header */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--grim-line)" }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
+                      <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
                         {sessionNo ? `Session ${sessionNo} · ` : ""}{recap.date}
                       </div>
                       {editingRecapId === recap.id ? (
@@ -434,14 +434,14 @@ export default function RecapsPage() {
                             border: "1px solid var(--grim-line-2)",
                             color: "var(--grim-ink)",
                             fontFamily: "var(--font-display)",
-                            fontSize: "3.1111rem",
+                            fontSize: "2.3333rem",
                             padding: "6px 12px",
                             outline: "none",
                             width: "100%",
                           }}
                         />
                       ) : (
-                        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
+                        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
                           {recap.title}
                         </h3>
                       )}
@@ -453,14 +453,14 @@ export default function RecapsPage() {
                             <button
                               onClick={() => { setEditingRecapId(null); setEditingRecap({}); }}
                               className="grim-btn is-ghost"
-                              style={{ padding: "6px 12px", fontSize: "1.2222rem" }}
+                              style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleSaveEditRecap}
                               className="grim-btn is-ember"
-                              style={{ padding: "6px 12px", fontSize: "1.2222rem" }}
+                              style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
                             >
                               Save
                             </button>
@@ -540,17 +540,17 @@ export default function RecapsPage() {
                           const n = availableNPCs.find(x => x.id === id);
                           if (!n || (n.hidden && !isAdmin)) return null;
                           return (
-                            <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                            <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
                               {n.name}
-                              {n.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
-                              {n.nameHidden && isAdmin && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(name hidden)</span>}
+                              {n.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                              {n.nameHidden && isAdmin && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(name hidden)</span>}
                             </Link>
                           );
                         })}
                         {(recap.tagged_locations ?? []).map(id => {
                           const l = availableLocations.find(x => x.id === id);
                           return l ? (
-                            <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
                               {l.name}
                             </Link>
                           ) : null;
@@ -558,7 +558,7 @@ export default function RecapsPage() {
                         {(recap.tagged_quests ?? []).map(id => {
                           const qt = availableQuests.find(x => x.id === id);
                           return qt ? (
-                            <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
                               {qt.name}
                             </Link>
                           ) : null;
@@ -567,16 +567,16 @@ export default function RecapsPage() {
                           const it = availableItems.find(x => x.id === id);
                           if (!it || (it.hidden && !isAdmin)) return null;
                           return (
-                            <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                            <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
                               ⚔ {it.name}
-                              {it.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
+                              {it.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
                             </Link>
                           );
                         })}
                         {(recap.tagged_factions ?? []).map(id => {
                           const f = availableFactions.find(x => x.id === id);
                           return f ? (
-                            <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                            <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
                               ⚑ {f.name}
                             </Link>
                           ) : null;
@@ -585,9 +585,9 @@ export default function RecapsPage() {
                           const d = availableDeities.find(x => x.id === id);
                           if (!d) return null;
                           return (
-                            <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                            <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
                               ✦ {d.name}
-                              {d.hidden && <span style={{ fontSize: "1rem", opacity: 0.75 }}>(hidden)</span>}
+                              {d.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
                             </Link>
                           );
                         })}
@@ -618,7 +618,7 @@ export default function RecapsPage() {
       <aside style={{ borderLeft: "1px solid var(--grim-line)", overflowY: "auto", padding: "22px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14, padding: "0 22px" }}>
           <h2 className="grim-h-section" style={{ margin: 0 }}>The Sessions</h2>
-          <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>
+          <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>
             {filteredRecaps.length}
           </span>
         </div>
@@ -640,10 +640,10 @@ export default function RecapsPage() {
                   borderLeft: "2px solid " + (isActive ? "var(--grim-ember)" : "transparent"),
                 }}
               >
-                <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+                <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
                   {recap.date}{sessionNo ? ` · s${sessionNo}` : ""}
                 </div>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", letterSpacing: ".02em", color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.25, marginTop: 2 }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".02em", color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.25, marginTop: 2 }}>
                   {recap.title}
                 </div>
               </div>

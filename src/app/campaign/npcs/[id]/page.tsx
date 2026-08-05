@@ -166,7 +166,7 @@ export default function NPCDetailPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -179,8 +179,8 @@ export default function NPCDetailPage() {
       <div style={{ padding: "36px 56px 80px" }}>
         <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/npcs")}>‹ Back to the Codex</button>
         <div style={{ marginTop: 32, textAlign: "center", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-ink-3)" }}>~ soul not found ~</div>
-          <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this soul in the codex</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ soul not found ~</div>
+          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this soul in the codex</div>
         </div>
       </div>
     );
@@ -216,7 +216,7 @@ export default function NPCDetailPage() {
             style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 640, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "2.2222rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
               Edit Dossier
             </h2>
             <form
@@ -234,21 +234,21 @@ export default function NPCDetailPage() {
                   { label: "Image URL", field: "image" as keyof NPC },
                 ].map(({ label, field }) => (
                   <div key={field} style={field === "image" || field === "display_name" ? { gridColumn: "1 / -1" } : {}}>
-                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
                     <input
                       type="text"
                       value={(editingNPC[field] as string) || ""}
                       onChange={(e) => setEditingNPC({ ...editingNPC, [field]: e.target.value })}
-                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "8px 12px", outline: "none" }}
+                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Gender</label>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Gender</label>
                   <select
                     value={editingNPC.gender || ""}
                     onChange={(e) => setEditingNPC({ ...editingNPC, gender: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "8px 12px", outline: "none" }}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -258,11 +258,11 @@ export default function NPCDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
                   <select
                     value={editingNPC.status || "Alive"}
                     onChange={(e) => setEditingNPC({ ...editingNPC, status: e.target.value as "Alive" | "Deceased" | "Unknown" })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "8px 12px", outline: "none" }}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
                   >
                     <option value="Alive">Alive</option>
                     <option value="Deceased">Deceased</option>
@@ -271,15 +271,15 @@ export default function NPCDetailPage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
                 <MarkdownEditor value={editingNPC.description || ""} onChange={(v) => setEditingNPC({ ...editingNPC, description: v })} rows={4} label="Description" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Background</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Background</label>
                 <MarkdownEditor value={editingNPC.background || ""} onChange={(v) => setEditingNPC({ ...editingNPC, background: v })} rows={5} label="Background" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Roleplaying Notes</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Roleplaying Notes</label>
                 <MarkdownEditor value={editingNPC.roleplaying_notes || ""} onChange={(v) => setEditingNPC({ ...editingNPC, roleplaying_notes: v })} rows={4} label="Roleplaying Notes" linkEntities={linkEntities} />
               </div>
               <div>
@@ -290,7 +290,7 @@ export default function NPCDetailPage() {
                   { label: "Hidden from players", field: "hidden" as keyof NPC },
                   { label: "Name hidden", field: "nameHidden" as keyof NPC },
                 ].map(({ label, field }) => (
-                  <label key={field} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "1.4444rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
+                  <label key={field} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
                     <input
                       type="checkbox"
                       checked={Boolean(editingNPC[field])}
@@ -302,13 +302,13 @@ export default function NPCDetailPage() {
                 ))}
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Linked NPCs</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Linked NPCs</label>
                 <input
                   type="text"
                   placeholder="Filter souls…"
                   value={linkedNpcSearch}
                   onChange={(e) => setLinkedNpcSearch(e.target.value)}
-                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", borderBottom: "none", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.4444rem", padding: "6px 10px", outline: "none" }}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", borderBottom: "none", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.0833rem", padding: "6px 10px", outline: "none" }}
                 />
                 <div style={{ maxHeight: 160, overflowY: "auto", border: "1px solid var(--grim-line-2)", padding: "6px 10px", background: "var(--grim-bg-3)" }}>
                   {allNpcs
@@ -338,7 +338,7 @@ export default function NPCDetailPage() {
                             }}
                             style={{ accentColor: "var(--grim-ember)" }}
                           />
-                          <span style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>{label}</span>
+                          <span style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>{label}</span>
                         </label>
                       );
                     })}
@@ -386,7 +386,7 @@ export default function NPCDetailPage() {
             <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/npcs")}>
               ‹ Back to the Codex
             </button>
-            <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
               codex / npcs / {displayName(npc).toLowerCase()}
             </div>
           </div>
@@ -426,20 +426,20 @@ export default function NPCDetailPage() {
                 />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 70%, oklch(0.10 0.025 290 / 0.5))" }} />
                 <div style={{ position: "absolute", bottom: 10, left: 10, right: 10, padding: "5px 9px", background: "oklch(0.10 0.02 290 / 0.75)", border: "1px solid var(--grim-gold-2)", display: "flex", justifyContent: "space-between" }}>
-                  <span className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".18em", color: "var(--grim-gold)", textTransform: "uppercase" }}>portrait · click to enlarge</span>
-                  <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-3)" }}>↗</span>
+                  <span className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".18em", color: "var(--grim-gold)", textTransform: "uppercase" }}>portrait · click to enlarge</span>
+                  <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-3)" }}>↗</span>
                 </div>
               </div>
             ) : (
               <div className="grim-img-slot is-portrait" style={{ width: 280, height: 360, border: "1px solid var(--grim-gold-2)" }}>
                 <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)" }}>?</div>
-                  <div style={{ marginTop: 8, fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)" }}>no likeness on file</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)" }}>?</div>
+                  <div style={{ marginTop: 8, fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)" }}>no likeness on file</div>
                 </div>
               </div>
             )}
             <div style={{ position: "absolute", top: -10, left: -10, transform: "rotate(-5deg)" }}>
-              <div className="grim-seal" style={{ width: 48, height: 48, fontSize: "2rem" }}>✦</div>
+              <div className="grim-seal" style={{ width: 48, height: 48, fontSize: "1.5rem" }}>✦</div>
             </div>
           </div>
 
@@ -448,20 +448,20 @@ export default function NPCDetailPage() {
             <div>
               <div className="grim-page-eyebrow">Dossier of an Encountered Soul</div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <h1 style={{ fontFamily: "var(--font-display)", fontSize: "8rem", color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: "6rem", color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
                   {displayName(npc) || "Unknown"}
                 </h1>
                 {isNameHidden(npc) && dmMode && (
-                  <span className="grim-chip" style={{ fontSize: "1.1111rem", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden from players</span>
+                  <span className="grim-chip" style={{ fontSize: "0.8333rem", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden from players</span>
                 )}
               </div>
               {!isNameHidden(npc) && npc.pronunciation && (
-                <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: "1.8889rem" }}>
+                <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: "1.4167rem" }}>
                   pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{npc.pronunciation}</b>
                 </div>
               )}
               {npc.aka && !isNameHidden(npc) && (
-                <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--grim-ink-3)", fontSize: "1.6667rem", marginTop: 3 }}>
+                <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--grim-ink-3)", fontSize: "1.25rem", marginTop: 3 }}>
                   known as &ldquo;{npc.aka}&rdquo;
                 </div>
               )}
@@ -491,7 +491,7 @@ export default function NPCDetailPage() {
               ].map(([k, v], i) => (
                 <div key={k} style={{ paddingLeft: i === 0 ? 0 : 16, borderLeft: i === 0 ? "none" : "1px solid var(--grim-line)" }}>
                   <div className="grim-label">{k}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "var(--grim-gold)", lineHeight: 1.15, marginTop: 3 }}>{v}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1.15, marginTop: 3 }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -501,7 +501,7 @@ export default function NPCDetailPage() {
         {/* Description parchment block */}
         {npc.description && (
           <section className="grim-parchment" style={{ marginBottom: 28 }}>
-            <div style={{ margin: 0, fontSize: "1.8889rem", lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}
+            <div style={{ margin: 0, fontSize: "1.4167rem", lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }}
               dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.description, isAdmin, autoLinkEntities) }}
             />
           </section>
@@ -518,7 +518,7 @@ export default function NPCDetailPage() {
                   <h3 className="grim-tome-title">Background</h3>
                   <span className="grim-tome-sub">history &amp; origin</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.background || "", isAdmin, autoLinkEntities) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.25rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.background || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
             {(isDM || isAdmin) && npc.roleplaying_notes && (
@@ -527,13 +527,13 @@ export default function NPCDetailPage() {
                   <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>Roleplaying Notes</h3>
                   <span className="grim-tome-sub">dm-facing · hidden from players</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.roleplaying_notes || "", isAdmin, autoLinkEntities) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.25rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.roleplaying_notes || "", isAdmin, autoLinkEntities) }} />
               </section>
             )}
             {!npc.background && (!(isDM || isAdmin) || !npc.roleplaying_notes) && (
               <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "3.1111rem", color: "var(--grim-ink-3)" }}>~ unwritten ~</div>
-                <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.3333rem", color: "var(--grim-ink-3)" }}>~ unwritten ~</div>
+                <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the codex</div>
               </section>
             )}
           </div>
@@ -549,18 +549,18 @@ export default function NPCDetailPage() {
                       <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>★ Master&apos;s Marginalia</h3>
                       <span className="grim-tome-sub">hidden from the party</span>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.5556rem", lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.gm_notes || "", true) }} />
+                    <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.1667rem", lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(npc.gm_notes || "", true) }} />
                   </section>
                 ) : isAdmin ? (
                   <section className="grim-tome" style={{ border: "1px dashed oklch(0.65 0.150 285 / 0.5)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "2.4444rem", color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no marginalia ~</div>
-                    <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no marginalia ~</div>
+                    <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
                   </section>
                 ) : null
               ) : (
                 <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ sealed ~</div>
-                  <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s marginalia hidden</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-ink-3)" }}>~ sealed ~</div>
+                  <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s marginalia hidden</div>
                 </section>
               )
             )}
@@ -592,10 +592,10 @@ export default function NPCDetailPage() {
                     <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
                         <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
-                          {d.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: "1rem", padding: "1px 6px" }}>hidden</span>}
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                          {d.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: "0.75rem", padding: "1px 6px" }}>hidden</span>}
                         </span>
-                        <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
+                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
                       </div>
                     </Link>
                   ))}
@@ -623,11 +623,11 @@ export default function NPCDetailPage() {
                           )}
                           <div>
                             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
-                              {linked.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: "1rem", padding: "1px 6px" }}>hidden</span>}
-                              {isNameHidden(linked) && dmMode && <span className="grim-chip" style={{ fontSize: "1rem", padding: "1px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
+                              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>{displayName(linked)}</div>
+                              {linked.hidden && dmMode && <span className="grim-chip is-blood" style={{ fontSize: "0.75rem", padding: "1px 6px" }}>hidden</span>}
+                              {isNameHidden(linked) && dmMode && <span className="grim-chip" style={{ fontSize: "0.75rem", padding: "1px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
                             </div>
-                            {linked.race && <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".10em" }}>{linked.race}</div>}
+                            {linked.race && <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em" }}>{linked.race}</div>}
                           </div>
                         </div>
                       </Link>
@@ -652,8 +652,8 @@ export default function NPCDetailPage() {
                       style={{ textDecoration: "none", color: "inherit", display: "block" }}
                     >
                       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
-                        <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
+                        <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
+                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
                       </div>
                     </Link>
                   ))}

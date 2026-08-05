@@ -46,7 +46,7 @@ const ImpersonationToolbar: React.FC<ImpersonationToolbarProps> = ({
           Clear
         </button>
       )}
-      <span style={{ marginLeft: 16, fontSize: "1.3333rem", opacity: 0.7 }}>
+      <span style={{ marginLeft: 16, fontSize: "1rem", opacity: 0.7 }}>
         (localhost only)
       </span>
     </div>

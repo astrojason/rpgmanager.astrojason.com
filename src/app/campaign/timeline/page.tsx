@@ -157,7 +157,7 @@ export default function TimelinePage() {
     border: "1px solid var(--grim-line-2)",
     color: "var(--grim-ink)",
     fontFamily: "var(--font-body)",
-    fontSize: "1.6667rem",
+    fontSize: "1.25rem",
     padding: "9px 14px",
     outline: "none",
   } as const;
@@ -165,7 +165,7 @@ export default function TimelinePage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Unrolling the annals&hellip;
         </div>
@@ -200,11 +200,11 @@ export default function TimelinePage() {
             placeholder="Search the annals…"
             style={{
               width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.7778rem",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem",
               padding: "12px 16px 12px 42px", outline: "none",
             }}
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem", pointerEvents: "none" }}>✦</span>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
         </div>
         {allCategories.length > 0 && (
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
@@ -229,7 +229,7 @@ export default function TimelinePage() {
         )}
       </section>
 
-      <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 28 }}>
+      <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 28 }}>
         {filtered.length} of {events.length} events
       </div>
 
@@ -256,7 +256,7 @@ export default function TimelinePage() {
                     key={c.id}
                     type="button"
                     className={`grim-btn ${newEvent.category === c.id ? "is-ember" : "is-ghost"}`}
-                    style={{ padding: "4px 10px", fontSize: "1.3333rem" }}
+                    style={{ padding: "4px 10px", fontSize: "1rem" }}
                     onClick={() => setNewEvent(p => ({ ...p, category: p.category === c.id ? "" : c.id }))}
                   >
                     {c.id}
@@ -274,7 +274,7 @@ export default function TimelinePage() {
               </div>
             )}
             {createError && (
-              <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
+              <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
             )}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
               <button className="grim-btn is-ghost" onClick={() => { setIsCreating(false); setNewEvent({ ...BLANK_EVENT }); setCreateError(""); }}>Cancel</button>
@@ -287,8 +287,8 @@ export default function TimelinePage() {
       {/* Timeline */}
       {filtered.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no events found ~</div>
-          <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no events found ~</div>
+          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
             Adjust your search or filters
           </div>
         </div>
@@ -353,7 +353,7 @@ export default function TimelinePage() {
                                   key={c.id}
                                   type="button"
                                   className={`grim-btn ${editingEvent.category === c.id ? "is-ember" : "is-ghost"}`}
-                                  style={{ padding: "4px 10px", fontSize: "1.3333rem" }}
+                                  style={{ padding: "4px 10px", fontSize: "1rem" }}
                                   onClick={() => setEditingEvent(p => p ? { ...p, category: p.category === c.id ? "" : c.id } : p)}
                                 >
                                   {c.id}
@@ -371,7 +371,7 @@ export default function TimelinePage() {
                             </div>
                           )}
                           {editError && (
-                            <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{editError}</div>
+                            <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{editError}</div>
                           )}
                           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
                             <button className="grim-btn is-ghost" onClick={() => { setEditingId(null); setEditingEvent(null); setEditError(""); }}>Cancel</button>
@@ -384,17 +384,17 @@ export default function TimelinePage() {
                         {/* Header row */}
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
                           <div style={{ minWidth: 0 }}>
-                            <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
+                            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
                               {event.date}
                             </div>
-                            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2.8889rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>
+                            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>
                               {event.title}
                             </h3>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
                             {event.category && (
                               <span style={{
-                                fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".14em",
+                                fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".14em",
                                 textTransform: "uppercase", color: catColor,
                                 border: `1px solid ${catColor}80`, padding: "2px 8px",
                               }}>
@@ -403,12 +403,12 @@ export default function TimelinePage() {
                             )}
                             {canEdit && (
                               <div style={{ display: "flex", gap: 6 }}>
-                                <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "1.2222rem" }} onClick={() => handleStartEdit(event)}>
+                                <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.9166rem" }} onClick={() => handleStartEdit(event)}>
                                   Edit
                                 </button>
                                 <button
                                   className="grim-btn is-blood"
-                                  style={{ padding: "4px 10px", fontSize: "1.2222rem" }}
+                                  style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
                                   disabled={deletingId === event.id}
                                   onClick={() => handleDelete(event.id)}
                                 >
@@ -421,7 +421,7 @@ export default function TimelinePage() {
 
                         {/* Description */}
                         {event.description && (
-                          <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.5556rem", color: "var(--grim-ink-2)", lineHeight: 1.65 }}>
+                          <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.1667rem", color: "var(--grim-ink-2)", lineHeight: 1.65 }}>
                             <ReactMarkdown>{event.description}</ReactMarkdown>
                           </div>
                         )}
@@ -430,7 +430,7 @@ export default function TimelinePage() {
                         {isDM && event.gm_notes && event.gm_notes.trim() && event.gm_notes.trim().toLowerCase() !== "null" && (
                           <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed var(--grim-line)" }}>
                             <div className="grim-label" style={{ marginBottom: 6, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
-                            <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.4444rem", color: "var(--grim-ink-3)", lineHeight: 1.55 }}>
+                            <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.0833rem", color: "var(--grim-ink-3)", lineHeight: 1.55 }}>
                               <ReactMarkdown>{event.gm_notes}</ReactMarkdown>
                             </div>
                           </div>
