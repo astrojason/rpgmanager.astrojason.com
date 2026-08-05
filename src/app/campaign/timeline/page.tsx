@@ -151,21 +151,12 @@ export default function TimelinePage() {
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    background: "var(--grim-bg-3)",
-    border: "1px solid var(--grim-line-2)",
-    color: "var(--grim-ink)",
-    fontFamily: "var(--font-body)",
-    fontSize: "1.25rem",
-    padding: "9px 14px",
-    outline: "none",
-  } as const;
+  const inputClass = "w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.25 px-3.5 outline-none";
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Unrolling the annals&hellip;
         </div>
@@ -174,11 +165,11 @@ export default function TimelinePage() {
   }
 
   return (
-    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%", maxWidth: 900, margin: "0 auto" }}>
+    <div className="pt-9 px-14 pb-20 overflow-y-auto h-full mx-auto my-0" style={{ maxWidth: 900 }}>
       {(error || queryError) && <ErrorBlock error={error ?? queryError?.message ?? ''} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+      <div className="flex justify-between items-end mb-5.5">
         <div>
           <div className="grim-page-eyebrow">The Remembered Road</div>
           <h1 className="grim-page-title">The Great Annals</h1>
@@ -192,25 +183,23 @@ export default function TimelinePage() {
       </div>
 
       {/* Search + category filter */}
-      <section style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 22 }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 240 }}>
+      <section className="flex gap-3 flex-wrap mb-5.5">
+        <div className="relative flex-1 min-w-60">
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search the annals…"
-            style={{
-              width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem",
-              padding: "12px 16px 12px 42px", outline: "none",
-            }}
+            className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl pt-3 pr-4 pb-3 pl-10.5 outline-none"
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
+          <span
+            className="absolute left-3.5 text-grim-gold-2 text-2xl pointer-events-none"
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >✦</span>
         </div>
         {allCategories.length > 0 && (
-          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
+          <div className="flex gap-1 flex-wrap items-center">
             <button
-              className={`grim-btn ${categoryFilter === "all" ? "is-ember" : "is-ghost"}`}
-              style={{ padding: "6px 12px" }}
+              className={`grim-btn ${categoryFilter === "all" ? "is-ember" : "is-ghost"} py-1.5 px-3`}
               onClick={() => setCategoryFilter("all")}
             >
               All
@@ -218,8 +207,7 @@ export default function TimelinePage() {
             {allCategories.map(cat => (
               <button
                 key={cat}
-                className={`grim-btn ${categoryFilter === cat ? "is-ember" : "is-ghost"}`}
-                style={{ padding: "6px 12px" }}
+                className={`grim-btn ${categoryFilter === cat ? "is-ember" : "is-ghost"} py-1.5 px-3`}
                 onClick={() => setCategoryFilter(cat)}
               >
                 {cat}
@@ -229,41 +217,40 @@ export default function TimelinePage() {
         )}
       </section>
 
-      <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 28 }}>
+      <div className="grim-mono text-sm tracking-widest-2 text-grim-ink-3 uppercase mb-7">
         {filtered.length} of {events.length} events
       </div>
 
       {/* Inline creation form */}
       {isCreating && (
-        <div className="grim-tome" style={{ marginBottom: 32, padding: "22px 26px" }}>
-          <div className="grim-label" style={{ marginBottom: 14 }}>New Event</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="grim-tome mb-8 py-5.5 px-6.5">
+          <div className="grim-label mb-3.5">New Event</div>
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="grim-label" style={{ marginBottom: 6 }}>Title</div>
-                <input autoFocus value={newEvent.title} onChange={e => { setNewEvent(p => ({ ...p, title: e.target.value })); setCreateError(""); }} placeholder="Event title…" style={inputStyle} />
+                <div className="grim-label mb-1.5">Title</div>
+                <input autoFocus value={newEvent.title} onChange={e => { setNewEvent(p => ({ ...p, title: e.target.value })); setCreateError(""); }} placeholder="Event title…" className={inputClass} />
               </div>
               <div>
-                <div className="grim-label" style={{ marginBottom: 6 }}>In-World Date</div>
-                <input value={newEvent.date} onChange={e => { setNewEvent(p => ({ ...p, date: e.target.value })); setCreateError(""); }} placeholder="e.g. Year 847, Readying 14" style={inputStyle} />
+                <div className="grim-label mb-1.5">In-World Date</div>
+                <input value={newEvent.date} onChange={e => { setNewEvent(p => ({ ...p, date: e.target.value })); setCreateError(""); }} placeholder="e.g. Year 847, Readying 14" className={inputClass} />
               </div>
             </div>
             <div>
-              <div className="grim-label" style={{ marginBottom: 6 }}>Category</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+              <div className="grim-label mb-1.5">Category</div>
+              <div className="flex gap-1.5 flex-wrap mb-1.5">
                 {CATEGORIES.map(c => (
                   <button
                     key={c.id}
                     type="button"
-                    className={`grim-btn ${newEvent.category === c.id ? "is-ember" : "is-ghost"}`}
-                    style={{ padding: "4px 10px", fontSize: "1rem" }}
+                    className={`grim-btn ${newEvent.category === c.id ? "is-ember" : "is-ghost"} py-1 px-2.5 text-base`}
                     onClick={() => setNewEvent(p => ({ ...p, category: p.category === c.id ? "" : c.id }))}
                   >
                     {c.id}
                   </button>
                 ))}
               </div>
-              <input value={newEvent.category ?? ""} onChange={e => setNewEvent(p => ({ ...p, category: e.target.value }))} placeholder="Or type a custom category…" style={inputStyle} />
+              <input value={newEvent.category ?? ""} onChange={e => setNewEvent(p => ({ ...p, category: e.target.value }))} placeholder="Or type a custom category…" className={inputClass} />
             </div>
             <div>
               <MarkdownEditor value={newEvent.description} onChange={v => setNewEvent(p => ({ ...p, description: v }))} label="Description" rows={4} />
@@ -274,9 +261,9 @@ export default function TimelinePage() {
               </div>
             )}
             {createError && (
-              <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
+              <div className="grim-mono text-sm text-grim-blood-2 tracking-wider-2">{createError}</div>
             )}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <div className="flex justify-end gap-2">
               <button className="grim-btn is-ghost" onClick={() => { setIsCreating(false); setNewEvent({ ...BLANK_EVENT }); setCreateError(""); }}>Cancel</button>
               <button className="grim-btn is-ember" onClick={handleCreate} disabled={!newEvent.title.trim() || !newEvent.date.trim()}>Inscribe</button>
             </div>
@@ -286,25 +273,21 @@ export default function TimelinePage() {
 
       {/* Timeline */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no events found ~</div>
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div className="text-center py-15 px-6 text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3 mb-2">~ no events found ~</div>
+          <div className="grim-mono text-sm tracking-widest-2 uppercase">
             Adjust your search or filters
           </div>
         </div>
       ) : (
-        <div style={{ position: "relative" }}>
+        <div className="relative">
           {/* Vertical rail */}
-          <div style={{
-            position: "absolute",
-            left: 20,
-            top: 0,
-            bottom: 0,
-            width: 2,
-            background: "linear-gradient(to bottom, var(--grim-gold-2), oklch(0.68 0.115 82 / 0.2))",
-          }} />
+          <div
+            className="absolute left-5 top-0 bottom-0 w-0.5"
+            style={{ background: "linear-gradient(to bottom, var(--grim-gold-2), oklch(0.68 0.115 82 / 0.2))" }}
+          />
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+          <div className="flex flex-col gap-0">
             {filtered.map((event, idx) => {
               const dotColor = getCategoryDot(event.category);
               const catColor = getCategoryColor(event.category);
@@ -312,55 +295,46 @@ export default function TimelinePage() {
               const isLast = idx === filtered.length - 1;
 
               return (
-                <div key={event.id} style={{ display: "flex", gap: 20, paddingBottom: isLast ? 0 : 32 }}>
+                <div key={event.id} className={`flex gap-5 ${isLast ? "pb-0" : "pb-8"}`}>
                   {/* Timeline dot */}
-                  <div style={{ position: "relative", flexShrink: 0, width: 42 }}>
-                    <div style={{
-                      position: "absolute",
-                      left: 11,
-                      top: 16,
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      background: dotColor,
-                      border: "2px solid var(--grim-bg-2)",
-                      boxShadow: `0 0 10px ${dotColor}80`,
-                      zIndex: 1,
-                    }} />
+                  <div className="relative shrink-0 w-10.5">
+                    <div
+                      className="absolute left-2.75 top-4 w-5 h-5 rounded-full border-2 border-grim-bg-2"
+                      style={{ background: dotColor, boxShadow: `0 0 10px ${dotColor}80`, zIndex: 1 }}
+                    />
                   </div>
 
                   {/* Event card */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="flex-1 min-w-0">
                     {isEditing && editingEvent ? (
-                      <div className="grim-tome" style={{ padding: "22px 26px" }}>
-                        <div className="grim-label" style={{ marginBottom: 14 }}>Edit Event</div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div className="grim-tome py-5.5 px-6.5">
+                        <div className="grim-label mb-3.5">Edit Event</div>
+                        <div className="flex flex-col gap-3">
+                          <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <div className="grim-label" style={{ marginBottom: 6 }}>Title</div>
-                              <input autoFocus value={editingEvent.title} onChange={e => setEditingEvent(p => p ? { ...p, title: e.target.value } : p)} style={inputStyle} />
+                              <div className="grim-label mb-1.5">Title</div>
+                              <input autoFocus value={editingEvent.title} onChange={e => setEditingEvent(p => p ? { ...p, title: e.target.value } : p)} className={inputClass} />
                             </div>
                             <div>
-                              <div className="grim-label" style={{ marginBottom: 6 }}>In-World Date</div>
-                              <input value={editingEvent.date} onChange={e => setEditingEvent(p => p ? { ...p, date: e.target.value } : p)} style={inputStyle} />
+                              <div className="grim-label mb-1.5">In-World Date</div>
+                              <input value={editingEvent.date} onChange={e => setEditingEvent(p => p ? { ...p, date: e.target.value } : p)} className={inputClass} />
                             </div>
                           </div>
                           <div>
-                            <div className="grim-label" style={{ marginBottom: 6 }}>Category</div>
-                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+                            <div className="grim-label mb-1.5">Category</div>
+                            <div className="flex gap-1.5 flex-wrap mb-1.5">
                               {CATEGORIES.map(c => (
                                 <button
                                   key={c.id}
                                   type="button"
-                                  className={`grim-btn ${editingEvent.category === c.id ? "is-ember" : "is-ghost"}`}
-                                  style={{ padding: "4px 10px", fontSize: "1rem" }}
+                                  className={`grim-btn ${editingEvent.category === c.id ? "is-ember" : "is-ghost"} py-1 px-2.5 text-base`}
                                   onClick={() => setEditingEvent(p => p ? { ...p, category: p.category === c.id ? "" : c.id } : p)}
                                 >
                                   {c.id}
                                 </button>
                               ))}
                             </div>
-                            <input value={editingEvent.category ?? ""} onChange={e => setEditingEvent(p => p ? { ...p, category: e.target.value } : p)} placeholder="Or type a custom category…" style={inputStyle} />
+                            <input value={editingEvent.category ?? ""} onChange={e => setEditingEvent(p => p ? { ...p, category: e.target.value } : p)} placeholder="Or type a custom category…" className={inputClass} />
                           </div>
                           <div>
                             <MarkdownEditor value={editingEvent.description} onChange={v => setEditingEvent(p => p ? { ...p, description: v } : p)} label="Description" rows={4} />
@@ -371,44 +345,42 @@ export default function TimelinePage() {
                             </div>
                           )}
                           {editError && (
-                            <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{editError}</div>
+                            <div className="grim-mono text-sm text-grim-blood-2 tracking-wider-2">{editError}</div>
                           )}
-                          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                          <div className="flex justify-end gap-2">
                             <button className="grim-btn is-ghost" onClick={() => { setEditingId(null); setEditingEvent(null); setEditError(""); }}>Cancel</button>
                             <button className="grim-btn is-ember" onClick={handleSaveEdit} disabled={!editingEvent.title.trim() || !editingEvent.date.trim()}>Save</button>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="grim-tome" style={{ padding: "18px 22px" }}>
+                      <div className="grim-tome py-4.5 px-5.5">
                         {/* Header row */}
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
-                          <div style={{ minWidth: 0 }}>
-                            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
+                        <div className="flex justify-between items-start gap-3 mb-2.5">
+                          <div className="min-w-0">
+                            <div className="grim-mono text-sm tracking-widest-2 text-grim-ink-4 uppercase mb-1">
                               {event.date}
                             </div>
-                            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>
+                            <h3 className="font-display text-4xl text-grim-gold m-0" style={{ lineHeight: 1.1 }}>
                               {event.title}
                             </h3>
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                          <div className="flex items-center gap-2.5 shrink-0">
                             {event.category && (
-                              <span style={{
-                                fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".14em",
-                                textTransform: "uppercase", color: catColor,
-                                border: `1px solid ${catColor}80`, padding: "2px 8px",
-                              }}>
+                              <span
+                                className="font-mono text-sm tracking-wider-3 uppercase py-0.5 px-2"
+                                style={{ color: catColor, border: `1px solid ${catColor}80` }}
+                              >
                                 {event.category}
                               </span>
                             )}
                             {canEdit && (
-                              <div style={{ display: "flex", gap: 6 }}>
-                                <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.9166rem" }} onClick={() => handleStartEdit(event)}>
+                              <div className="flex gap-1.5">
+                                <button className="grim-btn is-ghost py-1 px-2.5 text-sm" onClick={() => handleStartEdit(event)}>
                                   Edit
                                 </button>
                                 <button
-                                  className="grim-btn is-blood"
-                                  style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
+                                  className="grim-btn is-blood py-1 px-2.5 text-sm"
                                   disabled={deletingId === event.id}
                                   onClick={() => handleDelete(event.id)}
                                 >
@@ -421,16 +393,16 @@ export default function TimelinePage() {
 
                         {/* Description */}
                         {event.description && (
-                          <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.1667rem", color: "var(--grim-ink-2)", lineHeight: 1.65 }}>
+                          <div className="prose prose-sm dark:prose-invert max-w-none text-lg text-grim-ink-2" style={{ lineHeight: 1.65 }}>
                             <ReactMarkdown>{event.description}</ReactMarkdown>
                           </div>
                         )}
 
                         {/* GM Notes */}
                         {isDM && event.gm_notes && event.gm_notes.trim() && event.gm_notes.trim().toLowerCase() !== "null" && (
-                          <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed var(--grim-line)" }}>
-                            <div className="grim-label" style={{ marginBottom: 6, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
-                            <div className="prose prose-sm dark:prose-invert max-w-none" style={{ fontSize: "1.0833rem", color: "var(--grim-ink-3)", lineHeight: 1.55 }}>
+                          <div className="mt-3.5 pt-3 border-t border-dashed border-grim-line">
+                            <div className="grim-label mb-1.5 text-grim-arcane">GM&apos;s Compendium</div>
+                            <div className="prose prose-sm dark:prose-invert max-w-none text-lg text-grim-ink-3" style={{ lineHeight: 1.55 }}>
                               <ReactMarkdown>{event.gm_notes}</ReactMarkdown>
                             </div>
                           </div>

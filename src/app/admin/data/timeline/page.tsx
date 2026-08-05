@@ -17,16 +17,8 @@ interface TimelineEvent {
   gm_notes?: string;
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.25rem",
-  padding: "9px 14px",
-  outline: "none",
-  width: "100%",
-};
+const inputClassName =
+  "bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3.5 outline-none w-full";
 
 export default function TimelineManagementPage() {
   const {
@@ -89,24 +81,24 @@ export default function TimelineManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 0" }}>
+      <div className="flex items-center justify-center py-16 px-0">
         <span className="grim-flame" />
-        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: "1.1667rem" }}>Loading Timeline...</span>
+        <span className="ml-3 font-body text-grim-ink-3 text-lg">Loading Timeline...</span>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Masthead */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Events</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Timeline</h1>
           <p className="grim-page-sub">Chronicle the turning of history — events, ages, and turning points.</p>
         </div>
-        <button className="grim-btn is-ember" onClick={handleCreate} style={{ flexShrink: 0 }}>
+        <button className="grim-btn is-ember shrink-0" onClick={handleCreate}>
           + Mark Event
         </button>
       </header>
@@ -116,72 +108,55 @@ export default function TimelineManagementPage() {
       <SuccessBlock message={success} />
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* List panel */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
           {/* Search bar */}
-          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+          <div className="border-b border-grim-line">
             <input
               type="text"
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                background: "var(--grim-bg-3)",
-                border: "none",
-                borderBottom: "1px solid var(--grim-line-2)",
-                color: "var(--grim-ink)",
-                fontFamily: "var(--font-body)",
-                fontSize: "1.25rem",
-                padding: "10px 14px",
-                outline: "none",
-                width: "100%",
-              }}
+              className="bg-grim-bg-3 border-0 border-b border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none w-full"
             />
           </div>
 
           {/* List items */}
-          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+          <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
             {filteredEvents.map((event) => (
               <div
                 key={event.id}
                 data-event-id={event.id}
                 onClick={() => handleView(event)}
+                className={`border-b border-grim-line py-3 px-4 cursor-pointer border-l-2 ${selectedEvent?.id === event.id ? "border-grim-ember" : "border-transparent"}`}
                 style={{
-                  borderBottom: "1px solid var(--grim-line)",
-                  padding: "12px 16px",
-                  cursor: "pointer",
-                  borderLeft: selectedEvent?.id === event.id
-                    ? "2px solid var(--grim-ember)"
-                    : "2px solid transparent",
                   background: selectedEvent?.id === event.id
                     ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
                     : "transparent",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-head text-lg text-grim-ink truncate">
                       {event.title}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 3 }}>
+                    <div className="grim-mono text-sm text-grim-ink-4 truncate mt-1">
                       {event.date}
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                  <div className="flex gap-1 shrink-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleEdit(event); }}
-                      className="grim-btn is-ghost"
-                      style={{ padding: "2px 8px", fontSize: "0.9166rem" }}
+                      className="grim-btn is-ghost py-0.5 px-2 text-sm"
                       title="Edit"
                     >
                       ✎
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(event); }}
-                      className="grim-btn is-blood"
-                      style={{ padding: "2px 8px", fontSize: "0.9166rem" }}
+                      className="grim-btn is-blood py-0.5 px-2 text-sm"
                       title="Delete"
                     >
                       ✕
@@ -196,49 +171,49 @@ export default function TimelineManagementPage() {
         {/* Detail / Edit panel */}
         <div>
           {(isCreating || isEditing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)" }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+              <div className="py-4 px-5 border-b border-grim-line">
+                <div className="font-head text-xl tracking-wider uppercase text-grim-ink">
                   {isCreating ? "Mark New Event" : "Edit Event"}
                 </div>
               </div>
-              <div style={{ padding: "24px 24px" }}>
+              <div className="p-6">
                 <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-                  <div style={{ marginBottom: 16 }}>
+                  <div className="mb-4">
                     <label className="grim-label">Title *</label>
                     <input
                       type="text"
                       value={formData.title || ""}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      style={inputStyle}
+                      className={inputClassName}
                       required
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
+                  <div className="mb-4">
                     <label className="grim-label">Date *</label>
                     <input
                       type="text"
                       value={formData.date || ""}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                       placeholder="e.g., 15th of Reaping, 1482 AC"
-                      style={inputStyle}
+                      className={inputClassName}
                       required
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
+                  <div className="mb-4">
                     <label className="grim-label">Category</label>
                     <input
                       type="text"
                       value={formData.category || ""}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       placeholder="e.g., Campaign, Historical, Personal"
-                      style={inputStyle}
+                      className={inputClassName}
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
+                  <div className="mb-4">
                     <label className="grim-label">Description *</label>
                     <MarkdownEditor
                       value={formData.description || ""}
@@ -248,7 +223,7 @@ export default function TimelineManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 24 }}>
+                  <div className="mb-6">
                     <label className="grim-label">GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
@@ -258,7 +233,7 @@ export default function TimelineManagementPage() {
                     />
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <div className="flex justify-end gap-2.5">
                     <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
                       Cancel
                     </button>
@@ -270,20 +245,20 @@ export default function TimelineManagementPage() {
               </div>
             </div>
           ) : selectedEvent ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+              <div className="py-4 px-5 border-b border-grim-line flex items-start justify-between gap-3">
                 <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                  <div className="font-display text-5xl text-grim-gold" style={{ lineHeight: 1.1 }}>
                     {selectedEvent.title}
                   </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <div className="flex gap-2 mt-2 flex-wrap items-center">
                     <span className="grim-chip">{selectedEvent.date}</span>
                     {selectedEvent.category && (
                       <span className="grim-chip is-ember">{selectedEvent.category}</span>
                     )}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button onClick={() => handleEdit(selectedEvent)} className="grim-btn is-ghost">
                     Edit
                   </button>
@@ -292,7 +267,7 @@ export default function TimelineManagementPage() {
                   </button>
                 </div>
               </div>
-              <div style={{ padding: "24px 24px" }}>
+              <div className="p-6">
                 <div
                   className="grim-flavor"
                   dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedEvent.description || '', true) }}
@@ -300,12 +275,12 @@ export default function TimelineManagementPage() {
               </div>
             </div>
           ) : (
-            <div className="grim-tome" style={{ padding: "64px 32px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4.3334rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>☾</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+            <div className="grim-tome text-center" style={{ padding: "64px 32px" }}>
+              <div className="font-display text-7xl text-grim-ink-4 mb-4 leading-none">☾</div>
+              <div className="font-head text-lg tracking-wider-2 uppercase text-grim-ink-3 mb-2">
                 Nothing selected
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)" }}>
+              <div className="font-body text-lg text-grim-ink-4">
                 Choose an event from the chronicle, or mark a new one.
               </div>
             </div>

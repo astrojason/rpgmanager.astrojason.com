@@ -85,8 +85,8 @@ export default function DeitiesPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the divine compendium&hellip;
         </div>
@@ -99,55 +99,55 @@ export default function DeitiesPage() {
       {/* Admin add modal */}
       {showAddForm && isAdmin && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "oklch(0 0 0 / 0.75)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-grim-backdrop/75"
           onClick={() => { setShowAddForm(false); setEditingDeity({}); }}
         >
           <div
-            style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 640, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
+            className="bg-grim-bg-2 border border-grim-line-2 w-full overflow-y-auto m-4 p-8"
+            style={{ maxWidth: 640, maxHeight: "90vh" }}
             onClick={e => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+            <h2 className="font-head text-2xl text-grim-gold tracking-wider-2 uppercase mt-0 mx-0 mb-6">
               Record New Divinity
             </h2>
             <form
               onSubmit={e => { e.preventDefault(); handleAddDeity(editingDeity); }}
-              style={{ display: "flex", flexDirection: "column", gap: 16 }}
+              className="flex flex-col gap-4"
             >
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="grid grid-cols-2 gap-3">
                 {([
                   { label: "Name", field: "name" as keyof Deity, full: false },
                   { label: "Pronunciation", field: "pronunciation" as keyof Deity, full: false },
                   { label: "Domain", field: "domain" as keyof Deity, full: false },
                   { label: "Image URL", field: "image" as keyof Deity, full: true },
                 ] as { label: string; field: keyof Deity; full: boolean }[]).map(({ label, field, full }) => (
-                  <div key={field} style={full ? { gridColumn: "1 / -1" } : {}}>
-                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                  <div key={field} className={full ? "col-span-full" : ""}>
+                    <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">{label}</label>
                     <input
                       type="text"
                       value={(editingDeity[field] as string) || ""}
                       onChange={e => setEditingDeity({ ...editingDeity, [field]: e.target.value })}
-                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
+                      className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3 outline-none"
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Alignment</label>
+                  <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Alignment</label>
                   <select
                     value={editingDeity.alignment || ""}
                     onChange={e => setEditingDeity({ ...editingDeity, alignment: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
+                    className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3 outline-none"
                   >
                     <option value="">— Unknown —</option>
                     {ALIGNMENTS.map(a => <option key={a} value={a}>{a}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
+                  <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Status</label>
                   <select
                     value={editingDeity.status || "active"}
                     onChange={e => setEditingDeity({ ...editingDeity, status: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
+                    className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3 outline-none"
                   >
                     <option value="active">Active</option>
                     <option value="forgotten">Forgotten</option>
@@ -157,18 +157,18 @@ export default function DeitiesPage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Description</label>
                 <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={4} label="Description" linkEntities={deities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` }))} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">GM Notes</label>
                 <MarkdownEditor value={editingDeity.gm_notes || ""} onChange={v => setEditingDeity({ ...editingDeity, gm_notes: v })} rows={4} label="GM Notes" linkEntities={deities.map(d => ({ id: String(d.id), name: d.name, type: 'deity' as const, url: `/campaign/deities/${d.id}` }))} />
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
-                <input type="checkbox" checked={Boolean(editingDeity.hidden)} onChange={e => setEditingDeity({ ...editingDeity, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
+              <label className="flex items-center gap-2 cursor-pointer font-head text-lg text-grim-ink-2 tracking-wider">
+                <input type="checkbox" checked={Boolean(editingDeity.hidden)} onChange={e => setEditingDeity({ ...editingDeity, hidden: e.target.checked })} className="accent-grim-ember" />
                 Hidden from players
               </label>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-grim-line">
                 <button type="button" className="grim-btn is-ghost" onClick={() => { setShowAddForm(false); setEditingDeity({}); }}>Cancel</button>
                 <button type="submit" className="grim-btn is-ember">Record Divinity</button>
               </div>
@@ -178,12 +178,12 @@ export default function DeitiesPage() {
       )}
 
       {/* DEITY LIST */}
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
 
         {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
 
         {/* Page header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+        <div className="flex justify-between items-end mb-5.5">
           <div>
             <div className="grim-page-eyebrow">Volume the Seventh</div>
             <h1 className="grim-page-title">The Divine Compendium</h1>
@@ -195,86 +195,79 @@ export default function DeitiesPage() {
         </div>
 
         {/* Search */}
-        <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 22 }}>
-          <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+        <section className="flex gap-3 items-stretch mb-5.5">
+          <div className="relative flex-1 min-w-70">
             <input
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Seek a name, a domain, a power…"
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem", padding: "12px 16px 12px 42px", outline: "none" }}
+              className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl pt-3 pr-4 pb-3 pl-10.5 outline-none"
             />
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem" }}>✦</span>
+            <span
+              className="absolute left-3.5 text-grim-gold-2 text-2xl"
+              style={{ top: "50%", transform: "translateY(-50%)" }}
+            >✦</span>
           </div>
           {isAdmin && (
             <button
               onClick={() => setHiddenOnly(v => !v)}
-              className={`grim-btn ${hiddenOnly ? "is-blood" : "is-ghost"}`}
-              style={{ padding: "6px 12px", border: `1px solid ${hiddenOnly ? "var(--grim-blood-2)" : "var(--grim-line)"}`, background: hiddenOnly ? undefined : "transparent" }}
+              className={`grim-btn ${hiddenOnly ? "is-blood" : "is-ghost"} py-1.5 px-3 border ${hiddenOnly ? "border-grim-blood-2" : "border-grim-line"} ${hiddenOnly ? "" : "bg-transparent"}`}
             >
               Hidden Only
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", opacity: 0.7, marginLeft: 6 }}>{hiddenCount}</span>
+              <span className="grim-mono text-sm opacity-70 ml-1.5">{hiddenCount}</span>
             </button>
           )}
         </section>
 
         {/* Deity card grid */}
         <section>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+          <div className="flex justify-between items-baseline mb-3">
             <h2 className="grim-h-section">Of the gods and divine powers</h2>
-            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+            <div className="grim-mono text-sm tracking-widest-2 text-grim-ink-3 uppercase">
               sorted alphabetical · {sorted.length} of {visible.length}
             </div>
           </div>
 
           {sorted.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ no divinities found ~</div>
-              <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search</div>
+            <div className="text-center py-12 px-6 text-grim-ink-4">
+              <div className="font-display text-5xl text-grim-ink-3">~ no divinities found ~</div>
+              <div className="grim-mono text-sm tracking-widest-2 uppercase mt-2">Adjust thy search</div>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            <div className="grid grid-cols-3 gap-3">
               {sorted.map(deity => (
                 <div
                   key={deity.id}
                   onClick={() => router.push(`/campaign/deities/${deity.id}`)}
-                  className="grim-tome"
-                  style={{
-                    padding: "16px 18px",
-                    cursor: "pointer",
-                    border: "1px solid var(--grim-line)",
-                    transition: "transform 0.15s ease, border-color 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 14,
-                    position: "relative",
-                  }}
+                  className="grim-tome py-4 px-4.5 cursor-pointer border border-grim-line flex items-center gap-3.5 relative"
+                  style={{ transition: "transform 0.15s ease, border-color 0.15s ease" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-gold-2)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
                 >
                   {deity.hidden && isAdmin && (
-                    <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: "0.75rem", letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
+                    <span className="grim-mono absolute top-2 right-2.5 text-xs tracking-wider-3 text-grim-blood-2 uppercase">hidden</span>
                   )}
                   {/* Avatar */}
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden", border: "1px solid var(--grim-gold-2)", flexShrink: 0, position: "relative", background: "var(--grim-bg-3)" }}>
+                  <div className="w-14 h-14 rounded-full overflow-hidden border border-grim-gold-2 shrink-0 relative bg-grim-bg-3">
                     {safeImageSrc(deity.image) ? (
-                      <Image src={safeImageSrc(deity.image)!} alt={deity.name} fill style={{ objectFit: "cover" }} />
+                      <Image src={safeImageSrc(deity.image)!} alt={deity.name} fill className="object-cover" />
                     ) : (
-                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "var(--grim-gold-2)" }}>✦</div>
+                      <div className="w-full h-full flex items-center justify-center font-display text-3xl text-grim-gold-2">✦</div>
                     )}
                   </div>
                   {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display text-2xl text-grim-gold leading-none tracking-normal truncate">
                       {deity.name}
                     </div>
                     {deity.domain && (
-                      <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-gold-2)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 3 }}>
+                      <div className="grim-mono text-xs text-grim-gold-2 tracking-wider-3 uppercase mt-0.75">
                         {deity.domain}
                       </div>
                     )}
                     {deity.alignment && (
-                      <div style={{ marginTop: 6 }}>
-                        <span className={alignmentChipClass(deity.alignment)} style={{ fontSize: "0.75rem", padding: "2px 6px" }}>{deity.alignment}</span>
+                      <div className="mt-1.5">
+                        <span className={`${alignmentChipClass(deity.alignment)} text-xs py-0.5 px-1.5`}>{deity.alignment}</span>
                       </div>
                     )}
                   </div>

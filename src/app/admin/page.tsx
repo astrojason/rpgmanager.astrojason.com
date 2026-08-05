@@ -52,27 +52,29 @@ function AdminTome({ glyph, title, sub, count, tint, href }: {
   glyph: string; title: string; sub: string; count?: number; tint: Tint; href: string;
 }) {
   return (
-    <Link href={href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-      <div className="grim-tome" style={{ padding: "20px 22px", cursor: "pointer", display: "flex", gap: 16, alignItems: "center" }}>
-        <div style={{
-          width: 52, height: 52, flexShrink: 0, borderRadius: 1,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "var(--font-display)", fontSize: "2.5rem",
-          background: TINT_BG[tint], color: "oklch(0.94 0.05 70)",
-          border: "1px solid " + TINT_BORDER[tint],
-          boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
-        }}>{glyph}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{title}</div>
-          <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{sub}</div>
+    <Link href={href} className="no-underline text-inherit block">
+      <div className="grim-tome py-5 px-5.5 cursor-pointer flex gap-4 items-center">
+        <div
+          className="w-13 h-13 shrink-0 flex items-center justify-center font-display text-4xl border"
+          style={{
+            background: TINT_BG[tint],
+            color: "oklch(0.94 0.05 70)",
+            borderColor: TINT_BORDER[tint],
+            borderRadius: 1,
+            boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
+          }}
+        >{glyph}</div>
+        <div className="flex-1 min-w-0">
+          <div className="font-head text-xl tracking-wider uppercase text-grim-ink">{title}</div>
+          <div className="grim-mono text-sm tracking-wider-2 text-grim-ink-3 uppercase mt-1">{sub}</div>
         </div>
         {count != null && (
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.3333rem", color: "var(--grim-gold)", lineHeight: 1 }}>{count}</div>
-            <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>entries</div>
+          <div className="text-right shrink-0">
+            <div className="font-display text-4xl text-grim-gold leading-none">{count}</div>
+            <div className="grim-mono text-xs tracking-wider-4 text-grim-ink-4 uppercase mt-0.5">entries</div>
           </div>
         )}
-        <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.6666rem", marginLeft: count != null ? 8 : 0 }}>›</span>
+        <span className={`text-grim-ink-4 font-display text-2xl ${count != null ? "ml-2" : "ml-0"}`}>›</span>
       </div>
     </Link>
   );
@@ -102,43 +104,47 @@ export default function AdminPage() {
   };
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Masthead */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Master&apos;s hand</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Scriptorium</h1>
+          <h1 className="grim-page-title text-7xl">The Scriptorium</h1>
           <p className="grim-page-sub">Tend the tomes of the campaign — souls, banners, errands, and the turning of the world&apos;s calendar.</p>
         </div>
         {user && (
-          <div style={{ textAlign: "right", paddingBottom: 6, flexShrink: 0 }}>
-            <div className="grim-label" style={{ marginBottom: 4 }}>Signed in as</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "var(--grim-gold)", lineHeight: 1 }}>The Master</div>
-            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 6, alignItems: "center" }}>
+          <div className="text-right pb-1.5 shrink-0">
+            <div className="grim-label mb-1">Signed in as</div>
+            <div className="font-display text-3xl text-grim-gold leading-none">The Master</div>
+            <div className="flex gap-1.5 justify-end mt-1.5 items-center">
               <span className="grim-chip is-ember">admin</span>
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>{user.email}</span>
+              <span className="grim-mono text-sm text-grim-ink-3 tracking-wider-3">{user.email}</span>
             </div>
           </div>
         )}
       </header>
 
       {/* Quick overview ledger */}
-      <section className="grim-tome is-bordered" style={{ marginBottom: 30, padding: 0, overflow: "hidden" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+      <section className="grim-tome is-bordered mb-7.5 p-0 overflow-hidden">
+        <div className="grid grid-cols-4">
           {([
             { n: counts.npcs,      l: "Souls inscribed", glyph: "☥", tint: "ember"  as Tint },
             { n: counts.quests,    l: "Errands afoot",   glyph: "✦", tint: "moss"   as Tint },
             { n: counts.locations, l: "Places mapped",   glyph: "✠", tint: "arcane" as Tint },
             { n: counts.factions,  l: "Banners raised",  glyph: "⚑", tint: "gold"   as Tint },
           ] as { n: number | undefined; l: string; glyph: string; tint: Tint }[]).map((s, i) => (
-            <div key={i} style={{ padding: "22px 26px", borderLeft: i > 0 ? "1px solid var(--grim-line)" : "none", background: "linear-gradient(180deg, oklch(0.17 0.035 285), oklch(0.135 0.030 290))" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: TINT_BORDER[s.tint] }}>{s.glyph}</span>
-                <span className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{s.l}</span>
+            <div
+              key={i}
+              className={`py-5.5 px-6.5 ${i > 0 ? "border-l border-grim-line" : ""}`}
+              style={{ background: "linear-gradient(180deg, oklch(0.17 0.035 285), oklch(0.135 0.030 290))" }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-display text-2xl" style={{ color: TINT_BORDER[s.tint] }}>{s.glyph}</span>
+                <span className="grim-mono text-xs tracking-widest-4 text-grim-ink-4 uppercase">{s.l}</span>
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-gold)", lineHeight: 0.9, textShadow: "0 0 28px oklch(0.72 0.165 48 / 0.15)" }}>
-                {s.n ?? <span style={{ fontSize: "2rem", color: "var(--grim-ink-4)" }}>—</span>}
+              <div className="font-display text-6xl text-grim-gold" style={{ lineHeight: 0.9, textShadow: "0 0 28px oklch(0.72 0.165 48 / 0.15)" }}>
+                {s.n ?? <span className="text-3xl text-grim-ink-4">—</span>}
               </div>
             </div>
           ))}
@@ -146,9 +152,9 @@ export default function AdminPage() {
       </section>
 
       {/* Tomes of Record */}
-      <section style={{ marginBottom: 30 }}>
+      <section className="mb-7.5">
         <h2 className="grim-h-section">Tomes of Record</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        <div className="grid grid-cols-3 gap-3.5">
           {DATA_TOMES.map((t, i) => (
             <AdminTome
               key={i}
@@ -163,12 +169,12 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <div style={{ textAlign: "center", padding: "4px 0 10px", color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "2.3333rem", letterSpacing: ".10em" }}>❦</div>
+      <div className="text-center pt-1 px-0 pb-2.5 text-grim-ink-4 font-display text-4xl tracking-widest">❦</div>
 
       {/* Instruments of the Master */}
       <section>
         <h2 className="grim-h-section">Instruments of the Master</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        <div className="grid grid-cols-3 gap-3.5">
           {TOOL_TOMES.map((t, i) => (
             <AdminTome key={i} {...t} />
           ))}

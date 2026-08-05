@@ -71,8 +71,8 @@ export default function PCsPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Mustering the fellowship&hellip;
         </div>
@@ -81,10 +81,10 @@ export default function PCsPage() {
   }
 
   return (
-    <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+    <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
 
       {/* Page header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+      <div className="flex justify-between items-end mb-5.5">
         <div>
           <div className="grim-page-eyebrow">The Fellowship of the Bounty</div>
           <h1 className="grim-page-title">Player Characters</h1>
@@ -93,26 +93,28 @@ export default function PCsPage() {
       </div>
 
       {/* Search + status filters */}
-      <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 22 }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+      <section className="flex gap-3 items-stretch mb-5.5">
+        <div className="relative flex-1 min-w-70">
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Seek a name, a calling, a homeland…"
-            style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem", padding: "12px 16px 12px 42px", outline: "none" }}
+            className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl pt-3 pr-4 pb-3 pl-10.5 outline-none"
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem" }}>✦</span>
+          <span
+            className="absolute left-3.5 text-grim-gold-2 text-2xl"
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >✦</span>
         </div>
-        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", overflow: "hidden" }}>
+        <div className="flex gap-1 p-1 bg-grim-bg-3 border border-grim-line overflow-hidden">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               onClick={() => setStatusFilter(f.id)}
-              className={`grim-btn ${statusFilter === f.id ? "is-ember" : "is-ghost"}`}
-              style={{ padding: "6px 12px", border: `1px solid ${statusFilter === f.id ? "var(--grim-ember)" : "transparent"}`, background: statusFilter === f.id ? undefined : "transparent" }}
+              className={`grim-btn ${statusFilter === f.id ? "is-ember" : "is-ghost"} py-1.5 px-3 border ${statusFilter === f.id ? "border-grim-ember" : "border-transparent"} ${statusFilter === f.id ? "" : "bg-transparent"}`}
             >
               {f.label}
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", opacity: 0.7, marginLeft: 2 }}>{f.count}</span>
+              <span className="grim-mono text-sm opacity-70 ml-0.5">{f.count}</span>
             </button>
           ))}
         </div>
@@ -120,79 +122,72 @@ export default function PCsPage() {
 
       {/* PC card grid */}
       <section>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+        <div className="flex justify-between items-baseline mb-3">
           <h2 className="grim-h-section">Of those who walk the Bounty</h2>
-          <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+          <div className="grim-mono text-sm tracking-widest-2 text-grim-ink-3 uppercase">
             sorted alphabetical · {sortedPCs.length} of {pcsData.length}
           </div>
         </div>
 
         {sortedPCs.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
-            <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+          <div className="text-center py-12 px-6 text-grim-ink-4">
+            <div className="font-display text-5xl text-grim-ink-3">~ no souls found ~</div>
+            <div className="grim-mono text-sm tracking-widest-2 uppercase mt-2">
               Adjust thy search or filters
             </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div className="grid grid-cols-3 gap-3">
             {sortedPCs.map((pc) => (
               <div
                 key={pc.id}
                 onClick={() => router.push(`/campaign/pcs/${pc.id}`)}
-                className="grim-tome"
-                style={{
-                  padding: 0,
-                  overflow: "hidden",
-                  cursor: "pointer",
-                  display: "grid",
-                  gridTemplateColumns: "38% 1fr",
-                  border: "1px solid var(--grim-line)",
-                  transition: "transform 0.15s ease, border-color 0.15s ease",
-                }}
+                className="grim-tome p-0 overflow-hidden cursor-pointer grid border border-grim-line"
+                style={{ gridTemplateColumns: "38% 1fr", transition: "transform 0.15s ease, border-color 0.15s ease" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-gold-2)"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
               >
                 {/* Portrait */}
-                <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
+                <div className="relative aspect-square">
                   {hasValidImage(pc.image) ? (
                     <Image
                       src={safeImageSrc(pc.image)!}
                       alt={pc.name || ""}
                       fill
-                      style={{ objectFit: "cover", objectPosition: "center top", filter: pc.status === "Deceased" ? "grayscale(0.7)" : "none" }}
+                      className="object-cover object-top"
+                      style={{ filter: pc.status === "Deceased" ? "grayscale(0.7)" : "none" }}
                     />
                   ) : (
-                    <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+                    <div className="grim-img-slot is-portrait w-full h-full" />
                   )}
-                  <div style={{ position: "absolute", top: 7, left: 7 }}>
-                    <span className={statusChipClass(pc.status)} style={{ fontSize: "0.75rem", padding: "2px 6px" }}>
+                  <div className="absolute top-1.75 left-1.75">
+                    <span className={`${statusChipClass(pc.status)} text-xs py-0.5 px-1.5`}>
                       {pc.status === "Deceased" ? "Departed" : pc.status || "Unknown"}
                     </span>
                   </div>
                 </div>
 
                 {/* Card body */}
-                <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div className="pt-2.5 px-3 pb-3 flex flex-col justify-start">
+                  <div className="font-display text-2xl text-grim-gold leading-none tracking-normal truncate">
                     {pc.name || "Unknown"}
                   </div>
                   {pc.nickname && (
-                    <div style={{ fontSize: "0.9166rem", color: "var(--grim-ink-4)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div className="text-sm text-grim-ink-4 mt-0.5 truncate">
                       &ldquo;{pc.nickname}&rdquo;
                     </div>
                   )}
-                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div className="grim-mono text-xs text-grim-ink-3 tracking-wider-3 uppercase mt-1 truncate">
                     {pc.class}{pc.race ? ` · ${pc.race}` : ""}
                   </div>
                   {pc.hometown && (
-                    <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div className="grim-mono text-xs text-grim-ink-4 tracking-widest mt-0.5 truncate">
                       ⌖ {pc.hometown}
                     </div>
                   )}
                   {pc.factions && pc.factions.length > 0 && (
-                    <div style={{ marginTop: "auto", paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
-                      <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div className="mt-auto pt-1.75 border-t border-dashed border-grim-line">
+                      <div className="grim-mono text-xs text-grim-ink-4 tracking-wider-2 uppercase truncate">
                         ⚑ {getFactionName(pc.factions[0])}
                       </div>
                     </div>

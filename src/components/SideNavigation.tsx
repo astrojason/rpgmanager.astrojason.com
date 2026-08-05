@@ -137,8 +137,7 @@ export default function SideNavigation() {
         {isAdmin && (
           <Link
             href="/admin"
-            className={`grim-nav-item${pathname === "/admin" ? " is-active" : ""}`}
-            style={{ marginTop: 12, borderTop: "1px solid var(--grim-line)", paddingTop: 12 }}
+            className={`grim-nav-item${pathname === "/admin" ? " is-active" : ""} mt-3 border-t border-grim-line pt-3`}
             title="Admin"
           >
             <span className="grim-nav-ico"><NavIcon name="cog"/></span>
@@ -150,31 +149,30 @@ export default function SideNavigation() {
         )}
       </nav>
 
-      <div style={{ flex: 1 }}/>
+      <div className="flex-1"/>
 
       <div className="grim-sidebar-footer">
-        <div className="grim-label" style={{ marginBottom: 6 }}>Game Date</div>
+        <div className="grim-label mb-1.5">Game Date</div>
         {gameDateLine1 ? (
           <>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+            <div className="font-display text-2xl text-grim-gold" style={{ lineHeight: 1.1 }}>
               {gameDateLine1}
             </div>
-            <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2">
               {gameDateLine2}
             </div>
           </>
         ) : (
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>not set</div>
+          <div className="grim-mono text-sm text-grim-ink-4 tracking-wider-3">not set</div>
         )}
       </div>
       <div className="grim-sidebar-signout">
         <SignOutButton />
       </div>
-      <div style={{ padding: '8px 12px', textAlign: 'right' }}>
+      <div className="py-2 px-3 text-right">
         <Link
           href="/changelog"
-          className="grim-mono"
-          style={{ fontSize: "0.9166rem", color: 'var(--grim-ink-4)', letterSpacing: '.1em', textDecoration: 'none' }}
+          className="grim-mono text-sm text-grim-ink-4 tracking-widest no-underline"
           title="Changelog"
         >
           v{pkg.version}

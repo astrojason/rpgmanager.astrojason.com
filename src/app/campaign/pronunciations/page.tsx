@@ -18,12 +18,12 @@ const FILTERS = [
 
 function PronGrid({ items }: { items: Array<{ name: string; pronunciation?: string }> }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+    <div className="grid grid-cols-3 gap-3">
       {items.map((item, i) => (
-        <div key={i} style={{ padding: "14px 16px", background: "oklch(0.14 0.025 290 / 0.6)", border: "1px solid var(--grim-line)", display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{item.name}</div>
-          <div className="grim-mono" style={{ fontSize: "1.0833rem", color: "var(--grim-ember-2)", letterSpacing: ".04em" }}>
-            {item.pronunciation || <span style={{ color: "var(--grim-ink-4)" }}>—</span>}
+        <div key={i} className="py-3.5 px-4 bg-grim-bg-overlay/60 border border-grim-line flex flex-col gap-1.5">
+          <div className="font-head text-xl text-grim-ink tracking-wide">{item.name}</div>
+          <div className="grim-mono text-lg text-grim-ember-2 tracking-wider">
+            {item.pronunciation || <span className="text-grim-ink-4">—</span>}
           </div>
         </div>
       ))}
@@ -33,7 +33,7 @@ function PronGrid({ items }: { items: Array<{ name: string; pronunciation?: stri
 
 function PronSection({ glyph, title, items }: { glyph: string; title: string; items: Array<{ name: string; pronunciation?: string }> }) {
   return (
-    <section className="grim-tome" style={{ marginBottom: 22 }}>
+    <section className="grim-tome mb-5.5">
       <div className="grim-tome-head">
         <h3 className="grim-tome-title">{glyph} {title}</h3>
         <span className="grim-tome-sub">{items.length} entries</span>
@@ -74,8 +74,8 @@ export default function PronunciationsPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the appendix&hellip;
         </div>
@@ -130,46 +130,40 @@ export default function PronunciationsPage() {
   const totalResults = filteredNPCs.length + filteredLocations.length + filteredFactions.length + filteredItems.length + filteredDeities.length + filteredMonths.length + filteredWeekdays.length;
 
   return (
-    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+    <div className="pt-9 px-14 pb-20 overflow-y-auto h-full">
 
       {/* Page header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+      <div className="flex justify-between items-end mb-5.5">
         <div>
           <div className="grim-page-eyebrow">The Appendix of Tongues</div>
           <h1 className="grim-page-title">How It Is Said</h1>
           <p className="grim-page-sub">A scrivener&apos;s guide to the names, places, and banners of the Bounty — that no DM stumble mid-sentence.</p>
         </div>
-        <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+        <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 text-right uppercase">
           {totalResults} pronunciations
         </div>
       </div>
 
       {/* Search + filter bar */}
-      <section style={{ display: "flex", gap: 12, alignItems: "stretch", marginBottom: 24 }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 280 }}>
+      <section className="flex gap-3 items-stretch mb-6">
+        <div className="relative flex-1 min-w-70">
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Sound out a name or place…"
-            style={{
-              width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.3334rem",
-              padding: "12px 16px 12px 42px", outline: "none",
-            }}
+            className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl pt-3 pr-4 pb-3 pl-10.5 outline-none"
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
+          <span
+            className="absolute left-3.5 text-grim-gold-2 text-2xl pointer-events-none"
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >✦</span>
         </div>
-        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)" }}>
+        <div className="flex gap-1 p-1 bg-grim-bg-3 border border-grim-line">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               onClick={() => setActiveFilter(f.id)}
-              className={`grim-btn ${activeFilter === f.id ? "is-ember" : "is-ghost"}`}
-              style={{
-                padding: "6px 14px",
-                border: "1px solid " + (activeFilter === f.id ? "var(--grim-ember)" : "transparent"),
-                background: activeFilter === f.id ? undefined : "transparent",
-              }}
+              className={`grim-btn ${activeFilter === f.id ? "is-ember" : "is-ghost"} py-1.5 px-3.5 border ${activeFilter === f.id ? "border-grim-ember" : "border-transparent"} ${activeFilter === f.id ? "" : "bg-transparent"}`}
             >
               {f.label}
             </button>
@@ -202,14 +196,13 @@ export default function PronunciationsPage() {
 
       {/* Empty state */}
       {totalResults === 0 && (
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no tongues found ~</div>
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 18 }}>
+        <div className="text-center py-15 px-6 text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3 mb-2">~ no tongues found ~</div>
+          <div className="grim-mono text-sm tracking-widest-2 uppercase mb-4.5">
             Adjust your search or filter
           </div>
           <button
-            className="grim-btn is-ghost"
-            style={{ padding: "8px 20px" }}
+            className="grim-btn is-ghost py-2 px-5"
             onClick={() => { setSearchTerm(""); setActiveFilter("all"); }}
           >
             Show All Pronunciations

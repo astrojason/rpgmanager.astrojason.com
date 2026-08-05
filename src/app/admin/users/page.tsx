@@ -33,16 +33,7 @@ const ROLE_AVATAR_BORDER: Record<string, string> = {
   player: "oklch(0.55 0.090 145)",
 };
 
-const SELECT_STYLE: React.CSSProperties = {
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.1667rem",
-  padding: "6px 10px",
-  outline: "none",
-  borderRadius: 2,
-};
+const SELECT_CLASS = "bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-lg py-1.5 px-2.5 outline-none rounded-xs";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
@@ -241,83 +232,70 @@ export default function UserManagementPage() {
   }, []);
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Page header */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Permissions</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>User Management</h1>
+          <h1 className="grim-page-title text-7xl">User Management</h1>
           <p className="grim-page-sub">Manage roles and permissions — who may enter the Scriptorium.</p>
         </div>
         <button className="grim-btn is-ghost" onClick={loadUsers} disabled={loading}>
-          {loading ? <span className="grim-flame" style={{ display: "inline-block" }} /> : "↺"} Refresh
+          {loading ? <span className="grim-flame inline-block" /> : "↺"} Refresh
         </button>
       </header>
 
       {/* Error banner */}
       {error && (
-        <div style={{
-          background: "oklch(0.25 0.12 22 / 0.4)",
-          border: "1px solid var(--grim-blood-2)",
-          color: "oklch(0.85 0.08 30)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: "1.1667rem",
-        }}>
+        <div
+          className="border border-grim-blood-2 text-grim-error-text py-3 px-4 mb-4 font-body text-lg"
+          style={{ background: "oklch(0.25 0.12 22 / 0.4)" }}
+        >
           {error}
         </div>
       )}
 
       {/* Success banner */}
       {success && (
-        <div style={{
-          background: "oklch(0.25 0.10 145 / 0.4)",
-          border: "1px solid oklch(0.55 0.090 145)",
-          color: "var(--grim-moss)",
-          padding: "12px 16px",
-          marginBottom: 16,
-          fontFamily: "var(--font-body)",
-          fontSize: "1.1667rem",
-        }}>
+        <div className="bg-grim-success-bg border border-grim-moss text-grim-moss py-3 px-4 mb-4 font-body text-lg">
           {success}
         </div>
       )}
 
       {/* Role descriptions */}
-      <section style={{ marginBottom: 28 }}>
+      <section className="mb-7">
         <h2 className="grim-h-section">Roles of the Realm</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        <div className="grid grid-cols-3 gap-3.5">
 
           {/* Admin */}
-          <div className="grim-tome" style={{ padding: "20px 22px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-blood-2)" }}>⚙</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Administrator</span>
+          <div className="grim-tome py-5 px-5.5">
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <span className="font-display text-4xl text-grim-blood-2">⚙</span>
+              <span className="font-head text-xl tracking-widest uppercase text-grim-ink">Administrator</span>
             </div>
-            <span className="grim-chip is-blood" style={{ marginBottom: 10 }}>admin</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Full system access</p>
+            <span className="grim-chip is-blood mb-2.5">admin</span>
+            <p className="font-body text-lg text-grim-ink-3 mt-2.5 mx-0 mb-0">Full system access</p>
           </div>
 
           {/* DM */}
-          <div className="grim-tome" style={{ padding: "20px 22px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-ember)" }}>⚔</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Dungeon Master</span>
+          <div className="grim-tome py-5 px-5.5">
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <span className="font-display text-4xl text-grim-ember">⚔</span>
+              <span className="font-head text-xl tracking-widest uppercase text-grim-ink">Dungeon Master</span>
             </div>
-            <span className="grim-chip is-ember" style={{ marginBottom: 10 }}>dm</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Enhanced campaign access</p>
+            <span className="grim-chip is-ember mb-2.5">dm</span>
+            <p className="font-body text-lg text-grim-ink-3 mt-2.5 mx-0 mb-0">Enhanced campaign access</p>
           </div>
 
           {/* Player */}
-          <div className="grim-tome" style={{ padding: "20px 22px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-moss)" }}>⚑</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Player</span>
+          <div className="grim-tome py-5 px-5.5">
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <span className="font-display text-4xl text-grim-moss">⚑</span>
+              <span className="font-head text-xl tracking-widest uppercase text-grim-ink">Player</span>
             </div>
-            <span className="grim-chip is-alive" style={{ marginBottom: 10 }}>player</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Standard user access</p>
+            <span className="grim-chip is-alive mb-2.5">player</span>
+            <p className="font-body text-lg text-grim-ink-3 mt-2.5 mx-0 mb-0">Standard user access</p>
           </div>
 
         </div>
@@ -328,7 +306,7 @@ export default function UserManagementPage() {
         <h2 className="grim-h-section">
           Souls Registered
           {usersWithCharacters.length > 0 && (
-            <span style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", marginLeft: 12, fontWeight: "normal", letterSpacing: ".08em" }}>
+            <span className="font-display text-2xl text-grim-gold ml-3 font-normal tracking-widest">
               {usersWithCharacters.length}
             </span>
           )}
@@ -336,36 +314,33 @@ export default function UserManagementPage() {
 
         {/* Loading — no users yet */}
         {loading && usersWithCharacters.length === 0 ? (
-          <div className="grim-tome" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, padding: "48px 28px" }}>
-            <span className="grim-flame" style={{ display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-3)" }}>Consulting the registry…</span>
+          <div className="grim-tome flex items-center justify-center gap-3.5 py-12 px-7">
+            <span className="grim-flame inline-block" />
+            <span className="font-body text-xl text-grim-ink-3">Consulting the registry…</span>
           </div>
 
         /* Empty state */
         ) : usersWithCharacters.length === 0 ? (
-          <div className="grim-tome" style={{ textAlign: "center", padding: "56px 28px" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "4.3334rem", color: "var(--grim-ink-4)", marginBottom: 14 }}>⊕</div>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>No souls registered</div>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)" }}>No users are currently recorded in the Scriptorium.</div>
+          <div className="grim-tome text-center py-14 px-7">
+            <div className="font-display text-7xl text-grim-ink-4 mb-3.5">⊕</div>
+            <div className="font-head text-xl tracking-widest uppercase text-grim-ink-3 mb-2">No souls registered</div>
+            <div className="font-body text-lg text-grim-ink-4">No users are currently recorded in the Scriptorium.</div>
           </div>
 
         /* User rows */
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="flex flex-col gap-2">
 
             {/* Optional header row */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 160px 200px 130px 140px",
-              gap: 12,
-              padding: "4px 22px",
-              alignItems: "center",
-            }}>
+            <div
+              className="grid gap-3 py-1 px-5.5 items-center"
+              style={{ gridTemplateColumns: "1fr 160px 200px 130px 140px" }}
+            >
               <span className="grim-label">Soul</span>
               <span className="grim-label">Role</span>
               <span className="grim-label">Character</span>
               <span className="grim-label">Last Sign-in</span>
-              <span className="grim-label" style={{ textAlign: "right" }}>Edit</span>
+              <span className="grim-label text-right">Edit</span>
             </div>
 
             {usersWithCharacters.map((user) => {
@@ -381,33 +356,27 @@ export default function UserManagementPage() {
               return (
                 <div
                   key={user.uid}
-                  className="grim-tome"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 160px 200px 130px 140px",
-                    gap: 12,
-                    padding: "14px 22px",
-                    alignItems: "center",
-                  }}
+                  className="grim-tome grid gap-3 py-3.5 px-5.5 items-center"
+                  style={{ gridTemplateColumns: "1fr 160px 200px 130px 140px" }}
                 >
                   {/* Avatar + name/email */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-                    <div style={{
-                      width: 36, height: 36, flexShrink: 0, borderRadius: "50%",
-                      background: ROLE_AVATAR_BG[user.role] ?? ROLE_AVATAR_BG.player,
-                      border: "1px solid " + (ROLE_AVATAR_BORDER[user.role] ?? ROLE_AVATAR_BORDER.player),
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-display)", fontSize: "1.1667rem",
-                      color: "oklch(0.92 0.04 80)",
-                      boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.15)",
-                    }}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center font-display text-lg border"
+                      style={{
+                        background: ROLE_AVATAR_BG[user.role] ?? ROLE_AVATAR_BG.player,
+                        borderColor: ROLE_AVATAR_BORDER[user.role] ?? ROLE_AVATAR_BORDER.player,
+                        color: "oklch(0.92 0.04 80)",
+                        boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.15)",
+                      }}
+                    >
                       {initials}
                     </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", letterSpacing: ".04em", color: "var(--grim-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div className="min-w-0">
+                      <div className="font-head text-lg tracking-wider text-grim-ink truncate">
                         {user.displayName || "Unknown"}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div className="grim-mono text-sm text-grim-ink-3 tracking-widest truncate">
                         {user.email}
                       </div>
                     </div>
@@ -419,7 +388,7 @@ export default function UserManagementPage() {
                       <select
                         value={newRole}
                         onChange={(e) => setNewRole(e.target.value)}
-                        style={SELECT_STYLE}
+                        className={SELECT_CLASS}
                       >
                         {roles.map((role) => (
                           <option key={role.value} value={role.value}>
@@ -440,7 +409,7 @@ export default function UserManagementPage() {
                       <select
                         value={newCharacter}
                         onChange={(e) => setNewCharacter(e.target.value)}
-                        style={SELECT_STYLE}
+                        className={SELECT_CLASS}
                       >
                         <option value="">No Character</option>
                         {pcs
@@ -452,42 +421,39 @@ export default function UserManagementPage() {
                         ))}
                       </select>
                     ) : (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: user.assignedCharacter ? "var(--grim-ink-2)" : "var(--grim-ink-4)" }}>
+                      <span className={`font-body text-lg ${user.assignedCharacter ? "text-grim-ink-2" : "text-grim-ink-4"}`}>
                         {charName}
                       </span>
                     )}
                   </div>
 
                   {/* Last sign-in */}
-                  <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".08em" }}>
+                  <div className="grim-mono text-sm text-grim-ink-4 tracking-widest">
                     {user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : "Never"}
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
+                  <div className="flex gap-2 justify-end items-center">
                     {isEditing ? (
                       <>
                         <button
-                          className="grim-btn is-ember"
+                          className="grim-btn is-ember py-1.5 px-3 text-sm"
                           onClick={handleSaveRole}
                           disabled={loading}
-                          style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
                         >
-                          {loading ? <span className="grim-flame" style={{ display: "inline-block", width: 6, height: 6 }} /> : "✓"} Save
+                          {loading ? <span className="grim-flame inline-block w-1.5 h-1.5" /> : "✓"} Save
                         </button>
                         <button
-                          className="grim-btn is-ghost"
+                          className="grim-btn is-ghost py-1.5 px-3 text-sm text-grim-blood-2 border-grim-blood-2"
                           onClick={handleCancelEdit}
-                          style={{ padding: "6px 12px", fontSize: "0.9166rem", color: "var(--grim-blood-2)", borderColor: "var(--grim-blood-2)" }}
                         >
                           Cancel
                         </button>
                       </>
                     ) : (
                       <button
-                        className="grim-btn is-ghost"
+                        className="grim-btn is-ghost py-1.5 px-3 text-sm"
                         onClick={() => handleEditRole(user)}
-                        style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
                       >
                         ✎ Edit
                       </button>

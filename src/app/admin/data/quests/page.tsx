@@ -150,25 +150,16 @@ export default function QuestsManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
-        <span className="grim-flame" style={{ fontSize: "2.6667rem" }}>✦</span>
-        <span style={{ marginLeft: 14, fontFamily: "var(--font-body)", fontSize: "1.3334rem", color: "var(--grim-ink-3)" }}>
+      <div className="flex items-center justify-center py-20">
+        <span className="grim-flame text-5xl">✦</span>
+        <span className="ml-3.5 font-body text-xl text-grim-ink-3">
           Consulting the ledger…
         </span>
       </div>
     );
   }
 
-  const inputStyle: React.CSSProperties = {
-    background: "var(--grim-bg-3)",
-    border: "1px solid var(--grim-line-2)",
-    color: "var(--grim-ink)",
-    fontFamily: "var(--font-body)",
-    fontSize: "1.25rem",
-    padding: "10px 14px",
-    outline: "none",
-    width: "100%",
-  };
+  const inputClass = "bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none w-full";
 
   const linkEntities = [
     ...availableNPCs.map(n => ({ id: n.id, name: n.name, type: 'npc' as const, url: `/campaign/npcs/${n.id}` })),
@@ -179,10 +170,10 @@ export default function QuestsManagementPage() {
   ];
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Page header */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Errands</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Ledger of Errands</h1>
@@ -197,30 +188,30 @@ export default function QuestsManagementPage() {
       <SuccessBlock message={success} />
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* List panel */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
           {/* Search */}
-          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+          <div className="border-b border-grim-line">
             <input
               type="text"
               placeholder="Search errands…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={inputStyle}
+              className={inputClass}
             />
           </div>
 
           {/* Count */}
-          <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--grim-line)" }}>
-            <span className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+          <div className="pt-2 px-3.5 pb-1.5 border-b border-grim-line">
+            <span className="grim-mono text-sm tracking-wider-4 text-grim-ink-4 uppercase">
               {filteredQuests.length} errand{filteredQuests.length !== 1 ? "s" : ""}
             </span>
           </div>
 
           {/* Quest list */}
-          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+          <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
             {filteredQuests.map((quest) => {
               const isSelected = selectedQuest?.id === quest.id;
               return (
@@ -228,49 +219,32 @@ export default function QuestsManagementPage() {
                   key={quest.id}
                   data-quest-id={quest.id}
                   onClick={() => handleView(quest)}
-                  style={{
-                    borderBottom: "1px solid var(--grim-line)",
-                    borderLeft: isSelected ? "2px solid var(--grim-ember)" : "2px solid transparent",
-                    background: isSelected
-                      ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
-                      : "transparent",
-                    padding: "12px 16px",
-                    cursor: "pointer",
-                  }}
+                  className={`border-b border-grim-line border-l-2 ${isSelected ? "border-l-grim-ember" : "border-l-transparent"} py-3 px-4 cursor-pointer`}
+                  style={{ background: isSelected ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent" }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontFamily: "var(--font-head)",
-                        fontSize: "1.1667rem",
-                        color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        marginBottom: 4,
-                      }}>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-head text-lg ${isSelected ? "text-grim-ember-2" : "text-grim-ink-2"} overflow-hidden text-ellipsis whitespace-nowrap mb-1`}>
                         {quest.name}
                       </div>
-                      <span className={getStatusChipClass(quest.status || "active")} style={{ fontSize: "0.8333rem", padding: "1px 7px" }}>
+                      <span className={`${getStatusChipClass(quest.status || "active")} text-sm py-px px-2`}>
                         {quest.status || "active"}
                       </span>
-                      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 4 }}>
+                      <div className="grim-mono text-sm text-grim-ink-4 mt-1">
                         {normalizeQuestNotes(quest).length} note{normalizeQuestNotes(quest).length !== 1 ? "s" : ""}
                       </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
+                    <div className="flex flex-col gap-1 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(quest); }}
-                        className="grim-btn is-ghost"
-                        style={{ padding: "3px 8px", fontSize: "0.9166rem" }}
+                        className="grim-btn is-ghost py-1 px-2 text-sm"
                         title="Edit"
                       >
                         ✎
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(quest); }}
-                        className="grim-btn is-blood"
-                        style={{ padding: "3px 8px", fontSize: "0.9166rem" }}
+                        className="grim-btn is-blood py-1 px-2 text-sm"
                         title="Delete"
                       >
                         ✕
@@ -282,9 +256,9 @@ export default function QuestsManagementPage() {
             })}
 
             {filteredQuests.length === 0 && (
-              <div style={{ padding: "32px 16px", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.3333rem", color: "var(--grim-ink-4)", marginBottom: 8 }}>✦</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)" }}>
+              <div className="py-8 px-4 text-center">
+                <div className="font-display text-4xl text-grim-ink-4 mb-2">✦</div>
+                <div className="font-body text-lg text-grim-ink-4">
                   No errands found
                 </div>
               </div>
@@ -295,37 +269,37 @@ export default function QuestsManagementPage() {
         {/* Detail / edit panel */}
         <div>
           {(isCreating || isEditing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               {/* Form header */}
               <div className="grim-tome-head" style={{ padding: "16px 24px" }}>
                 <div className="grim-tome-title">
                   {isCreating ? "New Errand" : "Edit Errand"}
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Create Errand" : "Save Changes"}`}</button>
                 </div>
               </div>
 
-              <div style={{ padding: "24px 28px" }}>
+              <div className="py-6 px-7">
                 <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
 
                   {/* Name */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>
+                  <div className="mb-5">
+                    <label className="grim-label block mb-1.5">
                       Name *
                     </label>
                     <input
                       type="text"
                       value={formData.name || ""}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      style={inputStyle}
+                      className={inputClass}
                       required
                     />
                   </div>
 
                   {/* Notes */}
-                  <div style={{ marginBottom: 20 }}>
+                  <div className="mb-5">
                     <UserNotesEditor
                       notes={formData.notes ?
                         (typeof formData.notes[0] === 'string' ?
@@ -345,14 +319,14 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* Status */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>
+                  <div className="mb-5">
+                    <label className="grim-label block mb-1.5">
                       Status
                     </label>
                     <select
                       value={formData.status || "active"}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      style={inputStyle}
+                      className={inputClass}
                     >
                       <option value="active">Active</option>
                       <option value="completed">Completed</option>
@@ -362,8 +336,8 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* GM Notes */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>GM Notes</label>
+                  <div className="mb-5">
+                    <label className="grim-label block mb-1.5">GM Notes</label>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -374,7 +348,7 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* Entity Tags */}
-                  <div style={{ marginBottom: 28 }}>
+                  <div className="mb-7">
                     <EntityTagPicker
                       npcs={availableNPCs}
                       locations={availableLocations}
@@ -392,7 +366,7 @@ export default function QuestsManagementPage() {
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <div className="flex justify-end gap-2.5">
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
@@ -405,39 +379,35 @@ export default function QuestsManagementPage() {
               </div>
             </div>
           ) : selectedQuest ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               {/* Quest header with colored rail */}
-              <div style={{ display: "flex", overflow: "hidden" }}>
-                <div style={{
-                  width: 6,
-                  flexShrink: 0,
-                  background: getStatusRail(selectedQuest.status || "active"),
-                  boxShadow: selectedQuest.status !== "completed"
-                    ? `0 0 12px ${getStatusRail(selectedQuest.status || "active")}`
-                    : "none",
-                }} />
-                <div style={{ flex: 1, padding: "22px 26px" }}>
+              <div className="flex overflow-hidden">
+                <div
+                  className="w-1.5 shrink-0"
+                  style={{
+                    background: getStatusRail(selectedQuest.status || "active"),
+                    boxShadow: selectedQuest.status !== "completed"
+                      ? `0 0 12px ${getStatusRail(selectedQuest.status || "active")}`
+                      : "none",
+                  }}
+                />
+                <div className="flex-1 py-5.5 px-6.5">
                   {/* Title row */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 16 }}>
+                  <div className="flex justify-between items-start gap-4 mb-4">
                     <div>
-                      <h2 style={{
-                        fontFamily: "var(--font-display)",
-                        fontSize: "2.6667rem",
-                        color: "var(--grim-gold)",
-                        margin: 0,
-                        lineHeight: 1.1,
-                        textDecoration: selectedQuest.status === "completed" ? "line-through" : "none",
-                        opacity: selectedQuest.status === "completed" ? 0.7 : 1,
-                      }}>
+                      <h2
+                        className={`font-display text-5xl text-grim-gold m-0 ${selectedQuest.status === "completed" ? "line-through opacity-70" : "no-underline opacity-100"}`}
+                        style={{ lineHeight: 1.1 }}
+                      >
                         {selectedQuest.name}
                       </h2>
-                      <div style={{ marginTop: 8 }}>
+                      <div className="mt-2">
                         <span className={getStatusChipClass(selectedQuest.status || "active")}>
                           {selectedQuest.status || "active"}
                         </span>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <div className="flex gap-2 shrink-0">
                       <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedQuest)}>
                         ✎ Edit
                       </button>
@@ -452,13 +422,13 @@ export default function QuestsManagementPage() {
                     (selectedQuest.tagged_locations?.length ?? 0) > 0 ||
                     (selectedQuest.tagged_factions?.length ?? 0) > 0 ||
                     (selectedQuest.tagged_deities?.length ?? 0) > 0) && (
-                    <div style={{ marginBottom: 16 }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Tagged Souls, Places, Banners &amp; Divinities</div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <div className="mb-4">
+                      <div className="grim-label mb-2">Tagged Souls, Places, Banners &amp; Divinities</div>
+                      <div className="flex flex-wrap gap-1.5">
                         {(selectedQuest.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
                           return n ? (
-                            <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember text-sm no-underline">
                               {n.name}
                             </Link>
                           ) : null;
@@ -466,7 +436,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_locations ?? []).map(id => {
                           const l = availableLocations.find(x => x.id === id);
                           return l ? (
-                            <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane text-sm no-underline">
                               {l.name}
                             </Link>
                           ) : null;
@@ -474,7 +444,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_factions ?? []).map(id => {
                           const f = availableFactions.find(x => x.id === id);
                           return f ? (
-                            <Link key={id} href={`/admin/data/factions`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                            <Link key={id} href={`/admin/data/factions`} className="grim-chip text-sm no-underline bg-grim-arcane-bg border border-grim-arcane-border text-grim-arcane">
                               ⚑ {f.name}
                             </Link>
                           ) : null;
@@ -482,7 +452,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_deities ?? []).map(id => {
                           const d = availableDeities.find(x => x.id === id);
                           return d ? (
-                            <Link key={id} href={`/admin/data/deities`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                            <Link key={id} href={`/admin/data/deities`} className="grim-chip text-sm no-underline bg-grim-gold-bg border border-grim-gold-border text-grim-gold">
                               ✦ {d.name}
                             </Link>
                           ) : null;
@@ -494,35 +464,24 @@ export default function QuestsManagementPage() {
                   {/* Notes */}
                   {selectedQuest.notes && selectedQuest.notes.length > 0 && (
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 10 }}>Marginalia</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <div className="grim-label mb-2.5">Marginalia</div>
+                      <div className="flex flex-col gap-2">
                         {normalizeQuestNotes(selectedQuest).map((note: UserNote, index: number) => (
                           <div
                             key={note.id}
-                            style={{
-                              padding: "10px 14px",
-                              background: "oklch(0.14 0.025 290 / 0.7)",
-                              border: "1px solid var(--grim-line)",
-                            }}
+                            className="py-2.5 px-3.5 bg-grim-bg-overlay/70 border border-grim-line"
                           >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 6 }}>
-                              <span className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
+                            <div className="flex justify-between items-start gap-3 mb-1.5">
+                              <span className="grim-mono text-xs text-grim-ink-4 tracking-wider-3 uppercase">
                                 Note #{index + 1}
                               </span>
                             </div>
-                            <div style={{ fontSize: "1.1667rem", color: "var(--grim-ink)", lineHeight: 1.55, fontFamily: "var(--font-body)" }}>
+                            <div className="text-lg text-grim-ink font-body" style={{ lineHeight: 1.55 }}>
                               <ReactMarkdown>{note.content}</ReactMarkdown>
                             </div>
                             {!isLegacyNote(note) && (
-                              <div style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginTop: 8,
-                                paddingTop: 8,
-                                borderTop: "1px solid var(--grim-line)",
-                              }}>
-                                <span className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                              <div className="flex justify-between items-center mt-2 pt-2 border-t border-grim-line">
+                                <span className="grim-mono text-xs text-grim-ink-4 tracking-wider-2">
                                   {formatNoteTimestamp(note)}
                                 </span>
                                 <AuthorDisplay uid={note.author} />
@@ -535,8 +494,8 @@ export default function QuestsManagementPage() {
                   )}
 
                   {(!selectedQuest.notes || selectedQuest.notes.length === 0) && (
-                    <div style={{ paddingTop: 8 }}>
-                      <p className="grim-flavor" style={{ color: "var(--grim-ink-4)", fontSize: "1.25rem" }}>
+                    <div className="pt-2">
+                      <p className="grim-flavor text-grim-ink-4 text-xl">
                         No notes have been inscribed for this errand.
                       </p>
                     </div>
@@ -546,14 +505,14 @@ export default function QuestsManagementPage() {
             </div>
           ) : (
             /* Empty state */
-            <div className="grim-tome" style={{ padding: "60px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>
+            <div className="grim-tome text-center" style={{ padding: "60px 40px" }}>
+              <div className="font-display text-6xl text-grim-ink-4 mb-4 leading-none">
                 ✦
               </div>
-              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>
+              <h3 className="font-head text-2xl text-grim-ink-2 mb-2.5 tracking-wider">
                 No errand selected
               </h3>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+              <p className="font-body text-xl text-grim-ink-4 max-w-80 mx-auto">
                 Choose an errand from the ledger to view its threads, or inscribe a new one.
               </p>
             </div>

@@ -14,42 +14,33 @@ export default function ChangelogPage() {
     fetch('/api/changelog').then(r => r.json()).then(setData);
   }, []);
 
-  if (!data) return <div className="grim-mono" style={{ padding: '2rem', color: 'var(--grim-ink-4)' }}>Loading...</div>;
+  if (!data) return <div className="grim-mono p-8 text-grim-ink-4">Loading...</div>;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 720 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '1.5rem' }}>
+    <div className="p-8 max-w-180">
+      <div className="flex items-baseline gap-4 mb-6">
         <Link
           href="/campaign"
-          className="grim-mono"
-          style={{ fontSize: "1rem", color: 'var(--grim-ink-3)', textDecoration: 'none', letterSpacing: '.08em' }}
+          className="grim-mono text-base text-grim-ink-3 no-underline tracking-widest"
         >
           ← Back
         </Link>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: "2rem", color: 'var(--grim-gold)', margin: 0 }}>
+        <h1 className="font-display text-3xl text-grim-gold m-0">
           Changelog
         </h1>
-        <span className="grim-mono" style={{ fontSize: "1.0833rem", color: 'var(--grim-ink-3)', letterSpacing: '.1em' }}>
+        <span className="grim-mono text-lg text-grim-ink-3 tracking-widest">
           v{data.version}
         </span>
       </div>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      <ul className="list-none p-0 m-0">
         {data.entries.map(e => (
           <li
             key={e.hash}
-            className="grim-mono"
-            style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: '0.75rem',
-              padding: '0.5rem 0',
-              borderBottom: '1px solid var(--grim-line)',
-              fontSize: "1.0833rem",
-            }}
+            className="grim-mono flex items-baseline gap-3 py-2 border-b border-grim-line text-lg"
           >
-            <span style={{ color: 'var(--grim-ink-4)', minWidth: 88, flexShrink: 0 }}>{e.date}</span>
-            <code style={{ color: 'var(--grim-gold)', flexShrink: 0 }}>{e.hash}</code>
-            <span style={{ color: 'var(--grim-ink-2)' }}>{e.message}</span>
+            <span className="text-grim-ink-4 min-w-22 shrink-0">{e.date}</span>
+            <code className="text-grim-gold shrink-0">{e.hash}</code>
+            <span className="text-grim-ink-2">{e.message}</span>
           </li>
         ))}
       </ul>

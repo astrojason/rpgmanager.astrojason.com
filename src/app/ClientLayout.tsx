@@ -44,7 +44,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <ImpersonationToolbarWrapper />
         <div key={effectiveKey} className="grim-screen">
           <SideNavigation />
-          <main className="grim-main" style={{ padding: 0 }}>
+          <main className="grim-main p-0">
             <Suspense>{children}</Suspense>
           </main>
         </div>

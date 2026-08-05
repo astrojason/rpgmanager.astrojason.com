@@ -63,130 +63,71 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
       e.name.toLowerCase().includes(q)
   );
 
-  const tabStyle = (tab: Tab): React.CSSProperties => ({
-    padding: "7px 14px",
-    fontFamily: "var(--font-head)",
-    fontSize: "0.9166rem",
-    letterSpacing: ".14em",
-    textTransform: "uppercase",
-    cursor: "pointer",
-    border: "none",
-    background: activeTab === tab ? "var(--grim-ember)" : "transparent",
+  const tabClass = (tab: Tab) =>
+    `py-2 px-3.5 font-head text-sm tracking-wider-3 uppercase cursor-pointer border-none whitespace-nowrap transition-colors duration-150 ${
+      activeTab === tab ? "bg-grim-ember" : "bg-transparent"
+    }`;
+
+  const tabTextStyle = (tab: Tab): React.CSSProperties => ({
     color: activeTab === tab ? "oklch(0.98 0.02 80)" : "var(--grim-ink-3)",
-    transition: "background 0.15s",
-    whiteSpace: "nowrap",
   });
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.6)",
-      }}
+      className="fixed inset-0 flex items-center justify-center bg-grim-backdrop/60"
+      style={{ zIndex: 1000 }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        style={{
-          background: "var(--grim-bg-2)",
-          border: "1px solid var(--grim-line)",
-          borderRadius: 6,
-          width: 480,
-          maxWidth: "90vw",
-          maxHeight: "70vh",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
+        className="bg-grim-bg-2 border border-grim-line rounded-md flex flex-col overflow-hidden"
+        style={{ width: 480, maxWidth: "90vw", maxHeight: "70vh" }}
       >
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 16px",
-            borderBottom: "1px solid var(--grim-line)",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "var(--font-head)",
-              fontSize: "1.0833rem",
-              letterSpacing: ".1em",
-              textTransform: "uppercase",
-              color: "var(--grim-ink)",
-            }}
-          >
+        <div className="flex items-center justify-between py-3 px-4 border-b border-grim-line">
+          <span className="font-head text-lg tracking-widest uppercase text-grim-ink">
             Link Entity
           </span>
           <button
             type="button"
             onClick={onClose}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--grim-ink-3)", padding: 2 }}
+            className="bg-transparent border-none cursor-pointer text-grim-ink-3 p-0.5"
           >
-            <XMarkIcon style={{ width: 16, height: 16 }} />
+            <XMarkIcon className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tabs + Search */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            borderBottom: "1px solid var(--grim-line)",
-            background: "var(--grim-bg-3)",
-          }}
-        >
-          <button type="button" style={tabStyle("all")} onClick={() => setActiveTab("all")}>
+        <div className="flex flex-wrap border-b border-grim-line bg-grim-bg-3">
+          <button type="button" className={tabClass("all")} style={tabTextStyle("all")} onClick={() => setActiveTab("all")}>
             All
           </button>
           {availableTypes.map((type) => (
             <button
               key={type}
               type="button"
-              style={tabStyle(type)}
+              className={tabClass(type)}
+              style={tabTextStyle(type)}
               onClick={() => setActiveTab(type)}
             >
               {TYPE_LABELS[type]}
             </button>
           ))}
-          <div style={{ flex: 1 }} />
+          <div className="flex-1" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search…"
             autoFocus
-            style={{
-              background: "transparent",
-              border: "none",
-              borderLeft: "1px solid var(--grim-line)",
-              color: "var(--grim-ink)",
-              fontFamily: "var(--font-body)",
-              fontSize: "1rem",
-              padding: "6px 10px",
-              outline: "none",
-              width: 120,
-            }}
+            className="bg-transparent border-l border-grim-line text-grim-ink font-body text-base py-1.5 px-2.5 outline-none"
+            style={{ width: 120 }}
           />
         </div>
 
         {/* Entity list */}
-        <div style={{ overflowY: "auto", flex: 1 }}>
+        <div className="overflow-y-auto flex-1">
           {filtered.length === 0 ? (
-            <div
-              style={{
-                padding: "16px",
-                color: "var(--grim-ink-4)",
-                fontFamily: "var(--font-body)",
-                fontSize: "1.0833rem",
-              }}
-            >
+            <div className="p-4 text-grim-ink-4 font-body text-lg">
               No entities found
             </div>
           ) : (
@@ -195,19 +136,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
                 key={`${entity.type}-${entity.id}`}
                 type="button"
                 onClick={() => onSelect(entity)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  width: "100%",
-                  padding: "8px 16px",
-                  background: "transparent",
-                  border: "none",
-                  borderBottom: "1px solid var(--grim-line-2)",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "background 0.1s",
-                }}
+                className="flex items-center gap-2.5 w-full py-2 px-4 bg-transparent border-none border-b border-grim-line-2 cursor-pointer text-left transition-colors duration-100"
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.background = "oklch(0.72 0.165 48 / 0.08)")
                 }
@@ -216,24 +145,12 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
                 }
               >
                 <span
-                  style={{
-                    fontFamily: "var(--font-head)",
-                    fontSize: "0.75rem",
-                    letterSpacing: ".12em",
-                    textTransform: "uppercase",
-                    color: TYPE_COLOR[entity.type],
-                    minWidth: 58,
-                  }}
+                  className="font-head text-xs tracking-wider-2 uppercase min-w-14"
+                  style={{ color: TYPE_COLOR[entity.type] }}
                 >
                   {TYPE_SINGULAR[entity.type]}
                 </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "1.0833rem",
-                    color: "var(--grim-ink-2)",
-                  }}
-                >
+                <span className="font-body text-lg text-grim-ink-2">
                   {entity.name}
                 </span>
               </button>

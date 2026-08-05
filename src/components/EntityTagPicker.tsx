@@ -76,17 +76,13 @@ export default function EntityTagPicker({
     selectedNpcs.length + selectedLocations.length + selectedQuests.length +
     selectedItems.length + selectedFactions.length + selectedDeities.length + selectedPcs.length;
 
-  const tabStyle = (tab: Tab): React.CSSProperties => ({
-    padding: "7px 14px",
-    fontFamily: "var(--font-head)",
-    fontSize: "0.9166rem",
-    letterSpacing: ".14em",
-    textTransform: "uppercase",
-    cursor: "pointer",
-    border: "none",
-    background: activeTab === tab ? "var(--grim-ember)" : "transparent",
+  const tabClass = (tab: Tab) =>
+    `py-2 px-3.5 font-head text-sm tracking-wider-3 uppercase cursor-pointer border-none transition-colors duration-150 ${
+      activeTab === tab ? "bg-grim-ember" : "bg-transparent"
+    }`;
+
+  const tabTextStyle = (tab: Tab): React.CSSProperties => ({
     color: activeTab === tab ? "oklch(0.98 0.02 80)" : "var(--grim-ink-3)",
-    transition: "background 0.15s",
   });
 
   function renderList(
@@ -98,33 +94,33 @@ export default function EntityTagPicker({
   ) {
     if (!onChange) return null;
     if (items.length === 0) {
-      return <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.0833rem" }}>{emptyMsg}</div>;
+      return <div className="py-3 px-3.5 text-grim-ink-4 font-body text-lg">{emptyMsg}</div>;
     }
     return items.map(item => (
-      <label key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", cursor: "pointer", background: selected.includes(item.id) ? `oklch(0.72 0.165 48 / 0.12)` : "transparent" }}>
+      <label key={item.id} className={`flex items-center gap-2.5 py-1.5 px-3.5 cursor-pointer ${selected.includes(item.id) ? "bg-grim-ember/12" : "bg-transparent"}`}>
         <input type="checkbox" checked={selected.includes(item.id)} onChange={() => toggle(item.id, selected, onChange)} style={{ accentColor: accent }} />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{item.name}</span>
+        <span className="font-body text-lg text-grim-ink-2">{item.name}</span>
       </label>
     ));
   }
 
   return (
     <div>
-      <div className="grim-label" style={{ marginBottom: 8 }}>
+      <div className="grim-label mb-2">
         Tagged Souls, Places, Errands, Relics, Banners &amp; Divinities
         {totalSelected > 0 && (
-          <span className="grim-chip is-ember" style={{ marginLeft: 8, fontSize: "0.8333rem", padding: "1px 7px" }}>
+          <span className="grim-chip is-ember ml-2 text-sm py-0 px-2">
             {totalSelected}
           </span>
         )}
       </div>
 
       {totalSelected > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+        <div className="flex flex-wrap gap-1.5 mb-2.5">
           {selectedNpcs.map(id => {
             const n = npcs.find(x => x.id === id);
             return n ? (
-              <span key={id} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }} onClick={() => toggle(id, selectedNpcs, onNpcsChange)}>
+              <span key={id} className="grim-chip is-ember text-sm cursor-pointer flex items-center gap-1" onClick={() => toggle(id, selectedNpcs, onNpcsChange)}>
                 {n.name} ×
               </span>
             ) : null;
@@ -132,7 +128,7 @@ export default function EntityTagPicker({
           {selectedLocations.map(id => {
             const l = locations.find(x => x.id === id);
             return l ? (
-              <span key={id} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }} onClick={() => toggle(id, selectedLocations, onLocationsChange ?? (() => {}))}>
+              <span key={id} className="grim-chip is-arcane text-sm cursor-pointer flex items-center gap-1" onClick={() => toggle(id, selectedLocations, onLocationsChange ?? (() => {}))}>
                 {l.name} ×
               </span>
             ) : null;
@@ -140,7 +136,7 @@ export default function EntityTagPicker({
           {selectedPcs.map(id => {
             const p = pcs.find(x => x.id === id);
             return p ? (
-              <span key={id} className="grim-chip" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }} onClick={() => toggle(id, selectedPcs, onPcsChange ?? (() => {}))}>
+              <span key={id} className="grim-chip text-sm cursor-pointer flex items-center gap-1 bg-grim-moss/18 border border-grim-moss/45 text-grim-moss" onClick={() => toggle(id, selectedPcs, onPcsChange ?? (() => {}))}>
                 {p.name} ×
               </span>
             ) : null;
@@ -148,7 +144,7 @@ export default function EntityTagPicker({
           {selectedQuests.map(id => {
             const qt = quests.find(x => x.id === id);
             return qt ? (
-              <span key={id} className="grim-chip is-faction" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }} onClick={() => toggle(id, selectedQuests, onQuestsChange ?? (() => {}))}>
+              <span key={id} className="grim-chip is-faction text-sm cursor-pointer flex items-center gap-1" onClick={() => toggle(id, selectedQuests, onQuestsChange ?? (() => {}))}>
                 {qt.name} ×
               </span>
             ) : null;
@@ -156,7 +152,7 @@ export default function EntityTagPicker({
           {selectedItems.map(id => {
             const it = items.find(x => x.id === id);
             return it ? (
-              <span key={id} className="grim-chip" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }} onClick={() => toggle(id, selectedItems, onItemsChange ?? (() => {}))}>
+              <span key={id} className="grim-chip text-sm cursor-pointer flex items-center gap-1 bg-grim-moss/18 border border-grim-moss/45 text-grim-moss" onClick={() => toggle(id, selectedItems, onItemsChange ?? (() => {}))}>
                 ⚔ {it.name} ×
               </span>
             ) : null;
@@ -164,7 +160,7 @@ export default function EntityTagPicker({
           {selectedFactions.map(id => {
             const f = factions.find(x => x.id === id);
             return f ? (
-              <span key={id} className="grim-chip" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }} onClick={() => toggle(id, selectedFactions, onFactionsChange ?? (() => {}))}>
+              <span key={id} className="grim-chip text-sm cursor-pointer flex items-center gap-1 bg-grim-arcane-bg border border-grim-arcane-border text-grim-arcane" onClick={() => toggle(id, selectedFactions, onFactionsChange ?? (() => {}))}>
                 ⚑ {f.name} ×
               </span>
             ) : null;
@@ -172,7 +168,7 @@ export default function EntityTagPicker({
           {selectedDeities.map(id => {
             const d = deities.find(x => x.id === id);
             return d ? (
-              <span key={id} className="grim-chip" style={{ fontSize: "0.9166rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }} onClick={() => toggle(id, selectedDeities, onDeitiesChange ?? (() => {}))}>
+              <span key={id} className="grim-chip text-sm cursor-pointer flex items-center gap-1 bg-grim-gold-bg border border-grim-gold-border text-grim-gold" onClick={() => toggle(id, selectedDeities, onDeitiesChange ?? (() => {}))}>
                 ✦ {d.name} ×
               </span>
             ) : null;
@@ -180,78 +176,69 @@ export default function EntityTagPicker({
         </div>
       )}
 
-      <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", borderBottom: "1px solid var(--grim-line)" }}>
-          <button type="button" style={tabStyle("npcs")} onClick={() => setActiveTab("npcs")}>
+      <div className="border border-grim-line-2 bg-grim-bg-3">
+        <div className="flex flex-wrap border-b border-grim-line">
+          <button type="button" className={tabClass("npcs")} style={tabTextStyle("npcs")} onClick={() => setActiveTab("npcs")}>
             NPCs ({selectedNpcs.length}/{npcs.length})
           </button>
           {locations.length > 0 && onLocationsChange && (
-            <button type="button" style={tabStyle("locations")} onClick={() => setActiveTab("locations")}>
+            <button type="button" className={tabClass("locations")} style={tabTextStyle("locations")} onClick={() => setActiveTab("locations")}>
               Locations ({selectedLocations.length}/{locations.length})
             </button>
           )}
           {pcs.length > 0 && onPcsChange && (
-            <button type="button" style={tabStyle("pcs")} onClick={() => setActiveTab("pcs")}>
+            <button type="button" className={tabClass("pcs")} style={tabTextStyle("pcs")} onClick={() => setActiveTab("pcs")}>
               PCs ({selectedPcs.length}/{pcs.length})
             </button>
           )}
           {quests.length > 0 && onQuestsChange && (
-            <button type="button" style={tabStyle("quests")} onClick={() => setActiveTab("quests")}>
+            <button type="button" className={tabClass("quests")} style={tabTextStyle("quests")} onClick={() => setActiveTab("quests")}>
               Quests ({selectedQuests.length}/{quests.length})
             </button>
           )}
           {items.length > 0 && onItemsChange && (
-            <button type="button" style={tabStyle("items")} onClick={() => setActiveTab("items")}>
+            <button type="button" className={tabClass("items")} style={tabTextStyle("items")} onClick={() => setActiveTab("items")}>
               Items ({selectedItems.length}/{items.length})
             </button>
           )}
           {factions.length > 0 && onFactionsChange && (
-            <button type="button" style={tabStyle("factions")} onClick={() => setActiveTab("factions")}>
+            <button type="button" className={tabClass("factions")} style={tabTextStyle("factions")} onClick={() => setActiveTab("factions")}>
               Factions ({selectedFactions.length}/{factions.length})
             </button>
           )}
           {deities.length > 0 && onDeitiesChange && (
-            <button type="button" style={tabStyle("deities")} onClick={() => setActiveTab("deities")}>
+            <button type="button" className={tabClass("deities")} style={tabTextStyle("deities")} onClick={() => setActiveTab("deities")}>
               Deities ({selectedDeities.length}/{deities.length})
             </button>
           )}
-          <div style={{ flex: 1 }} />
+          <div className="flex-1" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Filter…"
-            style={{
-              background: "transparent",
-              border: "none",
-              borderLeft: "1px solid var(--grim-line)",
-              color: "var(--grim-ink)",
-              fontFamily: "var(--font-body)",
-              fontSize: "1rem",
-              padding: "6px 10px",
-              outline: "none",
-              width: 120,
-            }}
+            className="bg-transparent border-l border-grim-line text-grim-ink font-body text-base py-1.5 px-2.5 outline-none"
+            style={{ width: 120 }}
           />
         </div>
 
-        <div style={{ maxHeight: 180, overflowY: "auto", padding: "6px 0" }}>
+        <div className="max-h-44 overflow-y-auto py-1.5 px-0">
           {activeTab === "npcs" ? (
             filteredNpcs.length === 0
-              ? <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.0833rem" }}>No NPCs found</div>
+              ? <div className="py-3 px-3.5 text-grim-ink-4 font-body text-lg">No NPCs found</div>
               : filteredNpcs.map(n => (
-                <label key={n.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", cursor: "pointer", background: selectedNpcs.includes(n.id) ? "oklch(0.72 0.165 48 / 0.12)" : "transparent" }}>
-                  <input type="checkbox" checked={selectedNpcs.includes(n.id)} onChange={() => toggle(n.id, selectedNpcs, onNpcsChange)} style={{ accentColor: "var(--grim-ember)" }} />
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{n.name}</span>
+                <label key={n.id} className={`flex items-center gap-2.5 py-1.5 px-3.5 cursor-pointer ${selectedNpcs.includes(n.id) ? "bg-grim-ember/12" : "bg-transparent"}`}>
+                  <input type="checkbox" checked={selectedNpcs.includes(n.id)} onChange={() => toggle(n.id, selectedNpcs, onNpcsChange)} className="accent-grim-ember" />
+                  <span className="font-body text-lg text-grim-ink-2">{n.name}</span>
                 </label>
               ))
           ) : activeTab === "locations" ? (
             filteredLocations.length === 0
-              ? <div style={{ padding: "12px 14px", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.0833rem" }}>No locations found</div>
+              ? <div className="py-3 px-3.5 text-grim-ink-4 font-body text-lg">No locations found</div>
               : filteredLocations.map(l => (
-                <label key={l.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", cursor: "pointer", background: selectedLocations.includes(l.id) ? "oklch(0.55 0.15 285 / 0.12)" : "transparent" }}>
-                  <input type="checkbox" checked={selectedLocations.includes(l.id)} onChange={() => toggle(l.id, selectedLocations, onLocationsChange ?? (() => {}))} style={{ accentColor: "var(--grim-arcane)" }} />
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{l.name}</span>
+                <label key={l.id} className="flex items-center gap-2.5 py-1.5 px-3.5 cursor-pointer" style={{ background: selectedLocations.includes(l.id) ? "oklch(0.55 0.15 285 / 0.12)" : "transparent" }}>
+                  <input type="checkbox" checked={selectedLocations.includes(l.id)} onChange={() => toggle(l.id, selectedLocations, onLocationsChange ?? (() => {}))} className="accent-grim-arcane" />
+                  <span className="font-body text-lg text-grim-ink-2">{l.name}</span>
                 </label>
               ))
           ) : activeTab === "pcs" ? (

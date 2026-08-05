@@ -30,30 +30,32 @@ const TINT_BORDER: Record<string, string> = {
 
 export default function DataManagementPage() {
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
-      <header style={{ marginBottom: 28 }}>
+    <div className="pt-9 px-12 pb-20">
+      <header className="mb-7">
         <div className="grim-page-eyebrow">Behind the Screen · Tomes</div>
-        <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Tomes of Record</h1>
+        <h1 className="grim-page-title text-7xl">Tomes of Record</h1>
         <p className="grim-page-sub">All the campaign data — souls, banners, errands, and the world entire.</p>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+      <div className="grid grid-cols-3 gap-3.5">
         {DATA_TYPES.map((type) => (
-          <Link key={type.href} href={type.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-            <div className="grim-tome" style={{ padding: "20px 22px", cursor: "pointer", display: "flex", gap: 16, alignItems: "center" }}>
-              <div style={{
-                width: 52, height: 52, flexShrink: 0, borderRadius: 1,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontSize: "2.3333rem",
-                background: TINT_BG[type.tint], color: "oklch(0.94 0.05 70)",
-                border: "1px solid " + TINT_BORDER[type.tint],
-                boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
-              }}>{type.glyph}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{type.name}</div>
-                <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{type.sub}</div>
+          <Link key={type.href} href={type.href} className="no-underline text-inherit block">
+            <div className="grim-tome py-5 px-5.5 cursor-pointer flex gap-4 items-center">
+              <div
+                className="w-13 h-13 shrink-0 flex items-center justify-center font-display text-4xl border"
+                style={{
+                  background: TINT_BG[type.tint],
+                  color: "oklch(0.94 0.05 70)",
+                  borderColor: TINT_BORDER[type.tint],
+                  borderRadius: 1,
+                  boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
+                }}
+              >{type.glyph}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-head text-xl tracking-wider uppercase text-grim-ink">{type.name}</div>
+                <div className="grim-mono text-sm tracking-wider-2 text-grim-ink-3 uppercase mt-1">{type.sub}</div>
               </div>
-              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.6666rem" }}>›</span>
+              <span className="text-grim-ink-4 font-display text-2xl">›</span>
             </div>
           </Link>
         ))}

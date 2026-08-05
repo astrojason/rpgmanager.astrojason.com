@@ -68,21 +68,13 @@ export default function LocationsManagementPage() {
     });
   };
 
-  const fieldStyle: React.CSSProperties = {
-    background: "var(--grim-bg-3)",
-    border: "1px solid var(--grim-line-2)",
-    color: "var(--grim-ink)",
-    fontFamily: "var(--font-body)",
-    fontSize: "1.25rem",
-    padding: "9px 14px",
-    outline: "none",
-    width: "100%",
-  };
+  const fieldClass =
+    "bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3.5 outline-none w-full";
 
   if (loading) {
     return (
-      <div style={{ padding: "36px 48px 80px" }}>
-        <div className="grim-flame" style={{ textAlign: "center", padding: "80px 0" }}>
+      <div className="pt-9 px-12 pb-20">
+        <div className="grim-flame text-center py-20 px-0">
           Loading Locations…
         </div>
       </div>
@@ -90,10 +82,10 @@ export default function LocationsManagementPage() {
   }
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Page header */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Places</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Locations</h1>
@@ -107,35 +99,25 @@ export default function LocationsManagementPage() {
       <SuccessBlock message={success} />
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* List panel */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
           {/* Search */}
-          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+          <div className="border-b border-grim-line">
             <input
               type="text"
               placeholder="Search locations…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                background: "var(--grim-bg-3)",
-                border: "none",
-                borderBottom: "1px solid var(--grim-line-2)",
-                color: "var(--grim-ink)",
-                fontFamily: "var(--font-body)",
-                fontSize: "1.25rem",
-                padding: "10px 14px",
-                outline: "none",
-                width: "100%",
-              }}
+              className="bg-grim-bg-3 border-0 border-b border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none w-full"
             />
           </div>
 
           {/* Location list */}
-          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+          <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
             {filteredLocations.length === 0 && (
-              <div style={{ padding: "24px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.0833rem" }}>
+              <div className="py-6 px-4 text-center text-grim-ink-4 font-body text-lg">
                 No locations found.
               </div>
             )}
@@ -146,46 +128,35 @@ export default function LocationsManagementPage() {
                   key={location.id}
                   data-location-id={location.id}
                   onClick={() => handleView(location)}
+                  className={`border-b border-grim-line border-l-2 py-3 px-4 cursor-pointer ${selected ? "border-grim-ember" : "border-transparent"}`}
                   style={{
-                    borderBottom: "1px solid var(--grim-line)",
-                    borderLeft: selected ? "2px solid var(--grim-ember)" : "2px solid transparent",
                     background: selected
                       ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
                       : "transparent",
-                    padding: "12px 16px",
-                    cursor: "pointer",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{
-                        fontFamily: "var(--font-head)",
-                        fontSize: "1.1667rem",
-                        color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className={`font-head text-lg overflow-hidden text-ellipsis whitespace-nowrap ${selected ? "text-grim-ember-2" : "text-grim-ink-2"}`}>
                         {location.name}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                      <div className="grim-mono text-sm text-grim-ink-4 overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
                         {location.teaser}
                       </div>
-                      {location.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.75rem", marginTop: 4 }}>hidden</span>}
+                      {location.hidden && <span className="grim-chip is-dead text-xs mt-1">hidden</span>}
                     </div>
-                    <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                    <div className="flex gap-1 shrink-0">
                       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                       <a
-                        className="grim-link"
-                        style={{ fontSize: "1rem", cursor: "pointer" }}
+                        className="grim-link text-base cursor-pointer"
                         onClick={(e) => { e.stopPropagation(); handleEdit(location); }}
                         title="Edit"
                       >
                         Edit
                       </a>
-                      <span style={{ color: "var(--grim-ink-4)" }}>·</span>
+                      <span className="text-grim-ink-4">·</span>
                       <a
-                        style={{ fontSize: "1rem", cursor: "pointer", color: "var(--grim-blood-2)", fontFamily: "var(--font-body)", textDecoration: "none" }}
+                        className="text-base cursor-pointer text-grim-blood-2 font-body no-underline"
                         onClick={(e) => { e.stopPropagation(); handleDelete(location); }}
                         title="Delete"
                       >
@@ -202,20 +173,20 @@ export default function LocationsManagementPage() {
         {/* Detail / Edit panel */}
         <div>
           {(isCreating || isEditing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               {/* Form header */}
               <div className="grim-tome-head">
                 <div className="grim-tome-title">
                   {isCreating ? "Chart New Location" : "Edit Location"}
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Chart Location" : "Save Changes"}`}</button>
                 </div>
               </div>
 
-              <form style={{ padding: "24px 28px" }} onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <form className="py-6 px-7" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                <div className="flex flex-col gap-4.5">
 
                   {/* Name */}
                   <div>
@@ -224,7 +195,7 @@ export default function LocationsManagementPage() {
                       type="text"
                       value={formData.name || ""}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       required
                     />
                   </div>
@@ -236,7 +207,7 @@ export default function LocationsManagementPage() {
                       type="text"
                       value={formData.pronunciation || ""}
                       onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       placeholder="e.g., az-OR-ee-ahn"
                     />
                   </div>
@@ -248,7 +219,7 @@ export default function LocationsManagementPage() {
                       type="text"
                       value={formData.teaser || ""}
                       onChange={(e) => setFormData({ ...formData, teaser: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       placeholder="Brief description"
                       required
                     />
@@ -285,15 +256,15 @@ export default function LocationsManagementPage() {
                       type="text"
                       value={formData.mapImg || ""}
                       onChange={(e) => setFormData({ ...formData, mapImg: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       placeholder="https://example.com/map.jpg"
                     />
                   </div>
 
                   {/* Interactive Map Editor */}
                   {formData.mapImg && (
-                    <div style={{ border: "1px solid var(--grim-line-2)", padding: 16 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
+                    <div className="border border-grim-line-2 p-4">
+                      <div className="font-head text-base tracking-widest uppercase text-grim-ink-3 mb-2.5">
                         Map Hover Area Editor
                       </div>
                       <MapAreaEditor
@@ -308,7 +279,7 @@ export default function LocationsManagementPage() {
                   )}
 
                   {/* Map position grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                  <div className="grid grid-cols-4 gap-3">
                     <div>
                       <label className="grim-label">X Position (%)</label>
                       <input
@@ -318,7 +289,7 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.x || ""}
                         onChange={(e) => setFormData({ ...formData, x: parseFloat(e.target.value) || 0 })}
-                        style={fieldStyle}
+                        className={fieldClass}
                       />
                     </div>
                     <div>
@@ -330,7 +301,7 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.y || ""}
                         onChange={(e) => setFormData({ ...formData, y: parseFloat(e.target.value) || 0 })}
-                        style={fieldStyle}
+                        className={fieldClass}
                       />
                     </div>
                     <div>
@@ -342,7 +313,7 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.width || ""}
                         onChange={(e) => setFormData({ ...formData, width: parseFloat(e.target.value) || 0 })}
-                        style={fieldStyle}
+                        className={fieldClass}
                       />
                     </div>
                     <div>
@@ -354,21 +325,21 @@ export default function LocationsManagementPage() {
                         step="0.1"
                         value={formData.height || ""}
                         onChange={(e) => setFormData({ ...formData, height: parseFloat(e.target.value) || 0 })}
-                        style={fieldStyle}
+                        className={fieldClass}
                       />
                     </div>
                   </div>
 
                   {/* Hidden from players */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                       <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
                       Hidden from players
                     </label>
                   </div>
 
                   {/* Action buttons */}
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8 }}>
+                  <div className="flex justify-end gap-2.5 pt-2">
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
@@ -390,27 +361,21 @@ export default function LocationsManagementPage() {
               </form>
             </div>
           ) : selectedLocation ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               {/* Detail header */}
-              <div style={{ padding: "24px 28px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+              <div className="pt-6 px-7 pb-5 border-b border-grim-line flex items-start justify-between gap-4">
                 <div>
-                  <div style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "3rem",
-                    color: "var(--grim-gold)",
-                    lineHeight: 1.1,
-                    marginBottom: 4,
-                  }}>
+                  <div className="font-display text-5xl text-grim-gold mb-1" style={{ lineHeight: 1.1 }}>
                     {selectedLocation.name}
                   </div>
                   {selectedLocation.pronunciation && (
-                    <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                    <div className="grim-mono text-sm text-grim-ink-4 tracking-wider-2">
                       {selectedLocation.pronunciation}
                     </div>
                   )}
-                  {selectedLocation.hidden && <span className="grim-chip is-dead" style={{ marginTop: 6, display: "inline-block" }}>hidden</span>}
+                  {selectedLocation.hidden && <span className="grim-chip is-dead mt-1.5 inline-block">hidden</span>}
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 4 }}>
+                <div className="flex gap-2 shrink-0 pt-1">
                   <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedLocation)}>
                     Edit
                   </button>
@@ -421,12 +386,12 @@ export default function LocationsManagementPage() {
               </div>
 
               {/* Detail body */}
-              <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", gap: 22 }}>
+              <div className="py-6 px-7 flex flex-col gap-5.5">
 
                 {/* Teaser */}
                 {selectedLocation.teaser && (
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
+                    <div className="grim-label mb-1.5">Description</div>
                     <div
                       className="grim-flavor"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.teaser || '', true) }}
@@ -437,7 +402,7 @@ export default function LocationsManagementPage() {
                 {/* Detail */}
                 {selectedLocation.detail && (
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Details</div>
+                    <div className="grim-label mb-1.5">Details</div>
                     <div
                       className="grim-flavor"
                       dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.detail || '', true) }}
@@ -448,17 +413,17 @@ export default function LocationsManagementPage() {
                 {/* Map position */}
                 {(selectedLocation.x !== undefined || selectedLocation.y !== undefined) && (
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Map Position</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                    <div className="grim-label mb-1.5">Map Position</div>
+                    <div className="grid grid-cols-4 gap-3">
                       {[
                         { label: "X", value: selectedLocation.x },
                         { label: "Y", value: selectedLocation.y },
                         { label: "Width", value: selectedLocation.width },
                         { label: "Height", value: selectedLocation.height },
                       ].map(({ label, value }) => (
-                        <div key={label} style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", padding: "8px 12px" }}>
-                          <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
-                          <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                        <div key={label} className="bg-grim-bg-3 border border-grim-line py-2 px-3">
+                          <div className="grim-mono text-xs tracking-wider-3 text-grim-ink-4 uppercase mb-0.5">{label}</div>
+                          <div className="font-mono text-lg text-grim-ink-2">
                             {value?.toFixed(1) ?? "—"}%
                           </div>
                         </div>
@@ -470,13 +435,13 @@ export default function LocationsManagementPage() {
                 {/* Map image */}
                 {selectedLocation.mapImg && (
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 8 }}>Map Image</div>
+                    <div className="grim-label mb-2">Map Image</div>
                     <Image
                       src={selectedLocation.mapImg}
                       alt={selectedLocation.name}
                       width={400}
                       height={300}
-                      style={{ maxWidth: "100%", height: "auto", border: "1px solid var(--grim-line-2)" }}
+                      className="max-w-full h-auto border border-grim-line-2"
                     />
                   </div>
                 )}
@@ -485,12 +450,12 @@ export default function LocationsManagementPage() {
             </div>
           ) : (
             /* Empty state */
-            <div className="grim-tome" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 40px", textAlign: "center", minHeight: 320 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+            <div className="grim-tome flex flex-col items-center justify-center text-center min-h-80" style={{ padding: "80px 40px" }}>
+              <div className="font-display text-6xl text-grim-ink-4 mb-4 leading-none">✠</div>
+              <div className="font-head text-lg tracking-wider-2 uppercase text-grim-ink-3 mb-2">
                 No location selected
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)", maxWidth: 280 }}>
+              <div className="font-body text-lg text-grim-ink-4 max-w-70">
                 Select a location from the list to view its details, or chart a new one.
               </div>
             </div>
@@ -564,7 +529,7 @@ function MapAreaEditor({
 
   return (
     <div
-      style={{ position: "relative", width: "100%", maxWidth: 560, userSelect: "none" }}
+      className="relative w-full max-w-140 select-none"
       ref={containerRef}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -572,39 +537,28 @@ function MapAreaEditor({
     >
       {/* Map image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imageUrl} alt="Map" style={{ width: "100%", height: "auto", display: "block", border: "1px solid var(--grim-line-2)" }} />
+      <img src={imageUrl} alt="Map" className="w-full h-auto block border border-grim-line-2" />
 
       {/* Hover area rect */}
       <div
+        className="absolute border-2 border-grim-ember bg-grim-ember/12 cursor-move"
         style={{
-          position: "absolute",
           left: `${x}%`,
           top: `${y}%`,
           width: `${width}%`,
           height: `${height}%`,
-          border: "2px solid var(--grim-ember)",
-          background: "oklch(0.72 0.165 48 / 0.12)",
-          cursor: "move",
         }}
         onMouseDown={(e) => onMouseDown(e, 'move')}
       >
         {/* Resize handle */}
         <div
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: 0,
-            transform: "translate(50%, 50%)",
-            width: 14,
-            height: 14,
-            background: "var(--grim-ember)",
-            cursor: "se-resize",
-          }}
+          className="absolute right-0 bottom-0 w-3.5 h-3.5 bg-grim-ember cursor-se-resize"
+          style={{ transform: "translate(50%, 50%)" }}
           onMouseDown={(e) => onMouseDown(e, 'resize')}
         />
       </div>
 
-      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 8, letterSpacing: ".08em" }}>
+      <div className="grim-mono text-sm text-grim-ink-4 mt-2 tracking-widest">
         Drag the rectangle to reposition. Drag the corner handle to resize.
       </div>
     </div>

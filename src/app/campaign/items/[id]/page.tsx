@@ -19,12 +19,12 @@ import Link from "next/link";
 
 interface EntityItem { id: string; name: string; }
 
-function categoryChipStyle(category: string): React.CSSProperties {
+function categoryChipStyle(category: string): { className: string; style?: React.CSSProperties } {
   const c = (category || "").toLowerCase();
-  if (c.includes("magic")) return { background: "oklch(0.55 0.150 285 / 0.18)", border: "1px solid oklch(0.55 0.150 285 / 0.45)", color: "var(--grim-arcane)" };
-  if (c.includes("artifact")) return { background: "oklch(0.72 0.165 48 / 0.14)", border: "1px solid oklch(0.72 0.165 48 / 0.45)", color: "var(--grim-ember-2)" };
-  if (c.includes("journal")) return { background: "oklch(0.55 0.090 145 / 0.14)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" };
-  return { background: "oklch(0.72 0.12 78 / 0.12)", border: "1px solid oklch(0.72 0.12 78 / 0.35)", color: "var(--grim-gold)" };
+  if (c.includes("magic")) return { className: "bg-grim-arcane-2/18 border border-grim-arcane-2/45 text-grim-arcane" };
+  if (c.includes("artifact")) return { className: "bg-grim-ember/14 border border-grim-ember/45 text-grim-ember-2" };
+  if (c.includes("journal")) return { className: "bg-grim-moss/14 border border-grim-moss/45 text-grim-moss" };
+  return { className: "text-grim-gold", style: { background: "oklch(0.72 0.12 78 / 0.12)", border: "1px solid oklch(0.72 0.12 78 / 0.35)" } };
 }
 
 const CATEGORIES = ["Magic Item", "Artifact", "Stolen Journal", "Weapon", "Armor", "Consumable", "Other"];
@@ -153,8 +153,8 @@ export default function ItemDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the reliquary&hellip;
         </div>
@@ -164,11 +164,11 @@ export default function ItemDetailPage() {
 
   if (notFound || !item) {
     return (
-      <div style={{ padding: "36px 56px 80px" }}>
+      <div className="pt-9 px-14 pb-20">
         <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/items")}>‹ Back to the Armoury</button>
-        <div style={{ marginTop: 32, textAlign: "center", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-ink-3)" }}>~ relic not found ~</div>
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this artefact in the ledger</div>
+        <div className="mt-8 text-center text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3">~ relic not found ~</div>
+          <div className="grim-mono text-sm tracking-widest-2 uppercase mt-2">No record of this artefact in the ledger</div>
         </div>
       </div>
     );
@@ -194,65 +194,65 @@ export default function ItemDetailPage() {
       {/* Edit modal */}
       {showEditForm && isAdmin && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "oklch(0 0 0 / 0.75)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-grim-backdrop/75"
           onClick={() => { setShowEditForm(false); setEditingItem({}); }}
         >
           <div
-            style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 680, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
+            className="bg-grim-bg-2 border border-grim-line-2 max-w-170 w-full overflow-y-auto m-4 p-8"
+            style={{ maxHeight: "90vh" }}
             onClick={e => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+            <h2 className="font-head text-2xl text-grim-gold tracking-wider-2 uppercase mt-0 mx-0 mb-6">
               Amend the Ledger Entry
             </h2>
-            <form onSubmit={e => { e.preventDefault(); handleSave(editingItem); }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <form onSubmit={e => { e.preventDefault(); handleSave(editingItem); }} className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {([
                   { label: "Name", field: "name" as keyof Item, full: false },
                   { label: "Pronunciation", field: "pronunciation" as keyof Item, full: false },
                   { label: "Type Tag", field: "type_tag" as keyof Item, full: true },
                   { label: "Image URL", field: "image" as keyof Item, full: true },
                 ] as { label: string; field: keyof Item; full: boolean }[]).map(({ label, field, full }) => (
-                  <div key={field} style={full ? { gridColumn: "1 / -1" } : {}}>
-                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                  <div key={field} className={full ? "col-span-full" : ""}>
+                    <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">{label}</label>
                     <input
                       type="text"
                       value={(editingItem[field] as string) || ""}
                       onChange={e => setEditingItem({ ...editingItem, [field]: e.target.value })}
-                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
+                      className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3 outline-none"
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Category</label>
+                  <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Category</label>
                   <select
                     value={editingItem.category || "Magic Item"}
                     onChange={e => setEditingItem({ ...editingItem, category: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "8px 12px", outline: "none" }}
+                    className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3 outline-none"
                   >
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Description</label>
                 <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Properties / Stats</label>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Properties / Stats</label>
                 <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">GM Notes</label>
                 <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" linkEntities={linkEntities} />
               </div>
 
               {/* Tag NPCs, PCs, Locations */}
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Associated NPCs</label>
-                <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 160, overflowY: "auto", padding: "6px 0" }}>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Associated NPCs</label>
+                <div className="max-h-40 overflow-y-auto border border-grim-line-2 py-1.5 px-0 bg-grim-bg-3">
                   {availableNpcs.map(n => (
-                    <label key={n.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingItem.tagged_npcs ?? []).includes(n.id) ? "oklch(0.72 0.165 48 / 0.12)" : "transparent" }}>
+                    <label key={n.id} className={`flex items-center gap-2.5 py-1 px-3.5 cursor-pointer ${(editingItem.tagged_npcs ?? []).includes(n.id) ? "bg-grim-ember/12" : "bg-transparent"}`}>
                       <input
                         type="checkbox"
                         checked={(editingItem.tagged_npcs ?? []).includes(n.id)}
@@ -260,19 +260,19 @@ export default function ItemDetailPage() {
                           const cur = editingItem.tagged_npcs ?? [];
                           setEditingItem({ ...editingItem, tagged_npcs: e.target.checked ? [...cur, n.id] : cur.filter(x => x !== n.id) });
                         }}
-                        style={{ accentColor: "var(--grim-ember)" }}
+                        className="accent-grim-ember"
                       />
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{n.name}</span>
+                      <span className="font-body text-lg text-grim-ink-2">{n.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Associated PCs</label>
-                <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 120, overflowY: "auto", padding: "6px 0" }}>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Associated PCs</label>
+                <div className="max-h-30 overflow-y-auto border border-grim-line-2 py-1.5 px-0 bg-grim-bg-3">
                   {availablePcs.map(p => (
-                    <label key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingItem.tagged_pcs ?? []).includes(p.id) ? "oklch(0.55 0.090 145 / 0.12)" : "transparent" }}>
+                    <label key={p.id} className={`flex items-center gap-2.5 py-1 px-3.5 cursor-pointer ${(editingItem.tagged_pcs ?? []).includes(p.id) ? "bg-grim-moss/12" : "bg-transparent"}`}>
                       <input
                         type="checkbox"
                         checked={(editingItem.tagged_pcs ?? []).includes(p.id)}
@@ -280,19 +280,19 @@ export default function ItemDetailPage() {
                           const cur = editingItem.tagged_pcs ?? [];
                           setEditingItem({ ...editingItem, tagged_pcs: e.target.checked ? [...cur, p.id] : cur.filter(x => x !== p.id) });
                         }}
-                        style={{ accentColor: "var(--grim-moss)" }}
+                        className="accent-grim-moss"
                       />
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{p.name}</span>
+                      <span className="font-body text-lg text-grim-ink-2">{p.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Associated Locations</label>
-                <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 160, overflowY: "auto", padding: "6px 0" }}>
+                <label className="block font-mono text-sm tracking-widest-2 uppercase text-grim-ink-3 mb-1.5">Associated Locations</label>
+                <div className="max-h-40 overflow-y-auto border border-grim-line-2 py-1.5 px-0 bg-grim-bg-3">
                   {locations.map(l => (
-                    <label key={l.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingItem.tagged_locations ?? []).includes(l.id) ? "oklch(0.55 0.150 285 / 0.12)" : "transparent" }}>
+                    <label key={l.id} className={`flex items-center gap-2.5 py-1 px-3.5 cursor-pointer ${(editingItem.tagged_locations ?? []).includes(l.id) ? "bg-grim-arcane-2/12" : "bg-transparent"}`}>
                       <input
                         type="checkbox"
                         checked={(editingItem.tagged_locations ?? []).includes(l.id)}
@@ -300,23 +300,23 @@ export default function ItemDetailPage() {
                           const cur = editingItem.tagged_locations ?? [];
                           setEditingItem({ ...editingItem, tagged_locations: e.target.checked ? [...cur, l.id] : cur.filter(x => x !== l.id) });
                         }}
-                        style={{ accentColor: "var(--grim-arcane)" }}
+                        className="accent-grim-arcane"
                       />
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>{l.name}</span>
+                      <span className="font-body text-lg text-grim-ink-2">{l.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
-                <input type="checkbox" checked={Boolean(editingItem.hidden)} onChange={e => setEditingItem({ ...editingItem, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
+              <label className="flex items-center gap-2 cursor-pointer font-head text-lg text-grim-ink-2 tracking-wider">
+                <input type="checkbox" checked={Boolean(editingItem.hidden)} onChange={e => setEditingItem({ ...editingItem, hidden: e.target.checked })} className="accent-grim-ember" />
                 Hidden from players
               </label>
               {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid var(--grim-line)" }}>
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-grim-line">
                 <button type="button" className="grim-btn is-ghost" onClick={() => { setShowEditForm(false); setEditingItem({}); setError(""); }}>Cancel</button>
                 <button type="submit" className="grim-btn is-ember" disabled={isSaving}>
-                  {isSaving ? <><span className="grim-flame" style={{ width: 8, height: 8 }} /> Saving…</> : "Save Changes"}
+                  {isSaving ? <><span className="grim-flame w-2 h-2" /> Saving…</> : "Save Changes"}
                 </button>
               </div>
             </form>
@@ -325,26 +325,26 @@ export default function ItemDetailPage() {
       )}
 
       {/* ITEM DETAIL */}
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
         {error && <ErrorBlock error={error} onDismiss={() => setError("")} />}
 
         {/* Top bar */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-          <div className="grim-row" style={{ gap: 18 }}>
+        <div className="flex items-center justify-between mb-7">
+          <div className="grim-row gap-4.5">
             <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/items")}>
               ‹ Back to the Armoury
             </button>
-            <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2">
               reliquary / {item.name.toLowerCase()}
             </div>
           </div>
-          <div className="grim-row" style={{ gap: 8 }}>
+          <div className="grim-row gap-2">
             {(isDM || isAdmin) && (
               <button
                 className={`grim-btn${dmMode ? " is-ember" : " is-ghost"}`}
                 onClick={() => setDmMode(!dmMode)}
               >
-                <span className="grim-flame" style={{ width: 6, height: 6 }} />
+                <span className="grim-flame w-1.5 h-1.5" />
                 {dmMode ? "DM Sight · ON" : "DM Sight · OFF"}
               </button>
             )}
@@ -358,54 +358,54 @@ export default function ItemDetailPage() {
         </div>
 
         {/* Hero */}
-        <section style={{ marginBottom: 28 }}>
+        <section className="mb-7">
           <div className="grim-page-eyebrow">Ledger Entry — Reliquary</div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "5.6667rem", color: "var(--grim-gold)", margin: "2px 0 6px", lineHeight: 0.92, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
+          <h1 className="font-display text-8xl text-grim-gold mt-0.5 mx-0 mb-1.5 tracking-normal" style={{ lineHeight: 0.92, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
             {item.name}
           </h1>
           {item.pronunciation && (
-            <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: "1.4167rem" }}>
-              pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{item.pronunciation}</b>
+            <div className="font-body text-grim-ink-2 text-2xl">
+              pronounced <b className="font-head tracking-widest">{item.pronunciation}</b>
             </div>
           )}
-          <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
-            <span className="grim-chip" style={{ fontSize: "0.8333rem", ...categoryChipStyle(item.category) }}>{item.category || "Item"}</span>
+          <div className="flex gap-2 mt-3.5 flex-wrap items-center">
+            <span className={`grim-chip text-sm ${categoryChipStyle(item.category).className}`} style={categoryChipStyle(item.category).style}>{item.category || "Item"}</span>
             {item.type_tag && (
-              <span style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: "1.1667rem", color: "var(--grim-ink-3)" }}>
+              <span className="font-body italic text-lg text-grim-ink-3">
                 {item.type_tag}
               </span>
             )}
             {item.hidden && isAdmin && (
-              <span className="grim-chip is-blood" style={{ fontSize: "0.8333rem" }}>hidden from players</span>
+              <span className="grim-chip is-blood text-sm">hidden from players</span>
             )}
           </div>
         </section>
 
         {/* Description parchment */}
         {item.description && (
-          <section className="grim-parchment" style={{ marginBottom: 28 }}>
-            <div className="prose dark:prose-invert max-w-none prose-sm" style={{ margin: 0, fontSize: "1.3334rem", lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.description, isAdmin) }} />
+          <section className="grim-parchment mb-7">
+            <div className="prose dark:prose-invert max-w-none prose-sm m-0 text-xl text-grim-parchment-ink-2" style={{ lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.description, isAdmin) }} />
           </section>
         )}
 
         {/* Two-column body */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 22 }}>
+        <div className="grid gap-5.5" style={{ gridTemplateColumns: "1.1fr 0.9fr" }}>
 
           {/* Left column */}
-          <div className="grim-stack" style={{ gap: 22 }}>
+          <div className="grim-stack gap-5.5">
             {item.properties && (
               <section className="grim-tome">
                 <div className="grim-tome-head">
                   <h3 className="grim-tome-title">Properties</h3>
                   <span className="grim-tome-sub">mechanics &amp; powers</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.25rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.properties, isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm text-grim-ink-2 font-body text-xl" style={{ lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.properties, isAdmin) }} />
               </section>
             )}
             {!item.description && !item.properties && (
-              <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.3333rem", color: "var(--grim-ink-3)" }}>~ unwritten ~</div>
-                <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No further record in the reliquary</div>
+              <section className="grim-tome border border-dashed border-grim-line-2 text-center py-7 px-6 text-grim-ink-4">
+                <div className="font-display text-4xl text-grim-ink-3">~ unwritten ~</div>
+                <div className="grim-mono text-sm tracking-widest-2 uppercase mt-1">No further record in the reliquary</div>
               </section>
             )}
 
@@ -416,16 +416,16 @@ export default function ItemDetailPage() {
                   <h3 className="grim-tome-title">Associated Souls</h3>
                   <span className="grim-tome-sub">{linkedNpcs.length} NPC{linkedNpcs.length !== 1 ? "s" : ""}</span>
                 </div>
-                <div className="grim-stack" style={{ gap: 8 }}>
+                <div className="grim-stack gap-2">
                   {linkedNpcs.map(n => (
-                    <Link key={n.id} href={`/campaign/npcs/${n.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.display_name || n.aka || "Unknown"}</span>
-                          {n.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: "0.75rem", padding: "1px 6px" }}>hidden</span>}
-                          {(n.nameHidden || n.hide_name) && (isAdmin || isDM) && <span className="grim-chip" style={{ fontSize: "0.75rem", padding: "1px 6px", background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
+                    <Link key={n.id} href={`/campaign/npcs/${n.id}`} className="no-underline text-inherit block">
+                      <div className="flex items-baseline justify-between gap-2 py-1.5 px-0 border-b border-dashed border-grim-line">
+                        <span className="flex items-baseline gap-1.5">
+                          <span className="font-head text-lg text-grim-ink tracking-wide">{n.name || n.display_name || n.aka || "Unknown"}</span>
+                          {n.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood text-xs py-0 px-1.5">hidden</span>}
+                          {(n.nameHidden || n.hide_name) && (isAdmin || isDM) && <span className="grim-chip text-xs py-0 px-1.5 bg-grim-name-hidden-bg text-grim-gold-2 border border-grim-gold-2">name hidden</span>}
                         </span>
-                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "—"}</span>
+                        <span className="grim-mono text-sm text-grim-ink-4 tracking-widest shrink-0">{n.race || "—"}</span>
                       </div>
                     </Link>
                   ))}
@@ -440,12 +440,12 @@ export default function ItemDetailPage() {
                   <h3 className="grim-tome-title">Carried By</h3>
                   <span className="grim-tome-sub">{linkedPcs.length} PC{linkedPcs.length !== 1 ? "s" : ""}</span>
                 </div>
-                <div className="grim-stack" style={{ gap: 8 }}>
+                <div className="grim-stack gap-2">
                   {linkedPcs.map(p => (
-                    <Link key={p.id} href={`/campaign/pcs/${p.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ember-2)", letterSpacing: ".03em" }}>{p.name}</span>
-                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{p.class || "—"}</span>
+                    <Link key={p.id} href={`/campaign/pcs/${p.id}`} className="no-underline text-inherit block">
+                      <div className="flex items-baseline justify-between gap-2 py-1.5 px-0 border-b border-dashed border-grim-line">
+                        <span className="font-head text-lg text-grim-ember-2 tracking-wide">{p.name}</span>
+                        <span className="grim-mono text-sm text-grim-ink-4 tracking-widest shrink-0">{p.class || "—"}</span>
                       </div>
                     </Link>
                   ))}
@@ -460,11 +460,11 @@ export default function ItemDetailPage() {
                   <h3 className="grim-tome-title">Associated Places</h3>
                   <span className="grim-tome-sub">{linkedLocations.length} location{linkedLocations.length !== 1 ? "s" : ""}</span>
                 </div>
-                <div className="grim-stack" style={{ gap: 8 }}>
+                <div className="grim-stack gap-2">
                   {linkedLocations.map(l => (
-                    <Link key={l.id} href={`/campaign/locations/${l.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-arcane)", letterSpacing: ".03em" }}>{l.name}</span>
+                    <Link key={l.id} href={`/campaign/locations/${l.id}`} className="no-underline text-inherit block">
+                      <div className="flex items-center gap-2 py-1.5 px-0 border-b border-dashed border-grim-line">
+                        <span className="font-head text-lg text-grim-arcane tracking-wide">{l.name}</span>
                       </div>
                     </Link>
                   ))}
@@ -474,28 +474,28 @@ export default function ItemDetailPage() {
           </div>
 
           {/* Right column */}
-          <div className="grim-stack" style={{ gap: 22 }}>
+          <div className="grim-stack gap-5.5">
             {/* GM Notes */}
             {(isDM || isAdmin) && (
               dmMode ? (
                 item.gm_notes ? (
-                  <section className="grim-tome" style={{ border: "1px solid var(--grim-arcane)", background: "linear-gradient(180deg, oklch(0.18 0.05 285), oklch(0.13 0.04 290))" }}>
-                    <div className="grim-tome-head" style={{ borderColor: "oklch(0.65 0.150 285 / 0.30)" }}>
-                      <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>★ Master&apos;s Marginalia</h3>
+                  <section className="grim-tome border border-grim-arcane" style={{ background: "linear-gradient(180deg, oklch(0.18 0.05 285), oklch(0.13 0.04 290))" }}>
+                    <div className="grim-tome-head border-grim-arcane/30">
+                      <h3 className="grim-tome-title text-grim-arcane">★ Master&apos;s Marginalia</h3>
                       <span className="grim-tome-sub">hidden from the party</span>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.1667rem", lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.gm_notes, true) }} />
+                    <div className="prose dark:prose-invert max-w-none prose-sm text-grim-ink font-body text-lg" style={{ lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(item.gm_notes, true) }} />
                   </section>
                 ) : isAdmin ? (
-                  <section className="grim-tome" style={{ border: "1px dashed oklch(0.65 0.150 285 / 0.5)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no marginalia ~</div>
-                    <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
+                  <section className="grim-tome border border-dashed border-grim-arcane/50 text-center py-5.5 px-5 text-grim-ink-4">
+                    <div className="font-display text-3xl text-grim-arcane/60">~ no marginalia ~</div>
+                    <div className="grim-mono text-sm tracking-widest-2 uppercase mt-1">Edit to add DM notes</div>
                   </section>
                 ) : null
               ) : (
-                <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-ink-3)" }}>~ sealed ~</div>
-                  <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s marginalia hidden</div>
+                <section className="grim-tome border border-dashed border-grim-line-2 text-center py-5.5 px-5 text-grim-ink-4">
+                  <div className="font-display text-3xl text-grim-ink-3">~ sealed ~</div>
+                  <div className="grim-mono text-sm tracking-widest-2 uppercase mt-1">Master&apos;s marginalia hidden</div>
                 </section>
               )
             )}
@@ -522,16 +522,16 @@ export default function ItemDetailPage() {
                   <h3 className="grim-tome-title">Session Appearances</h3>
                   <span className="grim-tome-sub">{linkedRecaps.length} recap{linkedRecaps.length !== 1 ? "s" : ""}</span>
                 </div>
-                <div className="grim-stack" style={{ gap: 8 }}>
+                <div className="grim-stack gap-2">
                   {[...linkedRecaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(r => (
                     <Link
                       key={r.id ?? r.date}
                       href={`/campaign/recaps/${r.id ?? r.date}`}
-                      style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                      className="no-underline text-inherit block"
                     >
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                        <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
-                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
+                      <div className="flex items-baseline justify-between gap-2 py-1.5 px-0 border-b border-dashed border-grim-line">
+                        <span className="font-head text-lg text-grim-ink tracking-wide">{r.title}</span>
+                        <span className="grim-mono text-sm text-grim-ink-4 tracking-widest shrink-0">{r.date}</span>
                       </div>
                     </Link>
                   ))}

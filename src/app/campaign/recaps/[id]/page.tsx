@@ -155,8 +155,8 @@ export default function RecapDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the chronicle&hellip;
         </div>
@@ -166,12 +166,12 @@ export default function RecapDetailPage() {
 
   if (notFound || !recap) {
     return (
-      <div style={{ padding: "36px 56px" }}>
-        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/recaps")} style={{ marginBottom: 24 }}>
+      <div className="py-9 px-14">
+        <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/recaps")}>
           ‹ Chronicle of Sessions
         </button>
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ session not found ~</div>
+        <div className="text-center py-15 px-6 text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3 mb-2">~ session not found ~</div>
         </div>
       </div>
     );
@@ -203,17 +203,17 @@ export default function RecapDetailPage() {
   ];
 
   return (
-    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+    <div className="pt-9 px-14 pb-20 overflow-y-auto h-full">
       {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
-      <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/recaps")} style={{ marginBottom: 24 }}>
+      <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/recaps")}>
         ‹ Chronicle of Sessions
       </button>
 
       <article className="grim-tome is-bordered">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--grim-line)" }}>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
+        <div className="flex justify-between items-start gap-4 mb-3.5 pb-3.5 border-b border-grim-line">
+          <div className="min-w-0 flex-1">
+            <div className="grim-mono text-sm tracking-widest-2 text-grim-ember-2 uppercase">
               {sessionNo ? `Session ${sessionNo} · ` : ""}{recap.date}
             </div>
             {editing ? (
@@ -221,21 +221,21 @@ export default function RecapDetailPage() {
                 type="text"
                 value={editingRecap.title as string}
                 onChange={e => setEditingRecap({ ...editingRecap, title: e.target.value })}
-                style={{ marginTop: 4, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "2.3333rem", padding: "6px 12px", outline: "none", width: "100%" }}
+                className="mt-1 bg-grim-bg-4 border border-grim-line-2 text-grim-ink font-display text-4xl py-1.5 px-3 outline-none w-full"
               />
             ) : (
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
+              <h1 className="font-display text-5xl text-grim-gold mt-1 mx-0 mb-0" style={{ lineHeight: 1.05 }}>
                 {recap.title}
               </h1>
             )}
           </div>
           {canEdit(recap) && (
-            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <div className="flex gap-2 shrink-0">
               {editing ? (
                 <>
-                  <button onClick={() => { setEditing(false); setEditingRecap({}); setError(null); }} className="grim-btn is-ghost" style={{ padding: "6px 12px", fontSize: "0.9166rem" }}>Cancel</button>
-                  <button onClick={handleSaveEdit} className="grim-btn is-ember" style={{ padding: "6px 12px", fontSize: "0.9166rem" }} disabled={isSaving}>
-                    {isSaving ? <><span className="grim-flame" style={{ width: 7, height: 7 }} /> Saving…</> : "Save"}
+                  <button onClick={() => { setEditing(false); setEditingRecap({}); setError(null); }} className="grim-btn is-ghost py-1.5 px-3 text-sm">Cancel</button>
+                  <button onClick={handleSaveEdit} className="grim-btn is-ember py-1.5 px-3 text-sm" disabled={isSaving}>
+                    {isSaving ? <><span className="grim-flame w-1.75 h-1.75" /> Saving…</> : "Save"}
                   </button>
                 </>
               ) : (
@@ -249,7 +249,7 @@ export default function RecapDetailPage() {
           <>
             <MarkdownEditor value={(editingRecap.recap as string) || ""} onChange={v => setEditingRecap({ ...editingRecap, recap: v })} rows={12} label="Recap" linkEntities={linkEntities} />
             {isAdmin && (
-              <div style={{ marginTop: 16 }}>
+              <div className="mt-4">
                 <EntityTagPicker
                   npcs={availableNPCs} locations={availableLocations} quests={availableQuests}
                   items={availableItems} factions={availableFactions} deities={availableDeities}
@@ -273,49 +273,49 @@ export default function RecapDetailPage() {
         {((recap.tagged_npcs?.length ?? 0) > 0 || (recap.tagged_locations?.length ?? 0) > 0 ||
           (recap.tagged_quests?.length ?? 0) > 0 || (recap.tagged_items?.length ?? 0) > 0 ||
           (recap.tagged_factions?.length ?? 0) > 0 || (recap.tagged_deities?.length ?? 0) > 0) && (
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--grim-line)" }}>
-            <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places, Errands, Relics, Banners &amp; Divinities</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <div className="mt-5 pt-4 border-t border-dashed border-grim-line">
+            <div className="grim-label mb-2">Souls, Places, Errands, Relics, Banners &amp; Divinities</div>
+            <div className="flex flex-wrap gap-1.5">
               {(recap.tagged_npcs ?? []).map(id => {
                 const n = availableNPCs.find(x => x.id === id);
                 if (!n || (n.hidden && !isAdmin)) return null;
                 return (
-                  <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember text-sm no-underline inline-flex items-center gap-1.25">
                     {n.name}
-                    {n.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
-                    {n.nameHidden && isAdmin && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(name hidden)</span>}
+                    {n.hidden && <span className="text-xs opacity-75">(hidden)</span>}
+                    {n.nameHidden && isAdmin && <span className="text-xs opacity-75">(name hidden)</span>}
                   </Link>
                 );
               })}
               {(recap.tagged_locations ?? []).map(id => {
                 const l = availableLocations.find(x => x.id === id);
-                return l ? <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>{l.name}</Link> : null;
+                return l ? <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane text-sm no-underline">{l.name}</Link> : null;
               })}
               {(recap.tagged_quests ?? []).map(id => {
                 const qt = availableQuests.find(x => x.id === id);
-                return qt ? <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>{qt.name}</Link> : null;
+                return qt ? <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction text-sm no-underline">{qt.name}</Link> : null;
               })}
               {(recap.tagged_items ?? []).map(id => {
                 const it = availableItems.find(x => x.id === id);
                 if (!it || (it.hidden && !isAdmin)) return null;
                 return (
-                  <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                  <Link key={id} href={`/campaign/items/${id}`} className="grim-chip text-sm no-underline inline-flex items-center gap-1.25 bg-grim-moss/18 border border-grim-moss/45 text-grim-moss">
                     ⚔ {it.name}
-                    {it.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                    {it.hidden && <span className="text-xs opacity-75">(hidden)</span>}
                   </Link>
                 );
               })}
               {(recap.tagged_factions ?? []).map(id => {
                 const f = availableFactions.find(x => x.id === id);
-                return f ? <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>⚑ {f.name}</Link> : null;
+                return f ? <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip text-sm no-underline bg-grim-arcane-bg border border-grim-arcane-border text-grim-arcane">⚑ {f.name}</Link> : null;
               })}
               {(recap.tagged_deities ?? []).map(id => {
                 const d = availableDeities.find(x => x.id === id);
                 if (!d) return null;
                 return (
-                  <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                  <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip text-sm no-underline inline-flex items-center gap-1.25 bg-grim-gold-bg border border-grim-gold-border text-grim-gold">
                     ✦ {d.name}
-                    {d.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                    {d.hidden && <span className="text-xs opacity-75">(hidden)</span>}
                   </Link>
                 );
               })}
@@ -325,7 +325,7 @@ export default function RecapDetailPage() {
 
         <div className="grim-rule" />
         <div>
-          <div className="grim-label" style={{ marginBottom: 10 }}>Marginalia</div>
+          <div className="grim-label mb-2.5">Marginalia</div>
           <UserNotesEditor
             notes={recap.notes || []}
             onChange={handleUpdateNotes}

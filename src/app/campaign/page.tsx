@@ -62,18 +62,23 @@ const HOUSE_RULES = [
   },
 ];
 
-function sigilStyle(tint: string) {
-  const base = {
-    width: 44, height: 44, flexShrink: 0, borderRadius: 1,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "var(--font-display)", fontSize: "2.3333rem",
-    color: "oklch(0.92 0.05 70)",
-    boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
+function sigilStyle(tint: string): { className: string; style: React.CSSProperties } {
+  const gradients: Record<string, string> = {
+    ember: "linear-gradient(180deg, oklch(0.40 0.12 40), oklch(0.25 0.08 35))",
+    arcane: "linear-gradient(180deg, oklch(0.30 0.10 285), oklch(0.20 0.06 290))",
+    blood: "linear-gradient(180deg, oklch(0.38 0.16 22), oklch(0.25 0.12 22))",
   };
-  if (tint === "ember") return { ...base, background: "linear-gradient(180deg, oklch(0.40 0.12 40), oklch(0.25 0.08 35))", border: "1px solid var(--grim-ember)" };
-  if (tint === "arcane") return { ...base, background: "linear-gradient(180deg, oklch(0.30 0.10 285), oklch(0.20 0.06 290))", border: "1px solid var(--grim-arcane)" };
-  if (tint === "blood") return { ...base, background: "linear-gradient(180deg, oklch(0.38 0.16 22), oklch(0.25 0.12 22))", border: "1px solid var(--grim-blood-2)" };
-  return { ...base, background: "linear-gradient(180deg, oklch(0.45 0.10 80), oklch(0.30 0.08 78))", border: "1px solid var(--grim-gold-2)" };
+  const borderClasses: Record<string, string> = {
+    ember: "border-grim-ember",
+    arcane: "border-grim-arcane",
+    blood: "border-grim-blood-2",
+  };
+  const background = gradients[tint] ?? "linear-gradient(180deg, oklch(0.45 0.10 80), oklch(0.30 0.08 78))";
+  const borderClass = borderClasses[tint] ?? "border-grim-gold-2";
+  return {
+    className: `w-11 h-11 shrink-0 flex items-center justify-center font-display text-4xl border ${borderClass}`,
+    style: { borderRadius: 1, color: "oklch(0.92 0.05 70)", boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)", background },
+  };
 }
 
 function toPlainText(md: string): string {
@@ -211,49 +216,49 @@ export default function CampaignHome() {
   const sessionDateStr = formatSessionDate(upcomingDate ?? storedDate);
 
   return (
-    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+    <div className="pt-9 px-14 pb-20 overflow-y-auto h-full">
       {queryError && <ErrorBlock error={queryError.message} />}
 
       {/* Masthead */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Codex of the Dungeon Master</div>
           <h1 className="grim-page-title">Azorian&apos;s Bounty</h1>
           <p className="grim-page-sub">Welcome, scrivener. The candles are lit and the ink is wet — your campaign awaits.</p>
         </div>
-        <div style={{ textAlign: "right", paddingBottom: 6 }}>
-          <div className="grim-label" style={{ marginBottom: 4 }}>Chapter</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.1667rem", color: "var(--grim-gold)", lineHeight: 1 }}>
+        <div className="text-right pb-1.5">
+          <div className="grim-label mb-1">Chapter</div>
+          <div className="font-display text-4xl text-grim-gold leading-none">
             The Hellhound Vigil
           </div>
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", marginTop: 4 }}>
+          <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 mt-1">
             session xxi · stormharbor arc
           </div>
         </div>
       </header>
 
       {/* Next Session — wax-sealed summons */}
-      <section className="grim-tome is-bordered" style={{ marginBottom: 28, padding: 0, overflow: "hidden" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 0 }}>
+      <section className="grim-tome is-bordered mb-7 p-0 overflow-hidden">
+        <div className="grid gap-0" style={{ gridTemplateColumns: "1.1fr 0.9fr" }}>
 
           {/* Parchment summons */}
-          <div className="grim-parchment" style={{ borderRadius: 0, margin: 0, minHeight: 260, padding: "32px 40px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+          <div className="grim-parchment rounded-none m-0 min-h-65 py-8 px-10">
+            <div className="flex justify-between items-start mb-3.5">
               <div>
-                <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>
+                <div className="grim-mono text-sm tracking-widest-4 text-grim-parchment-eyebrow uppercase">
                   By order of the Master
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "3.5rem", color: "var(--grim-blood)", lineHeight: 1, marginTop: 4 }}>
+                <div className="font-display text-6xl text-grim-blood leading-none mt-1">
                   A Summoning
                 </div>
               </div>
               <div className="grim-seal">✦</div>
             </div>
 
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "1.3334rem", color: "oklch(0.28 0.03 50)", lineHeight: 1.6, marginTop: 12 }}>
+            <div className="font-body text-xl mt-3" style={{ color: "oklch(0.28 0.03 50)", lineHeight: 1.6 }}>
               {sessionDateStr ? (
                 <>Hark and attend! The party is bid to gather upon{" "}
-                <b style={{ fontFamily: "var(--font-head)" }}>{sessionDateStr}</b>
+                <b className="font-head">{sessionDateStr}</b>
                 {sessionData?.location ? (
                   <>, that we may continue the bloody business of <i>{sessionData.location}</i>.</>
                 ) : (
@@ -264,17 +269,17 @@ export default function CampaignHome() {
               )}
             </div>
 
-            <div style={{ display: "flex", gap: 28, marginTop: 22, paddingTop: 16, borderTop: "1px dashed oklch(0.55 0.08 50 / 0.5)" }}>
+            <div className="flex gap-7 mt-5.5 pt-4" style={{ borderTop: "1px dashed oklch(0.55 0.08 50 / 0.5)" }}>
               <div>
-                <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
+                <div className="grim-mono text-xs tracking-widest-4 text-grim-parchment-eyebrow uppercase">Game Date</div>
+                <div className="font-display text-2xl text-grim-parchment-ink-3 mt-0.5" style={{ lineHeight: 1.2 }}>
                   {currentGameDate ?? "—"}
                 </div>
               </div>
               {sessionData?.location && (
                 <div>
-                  <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Location</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
+                  <div className="grim-mono text-xs tracking-widest-4 text-grim-parchment-eyebrow uppercase">Location</div>
+                  <div className="font-display text-2xl text-grim-parchment-ink-3 mt-0.5" style={{ lineHeight: 1.2 }}>
                     {sessionData.location}
                   </div>
                 </div>
@@ -283,43 +288,43 @@ export default function CampaignHome() {
           </div>
 
           {/* Dark countdown + last-time-on */}
-          <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: 16, background: "linear-gradient(180deg, oklch(0.16 0.035 290), oklch(0.12 0.030 295))" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div className="grim-h-section" style={{ margin: 0 }}>The Vigil Approaches</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div className="py-7 px-8 flex flex-col gap-4" style={{ background: "linear-gradient(180deg, oklch(0.16 0.035 290), oklch(0.12 0.030 295))" }}>
+            <div className="flex items-center justify-between">
+              <div className="grim-h-section m-0">The Vigil Approaches</div>
+              <div className="flex items-center gap-1.5">
                 <span className="grim-flame"/>
-                <span className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>active</span>
+                <span className="grim-mono text-sm tracking-widest-2 text-grim-ember-2 uppercase">active</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "6.6667rem", color: "var(--grim-ember-2)", lineHeight: 0.85, textShadow: "0 0 30px oklch(0.72 0.165 48 / 0.5)" }}>
+            <div className="flex gap-3.5 items-baseline">
+              <div className="font-display text-8xl text-grim-ember-2" style={{ lineHeight: 0.85, textShadow: "0 0 30px oklch(0.72 0.165 48 / 0.5)" }}>
                 {daysUntil !== null && !sessionData?.isSkipped ? daysUntil : "—"}
               </div>
               <div>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-gold)", letterSpacing: ".06em" }}>
+                <div className="font-head text-2xl text-grim-gold tracking-wider">
                   {sessionData?.isSkipped ? "skipped" : daysUntil === 0 ? "today!" : daysUntil === 1 ? "day hence" : "days hence"}
                 </div>
-                <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".16em", marginTop: 2 }}>
+                <div className="grim-mono text-sm text-grim-ink-3 tracking-wider-4 mt-0.5">
                   {sessionDateStr || "date TBD"}
                 </div>
               </div>
             </div>
 
             {latestRecap && (
-              <div style={{ background: "oklch(0.12 0.025 290)", border: "1px solid var(--grim-line)", padding: "14px 16px", borderRadius: 1 }}>
-                <div className="grim-label" style={{ marginBottom: 6 }}>Where we left the party</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink)", lineHeight: 1.55, fontStyle: "italic", marginBottom: 8 }}>
+              <div className="bg-grim-bg-overlay border border-grim-line py-3.5 px-4" style={{ borderRadius: 1 }}>
+                <div className="grim-label mb-1.5">Where we left the party</div>
+                <div className="font-body text-lg text-grim-ink italic mb-2" style={{ lineHeight: 1.55 }}>
                   {toPlainText(latestRecap.recap).slice(0, 220).trimEnd()}…
                 </div>
-                <Link href="/campaign/recaps" className="grim-link" style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".12em", textTransform: "uppercase" }}>
+                <Link href="/campaign/recaps" className="grim-link text-sm font-head tracking-wider-2 uppercase">
                   {latestRecap.title} ›
                 </Link>
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 8 }}>
-              <Link href="/campaign/next-session" className="grim-btn is-ember" style={{ textDecoration: "none" }}>
+            <div className="flex gap-2">
+              <Link href="/campaign/next-session" className="grim-btn is-ember no-underline">
                 View Session Details
               </Link>
             </div>
@@ -328,26 +333,28 @@ export default function CampaignHome() {
       </section>
 
       {/* Quick Access Sigils */}
-      <section style={{ marginBottom: 28 }}>
+      <section className="mb-7">
         <h2 className="grim-h-section">The Sigils of Quick Passage</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
-          {QUICK_LINKS.map((s, i) => (
+        <div className="grid grid-cols-4 gap-3.5">
+          {QUICK_LINKS.map((s, i) => {
+            const sigil = sigilStyle(s.tint);
+            return (
             <a key={i} href={s.href} target={s.href.startsWith("http") ? "_blank" : undefined} rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="grim-tome"
-              style={{ padding: "18px", textDecoration: "none", color: "inherit", cursor: "pointer", display: "flex", gap: 14, alignItems: "center" }}>
-              <div style={sigilStyle(s.tint)}>{s.sigil}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{s.title}</div>
-                <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".14em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2 }}>{s.sub}</div>
+              className="grim-tome p-4.5 no-underline text-inherit cursor-pointer flex gap-3.5 items-center">
+              <div className={sigil.className} style={sigil.style}>{s.sigil}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-head text-lg tracking-widest text-grim-ink uppercase">{s.title}</div>
+                <div className="grim-mono text-sm tracking-wider-3 text-grim-ink-3 uppercase mt-0.5">{s.sub}</div>
               </div>
-              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.5rem" }}>›</span>
+              <span className="text-grim-ink-4 font-display text-2xl">›</span>
             </a>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       {/* Three-column field */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1.1fr 0.8fr", gap: 18, marginBottom: 28 }}>
+      <div className="grid gap-4.5 mb-7" style={{ gridTemplateColumns: "1.1fr 1.1fr 0.8fr" }}>
 
         {/* Lately Beheld — recent NPCs */}
         <section className="grim-tome">
@@ -355,42 +362,42 @@ export default function CampaignHome() {
             <h3 className="grim-tome-title">Lately Beheld</h3>
             <span className="grim-tome-sub">NPCs the party has met</span>
           </div>
-          <div className="grim-stack" style={{ gap: 10 }}>
+          <div className="grim-stack gap-2.5">
             {recentNPCs.map((npc, i) => {
               const imgSrc = safeImageSrc(npc.image);
               const nameIsHidden = Boolean(npc.nameHidden || npc.hide_name);
               const showRealName = !nameIsHidden || isAdmin || isDM;
               const name = showRealName ? (npc.name || npc.aka || "Unknown") : (npc.display_name || npc.aka || "Unknown");
               return (
-                <Link key={npc.id} href={`/campaign/npcs/${npc.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "6px 0", borderBottom: i < recentNPCs.length - 1 ? "1px dashed var(--grim-line)" : "none", paddingBottom: i < recentNPCs.length - 1 ? 10 : 0 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, overflow: "hidden", border: "1px solid var(--grim-line)", position: "relative" }}>
+                <Link key={npc.id} href={`/campaign/npcs/${npc.id}`} className="no-underline text-inherit">
+                  <div className={`flex gap-3 items-center pt-1.5 px-0 ${i < recentNPCs.length - 1 ? "pb-2.5 border-b border-dashed border-grim-line" : "pb-0"}`}>
+                    <div className="w-10 h-10 rounded-full shrink-0 overflow-hidden border border-grim-line relative">
                       {imgSrc ? (
-                        <Image src={imgSrc} alt={name} fill style={{ objectFit: "cover", objectPosition: "center top" }}/>
+                        <Image src={imgSrc} alt={name} fill className="object-cover object-top"/>
                       ) : (
-                        <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%", fontSize: "0rem" }}/>
+                        <div className="grim-img-slot is-portrait w-full h-full" style={{ fontSize: "0rem" }}/>
                       )}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                        <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: "var(--grim-ink)", letterSpacing: ".02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-1.5">
+                        <div className="font-head text-lg text-grim-ink tracking-wide truncate">{name}</div>
                         {nameIsHidden && (isAdmin || isDM) && (
-                          <span className="grim-chip" style={{ fontSize: "0.75rem", padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
+                          <span className="grim-chip text-xs py-0.25 px-1.5 shrink-0 bg-grim-name-hidden-bg text-grim-gold-2 border border-grim-gold-2">name hidden</span>
                         )}
-                        {npc.pronunciation && !nameIsHidden && <div style={{ fontFamily: "var(--font-body)", fontSize: "0.9166rem", color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
+                        {npc.pronunciation && !nameIsHidden && <div className="font-body text-sm text-grim-ink-4 italic shrink-0">({npc.pronunciation})</div>}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div className="grim-mono text-sm tracking-wider-2 text-grim-ink-3 uppercase truncate">
                         {[npc.race, npc.location].filter(Boolean).join(" · ")}
                       </div>
                     </div>
-                    <span className={statusChipClass(npc.status)} style={{ flexShrink: 0, fontSize: "0.8333rem" }}>
+                    <span className={`${statusChipClass(npc.status)} shrink-0 text-sm`}>
                       {statusLabel(npc.status)}
                     </span>
                   </div>
                 </Link>
               );
             })}
-            <Link href="/campaign/npcs" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start", marginTop: 4 }}>
+            <Link href="/campaign/npcs" className="grim-link font-head text-base tracking-wider-3 uppercase self-start mt-1">
               All souls in the codex ›
             </Link>
           </div>
@@ -402,30 +409,29 @@ export default function CampaignHome() {
             <h3 className="grim-tome-title">Active Threads</h3>
             <span className="grim-tome-sub">quests in motion</span>
           </div>
-          <div className="grim-stack" style={{ gap: 14 }}>
+          <div className="grim-stack gap-3.5">
             {activeQuests.length === 0 ? (
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)", fontStyle: "italic", margin: 0 }}>
+              <p className="font-body text-lg text-grim-ink-4 italic m-0">
                 No threads are in motion.
               </p>
             ) : activeQuests.map((q, i) => {
               const state = questRailState(q.status);
               const desc = questDescription(q);
               return (
-                <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 12, borderBottom: i < activeQuests.length - 1 ? "1px dashed var(--grim-line)" : "none", textDecoration: "none" }}>
-                  <div style={{
-                    width: 4, alignSelf: "stretch", marginTop: 4, flexShrink: 0,
-                    background: state === "ember" ? "var(--grim-ember)" : state === "arcane" ? "var(--grim-arcane)" : "var(--grim-line-2)",
-                    boxShadow: state !== "dim" ? `0 0 8px ${state === "ember" ? "var(--grim-ember)" : "var(--grim-arcane)"}` : "none"
-                  }}/>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", letterSpacing: ".02em", color: "var(--grim-ink)" }}>{q.name}</div>
-                    <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{questMeta(q.status)}</div>
-                    {desc && <div style={{ fontSize: "1.0833rem", color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{desc}</div>}
+                <Link key={q.id} href={`/campaign/quests/${q.id}`} className={`flex gap-3 items-start pb-3 no-underline ${i < activeQuests.length - 1 ? "border-b border-dashed border-grim-line" : ""}`}>
+                  <div
+                    className={`w-1 self-stretch mt-1 shrink-0 ${state === "ember" ? "bg-grim-ember" : state === "arcane" ? "bg-grim-arcane" : "bg-grim-line-2"}`}
+                    style={{ boxShadow: state !== "dim" ? `0 0 8px ${state === "ember" ? "var(--grim-ember)" : "var(--grim-arcane)"}` : "none" }}
+                  />
+                  <div className="flex-1">
+                    <div className="font-head text-lg tracking-wide text-grim-ink">{q.name}</div>
+                    <div className="grim-mono text-sm tracking-wider-3 text-grim-ink-4 uppercase mt-0.5">{questMeta(q.status)}</div>
+                    {desc && <div className="text-lg text-grim-ink-2 italic mt-1.5" style={{ lineHeight: 1.45 }}>{desc}</div>}
                   </div>
                 </Link>
               );
             })}
-            <Link href="/campaign/quests" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start" }}>
+            <Link href="/campaign/quests" className="grim-link font-head text-base tracking-wider-3 uppercase self-start">
               Unfurl all threads ›
             </Link>
           </div>
@@ -437,38 +443,36 @@ export default function CampaignHome() {
             <h3 className="grim-tome-title">The Reckoning</h3>
             <span className="grim-tome-sub">Calantheon · 3rd month</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3, marginBottom: 14 }}>
+          <div className="grid grid-cols-10 gap-0.75 mb-3.5">
             {["Adon","Selū","Rili","Tel'","Pyrt","Neld","Vian","Illu","Bari","Anar"].map((d, i) => (
-              <div key={i} className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".04em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid var(--grim-line)" }}>{d}</div>
+              <div key={i} className="grim-mono text-xs tracking-wider text-grim-ink-4 text-center uppercase pb-1 border-b border-grim-line">{d}</div>
             ))}
             {Array.from({ length: 40 }).map((_, i) => {
               const day = i + 1;
               const isToday = day === 36;
               return (
-                <div key={i} style={{
-                  height: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-display)", fontSize: "0.9166rem",
-                  color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)",
-                  background: isToday ? "var(--grim-ember-2)" : "transparent",
-                  borderRadius: 1, position: "relative"
-                }}>
+                <div
+                  key={i}
+                  className={`h-6 flex flex-col items-center justify-center font-display text-sm relative ${isToday ? "bg-grim-ember-2" : "bg-transparent"}`}
+                  style={{ color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)", borderRadius: 1 }}
+                >
                   {day}
                 </div>
               );
             })}
           </div>
-          <div className="grim-stack" style={{ gap: 6, fontSize: "1.0833rem" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ember-2)", letterSpacing: ".12em" }}>36 ▸</span>
-              <span style={{ color: "var(--grim-ink)" }}>The Hellhound Vigil <span className="grim-dim">— today</span></span>
+          <div className="grim-stack gap-1.5 text-lg">
+            <div className="flex items-baseline gap-2">
+              <span className="grim-mono text-sm text-grim-ember-2 tracking-wider-2">36 ▸</span>
+              <span className="text-grim-ink">The Hellhound Vigil <span className="grim-dim">— today</span></span>
             </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-gold)", letterSpacing: ".12em" }}>40 ▸</span>
-              <span style={{ color: "var(--grim-ink-2)" }}>Stormharbor harvest fair</span>
+            <div className="flex items-baseline gap-2">
+              <span className="grim-mono text-sm text-grim-gold tracking-wider-2">40 ▸</span>
+              <span className="text-grim-ink-2">Stormharbor harvest fair</span>
             </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-arcane)", letterSpacing: ".12em" }}>55 ▸</span>
-              <span style={{ color: "var(--grim-ink-2)" }}>The Whispering tide returns</span>
+            <div className="flex items-baseline gap-2">
+              <span className="grim-mono text-sm text-grim-arcane tracking-wider-2">55 ▸</span>
+              <span className="text-grim-ink-2">The Whispering tide returns</span>
             </div>
           </div>
         </section>
@@ -478,22 +482,22 @@ export default function CampaignHome() {
       <div className="grim-rule-ornament"><span className="grim-rule-ornament-glyph">❦</span></div>
 
       {/* House Rules — parchment preview */}
-      <section className="grim-parchment" style={{ marginTop: 6 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+      <section className="grim-parchment mt-1.5">
+        <div className="flex justify-between items-baseline mb-3.5">
           <div>
-            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Of the House</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "oklch(0.25 0.05 30)", lineHeight: 1 }}>Rules of the Table</div>
+            <div className="grim-mono text-sm tracking-widest-4 text-grim-parchment-eyebrow uppercase">Of the House</div>
+            <div className="font-display text-5xl leading-none" style={{ color: "oklch(0.25 0.05 30)" }}>Rules of the Table</div>
           </div>
-          <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "oklch(0.45 0.05 40)", letterSpacing: ".18em", textTransform: "uppercase" }}>Three Edicts</span>
+          <span className="grim-mono text-sm tracking-widest-2 uppercase" style={{ color: "oklch(0.45 0.05 40)" }}>Three Edicts</span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, color: "oklch(0.25 0.03 40)" }}>
+        <div className="grid grid-cols-3 gap-6 text-grim-parchment-ink-3">
           {HOUSE_RULES.map((rule, i) => (
             <div key={i}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "1.8333rem", color: "var(--grim-blood)", marginBottom: 6 }}>
+              <div className="font-display text-3xl text-grim-blood mb-1.5">
                 {rule.roman}. {rule.label}
               </div>
-              <p style={{ fontSize: "1.1667rem", lineHeight: 1.55, margin: 0 }}>{rule.body}</p>
+              <p className="text-lg m-0" style={{ lineHeight: 1.55 }}>{rule.body}</p>
             </div>
           ))}
         </div>

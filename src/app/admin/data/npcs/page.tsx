@@ -13,16 +13,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useCrudResource } from "@/hooks/useCrudResource";
 import { useListArrowNav } from "@/hooks/useListArrowNav";
 
-const fieldStyle: React.CSSProperties = {
-  width: "100%",
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.25rem",
-  padding: "9px 14px",
-  outline: "none",
-};
+const fieldClass = "w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3.5 outline-none";
 
 function statusChipClass(status: string | undefined): string {
   if (!status) return "grim-chip is-unknown";
@@ -296,9 +287,9 @@ export default function NPCsManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "36px 48px 80px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="pt-9 px-12 pb-20">
+        <div className="flex items-center justify-center h-50">
+          <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
             <span className="grim-flame" />
             Consulting the codex…
           </div>
@@ -314,16 +305,16 @@ export default function NPCsManagementPage() {
   ];
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Page Header */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Souls</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Codex of Souls</h1>
           <p className="grim-page-sub">Tend the register of NPCs — names, factions, and their fates.</p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, paddingBottom: 6 }}>
+        <div className="flex items-center gap-2 shrink-0 pb-1.5">
           <button
             onClick={() => startReview(false)}
             className="grim-btn"
@@ -357,65 +348,61 @@ export default function NPCsManagementPage() {
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
       <SuccessBlock message={success} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* ── Left: NPC list panel ── */}
         <div>
           {/* Search */}
-          <div style={{ marginBottom: 8 }}>
+          <div className="mb-2">
             <input
               type="text"
               placeholder="✦ Search souls…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "10px 14px", outline: "none" }}
+              className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none"
             />
           </div>
 
           {/* Count label */}
-          <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
+          <div className="grim-mono text-sm tracking-widest-2 uppercase text-grim-ink-4 mb-1.5 pl-0.5">
             {sortedNpcs.length} {sortedNpcs.length === 1 ? "soul" : "souls"}
           </div>
 
           {/* List */}
-          <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-            <div style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto" }}>
+          <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+            <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
               {sortedNpcs.map((npc) => (
                 <div
                   key={npc.id}
                   data-npc-id={npc.id}
+                  className={`py-3 px-4 cursor-pointer border-b border-grim-line ${selectedNpc?.id === npc.id ? "border-l-2 border-l-grim-ember" : "border-l-2 border-l-transparent"}`}
                   style={{
-                    padding: "12px 16px",
-                    cursor: "pointer",
                     background: selectedNpc?.id === npc.id ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent",
-                    borderLeft: "2px solid " + (selectedNpc?.id === npc.id ? "var(--grim-ember)" : "transparent"),
-                    borderBottom: "1px solid var(--grim-line)",
                   }}
                   onClick={() => handleView(npc)}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: selectedNpc?.id === npc.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-head text-lg flex items-center gap-1.5 ${selectedNpc?.id === npc.id ? "text-grim-ember-2" : "text-grim-ink-2"}`} style={{ lineHeight: 1.2 }}>
                         <span>{npc.name || (typeof npc.aka === 'string' ? npc.aka : '')}</span>
-                        {npc.hidden && <span title="Hidden from players" style={{ fontSize: "0.8333rem", color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
-                        {npc.nameHidden && <span title="Name hidden from players" style={{ fontSize: "0.8333rem", color: "var(--grim-gold-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>NAME?</span>}
+                        {npc.hidden && <span title="Hidden from players" className="text-sm text-grim-blood-2 font-mono tracking-widest">HIDDEN</span>}
+                        {npc.nameHidden && <span title="Name hidden from players" className="text-sm text-grim-gold-2 font-mono tracking-widest">NAME?</span>}
                       </div>
                       {npc.race && (
-                        <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 2 }}>
+                        <div className="grim-mono text-sm text-grim-ink-4 mt-0.5">
                           {npc.race}{npc.status ? ` · ${npc.status}` : ""}
                         </div>
                       )}
                     </div>
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                    <div className="flex gap-1.5 shrink-0">
                       <a
-                        className="grim-link"
-                        style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                        className="grim-link text-sm font-head tracking-widest uppercase cursor-pointer"
                         onClick={(e) => { e.stopPropagation(); handleEdit(npc); }}
                       >
                         edit
                       </a>
                       <a
-                        style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                        className="text-sm font-head tracking-widest uppercase cursor-pointer text-grim-blood-2 no-underline border-b border-dotted border-grim-blood-2"
                         onClick={(e) => { e.stopPropagation(); handleDelete(npc); }}
                       >
                         del
@@ -432,11 +419,11 @@ export default function NPCsManagementPage() {
         <div>
           {/* Review mode controls */}
           {reviewMode && selectedNpc && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "10px 14px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.9166rem", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--grim-ink-3)" }}>
+            <div className="flex items-center justify-between mb-3 py-2.5 px-3.5 bg-grim-bg-3 border border-grim-line-2">
+              <div className="font-mono text-sm tracking-wider-3 uppercase text-grim-ink-3">
                 Reviewing {currentIndex + 1} of {npcs.length} · Done: {doneIds.size}
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="flex gap-2">
                 <button onClick={markDoneAndNext} className="grim-btn is-ember">✓ Done &amp; Next</button>
                 <button onClick={skipToNext} className="grim-btn">Skip</button>
                 <button onClick={() => setReviewMode(false)} className="grim-btn is-ghost">Exit</button>
@@ -449,7 +436,7 @@ export default function NPCsManagementPage() {
             <div className="grim-tome">
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "Inscribe a New Soul" : "Amend the Record"}</div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Inscribe Soul" : "Save Changes"}`}</button>
                 </div>
@@ -457,56 +444,56 @@ export default function NPCsManagementPage() {
 
               <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Name *</div>
+                    <div className="grim-label mb-1.5">Name *</div>
                     <input
                       type="text"
                       value={formData.name || ""}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       required
                     />
                   </div>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Also Known As</div>
+                    <div className="grim-label mb-1.5">Also Known As</div>
                     <input
                       type="text"
                       value={typeof formData.aka === 'string' ? formData.aka : ""}
                       onChange={(e) => setFormData({ ...formData, aka: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                     />
                   </div>
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Display Name (shown when name is hidden)</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Display Name (shown when name is hidden)</div>
                   <input
                     type="text"
                     value={formData.display_name || ""}
                     onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
-                    style={fieldStyle}
+                    className={fieldClass}
                     placeholder="Public-facing name"
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Race *</div>
+                    <div className="grim-label mb-1.5">Race *</div>
                     <input
                       type="text"
                       value={formData.race || ""}
                       onChange={(e) => setFormData({ ...formData, race: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                       required
                     />
                   </div>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Gender</div>
+                    <div className="grim-label mb-1.5">Gender</div>
                     <select
                       value={formData.gender || ""}
                       onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                     >
                       <option value="">Select gender</option>
                       <option value="male">Male</option>
@@ -516,11 +503,11 @@ export default function NPCsManagementPage() {
                     </select>
                   </div>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Status</div>
+                    <div className="grim-label mb-1.5">Status</div>
                     <select
                       value={formData.status || "alive"}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      style={fieldStyle}
+                      className={fieldClass}
                     >
                       <option value="alive">Alive</option>
                       <option value="dead">Dead</option>
@@ -531,13 +518,13 @@ export default function NPCsManagementPage() {
                 </div>
 
                 {/* Factions selector */}
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Factions</div>
-                  <div style={{ maxHeight: 160, overflowY: "auto", padding: "10px 14px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px" }}>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Factions</div>
+                  <div className="max-h-40 overflow-y-auto py-2.5 px-3.5 bg-grim-bg-3 border border-grim-line-2 grid gap-y-1.5 gap-x-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
                     {factions.map((f) => {
                       const checked = (formData.factions || []).includes(f.id);
                       return (
-                        <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
+                        <label key={f.id} className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                           <input
                             type="checkbox"
                             checked={checked}
@@ -555,30 +542,30 @@ export default function NPCsManagementPage() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Location *</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Location *</div>
                   <input
                     type="text"
                     value={formData.location || ""}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    style={fieldStyle}
+                    className={fieldClass}
                     required
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Pronunciation</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Pronunciation</div>
                   <input
                     type="text"
                     value={formData.pronunciation || ""}
                     onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                    style={fieldStyle}
+                    className={fieldClass}
                     placeholder="e.g., ah-LAIR-ah"
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Description</div>
                   <MarkdownEditor
                     value={formData.description || ""}
                     onChange={(value) => setFormData({ ...formData, description: value })}
@@ -588,8 +575,8 @@ export default function NPCsManagementPage() {
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Background</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Background</div>
                   <MarkdownEditor
                     value={formData.background || ""}
                     onChange={(value) => setFormData({ ...formData, background: value })}
@@ -599,8 +586,8 @@ export default function NPCsManagementPage() {
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Roleplaying Notes</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Roleplaying Notes</div>
                   <MarkdownEditor
                     value={formData.roleplaying_notes || ""}
                     onChange={(value) => setFormData({ ...formData, roleplaying_notes: value })}
@@ -610,8 +597,8 @@ export default function NPCsManagementPage() {
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>GM Notes</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">GM Notes</div>
                   <MarkdownEditor
                     value={formData.gm_notes || ""}
                     onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -621,19 +608,19 @@ export default function NPCsManagementPage() {
                   />
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Image URL</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Image URL</div>
                   <input
                     type="text"
                     value={formData.image || ""}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    style={fieldStyle}
+                    className={fieldClass}
                     placeholder="/images/npcs/example.png"
                   />
                 </div>
 
-                <div style={{ display: "flex", gap: 24, marginBottom: 20 }}>
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
+                <div className="flex gap-6 mb-5">
+                  <label className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                     <input
                       type="checkbox"
                       checked={formData.hidden || false}
@@ -641,7 +628,7 @@ export default function NPCsManagementPage() {
                     />
                     <span>Hidden from players</span>
                   </label>
-                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
+                  <label className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                     <input
                       type="checkbox"
                       checked={formData.nameHidden || false}
@@ -653,7 +640,7 @@ export default function NPCsManagementPage() {
 
                 <hr className="grim-rule" />
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
+                <div className="flex items-center justify-end gap-2.5">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">
                     ✕ Cancel
                   </button>
@@ -668,25 +655,25 @@ export default function NPCsManagementPage() {
             /* ── Detail view ── */
             <div className="grim-tome">
               <div className="grim-tome-head">
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display text-5xl text-grim-gold leading-none mb-1.5">
                     {selectedNpc.name || String(selectedNpc.aka || "")}
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                  <div className="flex items-center flex-wrap gap-1.5">
                     <span className={statusChipClass(selectedNpc.status)}>{selectedNpc.status || "unknown"}</span>
                     {selectedNpc.race && <span className="grim-chip">{selectedNpc.race}</span>}
                     {selectedNpc.hidden && <span className="grim-chip is-blood">Hidden</span>}
                     {selectedNpc.nameHidden && <span className="grim-chip is-ember">Name Hidden</span>}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button onClick={() => handleEdit(selectedNpc)} className="grim-btn">✎ Edit</button>
-                  <button onClick={() => { setIsMerging(true); setMergeWithId(""); }} className="grim-btn is-arcane" style={{ background: "linear-gradient(180deg, oklch(0.35 0.12 285), oklch(0.25 0.08 290))", borderColor: "var(--grim-arcane)", color: "oklch(0.95 0.02 80)" }}>Merge</button>
+                  <button onClick={() => { setIsMerging(true); setMergeWithId(""); }} className="grim-btn is-arcane border-grim-arcane" style={{ background: "linear-gradient(180deg, oklch(0.35 0.12 285), oklch(0.25 0.08 290))", color: "oklch(0.95 0.02 80)" }}>Merge</button>
                   <button onClick={() => handleDelete(selectedNpc)} className="grim-btn is-blood">✕ Delete</button>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1fr" }}>
                 {/* Left column: attributes */}
                 <div>
                   <h3 className="grim-h-section" style={{ marginBottom: 10 }}>Basic Info</h3>
@@ -694,39 +681,39 @@ export default function NPCsManagementPage() {
                     {selectedNpc.name && (
                       <div>
                         <span className="grim-label">Name </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink)" }}>{selectedNpc.name}</span>
+                        <span className="font-body text-xl text-grim-ink">{selectedNpc.name}</span>
                       </div>
                     )}
                     {selectedNpc.aka && (
                       <div>
                         <span className="grim-label">AKA </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{String(selectedNpc.aka)}</span>
+                        <span className="font-body text-xl text-grim-ink-2">{String(selectedNpc.aka)}</span>
                       </div>
                     )}
                     {selectedNpc.pronunciation && (
                       <div>
                         <span className="grim-label">Pronunciation </span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.0833rem", color: "var(--grim-ink-3)" }}>{selectedNpc.pronunciation}</span>
+                        <span className="font-mono text-lg text-grim-ink-3">{selectedNpc.pronunciation}</span>
                       </div>
                     )}
                     {selectedNpc.gender && (
                       <div>
                         <span className="grim-label">Gender </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{selectedNpc.gender}</span>
+                        <span className="font-body text-xl text-grim-ink-2">{selectedNpc.gender}</span>
                       </div>
                     )}
                     {selectedNpc.location && (
                       <div>
                         <span className="grim-label">Location </span>
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>{selectedNpc.location}</span>
+                        <span className="font-body text-xl text-grim-ink-2">{selectedNpc.location}</span>
                       </div>
                     )}
                   </div>
 
                   {selectedNpc.factions && selectedNpc.factions.length > 0 && (
-                    <div style={{ marginTop: 18 }}>
+                    <div className="mt-4.5">
                       <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Factions</h3>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      <div className="flex flex-wrap gap-1.5">
                         {selectedNpc.factions.map((faction, index) => (
                           <span key={index} className="grim-chip is-faction">{getFactionName(faction)}</span>
                         ))}
@@ -745,11 +732,11 @@ export default function NPCsManagementPage() {
                         alt={selectedNpc.name || 'NPC'}
                         width={128}
                         height={128}
-                        style={{ width: 128, height: 128, objectFit: "cover", border: "1px solid var(--grim-line-2)" }}
+                        className="w-32 h-32 object-cover border border-grim-line-2"
                       />
                     </div>
                   ) : (
-                    <div style={{ width: 128, height: 128, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--grim-line)", background: "var(--grim-bg-3)", fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)" }}>
+                    <div className="w-32 h-32 flex items-center justify-center border border-grim-line bg-grim-bg-3 font-display text-5xl text-grim-ink-4">
                       ☥
                     </div>
                   )}
@@ -757,21 +744,21 @@ export default function NPCsManagementPage() {
               </div>
 
               {selectedNpc.description && (
-                <div style={{ marginTop: 22 }}>
+                <div className="mt-5.5">
                   <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Description</h3>
                   <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.description || '', true) }} />
                 </div>
               )}
 
               {selectedNpc.background && (
-                <div style={{ marginTop: 22 }}>
+                <div className="mt-5.5">
                   <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Background</h3>
                   <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.background || '', true) }} />
                 </div>
               )}
 
               {selectedNpc.roleplaying_notes && (
-                <div style={{ marginTop: 22 }}>
+                <div className="mt-5.5">
                   <h3 className="grim-h-section" style={{ marginBottom: 8 }}>Roleplaying Notes</h3>
                   <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedNpc.roleplaying_notes || '', true) }} />
                 </div>
@@ -780,28 +767,28 @@ export default function NPCsManagementPage() {
 
           ) : (
             /* ── Empty state ── */
-            <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>☥</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No soul selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: "1.1667rem" }}>Select a soul from the register to view, or inscribe a new one.</div>
+            <div className="grim-tome text-center" style={{ padding: "60px 24px" }}>
+              <div className="font-display text-5xl text-grim-ink-3 mb-3">☥</div>
+              <div className="font-head text-xl tracking-widest uppercase text-grim-ink-2 mb-2">No soul selected</div>
+              <div className="text-grim-ink-4 text-lg">Select a soul from the register to view, or inscribe a new one.</div>
             </div>
           )}
 
           {/* ── Merge Modal ── */}
           {isMerging && selectedNpc && (
-            <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "oklch(0 0 0 / 0.65)" }}>
-              <div className="grim-tome" style={{ width: "100%", maxWidth: 900, margin: 16, maxHeight: "90vh", overflowY: "auto" }}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "oklch(0 0 0 / 0.65)" }}>
+              <div className="grim-tome w-full m-4 overflow-y-auto" style={{ maxWidth: 900, maxHeight: "90vh" }}>
                 <div className="grim-tome-head">
                   <div className="grim-tome-title">Merge Souls</div>
                   <button onClick={() => setIsMerging(false)} className="grim-btn is-ghost">✕ Close</button>
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div className="grim-label" style={{ marginBottom: 6 }}>Merge &ldquo;{selectedNpc.name}&rdquo; with:</div>
+                <div className="mb-4">
+                  <div className="grim-label mb-1.5">Merge &ldquo;{selectedNpc.name}&rdquo; with:</div>
                   <select
                     value={mergeWithId}
                     onChange={(e) => setMergeWithId(e.target.value)}
-                    style={fieldStyle}
+                    className={fieldClass}
                   >
                     <option value="">Select NPC…</option>
                     {npcs.filter(n => n.id !== selectedNpc.id).map(n => (
@@ -811,27 +798,27 @@ export default function NPCsManagementPage() {
                 </div>
 
                 {mergeCandidate && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                  <div className="grid gap-3.5" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                     {/* Keep (left) */}
-                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Keep</div>
-                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.0833rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
-                        <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.name}</dd>
-                        <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(selectedNpc.aka || "")}</dd>
-                        <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.pronunciation}</dd>
-                        <dt className="grim-label">Race</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.race}</dd>
-                        <dt className="grim-label">Gender</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.gender}</dd>
-                        <dt className="grim-label">Location</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.location}</dd>
-                        <dt className="grim-label">Status</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{selectedNpc.status}</dd>
-                        <dt className="grim-label">Description</dt><dd style={{ margin: 0, color: "var(--grim-ink)", whiteSpace: "pre-wrap", overflow: "hidden", maxHeight: 60 }}>{selectedNpc.description}</dd>
-                        <dt className="grim-label">Factions</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{(selectedNpc.factions||[]).map(getFactionName).join(', ')}</dd>
+                    <div className="bg-grim-bg-3 border border-grim-line-2 p-3.5">
+                      <div className="grim-label mb-2">Keep</div>
+                      <dl className="flex flex-col gap-1 text-lg font-body text-grim-ink-2">
+                        <dt className="grim-label">Name</dt><dd className="m-0 text-grim-ink">{selectedNpc.name}</dd>
+                        <dt className="grim-label">AKA</dt><dd className="m-0 text-grim-ink">{String(selectedNpc.aka || "")}</dd>
+                        <dt className="grim-label">Pronunciation</dt><dd className="m-0 text-grim-ink">{selectedNpc.pronunciation}</dd>
+                        <dt className="grim-label">Race</dt><dd className="m-0 text-grim-ink">{selectedNpc.race}</dd>
+                        <dt className="grim-label">Gender</dt><dd className="m-0 text-grim-ink">{selectedNpc.gender}</dd>
+                        <dt className="grim-label">Location</dt><dd className="m-0 text-grim-ink">{selectedNpc.location}</dd>
+                        <dt className="grim-label">Status</dt><dd className="m-0 text-grim-ink">{selectedNpc.status}</dd>
+                        <dt className="grim-label">Description</dt><dd className="m-0 text-grim-ink whitespace-pre-wrap overflow-hidden max-h-15">{selectedNpc.description}</dd>
+                        <dt className="grim-label">Factions</dt><dd className="m-0 text-grim-ink">{(selectedNpc.factions||[]).map(getFactionName).join(', ')}</dd>
                       </dl>
                     </div>
 
                     {/* Per-field chooser */}
-                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-ember)", padding: 14 }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Choose Per Field</div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: "1.0833rem" }}>
+                    <div className="bg-grim-bg-3 border border-grim-ember p-3.5">
+                      <div className="grim-label mb-2">Choose Per Field</div>
+                      <div className="flex flex-col gap-2 text-lg">
                         {[
                           ['name','Name'],
                           ['aka','AKA'],
@@ -845,10 +832,10 @@ export default function NPCsManagementPage() {
                           ['roleplaying_notes','Roleplaying Notes'],
                           ['image','Image URL'],
                         ].map(([key, label]) => (
-                          <div key={key as string} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                            <span style={{ color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".12em", textTransform: "uppercase", minWidth: 80 }}>{label as string}</span>
-                            <div style={{ display: "flex", gap: 10 }}>
-                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                          <div key={key as string} className="flex items-center justify-between gap-2">
+                            <span className="text-grim-ink-3 font-mono text-sm tracking-wider-2 uppercase min-w-20">{label as string}</span>
+                            <div className="flex gap-2.5">
+                              <label className="inline-flex items-center gap-1 cursor-pointer font-body text-lg text-grim-ink-2">
                                 <input
                                   type="radio"
                                   name={`merge-${key}`}
@@ -857,7 +844,7 @@ export default function NPCsManagementPage() {
                                 />
                                 <span>Keep</span>
                               </label>
-                              <label style={{ display: "inline-flex", alignItems: "center", gap: 4, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                              <label className="inline-flex items-center gap-1 cursor-pointer font-body text-lg text-grim-ink-2">
                                 <input
                                   type="radio"
                                   name={`merge-${key}`}
@@ -869,12 +856,12 @@ export default function NPCsManagementPage() {
                             </div>
                           </div>
                         ))}
-                        <hr className="grim-rule" style={{ margin: "4px 0" }} />
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                        <hr className="grim-rule mx-0 my-1" />
+                        <label className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                           <input type="checkbox" checked={mergeIncludeRightFactions} onChange={(e) => setMergeIncludeRightFactions(e.target.checked)} />
                           <span>Include factions from other</span>
                         </label>
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                        <label className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                           <input type="checkbox" checked={mergeIncludeRightNotes} onChange={(e) => setMergeIncludeRightNotes(e.target.checked)} />
                           <span>Include notes from other</span>
                         </label>
@@ -882,44 +869,43 @@ export default function NPCsManagementPage() {
                     </div>
 
                     {/* Merge from (right) */}
-                    <div style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", padding: 14 }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Merge From</div>
-                      <dl style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "1.0833rem", fontFamily: "var(--font-body)", color: "var(--grim-ink-2)" }}>
-                        <dt className="grim-label">Name</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.name}</dd>
-                        <dt className="grim-label">AKA</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{String(mergeCandidate.aka || "")}</dd>
-                        <dt className="grim-label">Pronunciation</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.pronunciation}</dd>
-                        <dt className="grim-label">Race</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.race}</dd>
-                        <dt className="grim-label">Gender</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.gender}</dd>
-                        <dt className="grim-label">Location</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.location}</dd>
-                        <dt className="grim-label">Status</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{mergeCandidate.status}</dd>
-                        <dt className="grim-label">Description</dt><dd style={{ margin: 0, color: "var(--grim-ink)", whiteSpace: "pre-wrap", overflow: "hidden", maxHeight: 60 }}>{mergeCandidate.description}</dd>
-                        <dt className="grim-label">Factions</dt><dd style={{ margin: 0, color: "var(--grim-ink)" }}>{(mergeCandidate.factions||[]).map(getFactionName).join(', ')}</dd>
+                    <div className="bg-grim-bg-3 border border-grim-line-2 p-3.5">
+                      <div className="grim-label mb-2">Merge From</div>
+                      <dl className="flex flex-col gap-1 text-lg font-body text-grim-ink-2">
+                        <dt className="grim-label">Name</dt><dd className="m-0 text-grim-ink">{mergeCandidate.name}</dd>
+                        <dt className="grim-label">AKA</dt><dd className="m-0 text-grim-ink">{String(mergeCandidate.aka || "")}</dd>
+                        <dt className="grim-label">Pronunciation</dt><dd className="m-0 text-grim-ink">{mergeCandidate.pronunciation}</dd>
+                        <dt className="grim-label">Race</dt><dd className="m-0 text-grim-ink">{mergeCandidate.race}</dd>
+                        <dt className="grim-label">Gender</dt><dd className="m-0 text-grim-ink">{mergeCandidate.gender}</dd>
+                        <dt className="grim-label">Location</dt><dd className="m-0 text-grim-ink">{mergeCandidate.location}</dd>
+                        <dt className="grim-label">Status</dt><dd className="m-0 text-grim-ink">{mergeCandidate.status}</dd>
+                        <dt className="grim-label">Description</dt><dd className="m-0 text-grim-ink whitespace-pre-wrap overflow-hidden max-h-15">{mergeCandidate.description}</dd>
+                        <dt className="grim-label">Factions</dt><dd className="m-0 text-grim-ink">{(mergeCandidate.factions||[]).map(getFactionName).join(', ')}</dd>
                       </dl>
                     </div>
                   </div>
                 )}
 
                 {previewMerged && (
-                  <div style={{ marginTop: 14, padding: "12px 16px", background: "var(--grim-bg-3)", border: "1px solid var(--grim-gold-2)" }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Preview</div>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)", display: "flex", flexDirection: "column", gap: 3 }}>
-                      <div><span style={{ color: "var(--grim-ink-4)" }}>Name: </span>{previewMerged.name}</div>
-                      {previewMerged.aka && <div><span style={{ color: "var(--grim-ink-4)" }}>AKA: </span>{String(previewMerged.aka)}</div>}
-                      <div><span style={{ color: "var(--grim-ink-4)" }}>Race: </span>{previewMerged.race} · <span style={{ color: "var(--grim-ink-4)" }}>Gender: </span>{previewMerged.gender}</div>
-                      <div><span style={{ color: "var(--grim-ink-4)" }}>Location: </span>{previewMerged.location} · <span style={{ color: "var(--grim-ink-4)" }}>Status: </span>{previewMerged.status}</div>
-                      {previewMerged.description && <div style={{ overflow: "hidden", maxHeight: 40, color: "var(--grim-ink-3)" }}>{previewMerged.description}</div>}
-                      <div><span style={{ color: "var(--grim-ink-4)" }}>Factions: </span>{(previewMerged.factions||[]).map(getFactionName).join(', ')}</div>
+                  <div className="mt-3.5 py-3 px-4 bg-grim-bg-3 border border-grim-gold-2">
+                    <div className="grim-label mb-1.5">Preview</div>
+                    <div className="font-body text-lg text-grim-ink-2 flex flex-col gap-1">
+                      <div><span className="text-grim-ink-4">Name: </span>{previewMerged.name}</div>
+                      {previewMerged.aka && <div><span className="text-grim-ink-4">AKA: </span>{String(previewMerged.aka)}</div>}
+                      <div><span className="text-grim-ink-4">Race: </span>{previewMerged.race} · <span className="text-grim-ink-4">Gender: </span>{previewMerged.gender}</div>
+                      <div><span className="text-grim-ink-4">Location: </span>{previewMerged.location} · <span className="text-grim-ink-4">Status: </span>{previewMerged.status}</div>
+                      {previewMerged.description && <div className="overflow-hidden max-h-10 text-grim-ink-3">{previewMerged.description}</div>}
+                      <div><span className="text-grim-ink-4">Factions: </span>{(previewMerged.factions||[]).map(getFactionName).join(', ')}</div>
                     </div>
                   </div>
                 )}
 
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16, gap: 10 }}>
+                <div className="flex justify-end mt-4 gap-2.5">
                   <button onClick={() => setIsMerging(false)} className="grim-btn is-ghost">Cancel</button>
                   <button
                     disabled={!mergeCandidate}
                     onClick={performMerge}
-                    className="grim-btn is-ember"
-                    style={{ opacity: !mergeCandidate ? 0.45 : 1 }}
+                    className={`grim-btn is-ember ${!mergeCandidate ? "opacity-45" : "opacity-100"}`}
                   >
                     ✓ Confirm Merge (keep left, absorb right)
                   </button>

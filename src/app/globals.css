@@ -235,6 +235,11 @@ body {
   --grim-line:      oklch(0.30 0.030 285);
   --grim-line-2:    oklch(0.40 0.035 285);
 
+  /* Translucent row/card overlay wash — used as a semi-opaque background at
+     varying alphas (10x+ across src/, promoted from one-off inline oklch
+     literals; use with the Tailwind opacity modifier, e.g. bg-grim-bg-overlay/70). */
+  --grim-bg-overlay: oklch(0.14 0.025 290);
+
   --grim-ink:       oklch(0.94 0.020 85);
   --grim-ink-2:     oklch(0.78 0.030 85);
   --grim-ink-3:     oklch(0.68 0.025 85);
@@ -253,6 +258,17 @@ body {
   --grim-parchment:    oklch(0.86 0.045 78);
   --grim-parchment-2:  oklch(0.78 0.060 72);
   --grim-parchment-ink: oklch(0.25 0.025 50);
+  /* Slightly higher-chroma parchment ink used on markdown body copy over
+     the parchment/description panels (4x across src/, promoted from
+     one-off inline oklch literals — distinct from --grim-parchment-ink). */
+  --grim-parchment-ink-2: oklch(0.25 0.03 50);
+  /* Muted brownish-red uppercase eyebrow ink used on parchment cards (8x
+     across src/, promoted from one-off inline oklch literals). */
+  --grim-parchment-eyebrow: oklch(0.40 0.08 30);
+  /* Warm dark ink for display-font values on parchment cards (game date,
+     house-rule body copy) — distinct hue from --grim-parchment-ink/-2 (6x
+     across src/, promoted from one-off inline oklch literals). */
+  --grim-parchment-ink-3: oklch(0.25 0.03 40);
 
   /* Status banner tones — distinct dark washes, not opacity variants of the
      foreground moss/blood colors above (used 3x+ each, promoted from
@@ -260,6 +276,28 @@ body {
   --grim-success-bg:  oklch(0.25 0.10 145 / 0.4);
   --grim-error-bg:    oklch(0.18 0.08 22 / 0.65);
   --grim-error-text:  oklch(0.85 0.08 30);
+
+  /* Entity-tag chip backgrounds — distinct darker washes from the
+     grim-arcane/grim-gold foreground tokens above (different L/C, same H),
+     each used 4x+ across src/, promoted from one-off inline oklch literals. */
+  --grim-arcane-bg:     oklch(0.50 0.14 285 / 0.18);
+  --grim-arcane-border: oklch(0.50 0.14 285 / 0.45);
+  --grim-gold-bg:       oklch(0.55 0.10 60 / 0.18);
+  --grim-gold-border:   oklch(0.55 0.10 60 / 0.45);
+
+  /* Pure-black modal backdrop wash, used at varying alphas (8x+ across
+     src/, promoted from one-off inline oklch literals). */
+  --grim-backdrop: oklch(0 0 0);
+
+  /* Magic-item category chip accent — darker/denser than --grim-arcane,
+     used at varying alphas (3x across src/, promoted from one-off inline
+     oklch literals; use with the Tailwind opacity modifier, e.g.
+     bg-grim-arcane-2/18, border-grim-arcane-2/45). */
+  --grim-arcane-2: oklch(0.55 0.150 285);
+
+  /* "Name hidden" chip background — dark gold wash, used at a fixed alpha
+     (6x across src/, promoted from one-off inline oklch literals). */
+  --grim-name-hidden-bg: oklch(0.25 0.10 78 / 0.85);
 
   --font-display:   "Pirata One", "UnifrakturMaguntia", serif;
   --font-head:      "IM Fell English SC", "Cinzel", "EB Garamond", serif;
@@ -283,6 +321,7 @@ body {
   --color-grim-bg-4: oklch(0.215 0.040 280);
   --color-grim-line: oklch(0.30 0.030 285);
   --color-grim-line-2: oklch(0.40 0.035 285);
+  --color-grim-bg-overlay: oklch(0.14 0.025 290);
 
   --color-grim-ink: oklch(0.94 0.020 85);
   --color-grim-ink-2: oklch(0.78 0.030 85);
@@ -302,10 +341,21 @@ body {
   --color-grim-parchment: oklch(0.86 0.045 78);
   --color-grim-parchment-2: oklch(0.78 0.060 72);
   --color-grim-parchment-ink: oklch(0.25 0.025 50);
+  --color-grim-parchment-ink-2: oklch(0.25 0.03 50);
+  --color-grim-parchment-eyebrow: oklch(0.40 0.08 30);
+  --color-grim-parchment-ink-3: oklch(0.25 0.03 40);
 
   --color-grim-success-bg: oklch(0.25 0.10 145 / 0.4);
   --color-grim-error-bg: oklch(0.18 0.08 22 / 0.65);
   --color-grim-error-text: oklch(0.85 0.08 30);
+
+  --color-grim-arcane-bg: oklch(0.50 0.14 285 / 0.18);
+  --color-grim-arcane-border: oklch(0.50 0.14 285 / 0.45);
+  --color-grim-gold-bg: oklch(0.55 0.10 60 / 0.18);
+  --color-grim-gold-border: oklch(0.55 0.10 60 / 0.45);
+  --color-grim-backdrop: oklch(0 0 0);
+  --color-grim-arcane-2: oklch(0.55 0.150 285);
+  --color-grim-name-hidden-bg: oklch(0.25 0.10 78 / 0.85);
 
   --font-display: "Pirata One", "UnifrakturMaguntia", serif;
   --font-head: "IM Fell English SC", "Cinzel", "EB Garamond", serif;
@@ -324,6 +374,13 @@ body {
   --tracking-widest-4: 0.22em;
   --tracking-widest-5: 0.24em;
 }
+
+/* Wrapped in @layer components so Tailwind utilities (in @layer utilities,
+   which always wins over @layer components regardless of source order) can
+   override these where a converted className adds e.g. text-* or p-* on an
+   element that also has a .grim-* class. Unlayered CSS beats ANY layered
+   CSS including utilities, so this must stay layered. */
+@layer components {
 
 .grim-screen {
   width: 100%;
@@ -1042,3 +1099,5 @@ button:not(.grim-btn):active:not(:disabled) {
   justify-content: flex-end;
 }
 .grim-chronicle::-webkit-scrollbar-thumb { background: var(--grim-line-2); border-radius: 999px; }
+
+} /* end @layer components */

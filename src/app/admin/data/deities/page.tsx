@@ -105,8 +105,8 @@ export default function DeitiesManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.3334rem", color: "var(--grim-ink-3)" }}>Consulting the divine compendium…</span>
+      <div className="flex items-center justify-center py-20">
+        <span className="font-body text-xl text-grim-ink-3">Consulting the divine compendium…</span>
       </div>
     );
   }
@@ -118,8 +118,8 @@ export default function DeitiesManagementPage() {
   ];
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+    <div className="pt-9 px-12 pb-20">
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Pantheon</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Divine Compendium</h1>
@@ -131,51 +131,46 @@ export default function DeitiesManagementPage() {
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError("")} />}
       <SuccessBlock message={success} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* List */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ borderBottom: "1px solid var(--grim-line)" }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+          <div className="border-b border-grim-line">
             <input type="text" placeholder="Search deities…" value={search} onChange={e => setSearch(e.target.value)} style={inputStyle} />
           </div>
-          <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--grim-line)" }}>
-            <span className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+          <div className="pt-2 px-3.5 pb-1.5 border-b border-grim-line">
+            <span className="grim-mono text-sm tracking-wider-4 text-grim-ink-4 uppercase">
               {filtered.length} {filtered.length === 1 ? "deity" : "deities"}
             </span>
           </div>
-          <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
+          <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
             {filtered.map(d => {
               const isSel = selected?.id === d.id;
               return (
                 <div
                   key={d.id}
                   onClick={() => handleView(d)}
-                  style={{
-                    borderBottom: "1px solid var(--grim-line)",
-                    borderLeft: isSel ? "2px solid var(--grim-gold)" : "2px solid transparent",
-                    background: isSel ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.10), transparent)" : "transparent",
-                    padding: "12px 16px", cursor: "pointer",
-                    display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8,
-                  }}
+                  className={`border-b border-grim-line border-l-2 py-3 px-4 cursor-pointer flex justify-between items-center gap-2 ${isSel ? "border-l-grim-gold" : "border-l-transparent"}`}
+                  style={{ background: isSel ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.10), transparent)" : "transparent" }}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: isSel ? "var(--grim-gold)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-head text-lg truncate ${isSel ? "text-grim-gold" : "text-grim-ink-2"}`}>
                       {d.name}
                     </div>
                     {d.domain && (
-                      <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", marginTop: 2 }}>{d.domain}</div>
+                      <div className="grim-mono text-xs text-grim-ink-4 tracking-wider-2 uppercase mt-0.5">{d.domain}</div>
                     )}
-                    {d.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.75rem", marginTop: 4 }}>hidden</span>}
+                    {d.hidden && <span className="grim-chip is-dead text-xs mt-1">hidden</span>}
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
-                    <button onClick={e => { e.stopPropagation(); handleEdit(d); }} className="grim-btn is-ghost" style={{ padding: "3px 8px", fontSize: "0.9166rem" }}>✎</button>
-                    <button onClick={e => { e.stopPropagation(); handleDelete(d); }} className="grim-btn is-blood" style={{ padding: "3px 8px", fontSize: "0.9166rem" }}>✕</button>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <button onClick={e => { e.stopPropagation(); handleEdit(d); }} className="grim-btn is-ghost py-1 px-2 text-sm">✎</button>
+                    <button onClick={e => { e.stopPropagation(); handleDelete(d); }} className="grim-btn is-blood py-1 px-2 text-sm">✕</button>
                   </div>
                 </div>
               );
             })}
             {filtered.length === 0 && (
-              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.1667rem" }}>No deities found</div>
+              <div className="py-8 px-4 text-center text-grim-ink-4 font-body text-lg">No deities found</div>
             )}
           </div>
         </div>
@@ -183,35 +178,35 @@ export default function DeitiesManagementPage() {
         {/* Detail / edit */}
         <div>
           {(creating || editing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               <div className="grim-tome-head" style={{ padding: "16px 24px" }}>
                 <div className="grim-tome-title">{creating ? "New Deity" : "Edit Deity"}</div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${creating ? "Create Deity" : "Save Changes"}`}</button>
                 </div>
               </div>
-              <div style={{ padding: "24px 28px" }}>
+              <div className="py-6 px-7">
                 <form onSubmit={e => { e.preventDefault(); handleSave(); }}>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Name *</label>
+                      <label className="grim-label block mb-1.5">Name *</label>
                       <input type="text" value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={inputStyle} required />
                     </div>
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Pronunciation</label>
+                      <label className="grim-label block mb-1.5">Pronunciation</label>
                       <input type="text" value={form.pronunciation || ""} onChange={e => setForm(f => ({ ...f, pronunciation: e.target.value }))} style={inputStyle} placeholder="e.g. sel-oo-NAY" />
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Domain</label>
+                      <label className="grim-label block mb-1.5">Domain</label>
                       <input type="text" value={form.domain || ""} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} style={inputStyle} placeholder="e.g. War, Storms, Death" />
                     </div>
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Alignment</label>
+                      <label className="grim-label block mb-1.5">Alignment</label>
                       <select value={form.alignment || ""} onChange={e => setForm(f => ({ ...f, alignment: e.target.value }))} style={inputStyle}>
                         <option value="">— Unknown —</option>
                         {ALIGNMENTS.map(a => <option key={a} value={a}>{a}</option>)}
@@ -219,9 +214,9 @@ export default function DeitiesManagementPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Status</label>
+                      <label className="grim-label block mb-1.5">Status</label>
                       <select value={form.status || "active"} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={inputStyle}>
                         <option value="active">Active</option>
                         <option value="forgotten">Forgotten</option>
@@ -230,43 +225,43 @@ export default function DeitiesManagementPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Image URL</label>
+                      <label className="grim-label block mb-1.5">Image URL</label>
                       <input type="text" value={form.image || ""} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} style={inputStyle} placeholder="https://…" />
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Description</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Description</label>
                     <MarkdownEditor value={form.description || ""} onChange={v => setForm(f => ({ ...f, description: v }))} rows={4} label="Description" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Symbol</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Symbol</label>
                     <input type="text" value={form.symbol || ""} onChange={e => setForm(f => ({ ...f, symbol: e.target.value }))} style={inputStyle} placeholder="e.g. An open eye above a flame" />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Church</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Church</label>
                     <MarkdownEditor value={form.church || ""} onChange={v => setForm(f => ({ ...f, church: v }))} rows={3} label="Church" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Garments</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Garments</label>
                     <MarkdownEditor value={form.garments || ""} onChange={v => setForm(f => ({ ...f, garments: v }))} rows={3} label="Garments" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Tenets</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Tenets</label>
                     <MarkdownEditor value={form.tenets || ""} onChange={v => setForm(f => ({ ...f, tenets: v }))} rows={4} label="Tenets" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Lore</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Lore</label>
                     <MarkdownEditor value={form.lore || ""} onChange={v => setForm(f => ({ ...f, lore: v }))} rows={5} label="Lore" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>Notable Followers</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">Notable Followers</label>
                     <EntityTagPicker
                       npcs={npcs}
                       pcs={pcs}
@@ -277,23 +272,23 @@ export default function DeitiesManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <label className="grim-label" style={{ display: "block", marginBottom: 6 }}>GM Notes</label>
+                  <div className="mb-4">
+                    <label className="grim-label block mb-1.5">GM Notes</label>
                     <MarkdownEditor value={form.gm_notes || ""} onChange={v => setForm(f => ({ ...f, gm_notes: v }))} rows={4} label="GM Notes" linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ marginBottom: 20 }}>
+                  <div className="mb-5">
                     <UserNotesEditor notes={(form.notes as UserNote[]) ?? []} onChange={notes => setForm(f => ({ ...f, notes }))} currentUser={user} linkEntities={linkEntities} />
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
-                      <input type="checkbox" checked={!!form.hidden} onChange={e => setForm(f => ({ ...f, hidden: e.target.checked }))} style={{ accentColor: "var(--grim-blood)" }} />
+                  <div className="flex items-center gap-4 mb-5">
+                    <label className="flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
+                      <input type="checkbox" checked={!!form.hidden} onChange={e => setForm(f => ({ ...f, hidden: e.target.checked }))} className="accent-grim-blood" />
                       Hidden from players
                     </label>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <div className="flex justify-end gap-2.5">
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>Cancel</button>
                     <button type="submit" className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : (creating ? "Create Deity" : "Save Changes")}</button>
                   </div>
@@ -301,21 +296,21 @@ export default function DeitiesManagementPage() {
               </div>
             </div>
           ) : selected ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ display: "flex", overflow: "hidden" }}>
-                <div style={{ width: 6, flexShrink: 0, background: "var(--grim-gold)", boxShadow: "0 0 12px var(--grim-gold)" }} />
-                <div style={{ flex: 1, padding: "22px 26px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 16 }}>
-                    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+              <div className="flex overflow-hidden">
+                <div className="w-1.5 shrink-0 bg-grim-gold" style={{ boxShadow: "0 0 12px var(--grim-gold)" }} />
+                <div className="flex-1 py-5.5 px-6.5">
+                  <div className="flex justify-between items-start gap-4 mb-4">
+                    <div className="flex gap-4 items-center">
                       {safeImageSrc(selected.image) && (
-                        <div style={{ width: 60, height: 60, borderRadius: "50%", overflow: "hidden", border: "1px solid var(--grim-line)", flexShrink: 0, position: "relative" }}>
-                          <Image src={safeImageSrc(selected.image)!} alt={selected.name} fill style={{ objectFit: "cover" }} />
+                        <div className="w-15 h-15 rounded-full overflow-hidden border border-grim-line shrink-0 relative">
+                          <Image src={safeImageSrc(selected.image)!} alt={selected.name} fill className="object-cover" />
                         </div>
                       )}
                       <div>
-                        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>{selected.name}</h2>
-                        {selected.pronunciation && <div style={{ fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-4)", fontStyle: "italic", marginTop: 2 }}>{selected.pronunciation}</div>}
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+                        <h2 className="font-display text-5xl text-grim-gold m-0" style={{ lineHeight: 1.1 }}>{selected.name}</h2>
+                        {selected.pronunciation && <div className="font-body text-lg text-grim-ink-4 italic mt-0.5">{selected.pronunciation}</div>}
+                        <div className="flex gap-1.5 flex-wrap mt-1.5">
                           {selected.domain && <span className="grim-chip">{selected.domain}</span>}
                           {selected.alignment && <span className="grim-chip is-unknown">{selected.alignment}</span>}
                           {selected.status && <span className="grim-chip">{selected.status}</span>}
@@ -323,29 +318,29 @@ export default function DeitiesManagementPage() {
                         </div>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <div className="flex gap-2 shrink-0">
                       <button className="grim-btn is-ghost" onClick={() => handleEdit(selected)}>✎ Edit</button>
                       <button className="grim-btn is-blood" onClick={() => handleDelete(selected)}>✕ Delete</button>
                     </div>
                   </div>
 
                   {selected.description && (
-                    <div style={{ marginBottom: 16, fontSize: "1.1667rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}>{selected.description}</div>
+                    <div className="mb-4 text-lg text-grim-ink-2" style={{ lineHeight: 1.6 }}>{selected.description}</div>
                   )}
                   {selected.gm_notes && (
-                    <div style={{ padding: "12px 14px", background: "oklch(0.20 0.06 285 / 0.5)", border: "1px solid var(--grim-arcane)", marginBottom: 16 }}>
-                      <div className="grim-label" style={{ marginBottom: 6, color: "var(--grim-arcane)" }}>GM Notes</div>
-                      <div style={{ fontSize: "1.0833rem", color: "var(--grim-ink-2)", lineHeight: 1.55 }}>{selected.gm_notes}</div>
+                    <div className="py-3 px-3.5 border border-grim-arcane mb-4" style={{ background: "oklch(0.20 0.06 285 / 0.5)" }}>
+                      <div className="grim-label mb-1.5 text-grim-arcane">GM Notes</div>
+                      <div className="text-lg text-grim-ink-2" style={{ lineHeight: 1.55 }}>{selected.gm_notes}</div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="grim-tome" style={{ padding: "60px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>✦</div>
-              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "1.6666rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>No deity selected</h3>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+            <div className="grim-tome text-center" style={{ padding: "60px 40px" }}>
+              <div className="font-display text-6xl text-grim-ink-4 mb-4">✦</div>
+              <h3 className="font-head text-2xl text-grim-ink-2 m-0 mb-2.5 tracking-wider">No deity selected</h3>
+              <p className="font-body text-xl text-grim-ink-4 max-w-80 my-0 mx-auto">
                 Choose a deity from the list, or create a new one.
               </p>
             </div>

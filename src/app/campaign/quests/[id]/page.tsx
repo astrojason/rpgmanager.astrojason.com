@@ -124,8 +124,8 @@ export default function QuestDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the ledger&hellip;
         </div>
@@ -135,12 +135,12 @@ export default function QuestDetailPage() {
 
   if (notFound || !quest) {
     return (
-      <div style={{ padding: "36px 56px" }}>
-        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/quests")} style={{ marginBottom: 24 }}>
+      <div className="py-9 px-14">
+        <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/quests")}>
           ‹ The Ledger of Errands
         </button>
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ errand not found ~</div>
+        <div className="text-center py-15 px-6 text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3 mb-2">~ errand not found ~</div>
         </div>
       </div>
     );
@@ -152,77 +152,74 @@ export default function QuestDetailPage() {
   const appearances = getRecapsForQuest(recapsData, quest.id);
 
   return (
-    <div style={{ padding: "36px 56px 80px", overflowY: "auto", height: "100%" }}>
+    <div className="py-9 px-14 pb-20 overflow-y-auto h-full">
       {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
       {noteError && <ErrorBlock error={noteError} onDismiss={() => setNoteError(null)} />}
 
-      <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/quests")} style={{ marginBottom: 24 }}>
+      <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/quests")}>
         ‹ The Ledger of Errands
       </button>
 
-      <section className="grim-tome is-bordered" style={{ padding: 0, overflow: "hidden", display: "flex" }}>
-        <div style={{
-          width: 6, flexShrink: 0,
-          background: tone.rail,
-          boxShadow: tone.glow ? `0 0 12px ${tone.rail}` : "none",
-        }} />
+      <section className="grim-tome is-bordered p-0 overflow-hidden flex">
+        <div
+          className="w-1.5 shrink-0"
+          style={{
+            background: tone.rail,
+            boxShadow: tone.glow ? `0 0 12px ${tone.rail}` : "none",
+          }}
+        />
 
-        <div style={{ flex: 1, padding: "28px 32px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
+        <div className="flex-1 py-7 px-8">
+          <div className="flex justify-between items-start gap-4">
             <div>
-              <h1 style={{
-                fontFamily: "var(--font-display)", fontSize: "3.3333rem",
-                color: "var(--grim-gold)", margin: 0, lineHeight: 1,
-                textDecoration: isClosed ? "line-through" : "none",
-                opacity: isClosed ? 0.7 : 1,
-              }}>
+              <h1 className={`font-display text-5xl text-grim-gold m-0 leading-none ${isClosed ? "line-through" : "no-underline"} ${isClosed ? "opacity-70" : "opacity-100"}`}>
                 {quest.name}
               </h1>
-              <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
+              <div className="grim-mono text-sm tracking-wider-3 text-grim-ink-4 uppercase mt-1.5">
                 ⚑ {notes.length} {notes.length === 1 ? "note" : "notes"}
               </div>
             </div>
-            <span className={`grim-chip ${tone.chip}`} style={{ flexShrink: 0 }}>{tone.word}</span>
+            <span className={`grim-chip ${tone.chip} shrink-0`}>{tone.word}</span>
           </div>
 
           {/* Notes / Marginalia */}
           {notes.length > 0 && (
-            <div style={{ marginTop: 22 }}>
-              <div className="grim-label" style={{ marginBottom: 8 }}>Marginalia</div>
-              <div className="grim-stack" style={{ gap: 8 }}>
+            <div className="mt-5.5">
+              <div className="grim-label mb-2">Marginalia</div>
+              <div className="grim-stack gap-2">
                 {notes.map(note => (
                   <div
                     key={note.id}
-                    style={{ padding: "10px 14px", background: "oklch(0.14 0.025 290 / 0.7)", border: "1px solid var(--grim-line)" }}
+                    className="py-2.5 px-3.5 bg-grim-bg-overlay/70 border border-grim-line"
                   >
                     {editingNoteId === note.id ? (
                       <>
                         <MarkdownEditor value={editingNoteContent} onChange={setEditingNoteContent} />
-                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-                          <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
+                        <div className="flex justify-end gap-2 mt-2">
+                          <button className="grim-btn is-ghost py-1 px-2.5 text-sm"
                             onClick={() => { setEditingNoteId(null); setEditingNoteContent(""); }}>
                             Cancel
                           </button>
-                          <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
+                          <button className="grim-btn is-ember py-1 px-2.5 text-sm"
                             onClick={() => handleSaveEditNote(note.id)}>
                             Save
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                        <div style={{ fontSize: "1.1667rem", color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="text-lg text-grim-ink leading-normal flex-1">
                           {!isLegacyNote(note) && isDM && (
-                            <span className="grim-chip is-arcane" style={{ fontSize: "0.75rem", padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
+                            <span className="grim-chip is-arcane text-xs py-0 px-1.5 mr-2 align-middle">DM</span>
                           )}
-                          <div className="prose prose-sm dark:prose-invert max-w-none" style={{ display: "inline" }}>
+                          <div className="prose prose-sm dark:prose-invert max-w-none inline">
                             <ReactMarkdown>{note.content}</ReactMarkdown>
                           </div>
                         </div>
-                        <div style={{ display: "flex", gap: 10, flexShrink: 0, paddingTop: 2, alignItems: "center" }}>
+                        <div className="flex gap-2.5 shrink-0 pt-0.5 items-center">
                           {!isLegacyNote(note) && (
                             <>
-                              <span className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                              <span className="grim-mono text-xs text-grim-ink-4 tracking-wider-2">
                                 {formatNoteTimestamp(note)}
                               </span>
                               <AuthorDisplay uid={note.author} />
@@ -230,11 +227,11 @@ export default function QuestDetailPage() {
                           )}
                           {canEditNote(note) && (
                             <>
-                              <a className="grim-link" style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                              <a className="grim-link text-sm font-head tracking-widest uppercase cursor-pointer"
                                 onClick={() => { setEditingNoteId(note.id); setEditingNoteContent(note.content); }}>
                                 edit
                               </a>
-                              <a style={{ fontSize: "0.9166rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                              <a className="text-sm font-head tracking-widest uppercase cursor-pointer text-grim-blood-2 no-underline border-b border-dotted border-grim-blood-2"
                                 onClick={() => handleDeleteNote(note.id)}>
                                 delete
                               </a>
@@ -254,9 +251,10 @@ export default function QuestDetailPage() {
             const gmNotes = quest.gm_notes;
             if (!isDM || !gmNotes || typeof gmNotes !== "string" || gmNotes.trim() === "" || gmNotes.trim().toLowerCase() === "null") return null;
             return (
-              <div style={{ marginTop: 22 }}>
-                <div className="grim-label" style={{ marginBottom: 8, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
-                <div className="grim-flavor" style={{ fontSize: "1.1667rem", color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
+              <div className="mt-5.5">
+                <div className="grim-label mb-2 text-grim-arcane">GM&apos;s Compendium</div>
+                <div className="grim-flavor text-lg text-grim-ink-2 border-grim-arcane"
+                  style={{ lineHeight: 1.6 }}
                   dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes, true) }} />
               </div>
             );
@@ -264,14 +262,14 @@ export default function QuestDetailPage() {
 
           {/* Session back-references */}
           {appearances.length > 0 && (
-            <div style={{ marginTop: 22 }}>
-              <div className="grim-label" style={{ marginBottom: 8 }}>Appeared in Sessions</div>
-              <div className="grim-stack" style={{ gap: 4 }}>
+            <div className="mt-5.5">
+              <div className="grim-label mb-2">Appeared in Sessions</div>
+              <div className="grim-stack gap-1">
                 {appearances.map(r => (
                   <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`}
-                    style={{ textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "6px 10px", background: "oklch(0.14 0.025 290 / 0.5)", border: "1px solid var(--grim-line)" }}>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
-                    <span className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
+                    className="no-underline flex justify-between items-baseline gap-3 py-1.5 px-2.5 bg-grim-bg-overlay/50 border border-grim-line">
+                    <span className="font-head text-lg text-grim-gold-2 tracking-wide">{r.title}</span>
+                    <span className="grim-mono text-xs text-grim-ink-4 tracking-wider-2 shrink-0">{r.date}</span>
                   </Link>
                 ))}
               </div>
@@ -280,23 +278,23 @@ export default function QuestDetailPage() {
 
           {/* Add Note */}
           {userId && (
-            <div style={{ marginTop: 18 }}>
+            <div className="mt-4.5">
               {editingNote ? (
                 <div>
                   <MarkdownEditor value={newNoteContent} onChange={setNewNoteContent} placeholder="Add a note to the ledger…" label="New Note" />
-                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-                    <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button className="grim-btn is-ghost py-1 px-2.5 text-sm"
                       onClick={() => { setEditingNote(false); setNewNoteContent(""); }}>
                       Cancel
                     </button>
-                    <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: "0.9166rem" }}
+                    <button className="grim-btn is-ember py-1 px-2.5 text-sm"
                       onClick={handleAddNote} disabled={!newNoteContent.trim()}>
                       Add Note
                     </button>
                   </div>
                 </div>
               ) : (
-                <a className="grim-link" style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
+                <a className="grim-link inline-block font-head text-base tracking-wider-3 uppercase cursor-pointer"
                   onClick={() => { setEditingNote(true); setNewNoteContent(""); }}>
                   + Add note
                 </a>

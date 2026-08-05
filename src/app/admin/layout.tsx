@@ -65,8 +65,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center bg-grim-bg">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -76,12 +76,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (!user) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
-        <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-ember)", marginBottom: 12 }}>⚔</div>
-          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.8333rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)", marginBottom: 8 }}>Passage Denied</h2>
-          <p style={{ fontSize: "1.25rem", color: "var(--grim-ink-3)", marginBottom: 24 }}>You must sign in to enter the Scriptorium.</p>
-          <Link href="/auth" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Sign In</Link>
+      <div className="h-full flex items-center justify-center bg-grim-bg">
+        <div className="grim-tome py-10 px-12 max-w-105 text-center">
+          <div className="font-display text-5xl text-grim-ember mb-3">⚔</div>
+          <h2 className="font-head text-3xl tracking-widest uppercase text-grim-ink mb-2">Passage Denied</h2>
+          <p className="text-xl text-grim-ink-3 mb-6">You must sign in to enter the Scriptorium.</p>
+          <Link href="/auth" className="grim-btn is-ember inline-block py-2.5 px-6">Sign In</Link>
         </div>
       </div>
     );
@@ -89,45 +89,42 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (userRole !== 'admin') {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
-        <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-blood-2)", marginBottom: 12 }}>✠</div>
-          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.8333rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-blood-2)", marginBottom: 8 }}>Forbidden Ward</h2>
-          <p style={{ fontSize: "1.25rem", color: "var(--grim-ink-3)", marginBottom: 6 }}>Master&apos;s privileges are required beyond this threshold.</p>
-          <p className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", marginBottom: 24 }}>Current role: {userRole || 'none'}</p>
-          <Link href="/campaign" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Return to Campaign</Link>
+      <div className="h-full flex items-center justify-center bg-grim-bg">
+        <div className="grim-tome py-10 px-12 max-w-105 text-center">
+          <div className="font-display text-5xl text-grim-blood-2 mb-3">✠</div>
+          <h2 className="font-head text-3xl tracking-widest uppercase text-grim-blood-2 mb-2">Forbidden Ward</h2>
+          <p className="text-xl text-grim-ink-3 mb-1.5">Master&apos;s privileges are required beyond this threshold.</p>
+          <p className="grim-mono text-sm text-grim-ink-4 tracking-wider-3 mb-6">Current role: {userRole || 'none'}</p>
+          <Link href="/campaign" className="grim-btn is-ember inline-block py-2.5 px-6">Return to Campaign</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ height: "100%", display: "flex", background: "var(--grim-bg)", color: "var(--grim-ink)", fontFamily: "var(--font-body)" }}>
+    <div className="h-full flex bg-grim-bg text-grim-ink font-body">
 
       {/* Admin sidebar */}
-      <aside style={{
-        width: 240, flexShrink: 0,
-        background: "linear-gradient(180deg, oklch(0.12 0.030 290) 0%, oklch(0.09 0.025 295) 100%)",
-        borderRight: "1px solid var(--grim-line)",
-        display: "flex", flexDirection: "column",
-        overflowY: "auto",
-      }}>
+      <aside
+        className="w-60 shrink-0 border-r border-grim-line flex flex-col overflow-y-auto"
+        style={{ background: "linear-gradient(180deg, oklch(0.12 0.030 290) 0%, oklch(0.09 0.025 295) 100%)" }}
+      >
 
         {/* Sidebar header */}
-        <div style={{ padding: "22px 20px 16px", borderBottom: "1px solid var(--grim-line)" }}>
-          <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
+        <div className="pt-5.5 px-5 pb-4 border-b border-grim-line">
+          <div className="grim-mono text-xs tracking-widest-4 text-grim-ink-4 uppercase mb-1">
             The Scriptorium
           </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1 }}>
+          <div className="font-display text-2xl text-grim-gold leading-none">
             Master&apos;s Codex
           </div>
         </div>
 
         {/* Nav sections */}
-        <nav style={{ flex: 1, padding: "16px 0" }}>
+        <nav className="flex-1 py-4">
           {NAV_SECTIONS.map((section) => (
-            <div key={section.label} style={{ marginBottom: 20 }}>
-              <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", padding: "0 20px", marginBottom: 6 }}>
+            <div key={section.label} className="mb-5">
+              <div className="grim-mono text-xs tracking-widest-4 text-grim-ink-4 uppercase px-5 mb-1.5">
                 {section.label}
               </div>
               {section.items.map((item) => {
@@ -136,19 +133,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <Link
                     key={item.id}
                     href={item.href}
+                    className={`flex items-center gap-2.5 py-2 px-5 no-underline text-lg border-l-2 ${isActive ? "text-grim-ember-2 border-grim-ember" : "text-grim-ink-3 border-transparent"}`}
                     style={{
-                      display: "flex", alignItems: "center", gap: 10,
-                      padding: "8px 20px",
-                      textDecoration: "none",
-                      color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-3)",
                       background: isActive ? "oklch(0.40 0.10 40 / 0.12)" : "transparent",
-                      borderLeft: isActive ? "2px solid var(--grim-ember)" : "2px solid transparent",
                       transition: "color 0.15s, background 0.15s",
-                      fontSize: "1.1667rem",
                     }}
                   >
-                    <span style={{ fontFamily: "var(--font-display)", fontSize: "1.3334rem", width: 20, textAlign: "center", flexShrink: 0 }}>{item.glyph}</span>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".04em" }}>{item.name}</span>
+                    <span className="font-display text-xl w-5 text-center shrink-0">{item.glyph}</span>
+                    <span className="font-head text-lg tracking-wider">{item.name}</span>
                   </Link>
                 );
               })}
@@ -157,19 +149,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* Sidebar footer */}
-        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--grim-line)" }}>
+        <div className="py-3.5 px-5 border-t border-grim-line">
           <Link
             href="/campaign"
-            style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--grim-ink-4)", fontSize: "1rem" }}
+            className="flex items-center gap-2 no-underline text-grim-ink-4 text-base"
           >
-            <span style={{ fontFamily: "var(--font-display)", fontSize: "1.1667rem" }}>‹</span>
-            <span className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".16em", textTransform: "uppercase" }}>Back to Campaign</span>
+            <span className="font-display text-lg">‹</span>
+            <span className="grim-mono text-xs tracking-wider-4 uppercase">Back to Campaign</span>
           </Link>
         </div>
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, overflowY: "auto" }}>
+      <main className="flex-1 overflow-y-auto">
         {children}
       </main>
     </div>

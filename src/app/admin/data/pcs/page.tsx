@@ -19,16 +19,8 @@ interface UserData {
   displayName?: string;
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.25rem",
-  padding: "9px 14px",
-  outline: "none",
-};
+const inputClassName =
+  "w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3.5 outline-none";
 
 export default function PCsManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
@@ -121,9 +113,9 @@ export default function PCsManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 14 }}>
+      <div className="flex items-center justify-center py-20 gap-3.5">
         <span className="grim-flame" />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-3)", letterSpacing: ".08em" }}>
+        <span className="font-body text-lg text-grim-ink-3 tracking-widest">
           Summoning the fellowship&hellip;
         </span>
       </div>
@@ -137,10 +129,10 @@ export default function PCsManagementPage() {
   };
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="pt-9 px-12 pb-20">
 
       {/* Page header */}
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; The Fellowship</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Player Characters</h1>
@@ -155,12 +147,12 @@ export default function PCsManagementPage() {
       <SuccessBlock message={success} />
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* List panel */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ padding: "14px 14px 0" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+          <div className="pt-3.5 px-3.5 pb-0">
+            <div className="font-head text-lg tracking-wider-4 uppercase text-grim-ink-3 mb-2.5">
               The Fellowship ({filteredPcs.length})
             </div>
             <input
@@ -168,22 +160,13 @@ export default function PCsManagementPage() {
               placeholder="Search characters…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                background: "var(--grim-bg-3)",
-                border: "1px solid var(--grim-line-2)",
-                color: "var(--grim-ink)",
-                fontFamily: "var(--font-body)",
-                fontSize: "1.25rem",
-                padding: "10px 14px",
-                outline: "none",
-              }}
+              className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none"
             />
           </div>
 
-          <div style={{ maxHeight: 560, overflowY: "auto", marginTop: 12 }}>
+          <div className="max-h-140 overflow-y-auto mt-3">
             {filteredPcs.length === 0 && (
-              <div style={{ padding: "24px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-4)" }}>
+              <div className="py-6 px-4 text-center font-body text-lg text-grim-ink-4">
                 No characters found.
               </div>
             )}
@@ -194,50 +177,46 @@ export default function PCsManagementPage() {
                   key={pc.id}
                   data-pc-id={pc.id}
                   onClick={() => handleView(pc)}
+                  className={`border-b border-b-grim-line py-3 px-4 cursor-pointer border-l-2 ${selected ? "border-l-grim-ember" : "border-l-transparent"}`}
                   style={{
-                    borderBottom: "1px solid var(--grim-line)",
-                    padding: "12px 16px",
-                    cursor: "pointer",
-                    borderLeft: selected ? "2px solid var(--grim-ember)" : "2px solid transparent",
                     background: selected
                       ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
                       : "transparent",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-head text-lg text-grim-ink truncate">
                         {pc.name}
                       </div>
                       {pc.nickname && (
-                        <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div className="grim-mono text-sm text-grim-ink-3 truncate">
                           &ldquo;{pc.nickname}&rdquo;
                         </div>
                       )}
-                      <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div className="grim-mono text-sm text-grim-ink-3 mt-0.5 truncate">
                         {pc.race} {pc.class}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div className="grim-mono text-sm text-grim-ink-4 mt-px truncate">
                         {pc.hometown}
                       </div>
                       {pc.player && (
-                        <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ember-2)", marginTop: 3 }}>
+                        <div className="grim-mono text-sm text-grim-ember-2 mt-1">
                           &#9670; {getUserForPc(pc)?.displayName || getUserForPc(pc)?.email || 'Unknown Player'}
                         </div>
                       )}
                     </div>
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0, paddingTop: 2 }}>
+                    <div className="flex gap-1.5 shrink-0 pt-0.5">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(pc); }}
-                        className="grim-link"
-                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "0.9166rem", letterSpacing: ".06em" }}
+                        className="grim-link bg-transparent border-none p-0 cursor-pointer font-mono text-sm tracking-wider"
                         title="Edit"
                       >
                         edit
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(pc); }}
-                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "0.9166rem", letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
+                        className="bg-transparent border-none p-0 cursor-pointer font-mono text-sm tracking-wider text-grim-blood-2"
                         title="Delete"
                       >
                         del
@@ -253,82 +232,82 @@ export default function PCsManagementPage() {
         {/* Detail / Edit panel */}
         <div>
           {(isCreating || isEditing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "New Character" : "Edit Character"}</div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Add Character" : "Save Changes"}`}</button>
                 </div>
               </div>
-              <div style={{ padding: "24px 28px 28px" }}>
+              <div className="pt-6 px-7 pb-7">
                 <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
 
                   {/* Name / Nickname */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Name *</div>
+                      <div className="grim-label mb-1.5">Name *</div>
                       <input
                         type="text"
                         value={formData.name || ""}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Nickname</div>
+                      <div className="grim-label mb-1.5">Nickname</div>
                       <input
                         type="text"
                         value={formData.nickname || ""}
                         onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                       />
                     </div>
                   </div>
 
                   {/* Race / Class */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Race *</div>
+                      <div className="grim-label mb-1.5">Race *</div>
                       <input
                         type="text"
                         value={formData.race || ""}
                         onChange={(e) => setFormData({ ...formData, race: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Class *</div>
+                      <div className="grim-label mb-1.5">Class *</div>
                       <input
                         type="text"
                         value={formData.class || ""}
                         onChange={(e) => setFormData({ ...formData, class: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                         required
                       />
                     </div>
                   </div>
 
                   {/* Hometown / Status */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Hometown *</div>
+                      <div className="grim-label mb-1.5">Hometown *</div>
                       <input
                         type="text"
                         value={formData.hometown || ""}
                         onChange={(e) => setFormData({ ...formData, hometown: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Status</div>
+                      <div className="grim-label mb-1.5">Status</div>
                       <select
                         value={formData.status || "active"}
                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        style={inputStyle}
+                        className={inputClassName}
                       >
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -339,12 +318,12 @@ export default function PCsManagementPage() {
                   </div>
 
                   {/* Assigned Player */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Assigned Player</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Assigned Player</div>
                     <select
                       value={formData.player || ""}
                       onChange={(e) => setFormData({ ...formData, player: e.target.value || null })}
-                      style={inputStyle}
+                      className={inputClassName}
                     >
                       <option value="">No Player Assigned</option>
                       {users.map((user) => (
@@ -356,22 +335,13 @@ export default function PCsManagementPage() {
                   </div>
 
                   {/* Factions */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Factions</div>
-                    <div style={{
-                      maxHeight: 160,
-                      overflowY: "auto",
-                      padding: "10px 14px",
-                      background: "var(--grim-bg-3)",
-                      border: "1px solid var(--grim-line-2)",
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "8px 16px",
-                    }}>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Factions</div>
+                    <div className="max-h-40 overflow-y-auto py-2.5 px-3.5 bg-grim-bg-3 border border-grim-line-2 grid grid-cols-2 gap-y-2 gap-x-4">
                       {factions.map((f) => {
                         const checked = (formData.factions || []).includes(f.id);
                         return (
-                          <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-2)" }}>
+                          <label key={f.id} className="inline-flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
                             <input
                               type="checkbox"
                               checked={checked}
@@ -390,32 +360,32 @@ export default function PCsManagementPage() {
                   </div>
 
                   {/* Character Image URL */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Character Image URL</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Character Image URL</div>
                     <input
                       type="text"
                       value={formData.image || ""}
                       onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                       placeholder="https://example.com/character.jpg"
-                      style={inputStyle}
+                      className={inputClassName}
                     />
                   </div>
 
                   {/* Character GIF URL */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Character GIF URL</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Character GIF URL</div>
                     <input
                       type="text"
                       value={formData.gif || ""}
                       onChange={(e) => setFormData({ ...formData, gif: e.target.value })}
                       placeholder="https://example.com/character.gif"
-                      style={inputStyle}
+                      className={inputClassName}
                     />
                   </div>
 
                   {/* GM Notes */}
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>GM Notes</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">GM Notes</div>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -429,7 +399,7 @@ export default function PCsManagementPage() {
                   </div>
 
                   {/* Buttons */}
-                  <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
+                  <div className="flex gap-2.5 justify-end mt-5">
                     <button type="button" className="grim-btn is-ghost" onClick={handleCancel}>
                       Cancel
                     </button>
@@ -447,10 +417,10 @@ export default function PCsManagementPage() {
               </div>
             </div>
           ) : selectedPc ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-              <div className="grim-tome-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+              <div className="grim-tome-head" style={{ alignItems: "center" }}>
                 <div className="grim-tome-title">{selectedPc.name}</div>
-                <div style={{ display: "flex", gap: 10 }}>
+                <div className="flex gap-2.5">
                   <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedPc)}>
                     Edit
                   </button>
@@ -460,41 +430,41 @@ export default function PCsManagementPage() {
                 </div>
               </div>
 
-              <div style={{ padding: "24px 28px 28px" }}>
+              <div className="pt-6 px-7 pb-7">
                 {/* Name + status row */}
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                <div className="mb-5">
+                  <div className="font-display text-5xl text-grim-gold" style={{ lineHeight: 1.1 }}>
                     {selectedPc.name}
                     {selectedPc.nickname && (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.5rem", color: "var(--grim-ink-3)", marginLeft: 12 }}>
+                      <span className="font-body text-2xl text-grim-ink-3 ml-3">
                         &ldquo;{selectedPc.nickname}&rdquo;
                       </span>
                     )}
                   </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                  <div className="flex gap-2 flex-wrap mt-2.5">
                     {selectedPc.race && <span className="grim-chip">{selectedPc.race}</span>}
                     {selectedPc.class && <span className="grim-chip is-ember">{selectedPc.class}</span>}
                     {selectedPc.status && (
-                      <span className={statusChipClass(selectedPc.status)} style={{ textTransform: "capitalize" }}>
+                      <span className={`${statusChipClass(selectedPc.status)} capitalize`}>
                         {selectedPc.status}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                <div className="grid grid-cols-2 gap-6">
                   {/* Left column: character info */}
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 10 }}>Character Dossier</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div className="grim-label mb-2.5">Character Dossier</div>
+                    <div className="flex flex-col gap-2">
                       <div>
-                        <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Hometown</span>
-                        <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)", marginTop: 2 }}>{selectedPc.hometown}</div>
+                        <span className="grim-mono text-sm text-grim-ink-4 tracking-wider-3 uppercase">Hometown</span>
+                        <div className="font-body text-lg text-grim-ink-2 mt-0.5">{selectedPc.hometown}</div>
                       </div>
                       {selectedPc.player && (
                         <div>
-                          <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Player</span>
-                          <div style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ember-2)", marginTop: 2 }}>
+                          <span className="grim-mono text-sm text-grim-ink-4 tracking-wider-3 uppercase">Player</span>
+                          <div className="font-body text-lg text-grim-ember-2 mt-0.5">
                             {getUserForPc(selectedPc)?.displayName || getUserForPc(selectedPc)?.email || 'Unknown Player'}
                           </div>
                         </div>
@@ -502,9 +472,9 @@ export default function PCsManagementPage() {
                     </div>
 
                     {selectedPc.factions && selectedPc.factions.length > 0 && (
-                      <div style={{ marginTop: 20 }}>
-                        <div className="grim-label" style={{ marginBottom: 8 }}>Factions</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      <div className="mt-5">
+                        <div className="grim-label mb-2">Factions</div>
+                        <div className="flex flex-wrap gap-1.5">
                           {selectedPc.factions.map((faction, index) => (
                             <span key={index} className="grim-chip is-faction">
                               {getFactionName(faction)}
@@ -516,32 +486,32 @@ export default function PCsManagementPage() {
                   </div>
 
                   {/* Right column: portraits */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div className="flex flex-col gap-4">
                     {selectedPc.image && (
                       <div>
-                        <div className="grim-label" style={{ marginBottom: 8 }}>Portrait</div>
-                        <div className="grim-img-slot is-portrait" style={{ width: 128, height: 128 }}>
+                        <div className="grim-label mb-2">Portrait</div>
+                        <div className="grim-img-slot is-portrait w-32 h-32">
                           <Image
                             src={selectedPc.image}
                             alt={selectedPc.name || 'PC'}
                             width={128}
                             height={128}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       </div>
                     )}
                     {selectedPc.gif && (
                       <div>
-                        <div className="grim-label" style={{ marginBottom: 8 }}>Animated</div>
-                        <div className="grim-img-slot is-portrait" style={{ width: 128, height: 128 }}>
+                        <div className="grim-label mb-2">Animated</div>
+                        <div className="grim-img-slot is-portrait w-32 h-32">
                           <Image
                             src={selectedPc.gif}
                             alt={`${selectedPc.name || 'PC'} GIF`}
                             width={128}
                             height={128}
                             unoptimized
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       </div>
@@ -552,12 +522,12 @@ export default function PCsManagementPage() {
             </div>
           ) : (
             /* Empty state */
-            <div className="grim-tome" style={{ padding: "64px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>⚔</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+            <div className="grim-tome text-center" style={{ padding: "64px 40px" }}>
+              <div className="font-display text-6xl text-grim-ink-4 mb-4">⚔</div>
+              <div className="font-head text-xl tracking-widest uppercase text-grim-ink-3 mb-2">
                 No Character Selected
               </div>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+              <p className="font-body text-lg text-grim-ink-4 max-w-80 mx-auto">
                 Choose a character from the fellowship to view their dossier, or forge a new one.
               </p>
             </div>

@@ -233,8 +233,8 @@ export default function RecapsPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the chronicle&hellip;
         </div>
@@ -255,14 +255,14 @@ export default function RecapsPage() {
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 0, height: "100%", overflow: "hidden" }}>
+    <div className="grid gap-0 h-full overflow-hidden" style={{ gridTemplateColumns: "1fr 300px" }}>
 
       {/* Chronicle column */}
-      <div style={{ overflowY: "auto", padding: "36px 40px 80px 56px" }}>
+      <div className="overflow-y-auto pt-9 pr-10 pb-20 pl-14">
         {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
         {/* Page header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+        <div className="flex justify-between items-end mb-5.5">
           <div>
             <div className="grim-page-eyebrow">The Remembered Road</div>
             <h1 className="grim-page-title">Chronicle of Sessions</h1>
@@ -273,24 +273,18 @@ export default function RecapsPage() {
         </div>
 
         {/* Search + sort + add */}
-        <section style={{ display: "flex", gap: 12, marginBottom: 22 }}>
-          <div style={{ position: "relative", flex: 1 }}>
+        <section className="flex gap-3 mb-5.5">
+          <div className="relative flex-1">
             <input
               placeholder="Search the chronicle…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{
-                width: "100%",
-                background: "var(--grim-bg-3)",
-                border: "1px solid var(--grim-line-2)",
-                color: "var(--grim-ink)",
-                fontFamily: "var(--font-body)",
-                fontSize: "1.3334rem",
-                padding: "12px 16px 12px 42px",
-                outline: "none",
-              }}
+              className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl pt-3 pr-4 pb-3 pl-10.5 outline-none"
             />
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.5rem", pointerEvents: "none" }}>✦</span>
+            <span
+              className="absolute left-3.5 text-grim-gold-2 text-2xl pointer-events-none"
+              style={{ top: "50%", transform: "translateY(-50%)" }}
+            >✦</span>
           </div>
           <button
             className="grim-btn is-ghost"
@@ -310,48 +304,30 @@ export default function RecapsPage() {
 
         {/* Add recap form */}
         {showAddForm && (
-          <div className="grim-tome" style={{ marginBottom: 22 }}>
-            <div className="grim-h-section" style={{ marginBottom: 14 }}>New Chronicle Entry</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div className="grim-tome mb-5.5">
+            <div className="grim-h-section mb-3.5">New Chronicle Entry</div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <div className="grim-label" style={{ marginBottom: 6 }}>Date</div>
+                <div className="grim-label mb-1.5">Date</div>
                 <input
                   type="date"
                   value={newRecap.date || ""}
                   onChange={(e) => setNewRecap({ ...newRecap, date: e.target.value })}
-                  style={{
-                    width: "100%",
-                    background: "var(--grim-bg-4)",
-                    border: "1px solid var(--grim-line-2)",
-                    color: "var(--grim-ink)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: "1.25rem",
-                    padding: "10px 14px",
-                    outline: "none",
-                  }}
+                  className="w-full bg-grim-bg-4 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none"
                 />
               </div>
               <div>
-                <div className="grim-label" style={{ marginBottom: 6 }}>Title</div>
+                <div className="grim-label mb-1.5">Title</div>
                 <input
                   type="text"
                   value={newRecap.title || ""}
                   onChange={(e) => setNewRecap({ ...newRecap, title: e.target.value })}
-                  style={{
-                    width: "100%",
-                    background: "var(--grim-bg-4)",
-                    border: "1px solid var(--grim-line-2)",
-                    color: "var(--grim-ink)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: "1.25rem",
-                    padding: "10px 14px",
-                    outline: "none",
-                  }}
+                  className="w-full bg-grim-bg-4 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none"
                 />
               </div>
             </div>
-            <div style={{ marginBottom: 16 }}>
-              <div className="grim-label" style={{ marginBottom: 6 }}>Recap</div>
+            <div className="mb-4">
+              <div className="grim-label mb-1.5">Recap</div>
               <MarkdownEditor
                 value={newRecap.recap || ""}
                 onChange={(v) => setNewRecap({ ...newRecap, recap: v })}
@@ -361,7 +337,7 @@ export default function RecapsPage() {
               />
             </div>
             {isAdmin && (
-              <div style={{ marginBottom: 16 }}>
+              <div className="mb-4">
                 <EntityTagPicker
                   npcs={availableNPCs}
                   locations={availableLocations}
@@ -384,7 +360,7 @@ export default function RecapsPage() {
                 />
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div className="flex justify-end">
               <button onClick={handleAddRecap} className="grim-btn is-ember">
                 Inscribe to Chronicle
               </button>
@@ -393,13 +369,13 @@ export default function RecapsPage() {
         )}
 
         {/* Recap entries */}
-        <div className="grim-stack" style={{ gap: 22 }}>
+        <div className="grim-stack gap-5.5">
           {filteredRecaps.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+            <div className="text-center py-15 px-6 text-grim-ink-4">
+              <div className="font-display text-5xl text-grim-ink-3 mb-2">
                 ~ no sessions found ~
               </div>
-              <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+              <div className="grim-mono text-sm tracking-widest-2 uppercase">
                 Adjust your search
               </div>
             </div>
@@ -413,14 +389,13 @@ export default function RecapsPage() {
                 <article
                   key={recap.date}
                   ref={(el) => { recapRefs.current[recapKey] = el; }}
-                  className={`grim-tome${isActive ? " is-bordered" : ""}`}
+                  className={`grim-tome${isActive ? " is-bordered" : ""} scroll-mt-6`}
                   id={`recap-${recap.date}`}
-                  style={{ scrollMarginTop: 24 }}
                 >
                   {/* Entry header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--grim-line)" }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>
+                  <div className="flex justify-between items-start gap-4 mb-3.5 pb-3.5 border-b border-grim-line">
+                    <div className="min-w-0 flex-1">
+                      <div className="grim-mono text-sm tracking-widest-2 text-grim-ember-2 uppercase">
                         {sessionNo ? `Session ${sessionNo} · ` : ""}{recap.date}
                       </div>
                       {editingRecapId === recap.id ? (
@@ -428,39 +403,27 @@ export default function RecapsPage() {
                           type="text"
                           value={editingRecap.title as string}
                           onChange={(e) => setEditingRecap({ ...editingRecap, title: e.target.value })}
-                          style={{
-                            marginTop: 4,
-                            background: "var(--grim-bg-4)",
-                            border: "1px solid var(--grim-line-2)",
-                            color: "var(--grim-ink)",
-                            fontFamily: "var(--font-display)",
-                            fontSize: "2.3333rem",
-                            padding: "6px 12px",
-                            outline: "none",
-                            width: "100%",
-                          }}
+                          className="mt-1 bg-grim-bg-4 border border-grim-line-2 text-grim-ink font-display text-4xl py-1.5 px-3 outline-none w-full"
                         />
                       ) : (
-                        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "2.6667rem", color: "var(--grim-gold)", margin: "4px 0 0", lineHeight: 1.05 }}>
+                        <h3 className="font-display text-5xl text-grim-gold mt-1 mx-0 mb-0" style={{ lineHeight: 1.05 }}>
                           {recap.title}
                         </h3>
                       )}
                     </div>
                     {canEditRecap(recap) && (
-                      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <div className="flex gap-2 shrink-0">
                         {editingRecapId === recap.id ? (
                           <>
                             <button
                               onClick={() => { setEditingRecapId(null); setEditingRecap({}); }}
-                              className="grim-btn is-ghost"
-                              style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
+                              className="grim-btn is-ghost py-1.5 px-3 text-sm"
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleSaveEditRecap}
-                              className="grim-btn is-ember"
-                              style={{ padding: "6px 12px", fontSize: "0.9166rem" }}
+                              className="grim-btn is-ember py-1.5 px-3 text-sm"
                             >
                               Save
                             </button>
@@ -488,7 +451,7 @@ export default function RecapsPage() {
                         linkEntities={linkEntities}
                       />
                       {isAdmin && (
-                        <div style={{ marginTop: 16 }}>
+                        <div className="mt-4">
                           <EntityTagPicker
                             npcs={availableNPCs}
                             locations={availableLocations}
@@ -533,24 +496,24 @@ export default function RecapsPage() {
                     (recap.tagged_items?.length ?? 0) > 0 ||
                     (recap.tagged_factions?.length ?? 0) > 0 ||
                     (recap.tagged_deities?.length ?? 0) > 0) && (
-                    <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--grim-line)" }}>
-                      <div className="grim-label" style={{ marginBottom: 8 }}>Souls, Places, Errands, Relics, Banners &amp; Divinities</div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <div className="mt-5 pt-4 border-t border-dashed border-grim-line">
+                      <div className="grim-label mb-2">Souls, Places, Errands, Relics, Banners &amp; Divinities</div>
+                      <div className="flex flex-wrap gap-1.5">
                         {(recap.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
                           if (!n || (n.hidden && !isAdmin)) return null;
                           return (
-                            <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                            <Link key={id} href={`/campaign/npcs/${id}`} className="grim-chip is-ember text-sm no-underline inline-flex items-center gap-1.25">
                               {n.name}
-                              {n.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
-                              {n.nameHidden && isAdmin && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(name hidden)</span>}
+                              {n.hidden && <span className="text-xs opacity-75">(hidden)</span>}
+                              {n.nameHidden && isAdmin && <span className="text-xs opacity-75">(name hidden)</span>}
                             </Link>
                           );
                         })}
                         {(recap.tagged_locations ?? []).map(id => {
                           const l = availableLocations.find(x => x.id === id);
                           return l ? (
-                            <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/locations/${id}`} className="grim-chip is-arcane text-sm no-underline">
                               {l.name}
                             </Link>
                           ) : null;
@@ -558,7 +521,7 @@ export default function RecapsPage() {
                         {(recap.tagged_quests ?? []).map(id => {
                           const qt = availableQuests.find(x => x.id === id);
                           return qt ? (
-                            <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction" style={{ fontSize: "0.9166rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/campaign/quests/${id}`} className="grim-chip is-faction text-sm no-underline">
                               {qt.name}
                             </Link>
                           ) : null;
@@ -567,16 +530,16 @@ export default function RecapsPage() {
                           const it = availableItems.find(x => x.id === id);
                           if (!it || (it.hidden && !isAdmin)) return null;
                           return (
-                            <Link key={id} href={`/campaign/items/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.090 145 / 0.18)", border: "1px solid oklch(0.55 0.090 145 / 0.45)", color: "var(--grim-moss)" }}>
+                            <Link key={id} href={`/campaign/items/${id}`} className="grim-chip text-sm no-underline inline-flex items-center gap-1.25 bg-grim-moss/18 border border-grim-moss/45 text-grim-moss">
                               ⚔ {it.name}
-                              {it.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                              {it.hidden && <span className="text-xs opacity-75">(hidden)</span>}
                             </Link>
                           );
                         })}
                         {(recap.tagged_factions ?? []).map(id => {
                           const f = availableFactions.find(x => x.id === id);
                           return f ? (
-                            <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                            <Link key={id} href={`/campaign/factions/${id}`} className="grim-chip text-sm no-underline bg-grim-arcane-bg border border-grim-arcane-border text-grim-arcane">
                               ⚑ {f.name}
                             </Link>
                           ) : null;
@@ -585,9 +548,9 @@ export default function RecapsPage() {
                           const d = availableDeities.find(x => x.id === id);
                           if (!d) return null;
                           return (
-                            <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip" style={{ fontSize: "0.9166rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                            <Link key={id} href={`/campaign/deities/${id}`} className="grim-chip text-sm no-underline inline-flex items-center gap-1.25 bg-grim-gold-bg border border-grim-gold-border text-grim-gold">
                               ✦ {d.name}
-                              {d.hidden && <span style={{ fontSize: "0.75rem", opacity: 0.75 }}>(hidden)</span>}
+                              {d.hidden && <span className="text-xs opacity-75">(hidden)</span>}
                             </Link>
                           );
                         })}
@@ -598,7 +561,7 @@ export default function RecapsPage() {
                   {/* Notes / Marginalia */}
                   <div className="grim-rule" />
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 10 }}>Marginalia</div>
+                    <div className="grim-label mb-2.5">Marginalia</div>
                     <UserNotesEditor
                       notes={recap.notes || []}
                       onChange={(notes) => handleUpdateRecapNotes(recap, notes)}
@@ -615,14 +578,14 @@ export default function RecapsPage() {
       </div>
 
       {/* Session rail */}
-      <aside style={{ borderLeft: "1px solid var(--grim-line)", overflowY: "auto", padding: "22px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14, padding: "0 22px" }}>
-          <h2 className="grim-h-section" style={{ margin: 0 }}>The Sessions</h2>
-          <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>
+      <aside className="border-l border-grim-line overflow-y-auto py-5.5 px-0">
+        <div className="flex items-baseline justify-between mb-3.5 py-0 px-5.5">
+          <h2 className="grim-h-section m-0">The Sessions</h2>
+          <span className="grim-mono text-sm text-grim-ink-4 tracking-wider-3">
             {filteredRecaps.length}
           </span>
         </div>
-        <div className="grim-stack" style={{ gap: 4 }}>
+        <div className="grim-stack gap-1">
           {filteredRecaps.map((recap) => {
             const recapKey = recap.id || recap.date;
             const sessionNo = sessionNumbers[recapKey];
@@ -631,19 +594,13 @@ export default function RecapsPage() {
               <div
                 key={recap.date}
                 onClick={() => handleJumpToRecap(recapKey)}
-                style={{
-                  padding: "10px 22px",
-                  cursor: "pointer",
-                  background: isActive
-                    ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
-                    : "transparent",
-                  borderLeft: "2px solid " + (isActive ? "var(--grim-ember)" : "transparent"),
-                }}
+                className={`py-2.5 px-5.5 cursor-pointer border-l-2 ${isActive ? "border-l-grim-ember" : "border-l-transparent"}`}
+                style={{ background: isActive ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent" }}
               >
-                <div className="grim-mono" style={{ fontSize: "0.75rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+                <div className="grim-mono text-xs tracking-wider-3 text-grim-ink-4 uppercase">
                   {recap.date}{sessionNo ? ` · s${sessionNo}` : ""}
                 </div>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".02em", color: isActive ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.25, marginTop: 2 }}>
+                <div className={`font-head text-lg tracking-wide leading-tight mt-0.5 ${isActive ? "text-grim-ember-2" : "text-grim-ink-2"}`}>
                   {recap.title}
                 </div>
               </div>

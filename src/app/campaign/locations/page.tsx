@@ -73,8 +73,8 @@ export default function LocationsPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -86,11 +86,11 @@ export default function LocationsPage() {
   void isAdmin;
 
   return (
-    <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+    <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
       {(error || queryError) && <ErrorBlock error={error || queryError?.message || ''} onDismiss={() => setError(null)} />}
 
       {/* Page header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+      <div className="flex justify-between items-end mb-5.5">
         <div>
           <div className="grim-page-eyebrow">Cartographica</div>
           <h1 className="grim-page-title">Azorian&apos;s Bounty</h1>
@@ -98,14 +98,17 @@ export default function LocationsPage() {
             The known world, mapped in trembling ink.{sublocations.length > 0 ? ` ${sublocations.length} places of note.` : ""}
           </p>
         </div>
-        <div className="grim-mono" style={{ fontSize: "0.9166rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", textAlign: "right", textTransform: "uppercase" }}>
+        <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 text-right uppercase">
           <div>scale ⋅ 1 league per inch</div>
-          <div style={{ marginTop: 2 }}>scribed by Master · year 427</div>
+          <div className="mt-0.5">scribed by Master · year 427</div>
         </div>
       </div>
 
       {/* Map + detail panel */}
-      <div style={{ display: "grid", gridTemplateColumns: selectedArea ? "1fr 320px" : "1fr", gap: 18, marginBottom: 28, transition: "grid-template-columns 0.2s ease" }}>
+      <div
+        className="grid gap-4.5 mb-7"
+        style={{ gridTemplateColumns: selectedArea ? "1fr 320px" : "1fr", transition: "grid-template-columns 0.2s ease" }}
+      >
 
         {/* Map */}
         <InteractiveImage
@@ -122,41 +125,41 @@ export default function LocationsPage() {
 
         {/* Location detail panel */}
         {selectedArea && (
-          <aside style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 0, position: "sticky", top: 0, alignSelf: "flex-start" }}>
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+          <aside className="flex flex-col gap-3.5 min-h-0 sticky top-0 self-start">
+            <div className="grim-tome p-0 overflow-hidden">
               {/* Header image slot */}
-              <div style={{ position: "relative", height: 140, background: "var(--grim-bg-3)" }}>
-                <div className="grim-img-slot" style={{ width: "100%", height: "100%", borderRadius: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "0.9166rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>no image on file</div>
+              <div className="relative h-35 bg-grim-bg-3">
+                <div className="grim-img-slot w-full h-full rounded-none">
+                  <div className="font-display text-sm text-grim-ink-4 tracking-wider-3 uppercase">no image on file</div>
                 </div>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, oklch(0.13 0.030 290 / 0.95))" }} />
-                <div style={{ position: "absolute", bottom: 10, left: 14, right: 36 }}>
-                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ember-2)", letterSpacing: ".22em", textTransform: "uppercase" }}>
+                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, oklch(0.13 0.030 290 / 0.95))" }} />
+                <div className="absolute bottom-2.5 left-3.5 right-9">
+                  <div className="grim-mono text-xs text-grim-ember-2 tracking-widest-4 uppercase">
                     location
                   </div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1.1, marginTop: 2 }}>{selectedArea.name}</div>
+                  <div className="font-display text-3xl text-grim-gold mt-0.5" style={{ lineHeight: 1.1 }}>{selectedArea.name}</div>
                 </div>
                 <button
                   onClick={handleCloseDetail}
-                  style={{ position: "absolute", top: 8, right: 8, background: "oklch(0.12 0.025 290 / 0.85)", border: "1px solid var(--grim-line)", color: "var(--grim-ink-3)", cursor: "pointer", padding: "2px 7px", fontFamily: "var(--font-mono)", fontSize: "1.0833rem", lineHeight: 1 }}
+                  className="absolute top-2 right-2 border border-grim-line text-grim-ink-3 cursor-pointer py-0.5 px-1.75 font-mono text-lg leading-none"
+                  style={{ background: "oklch(0.12 0.025 290 / 0.85)" }}
                 >
                   ×
                 </button>
               </div>
 
-              <div style={{ padding: "14px 18px 18px" }}>
+              <div className="pt-3.5 px-4.5 pb-4.5">
                 {selectedArea.pronunciation && (
-                  <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", marginBottom: 8 }}>
+                  <div className="grim-mono text-sm text-grim-ink-3 tracking-wider-3 mb-2">
                     pronounced {selectedArea.pronunciation}
                   </div>
                 )}
-                <p style={{ fontSize: "1.0833rem", color: "var(--grim-ink-2)", lineHeight: 1.5, margin: "0 0 12px" }}>
+                <p className="text-lg text-grim-ink-2 leading-normal mt-0 mx-0 mb-3">
                   {selectedArea.teaser}
                 </p>
                 <div className="grim-rule" />
                 <button
-                  className="grim-btn is-ember"
-                  style={{ width: "100%", justifyContent: "center" }}
+                  className="grim-btn is-ember w-full justify-center"
                   onClick={() => router.push(`/campaign/locations/${selectedArea.id}`)}
                 >
                   Open the Gazetteer ›
@@ -170,35 +173,30 @@ export default function LocationsPage() {
       {/* Location card grid */}
       {sublocations.length > 0 && (
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+          <div className="flex justify-between items-baseline mb-3">
             <h2 className="grim-h-section">Places of the Bounty</h2>
-            <div className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+            <div className="grim-mono text-sm tracking-widest-2 text-grim-ink-3 uppercase">
               {sublocations.length} locations charted
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div className="grid grid-cols-3 gap-3">
             {sublocations.map((location) => (
               <div
                 key={location.id}
                 onClick={() => router.push(`/campaign/locations/${location.id}`)}
-                className="grim-tome"
-                style={{
-                  padding: "14px 16px",
-                  cursor: "pointer",
-                  border: `1px solid ${selectedArea?.id === location.id ? "var(--grim-gold-2)" : "var(--grim-line)"}`,
-                  transition: "border-color 0.15s ease",
-                }}
+                className={`grim-tome py-3.5 px-4 cursor-pointer border ${selectedArea?.id === location.id ? "border-grim-gold-2" : "border-grim-line"}`}
+                style={{ transition: "border-color 0.15s ease" }}
               >
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6666rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", marginBottom: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div className="font-display text-2xl text-grim-gold leading-none tracking-normal mb-1.25 truncate">
                   {location.name}
                 </div>
                 {location.pronunciation && (
-                  <div className="grim-mono" style={{ fontSize: "0.75rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", marginBottom: 6 }}>
+                  <div className="grim-mono text-xs text-grim-ink-4 tracking-wider-2 mb-1.5">
                     {location.pronunciation}
                   </div>
                 )}
                 {location.teaser && (
-                  <div style={{ fontSize: "1rem", color: "var(--grim-ink-2)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
+                  <div className="text-base text-grim-ink-2 line-clamp-3" style={{ lineHeight: 1.4 }}>
                     {location.teaser}
                   </div>
                 )}

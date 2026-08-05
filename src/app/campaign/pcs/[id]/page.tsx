@@ -92,8 +92,8 @@ export default function PCDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -103,13 +103,13 @@ export default function PCDetailPage() {
 
   if (notFound || !pc) {
     return (
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/pcs")} style={{ marginBottom: 24 }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
+        <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/pcs")}>
           ← Back to Player Characters
         </button>
-        <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-3)" }}>~ character not found ~</div>
-          <div className="grim-mono" style={{ fontSize: "0.9166rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+        <div className="text-center py-12 px-6 text-grim-ink-4">
+          <div className="font-display text-5xl text-grim-ink-3">~ character not found ~</div>
+          <div className="grim-mono text-sm tracking-widest-2 uppercase mt-2">
             No record in the codex
           </div>
         </div>
@@ -122,22 +122,20 @@ export default function PCDetailPage() {
       {/* Full image modal */}
       {showFullImage && selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "oklch(0 0 0 / 0.85)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-grim-backdrop/85"
           onClick={() => setShowFullImage(false)}
         >
           <div
-            style={{ position: "relative", maxWidth: 900, width: "100%", margin: 16 }}
+            className="relative w-full max-w-225 m-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ position: "relative" }}>
+            <div className="relative">
               <Image
                 src={selectedImage}
                 alt={pc.name || pc.nickname || ""}
                 width={900}
                 height={600}
-                style={{ objectFit: "contain", width: "100%", height: "auto" }}
-                className={`transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
+                className={`object-contain w-full h-auto transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
               />
               {showGif && selectedGif && (
                 <Image
@@ -146,14 +144,12 @@ export default function PCDetailPage() {
                   width={900}
                   height={600}
                   unoptimized
-                  style={{ objectFit: "contain", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                  className={`transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
+                  className={`object-contain absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
                 />
               )}
             </div>
             <button
-              className="grim-btn is-ghost"
-              style={{ position: "absolute", top: 8, right: 8 }}
+              className="grim-btn is-ghost absolute top-2 right-2"
               onClick={() => setShowFullImage(false)}
             >
               ✕ Close
@@ -162,27 +158,26 @@ export default function PCDetailPage() {
         </div>
       )}
 
-      <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
+      <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
         {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
 
         {/* Back nav */}
-        <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/pcs")} style={{ marginBottom: 24 }}>
+        <button className="grim-btn is-ghost mb-6" onClick={() => router.push("/campaign/pcs")}>
           ← Back to Player Characters
         </button>
 
         {/* Portrait + details layout */}
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)", gap: 24, marginBottom: 24, alignItems: "start" }}>
+        <div className="grid gap-6 mb-6 items-start" style={{ gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)" }}>
 
           {/* Left: Portrait image at 1:1 aspect ratio */}
-          <div style={{ position: "relative", aspectRatio: "1 / 1", border: "1px solid var(--grim-gold-2)", overflow: "hidden" }}>
+          <div className="relative aspect-square border border-grim-gold-2 overflow-hidden">
             {selectedImage ? (
               <>
                 <Image
                   src={selectedImage}
                   alt={pc.name || pc.nickname || ""}
                   fill
-                  style={{ objectFit: "cover", objectPosition: "center top" }}
-                  className={`transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
+                  className={`object-cover object-top transition-opacity duration-[3000ms] ${showGif && fadeGif ? "opacity-0" : "opacity-100"}`}
                 />
                 {showGif && selectedGif && (
                   <Image
@@ -190,13 +185,11 @@ export default function PCDetailPage() {
                     alt={pc.name || pc.nickname || ""}
                     fill
                     unoptimized
-                    style={{ objectFit: "cover", objectPosition: "center top" }}
-                    className={`absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
+                    className={`object-cover object-top absolute top-0 left-0 w-full h-full transition-all duration-[3000ms] ${fadeGif ? "opacity-100 blur-0 drop-shadow-[0_0_32px_rgba(0,212,255,0.7)]" : "opacity-0 blur-md"}`}
                   />
                 )}
                 <button
-                  className="grim-btn is-ghost"
-                  style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: "1.5rem", padding: "4px 10px" }}
+                  className="grim-btn is-ghost absolute top-2.5 right-2.5 z-10 text-2xl py-1 px-2.5"
                   onClick={() => setShowFullImage(true)}
                   aria-label="View full image"
                 >
@@ -204,27 +197,27 @@ export default function PCDetailPage() {
                 </button>
               </>
             ) : (
-              <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
+              <div className="grim-img-slot is-portrait w-full h-full" />
             )}
           </div>
 
           {/* Right: Character header + info sections */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div className="flex flex-col gap-5">
 
             {/* Character header */}
             <div>
-              <div className="grim-page-eyebrow" style={{ marginBottom: 6 }}>Dossier of a Fellow Traveller</div>
-              <div style={{ display: "flex", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
-                <h1 style={{ fontFamily: "var(--font-display)", fontSize: "4.6666rem", color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
+              <div className="grim-page-eyebrow mb-1.5">Dossier of a Fellow Traveller</div>
+              <div className="flex gap-3 items-baseline flex-wrap">
+                <h1 className="font-display text-7xl text-grim-gold m-0" style={{ lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
                   {pc.name}
                 </h1>
                 {pc.nickname && (
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "1.6666rem", color: "var(--grim-ink-2)" }}>
+                  <span className="font-body text-2xl text-grim-ink-2">
                     &ldquo;{pc.nickname}&rdquo;
                   </span>
                 )}
               </div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 6 }}>
+              <div className="font-head text-xl text-grim-ink tracking-wider mt-1.5">
                 {pc.race} · {pc.class}
               </div>
             </div>
@@ -234,15 +227,15 @@ export default function PCDetailPage() {
               <div className="grim-tome-head">
                 <h3 className="grim-tome-title">Of the Person</h3>
               </div>
-              <div className="grim-stack" style={{ gap: 10, fontSize: "1.1667rem" }}>
+              <div className="grim-stack gap-2.5 text-lg">
                 {([
                   ["Hometown", pc.hometown],
                   ["Race", pc.race],
                   ["Calling", pc.class],
                 ] as [string, string][]).map(([k, v], i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
-                    <span className="grim-mono" style={{ fontSize: "0.8333rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                  <div key={i} className={`flex justify-between gap-3 pb-2 ${i < 2 ? "border-b border-dotted border-grim-line" : ""}`}>
+                    <span className="grim-mono text-sm tracking-wider-3 text-grim-ink-4 uppercase">{k}</span>
+                    <span className="font-head text-lg text-grim-ink text-right">{v || "—"}</span>
                   </div>
                 ))}
               </div>
@@ -258,12 +251,11 @@ export default function PCDetailPage() {
                 <div className="grim-tome-head">
                   <h3 className="grim-tome-title">Sworn Allegiances</h3>
                 </div>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div className="flex gap-2.5 flex-wrap">
                   {pc.factions.map((factionId) => (
                     <button
                       key={factionId}
-                      className="grim-chip is-faction"
-                      style={{ cursor: "pointer", fontSize: "1rem", padding: "5px 12px" }}
+                      className="grim-chip is-faction cursor-pointer text-base py-1 px-3"
                       onClick={() => router.push(`/campaign/factions/${factionId}`)}
                     >
                       ⚑ {getFactionName(factionId)}
@@ -277,20 +269,20 @@ export default function PCDetailPage() {
 
         {/* Deity */}
         {deities.length > 0 && (
-          <section className="grim-tome" style={{ marginBottom: 24 }}>
+          <section className="grim-tome mb-6">
             <div className="grim-tome-head">
               <h3 className="grim-tome-title">Divine Devotion</h3>
               <span className="grim-tome-sub">{deities.length === 1 ? "deity" : "deities"}</span>
             </div>
-            <div className="grim-stack" style={{ gap: 8 }}>
+            <div className="grim-stack gap-2">
               {deities.map(d => (
-                <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                    <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                      <span style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
-                      {d.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: "0.75rem", padding: "1px 6px" }}>hidden</span>}
+                <Link key={d.id} href={`/campaign/deities/${d.id}`} className="no-underline text-inherit block">
+                  <div className="flex items-baseline justify-between gap-2 py-1.5 px-0 border-b border-dashed border-grim-line">
+                    <span className="flex items-baseline gap-1.5">
+                      <span className="font-head text-lg text-grim-gold tracking-wide">✦ {d.name}</span>
+                      {d.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood text-xs py-0 px-1.5">hidden</span>}
                     </span>
-                    <span className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
+                    <span className="grim-mono text-sm text-grim-ink-4 tracking-widest shrink-0">{d.domain || "—"}</span>
                   </div>
                 </Link>
               ))}
@@ -300,14 +292,14 @@ export default function PCDetailPage() {
 
         {/* GM Notes (DM only) */}
         {isDM && pc.gm_notes && (
-          <section className="grim-tome" style={{ border: "1px solid oklch(0.65 0.150 285 / 0.55)", marginBottom: 24 }}>
+          <section className="grim-tome border border-grim-arcane/55 mb-6">
             <div className="grim-tome-head">
-              <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>GM Notes</h3>
-              <span className="grim-tome-sub" style={{ color: "var(--grim-arcane)" }}>eyes only</span>
+              <h3 className="grim-tome-title text-grim-arcane">GM Notes</h3>
+              <span className="grim-tome-sub text-grim-arcane">eyes only</span>
             </div>
             <div
-              className="prose dark:prose-invert max-w-none prose-sm"
-              style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.25rem", lineHeight: 1.65 }}
+              className="prose dark:prose-invert max-w-none prose-sm text-grim-ink-2 font-body text-xl"
+              style={{ lineHeight: 1.65 }}
               dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(pc.gm_notes || "", true) }}
             />
           </section>

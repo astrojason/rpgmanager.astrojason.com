@@ -16,24 +16,15 @@ const ImpersonationToolbar: React.FC<ImpersonationToolbarProps> = ({
   impersonatedUserId,
 }) => {
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: "#222",
-      color: "#fff",
-      padding: "8px 16px",
-      display: "flex",
-      alignItems: "center",
-      gap: 12,
-    }}>
-      <span style={{ fontWeight: 600 }}>Admin Impersonation</span>
+    <div
+      className="fixed top-0 left-0 right-0 flex items-center gap-3 py-2 px-4 text-white"
+      style={{ zIndex: 1000, background: "#222" }}
+    >
+      <span className="font-semibold">Admin Impersonation</span>
       <select
         value={impersonatedUserId || currentUserId}
         onChange={e => onImpersonate(e.target.value)}
-        style={{ marginLeft: 12, marginRight: 12 }}
+        className="ml-3 mr-3"
       >
         {users.map(u => (
           <option key={u.id} value={u.id}>
@@ -42,11 +33,15 @@ const ImpersonationToolbar: React.FC<ImpersonationToolbarProps> = ({
         ))}
       </select>
       {impersonatedUserId && (
-        <button onClick={onClear} style={{ marginLeft: 8, color: "#222", background: "#fff", border: "none", borderRadius: 4, padding: "2px 8px" }}>
+        <button
+          onClick={onClear}
+          className="ml-2 bg-white border-none rounded py-0.5 px-2"
+          style={{ color: "#222" }}
+        >
           Clear
         </button>
       )}
-      <span style={{ marginLeft: 16, fontSize: "1rem", opacity: 0.7 }}>
+      <span className="ml-4 text-base opacity-70">
         (localhost only)
       </span>
     </div>

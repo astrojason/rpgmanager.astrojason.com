@@ -26,8 +26,7 @@ export default function SignOutButton() {
       {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
       <button
         onClick={handleSignOut}
-        className="grim-btn is-ghost"
-        style={{ width: "100%", justifyContent: "center" }}
+        className="grim-btn is-ghost w-full justify-center"
       >
         Sign Out
       </button>

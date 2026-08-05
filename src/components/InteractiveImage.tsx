@@ -67,24 +67,19 @@ export default function InteractiveImage({
               onClick={() => handleAreaClick(area)}
               onMouseEnter={() => setHoveredArea(area)}
               onMouseLeave={() => setHoveredArea(null)}
+              className={`absolute cursor-pointer rounded ${
+                isSelected ? "bg-green-500/25" : isHovered ? "bg-blue-500/20" : "bg-transparent"
+              }`}
               style={{
-                position: "absolute",
                 left: `${area.x}%`,
                 top: `${area.y}%`,
                 width: `${area.width}%`,
                 height: `${area.height}%`,
-                cursor: "pointer",
-                backgroundColor: isSelected
-                  ? "rgba(34, 197, 94, 0.25)"
-                  : isHovered
-                  ? "rgba(59, 130, 246, 0.2)"
-                  : "transparent",
                 border: isSelected
                   ? "3px solid rgba(34, 197, 94, 0.8)"
                   : isHovered
                   ? "2px solid rgba(59, 130, 246, 0.6)"
                   : "2px solid transparent",
-                borderRadius: "4px",
                 transition: "all 0.3s ease",
                 boxShadow: isSelected ? "0 0 15px rgba(34, 197, 94, 0.5)" : "none",
               }}
@@ -95,28 +90,16 @@ export default function InteractiveImage({
       {/* Selected location chip — absolutely positioned so it scrolls with the map */}
       {selectedArea && (
         <div
+          className="absolute z-10 flex items-center gap-1.5 text-lg font-bold text-white bg-green-500/95 py-1 px-3 pointer-events-none whitespace-nowrap border-2 border-white/80"
           style={{
-            position: "absolute",
             left: `${(selectedArea.x || 0) + (selectedArea.width || 0) / 2}%`,
             top: `${selectedArea.y || 0}%`,
             transform: "translate(-50%, calc(-100% - 6px))",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "1.0833rem",
-            fontWeight: "bold",
-            color: "#fff",
-            backgroundColor: "rgba(34, 197, 94, 0.95)",
-            padding: "5px 11px",
             borderRadius: "20px",
             boxShadow: "0 4px 12px rgba(34, 197, 94, 0.4)",
-            zIndex: 10,
-            pointerEvents: "none",
-            whiteSpace: "nowrap",
-            border: "2px solid rgba(255, 255, 255, 0.8)",
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
           </svg>
           {selectedArea.name}
@@ -126,25 +109,18 @@ export default function InteractiveImage({
       {/* Hover tooltip */}
       {hoveredArea && (
         <div
+          className="absolute bg-grim-backdrop/80 text-white py-2 px-3 rounded text-lg pointer-events-none whitespace-normal"
           style={{
-            position: "absolute",
             left: mousePosition.x + 10,
             top: mousePosition.y - 10,
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            color: "white",
-            padding: "8px 12px",
-            borderRadius: "4px",
-            fontSize: "1.1667rem",
-            pointerEvents: "none",
             zIndex: 1000,
             maxWidth: "300px",
-            whiteSpace: "normal",
           }}
         >
-          <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{hoveredArea.name}</div>
+          <div className="font-bold mb-1">{hoveredArea.name}</div>
           <div
-            style={{ fontSize: "1rem", opacity: 0.9, lineHeight: "1.4" }}
-            className="tooltip-content"
+            className="tooltip-content text-base opacity-90"
+            style={{ lineHeight: "1.4" }}
             dangerouslySetInnerHTML={{ __html: parseMarkdown(hoveredArea.teaser) }}
           />
         </div>

@@ -10,16 +10,8 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useCrudResource } from "@/hooks/useCrudResource";
 import { useListArrowNav } from "@/hooks/useListArrowNav";
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.25rem",
-  padding: "9px 14px",
-  outline: "none",
-};
+const inputStyle =
+  "w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2 px-3.5 outline-none";
 
 export default function FactionsManagementPage() {
   const {
@@ -84,8 +76,8 @@ export default function FactionsManagementPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+      <div className="flex items-center justify-center h-50">
+        <div className="flex items-center gap-3 text-grim-ink-3 font-mono text-base tracking-widest-2 uppercase">
           <span className="grim-flame" />Consulting the codex…
         </div>
       </div>
@@ -93,9 +85,9 @@ export default function FactionsManagementPage() {
   }
 
   return (
-    <div style={{ padding: "36px 48px 80px" }}>
+    <div className="px-12 pt-9 pb-20">
 
-      <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
+      <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Banners</div>
           <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Factions</h1>
@@ -109,12 +101,12 @@ export default function FactionsManagementPage() {
 
       <SuccessBlock message={success} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24 }}>
+      <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
 
         {/* Factions List */}
-        <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--grim-line)" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: "1.0833rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 10 }}>
+        <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+          <div className="py-3 px-4 border-b border-grim-line">
+            <div className="font-head text-lg tracking-widest uppercase text-grim-ink-2 mb-2.5">
               Factions ({filteredFactions.length})
             </div>
             <input
@@ -122,10 +114,10 @@ export default function FactionsManagementPage() {
               placeholder="Search banners…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.25rem", padding: "10px 14px", outline: "none" }}
+              className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none"
             />
           </div>
-          <div style={{ maxHeight: 520, overflowY: "auto" }}>
+          <div className="max-h-130 overflow-y-auto">
             {filteredFactions.map((faction) => {
               const selected = selectedFaction?.id === faction.id;
               return (
@@ -133,42 +125,32 @@ export default function FactionsManagementPage() {
                   key={faction.id}
                   data-faction-id={faction.id}
                   onClick={() => handleView(faction)}
-                  style={{
-                    borderBottom: "1px solid var(--grim-line)",
-                    padding: "12px 16px",
-                    cursor: "pointer",
-                    borderLeft: selected ? "2px solid var(--grim-ember)" : "2px solid transparent",
-                    background: selected ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 8,
-                  }}
+                  className={`border-b border-grim-line py-3 px-4 cursor-pointer flex items-center justify-between gap-2 border-l-2 ${selected ? "border-l-grim-ember" : "border-l-transparent"}`}
+                  style={{ background: selected ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)" : "transparent" }}
                 >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-head text-lg truncate ${selected ? "text-grim-ember-2" : "text-grim-ink-2"}`}>
                       {faction.name}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                    <div className="grim-mono text-sm text-grim-ink-4 truncate mt-0.5">
                       {faction.type}{faction.location ? ` · ${faction.location}` : ""}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: "0.8333rem", color: "var(--grim-ink-4)", marginTop: 2, textTransform: "uppercase", letterSpacing: ".10em" }}>
+                    <div className="grim-mono text-sm text-grim-ink-4 mt-0.5 uppercase tracking-widest">
                       {faction.status}
                     </div>
-                    {faction.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.75rem", marginTop: 4 }}>hidden</span>}
+                    {faction.hidden && <span className="grim-chip is-dead text-xs mt-1">hidden</span>}
                   </div>
-                  <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <div className="flex gap-1.5 shrink-0">
                     <button
-                      className="grim-link"
+                      className="grim-link text-sm font-mono tracking-widest uppercase bg-transparent border-0 cursor-pointer py-0.5 px-1"
                       onClick={(e) => { e.stopPropagation(); handleEdit(faction); }}
-                      style={{ fontSize: "0.9166rem", fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}
                       title="Edit"
                     >
                       edit
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(faction); }}
-                      style={{ fontSize: "0.9166rem", fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px", color: "var(--grim-blood-2)" }}
+                      className="text-sm font-mono tracking-widest uppercase bg-transparent border-0 cursor-pointer py-0.5 px-1 text-grim-blood-2"
                       title="Delete"
                     >
                       del
@@ -183,68 +165,68 @@ export default function FactionsManagementPage() {
         {/* Detail/Edit Panel */}
         <div>
           {(isCreating || isEditing) ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               <div className="grim-tome-head">
                 <div className="grim-tome-title">{isCreating ? "Raise New Banner" : "Amend the Record"}</div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={handleCancel} className="grim-btn is-ghost">✕ Cancel</button>
                   <button type="button" onClick={handleSave} className="grim-btn is-ember" disabled={isSaving}>{isSaving ? "Saving…" : `✓ ${isCreating ? "Raise Banner" : "Save Changes"}`}</button>
                 </div>
               </div>
-              <div style={{ padding: "24px 28px" }}>
+              <div className="py-6 px-7">
                 <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Name *</div>
+                      <div className="grim-label mb-1.5">Name *</div>
                       <input
                         type="text"
                         value={formData.name || ""}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        style={inputStyle}
+                        className={inputStyle}
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Pronunciation</div>
+                      <div className="grim-label mb-1.5">Pronunciation</div>
                       <input
                         type="text"
                         value={formData.pronunciation || ""}
                         onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                        style={inputStyle}
+                        className={inputStyle}
                         placeholder="e.g., STORM-seek-ers"
                       />
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Type *</div>
+                      <div className="grim-label mb-1.5">Type *</div>
                       <input
                         type="text"
                         value={formData.type || ""}
                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                        style={inputStyle}
+                        className={inputStyle}
                         placeholder="e.g., Guild, Organization, Military"
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Location *</div>
+                      <div className="grim-label mb-1.5">Location *</div>
                       <input
                         type="text"
                         value={formData.location || ""}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        style={inputStyle}
+                        className={inputStyle}
                         required
                       />
                     </div>
                     <div>
-                      <div className="grim-label" style={{ marginBottom: 6 }}>Status</div>
+                      <div className="grim-label mb-1.5">Status</div>
                       <select
                         value={formData.status || "active"}
                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        style={{ ...inputStyle }}
+                        className={inputStyle}
                       >
                         <option value="active">Active</option>
                         <option value="disbanded">Disbanded</option>
@@ -254,8 +236,8 @@ export default function FactionsManagementPage() {
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Description *</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Description *</div>
                     <MarkdownEditor
                       value={formData.description || ""}
                       onChange={(value) => setFormData({ ...formData, description: value })}
@@ -265,8 +247,8 @@ export default function FactionsManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Goals *</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Goals *</div>
                     <MarkdownEditor
                       value={formData.goals || ""}
                       onChange={(value) => setFormData({ ...formData, goals: value })}
@@ -276,8 +258,8 @@ export default function FactionsManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Background</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">Background</div>
                     <MarkdownEditor
                       value={formData.background || ""}
                       onChange={(value) => setFormData({ ...formData, background: value })}
@@ -287,8 +269,8 @@ export default function FactionsManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>GM Notes</div>
+                  <div className="mb-4">
+                    <div className="grim-label mb-1.5">GM Notes</div>
                     <MarkdownEditor
                       value={formData.gm_notes || ""}
                       onChange={(value: string) => setFormData({ ...formData, gm_notes: value })}
@@ -298,25 +280,25 @@ export default function FactionsManagementPage() {
                     />
                   </div>
 
-                  <div style={{ marginBottom: 24 }}>
-                    <div className="grim-label" style={{ marginBottom: 6 }}>Image URL</div>
+                  <div className="mb-6">
+                    <div className="grim-label mb-1.5">Image URL</div>
                     <input
                       type="text"
                       value={formData.image || ""}
                       onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      style={inputStyle}
+                      className={inputStyle}
                       placeholder="https://example.com/faction-logo.jpg"
                     />
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>
-                      <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
+                  <div className="flex items-center gap-4 mb-5">
+                    <label className="flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
+                      <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} className="accent-grim-blood" />
                       Hidden from players
                     </label>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, paddingTop: 4 }}>
+                  <div className="flex items-center justify-end gap-2.5 pt-1">
                     {isEditing && (
                       <button
                         type="button"
@@ -338,33 +320,33 @@ export default function FactionsManagementPage() {
               </div>
             </div>
           ) : selectedFaction ? (
-            <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
-              <div className="grim-tome-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+            <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
+              <div className="grim-tome-head" style={{ alignItems: "center" }}>
                 <div className="grim-tome-title" style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", letterSpacing: ".04em" }}>
                   {selectedFaction.name}
                 </div>
-                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <div className="flex gap-2 shrink-0">
                   <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedFaction)}>Edit</button>
                   <button className="grim-btn is-blood" onClick={() => handleDelete(selectedFaction)}>Delete</button>
                 </div>
               </div>
 
-              <div style={{ padding: "24px 28px" }}>
+              <div className="py-6 px-7">
 
                 {/* Top row: basic info + image */}
-                <div style={{ display: "grid", gridTemplateColumns: selectedFaction.image ? "1fr auto" : "1fr", gap: 24, marginBottom: 24 }}>
+                <div className="grid gap-6 mb-6" style={{ gridTemplateColumns: selectedFaction.image ? "1fr auto" : "1fr" }}>
                   <div>
-                    <div className="grim-label" style={{ marginBottom: 10 }}>Banner Details</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div className="grim-label mb-2.5">Banner Details</div>
+                    <div className="flex flex-col gap-1.5">
                       {selectedFaction.pronunciation && (
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "1rem", color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>
+                        <div className="font-mono text-base text-grim-ink-3 tracking-wider-3">
                           [{selectedFaction.pronunciation}]
                         </div>
                       )}
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
+                      <div className="flex gap-2 items-center flex-wrap mt-1">
                         <span className="grim-chip">{selectedFaction.type}</span>
                         <span className="grim-chip">{selectedFaction.location}</span>
-                        <span className={`grim-chip ${selectedFaction.status === 'active' ? 'is-faction' : 'is-dead'}`} style={{ textTransform: "capitalize" }}>
+                        <span className={`grim-chip capitalize ${selectedFaction.status === 'active' ? 'is-faction' : 'is-dead'}`}>
                           {selectedFaction.status}
                         </span>
                         {selectedFaction.hidden && <span className="grim-chip is-dead">hidden</span>}
@@ -378,50 +360,50 @@ export default function FactionsManagementPage() {
                         alt={selectedFaction.name}
                         width={96}
                         height={96}
-                        style={{ width: 96, height: 96, objectFit: "cover", border: "1px solid var(--grim-line-2)" }}
+                        className="w-24 h-24 object-cover border border-grim-line-2"
                       />
                     </div>
                   )}
                 </div>
 
                 {/* Description */}
-                <div style={{ marginBottom: 20 }}>
-                  <div className="grim-label" style={{ marginBottom: 8 }}>Description</div>
+                <div className="mb-5">
+                  <div className="grim-label mb-2">Description</div>
                   <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.description || '', true) }} />
                 </div>
 
                 {/* Goals */}
-                <div style={{ marginBottom: 20 }}>
-                  <div className="grim-label" style={{ marginBottom: 8 }}>Goals</div>
+                <div className="mb-5">
+                  <div className="grim-label mb-2">Goals</div>
                   <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.goals || '', true) }} />
                 </div>
 
                 {/* Background */}
                 {selectedFaction.background && (
-                  <div style={{ marginBottom: 20 }}>
-                    <div className="grim-label" style={{ marginBottom: 8 }}>Background</div>
+                  <div className="mb-5">
+                    <div className="grim-label mb-2">Background</div>
                     <div className="grim-flavor" dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedFaction.background || '', true) }} />
                   </div>
                 )}
 
                 {/* Relationships */}
                 {selectedFaction.relationships && selectedFaction.relationships.length > 0 && (
-                  <div style={{ marginBottom: 20 }}>
-                    <div className="grim-label" style={{ marginBottom: 10 }}>Relationships</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div className="mb-5">
+                    <div className="grim-label mb-2.5">Relationships</div>
+                    <div className="flex flex-col gap-2">
                       {selectedFaction.relationships.map((rel, index) => (
                         <div
                           key={index}
-                          style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", padding: "10px 14px" }}
+                          className="bg-grim-bg-3 border border-grim-line py-2.5 px-3.5"
                         >
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                            <span style={{ fontFamily: "var(--font-head)", fontSize: "1.1667rem", color: "var(--grim-ink-2)" }}>{rel.faction}</span>
-                            <span className={`grim-chip ${rel.status === 'allied' ? 'is-faction' : rel.status === 'hostile' ? 'is-ember' : ''}`} style={{ textTransform: "capitalize", flexShrink: 0 }}>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="font-head text-lg text-grim-ink-2">{rel.faction}</span>
+                            <span className={`grim-chip capitalize shrink-0 ${rel.status === 'allied' ? 'is-faction' : rel.status === 'hostile' ? 'is-ember' : ''}`}>
                               {rel.status}
                             </span>
                           </div>
                           {rel.description && (
-                            <div style={{ marginTop: 6, fontFamily: "var(--font-body)", fontSize: "1.0833rem", color: "var(--grim-ink-3)" }}>{rel.description}</div>
+                            <div className="mt-1.5 font-body text-lg text-grim-ink-3">{rel.description}</div>
                           )}
                         </div>
                       ))}
@@ -432,10 +414,10 @@ export default function FactionsManagementPage() {
               </div>
             </div>
           ) : (
-            <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.3333rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>⚑</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.3334rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No banner selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: "1.1667rem" }}>Select a faction from the list to view, or raise a new one.</div>
+            <div className="grim-tome text-center" style={{ padding: "60px 24px" }}>
+              <div className="font-display text-5xl text-grim-ink-3 mb-3">⚑</div>
+              <div className="font-head text-xl tracking-widest uppercase text-grim-ink-2 mb-2">No banner selected</div>
+              <div className="text-grim-ink-4 text-lg">Select a faction from the list to view, or raise a new one.</div>
             </div>
           )}
         </div>
