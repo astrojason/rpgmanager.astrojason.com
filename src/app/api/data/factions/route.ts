@@ -3,7 +3,7 @@ import { Faction } from '@/types/interfaces';
 import { getDb } from '@/lib/turso';
 import { verifyRequestAuth } from '@/lib/apiAuth';
 import { safeImageSrc, sanitizeOptionalText, sanitizeText } from '@/utils/sanitize';
-import { filterForRole, notFound, notesPatchHandler, requireId, withErrorHandling } from '@/lib/apiHelpers';
+import { filterForRole, notFound, notesPatchHandler, requireId, safeJsonParse, withErrorHandling } from '@/lib/apiHelpers';
 
 const TABLE = 'factions';
 
@@ -24,11 +24,11 @@ export async function GET(request?: NextRequest) {
       status: sanitizeText(r.status),
       goals: sanitizeText(r.goals),
       background: sanitizeOptionalText(r.background),
-      relationships: r.relationships ? JSON.parse(String(r.relationships)) : undefined,
+      relationships: safeJsonParse(r.relationships, undefined),
       image: safeImageSrc(r.image),
       hidden: !!r.hidden,
       gm_notes: sanitizeOptionalText(r.gm_notes),
-      notes: r.notes ? JSON.parse(String(r.notes)) : [],
+      notes: safeJsonParse(r.notes, []),
     } as Faction));
     return NextResponse.json(filterForRole(data, authResult.user?.role ?? null));
   }, 'Error reading Factions file:', 'Failed to load Factions');

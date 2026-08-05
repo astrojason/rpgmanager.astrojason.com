@@ -73,7 +73,7 @@ export default function QuestsManagementPage() {
   });
   const { data: rawFactions = [] } = useQuery<{ id: string; name: string }[]>({
     queryKey: ['/api/data/factions'],
-    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
   });
   const { data: rawDeities = [] } = useQuery<{ id: string; name: string }[]>({
     queryKey: ['/api/data/deities'],

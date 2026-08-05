@@ -81,7 +81,7 @@ export default function NPCsManagementPage() {
 
   const { data: factions = [] } = useQuery<Faction[]>({
     queryKey: ['/api/data/factions'],
-    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
   });
   const { data: pcs = [] } = useQuery<PC[]>({
     queryKey: ['/api/data/pcs'],

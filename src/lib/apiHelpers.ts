@@ -7,6 +7,21 @@ export function isPrivilegedRole(role: ServerUserRole): boolean {
 }
 
 /**
+ * Parse a JSON-ish DB column value, tolerating legacy rows that hold plain text instead
+ * of JSON. A single malformed row must not 500 the whole list endpoint — falls back and
+ * logs instead of throwing.
+ */
+export function safeJsonParse<T>(value: unknown, fallback: T): T {
+  if (value === null || value === undefined) return fallback;
+  try {
+    return JSON.parse(String(value)) as T;
+  } catch {
+    console.warn(`safeJsonParse: falling back for malformed JSON value: ${String(value)}`);
+    return fallback;
+  }
+}
+
+/**
  * Server-side enforcement of the "hidden from players" / "GM notes" concepts: drops rows
  * marked hidden and strips gm_notes for anyone who isn't admin/dm. Must run on every GET
  * route that returns hidden/gm_notes fields — the client-side badges/filters are a UX

@@ -46,6 +46,21 @@ describe('factions endpoint', () => {
     ]);
   });
 
+  it('does not 500 when a row has malformed relationships JSON', async () => {
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        { id: '1', name: 'Order of Dawn', relationships: 'The Breake...', notes: 'not json either' },
+      ],
+    });
+
+    const { GET } = await import('@/app/api/data/factions/route');
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data[0].relationships).toBeUndefined();
+    expect(data[0].notes).toEqual([]);
+  });
+
   it('strips gm_notes from factions for players', async () => {
     mockDb.execute.mockResolvedValueOnce({
       rows: [{ id: '1', name: 'Order of Dawn', gm_notes: 'secret' }],

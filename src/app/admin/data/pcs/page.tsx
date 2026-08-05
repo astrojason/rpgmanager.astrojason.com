@@ -69,7 +69,7 @@ export default function PCsManagementPage() {
 
   const { data: factions = [] } = useQuery<Faction[]>({
     queryKey: ['/api/data/factions'],
-    queryFn: () => authFetch('/api/data/factions').then(r => r.json()),
+    queryFn: () => authFetch('/api/data/factions').then(r => r.ok ? r.json() : []),
   });
 
   // Firebase Functions can't go in useQuery — load users via effect
