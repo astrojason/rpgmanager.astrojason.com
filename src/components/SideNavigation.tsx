@@ -156,15 +156,15 @@ export default function SideNavigation() {
         <div className="grim-label" style={{ marginBottom: 6 }}>Game Date</div>
         {gameDateLine1 ? (
           <>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
               {gameDateLine1}
             </div>
-            <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
               {gameDateLine2}
             </div>
           </>
         ) : (
-          <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>not set</div>
+          <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-4)", letterSpacing: ".14em" }}>not set</div>
         )}
       </div>
       <div className="grim-sidebar-signout">
@@ -174,7 +174,7 @@ export default function SideNavigation() {
         <Link
           href="/changelog"
           className="grim-mono"
-          style={{ fontSize: "0.6875rem", color: 'var(--grim-ink-4)', letterSpacing: '.1em', textDecoration: 'none' }}
+          style={{ fontSize: "1.2222rem", color: 'var(--grim-ink-4)', letterSpacing: '.1em', textDecoration: 'none' }}
           title="Changelog"
         >
           v{pkg.version}

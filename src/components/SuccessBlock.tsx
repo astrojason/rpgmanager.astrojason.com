@@ -14,7 +14,7 @@ export default function SuccessBlock({ message }: SuccessBlockProps) {
         padding: "12px 16px",
         marginBottom: 16,
         fontFamily: "var(--font-body)",
-        fontSize: "0.875rem",
+        fontSize: "1.5556rem",
       }}
     >
       {message}

@@ -151,8 +151,8 @@ export default function QuestsManagementPage() {
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
-        <span className="grim-flame" style={{ fontSize: "2rem" }}>✦</span>
-        <span style={{ marginLeft: 14, fontFamily: "var(--font-body)", fontSize: "1rem", color: "var(--grim-ink-3)" }}>
+        <span className="grim-flame" style={{ fontSize: "3.5556rem" }}>✦</span>
+        <span style={{ marginLeft: 14, fontFamily: "var(--font-body)", fontSize: "1.7778rem", color: "var(--grim-ink-3)" }}>
           Consulting the ledger…
         </span>
       </div>
@@ -164,7 +164,7 @@ export default function QuestsManagementPage() {
     border: "1px solid var(--grim-line-2)",
     color: "var(--grim-ink)",
     fontFamily: "var(--font-body)",
-    fontSize: "0.9375rem",
+    fontSize: "1.6667rem",
     padding: "10px 14px",
     outline: "none",
     width: "100%",
@@ -185,7 +185,7 @@ export default function QuestsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Errands</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>The Ledger of Errands</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>The Ledger of Errands</h1>
           <p className="grim-page-sub">Manage the campaign&apos;s threads — active, rumored, and closed.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Errand</button>
@@ -214,7 +214,7 @@ export default function QuestsManagementPage() {
 
           {/* Count */}
           <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--grim-line)" }}>
-            <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+            <span className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
               {filteredQuests.length} errand{filteredQuests.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -242,7 +242,7 @@ export default function QuestsManagementPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
                         fontFamily: "var(--font-head)",
-                        fontSize: "0.875rem",
+                        fontSize: "1.5556rem",
                         color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -251,10 +251,10 @@ export default function QuestsManagementPage() {
                       }}>
                         {quest.name}
                       </div>
-                      <span className={getStatusChipClass(quest.status || "active")} style={{ fontSize: "0.625rem", padding: "1px 7px" }}>
+                      <span className={getStatusChipClass(quest.status || "active")} style={{ fontSize: "1.1111rem", padding: "1px 7px" }}>
                         {quest.status || "active"}
                       </span>
-                      <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 4 }}>
+                      <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", marginTop: 4 }}>
                         {normalizeQuestNotes(quest).length} note{normalizeQuestNotes(quest).length !== 1 ? "s" : ""}
                       </div>
                     </div>
@@ -262,7 +262,7 @@ export default function QuestsManagementPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(quest); }}
                         className="grim-btn is-ghost"
-                        style={{ padding: "3px 8px", fontSize: "0.6875rem" }}
+                        style={{ padding: "3px 8px", fontSize: "1.2222rem" }}
                         title="Edit"
                       >
                         ✎
@@ -270,7 +270,7 @@ export default function QuestsManagementPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(quest); }}
                         className="grim-btn is-blood"
-                        style={{ padding: "3px 8px", fontSize: "0.6875rem" }}
+                        style={{ padding: "3px 8px", fontSize: "1.2222rem" }}
                         title="Delete"
                       >
                         ✕
@@ -283,8 +283,8 @@ export default function QuestsManagementPage() {
 
             {filteredQuests.length === 0 && (
               <div style={{ padding: "32px 16px", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem", color: "var(--grim-ink-4)", marginBottom: 8 }}>✦</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "3.1111rem", color: "var(--grim-ink-4)", marginBottom: 8 }}>✦</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-4)" }}>
                   No errands found
                 </div>
               </div>
@@ -422,7 +422,7 @@ export default function QuestsManagementPage() {
                     <div>
                       <h2 style={{
                         fontFamily: "var(--font-display)",
-                        fontSize: "2rem",
+                        fontSize: "3.5556rem",
                         color: "var(--grim-gold)",
                         margin: 0,
                         lineHeight: 1.1,
@@ -458,7 +458,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_npcs ?? []).map(id => {
                           const n = availableNPCs.find(x => x.id === id);
                           return n ? (
-                            <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: "0.6875rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
                               {n.name}
                             </Link>
                           ) : null;
@@ -466,7 +466,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_locations ?? []).map(id => {
                           const l = availableLocations.find(x => x.id === id);
                           return l ? (
-                            <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: "0.6875rem", textDecoration: "none" }}>
+                            <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
                               {l.name}
                             </Link>
                           ) : null;
@@ -474,7 +474,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_factions ?? []).map(id => {
                           const f = availableFactions.find(x => x.id === id);
                           return f ? (
-                            <Link key={id} href={`/admin/data/factions`} className="grim-chip" style={{ fontSize: "0.6875rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
+                            <Link key={id} href={`/admin/data/factions`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", background: "oklch(0.50 0.14 285 / 0.18)", border: "1px solid oklch(0.50 0.14 285 / 0.45)", color: "var(--grim-arcane)" }}>
                               ⚑ {f.name}
                             </Link>
                           ) : null;
@@ -482,7 +482,7 @@ export default function QuestsManagementPage() {
                         {(selectedQuest.tagged_deities ?? []).map(id => {
                           const d = availableDeities.find(x => x.id === id);
                           return d ? (
-                            <Link key={id} href={`/admin/data/deities`} className="grim-chip" style={{ fontSize: "0.6875rem", textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
+                            <Link key={id} href={`/admin/data/deities`} className="grim-chip" style={{ fontSize: "1.2222rem", textDecoration: "none", background: "oklch(0.55 0.10 60 / 0.18)", border: "1px solid oklch(0.55 0.10 60 / 0.45)", color: "var(--grim-gold)" }}>
                               ✦ {d.name}
                             </Link>
                           ) : null;
@@ -506,11 +506,11 @@ export default function QuestsManagementPage() {
                             }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 6 }}>
-                              <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
+                              <span className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>
                                 Note #{index + 1}
                               </span>
                             </div>
-                            <div style={{ fontSize: "0.875rem", color: "var(--grim-ink)", lineHeight: 1.55, fontFamily: "var(--font-body)" }}>
+                            <div style={{ fontSize: "1.5556rem", color: "var(--grim-ink)", lineHeight: 1.55, fontFamily: "var(--font-body)" }}>
                               <ReactMarkdown>{note.content}</ReactMarkdown>
                             </div>
                             {!isLegacyNote(note) && (
@@ -522,7 +522,7 @@ export default function QuestsManagementPage() {
                                 paddingTop: 8,
                                 borderTop: "1px solid var(--grim-line)",
                               }}>
-                                <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                                <span className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
                                   {formatNoteTimestamp(note)}
                                 </span>
                                 <AuthorDisplay uid={note.author} />
@@ -536,7 +536,7 @@ export default function QuestsManagementPage() {
 
                   {(!selectedQuest.notes || selectedQuest.notes.length === 0) && (
                     <div style={{ paddingTop: 8 }}>
-                      <p className="grim-flavor" style={{ color: "var(--grim-ink-4)", fontSize: "0.9375rem" }}>
+                      <p className="grim-flavor" style={{ color: "var(--grim-ink-4)", fontSize: "1.6667rem" }}>
                         No notes have been inscribed for this errand.
                       </p>
                     </div>
@@ -547,13 +547,13 @@ export default function QuestsManagementPage() {
           ) : (
             /* Empty state */
             <div className="grim-tome" style={{ padding: "60px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "5.3333rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>
                 ✦
               </div>
-              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>
+              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "2.2222rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>
                 No errand selected
               </h3>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9375rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
                 Choose an errand from the ledger to view its threads, or inscribe a new one.
               </p>
             </div>

@@ -30,7 +30,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-blood-2)" }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.1111rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-blood-2)" }}>
           Error
         </span>
         <div style={{ display: "flex", gap: 6 }}>
@@ -38,7 +38,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
             type="button"
             onClick={handleCopy}
             className="grim-btn is-ghost"
-            style={{ fontSize: "0.625rem", padding: "2px 8px" }}
+            style={{ fontSize: "1.1111rem", padding: "2px 8px" }}
             aria-label="Copy error"
           >
             {copied ? "Copied ✓" : "Copy"}
@@ -48,7 +48,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
               type="button"
               onClick={onDismiss}
               className="grim-btn is-ghost"
-              style={{ fontSize: "0.625rem", padding: "2px 8px" }}
+              style={{ fontSize: "1.1111rem", padding: "2px 8px" }}
               aria-label="Dismiss error"
             >
               Dismiss ✕
@@ -60,7 +60,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
         style={{
           margin: 0,
           fontFamily: "var(--font-mono)",
-          fontSize: "0.75rem",
+          fontSize: "1.3333rem",
           color: "oklch(0.85 0.08 30)",
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",

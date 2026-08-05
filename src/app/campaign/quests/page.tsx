@@ -224,7 +224,7 @@ export default function QuestsPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the ledger&hellip;
         </div>
@@ -257,11 +257,11 @@ export default function QuestsPage() {
             placeholder="Seek an errand by name or note…"
             style={{
               width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1rem",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.7778rem",
               padding: "12px 16px 12px 42px", outline: "none",
             }}
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.125rem", pointerEvents: "none" }}>✦</span>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem", pointerEvents: "none" }}>✦</span>
         </div>
         <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)" }}>
           {FILTERS.map(f => (
@@ -276,13 +276,13 @@ export default function QuestsPage() {
               }}
             >
               {f.label}
-              <span className="grim-mono" style={{ fontSize: "0.625rem", opacity: 0.7, marginLeft: 2 }}>{countFor(f.id)}</span>
+              <span className="grim-mono" style={{ fontSize: "1.1111rem", opacity: 0.7, marginLeft: 2 }}>{countFor(f.id)}</span>
             </button>
           ))}
         </div>
       </section>
 
-      <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 14 }}>
+      <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginBottom: 14 }}>
         Showing {filteredQuests.length} of {questsData.length} errands
       </div>
 
@@ -302,7 +302,7 @@ export default function QuestsPage() {
                   onChange={(e) => { setNewQuestName(e.target.value); setCreateError(""); }}
                   onKeyDown={(e) => { if (e.key === "Enter") handleCreateQuest(); if (e.key === "Escape") handleCancelCreate(); }}
                   placeholder="Enter errand name…"
-                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "9px 14px", outline: "none" }}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "9px 14px", outline: "none" }}
                 />
               </div>
               <div>
@@ -310,7 +310,7 @@ export default function QuestsPage() {
                 <select
                   value={newQuestStatus}
                   onChange={(e) => setNewQuestStatus(e.target.value)}
-                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "9px 14px", outline: "none" }}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "9px 14px", outline: "none" }}
                 >
                   <option value="active">Active</option>
                   <option value="rumored">Rumored</option>
@@ -318,7 +318,7 @@ export default function QuestsPage() {
                 </select>
               </div>
               {createError && (
-                <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
+                <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-blood-2)", letterSpacing: ".12em" }}>{createError}</div>
               )}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4 }}>
                 <button className="grim-btn is-ghost" onClick={handleCancelCreate}>Cancel</button>
@@ -330,8 +330,8 @@ export default function QuestsPage() {
 
         {filteredQuests.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no errands found ~</div>
-            <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ no errands found ~</div>
+            <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
               Adjust your filters or search
             </div>
           </div>
@@ -361,14 +361,14 @@ export default function QuestsPage() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
                     <div>
                       <h3 style={{
-                        fontFamily: "var(--font-display)", fontSize: "1.875rem",
+                        fontFamily: "var(--font-display)", fontSize: "3.3333rem",
                         color: "var(--grim-gold)", margin: 0, lineHeight: 1,
                         textDecoration: isClosed ? "line-through" : "none",
                         opacity: isClosed ? 0.7 : 1,
                       }}>
                         {quest.name}
                       </h3>
-                      <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
+                      <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
                         ⚑ {notes.length} {notes.length === 1 ? "note" : "notes"}
                       </div>
                     </div>
@@ -395,14 +395,14 @@ export default function QuestsPage() {
                                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
                                   <button
                                     className="grim-btn is-ghost"
-                                    style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
+                                    style={{ padding: "4px 10px", fontSize: "1.2222rem" }}
                                     onClick={() => { setEditingNoteId(null); setEditingNoteContent(""); }}
                                   >
                                     Cancel
                                   </button>
                                   <button
                                     className="grim-btn is-ember"
-                                    style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
+                                    style={{ padding: "4px 10px", fontSize: "1.2222rem" }}
                                     onClick={() => handleSaveEditNote(quest.id, note.id)}
                                   >
                                     Save
@@ -411,9 +411,9 @@ export default function QuestsPage() {
                               </>
                             ) : (
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                                <div style={{ fontSize: "0.875rem", color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
+                                <div style={{ fontSize: "1.5556rem", color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
                                   {!isLegacyNote(note) && isDM && (
-                                    <span className="grim-chip is-arcane" style={{ fontSize: "0.5625rem", padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
+                                    <span className="grim-chip is-arcane" style={{ fontSize: "1rem", padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
                                   )}
                                   <div className="prose prose-sm dark:prose-invert max-w-none" style={{ display: "inline" }}>
                                     <ReactMarkdown>{note.content}</ReactMarkdown>
@@ -422,7 +422,7 @@ export default function QuestsPage() {
                                 <div style={{ display: "flex", gap: 10, flexShrink: 0, paddingTop: 2, alignItems: "center" }}>
                                   {!isLegacyNote(note) && (
                                     <>
-                                      <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                                      <span className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
                                         {formatNoteTimestamp(note)}
                                       </span>
                                       <AuthorDisplay uid={note.author} />
@@ -432,13 +432,13 @@ export default function QuestsPage() {
                                     <>
                                       <a
                                         className="grim-link"
-                                        style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                                        style={{ fontSize: "1.2222rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
                                         onClick={() => handleStartEditNote(note)}
                                       >
                                         edit
                                       </a>
                                       <a
-                                        style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                                        style={{ fontSize: "1.2222rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
                                         onClick={() => handleDeleteNote(quest.id, note.id)}
                                       >
                                         delete
@@ -463,7 +463,7 @@ export default function QuestsPage() {
                         <div className="grim-label" style={{ marginBottom: 8, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
                         <div
                           className="grim-flavor"
-                          style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
+                          style={{ fontSize: "1.5556rem", color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
                           dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes, true) }}
                         />
                       </div>
@@ -484,8 +484,8 @@ export default function QuestsPage() {
                               href={`/campaign/recaps/${r.id ?? r.date}`}
                               style={{ textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "6px 10px", background: "oklch(0.14 0.025 290 / 0.5)", border: "1px solid var(--grim-line)" }}
                             >
-                              <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
-                              <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
+                              <span style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
+                              <span className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
                             </Link>
                           ))}
                         </div>
@@ -507,14 +507,14 @@ export default function QuestsPage() {
                           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
                             <button
                               className="grim-btn is-ghost"
-                              style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
+                              style={{ padding: "4px 10px", fontSize: "1.2222rem" }}
                               onClick={() => { setEditingNote(null); setNewNoteContent(""); }}
                             >
                               Cancel
                             </button>
                             <button
                               className="grim-btn is-ember"
-                              style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
+                              style={{ padding: "4px 10px", fontSize: "1.2222rem" }}
                               onClick={() => handleAddNote(quest.id)}
                               disabled={!newNoteContent.trim()}
                             >
@@ -525,7 +525,7 @@ export default function QuestsPage() {
                       ) : (
                         <a
                           className="grim-link"
-                          style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: "0.75rem", letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
+                          style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: "1.3333rem", letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
                           onClick={() => { setEditingNote(quest.id); setNewNoteContent(""); }}
                         >
                           + Add note

@@ -72,7 +72,7 @@ export default function PCsPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Mustering the fellowship&hellip;
         </div>
@@ -99,9 +99,9 @@ export default function PCsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Seek a name, a calling, a homeland…"
-            style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1rem", padding: "12px 16px 12px 42px", outline: "none" }}
+            style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.7778rem", padding: "12px 16px 12px 42px", outline: "none" }}
           />
-          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.125rem" }}>✦</span>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "2rem" }}>✦</span>
         </div>
         <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", overflow: "hidden" }}>
           {FILTERS.map((f) => (
@@ -112,7 +112,7 @@ export default function PCsPage() {
               style={{ padding: "6px 12px", border: `1px solid ${statusFilter === f.id ? "var(--grim-ember)" : "transparent"}`, background: statusFilter === f.id ? undefined : "transparent" }}
             >
               {f.label}
-              <span className="grim-mono" style={{ fontSize: "0.625rem", opacity: 0.7, marginLeft: 2 }}>{f.count}</span>
+              <span className="grim-mono" style={{ fontSize: "1.1111rem", opacity: 0.7, marginLeft: 2 }}>{f.count}</span>
             </button>
           ))}
         </div>
@@ -122,15 +122,15 @@ export default function PCsPage() {
       <section>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
           <h2 className="grim-h-section">Of those who walk the Bounty</h2>
-          <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+          <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
             sorted alphabetical · {sortedPCs.length} of {pcsData.length}
           </div>
         </div>
 
         {sortedPCs.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
-            <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-ink-3)" }}>~ no souls found ~</div>
+            <div className="grim-mono" style={{ fontSize: "1.2222rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
               Adjust thy search or filters
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function PCsPage() {
                     <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%" }} />
                   )}
                   <div style={{ position: "absolute", top: 7, left: 7 }}>
-                    <span className={statusChipClass(pc.status)} style={{ fontSize: "0.5625rem", padding: "2px 6px" }}>
+                    <span className={statusChipClass(pc.status)} style={{ fontSize: "1rem", padding: "2px 6px" }}>
                       {pc.status === "Deceased" ? "Departed" : pc.status || "Unknown"}
                     </span>
                   </div>
@@ -174,25 +174,25 @@ export default function PCsPage() {
 
                 {/* Card body */}
                 <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {pc.name || "Unknown"}
                   </div>
                   {pc.nickname && (
-                    <div style={{ fontSize: "0.6875rem", color: "var(--grim-ink-4)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div style={{ fontSize: "1.2222rem", color: "var(--grim-ink-4)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       &ldquo;{pc.nickname}&rdquo;
                     </div>
                   )}
-                  <div className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-3)", letterSpacing: ".14em", textTransform: "uppercase", marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {pc.class}{pc.race ? ` · ${pc.race}` : ""}
                   </div>
                   {pc.hometown && (
-                    <div className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       ⌖ {pc.hometown}
                     </div>
                   )}
                   {pc.factions && pc.factions.length > 0 && (
                     <div style={{ marginTop: "auto", paddingTop: 7, borderTop: "1px dashed var(--grim-line)" }}>
-                      <div className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         ⚑ {getFactionName(pc.factions[0])}
                       </div>
                     </div>

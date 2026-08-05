@@ -22,7 +22,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: "0.9375rem",
+  fontSize: "1.6667rem",
   padding: "9px 14px",
   outline: "none",
   width: "100%",
@@ -91,7 +91,7 @@ export default function TimelineManagementPage() {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 0" }}>
         <span className="grim-flame" />
-        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: "0.875rem" }}>Loading Timeline...</span>
+        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: "1.5556rem" }}>Loading Timeline...</span>
       </div>
     );
   }
@@ -103,7 +103,7 @@ export default function TimelineManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Events</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>The Timeline</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>The Timeline</h1>
           <p className="grim-page-sub">Chronicle the turning of history — events, ages, and turning points.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate} style={{ flexShrink: 0 }}>
@@ -133,7 +133,7 @@ export default function TimelineManagementPage() {
                 borderBottom: "1px solid var(--grim-line-2)",
                 color: "var(--grim-ink)",
                 fontFamily: "var(--font-body)",
-                fontSize: "0.9375rem",
+                fontSize: "1.6667rem",
                 padding: "10px 14px",
                 outline: "none",
                 width: "100%",
@@ -162,10 +162,10 @@ export default function TimelineManagementPage() {
               >
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {event.title}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 3 }}>
+                    <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 3 }}>
                       {event.date}
                     </div>
                   </div>
@@ -173,7 +173,7 @@ export default function TimelineManagementPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleEdit(event); }}
                       className="grim-btn is-ghost"
-                      style={{ padding: "2px 8px", fontSize: "0.6875rem" }}
+                      style={{ padding: "2px 8px", fontSize: "1.2222rem" }}
                       title="Edit"
                     >
                       ✎
@@ -181,7 +181,7 @@ export default function TimelineManagementPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(event); }}
                       className="grim-btn is-blood"
-                      style={{ padding: "2px 8px", fontSize: "0.6875rem" }}
+                      style={{ padding: "2px 8px", fontSize: "1.2222rem" }}
                       title="Delete"
                     >
                       ✕
@@ -198,7 +198,7 @@ export default function TimelineManagementPage() {
           {(isCreating || isEditing) ? (
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)" }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.7778rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
                   {isCreating ? "Mark New Event" : "Edit Event"}
                 </div>
               </div>
@@ -273,7 +273,7 @@ export default function TimelineManagementPage() {
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
                     {selectedEvent.title}
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -301,11 +301,11 @@ export default function TimelineManagementPage() {
             </div>
           ) : (
             <div className="grim-tome" style={{ padding: "64px 32px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>☾</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "5.7778rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>☾</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 Nothing selected
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-4)" }}>
                 Choose an event from the chronicle, or mark a new one.
               </div>
             </div>

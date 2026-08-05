@@ -127,7 +127,7 @@ export default function RecapsManagementPage() {
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the chronicle…
         </div>
@@ -141,7 +141,7 @@ export default function RecapsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Chronicle</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>Session Recaps</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>Session Recaps</h1>
           <p className="grim-page-sub">Chronicle the sessions — each night of peril, set down in ink.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Inscribe Recap</button>
@@ -160,13 +160,13 @@ export default function RecapsManagementPage() {
               placeholder="Search recaps…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "10px 14px", outline: "none" }}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "10px 14px", outline: "none" }}
             />
           </div>
 
           <div className="grim-tome" style={{ padding: 0, maxHeight: 520, overflowY: "auto" }}>
             {filteredRecaps.length === 0 ? (
-              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "0.875rem" }}>
+              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.5556rem" }}>
                 No session recaps found
               </div>
             ) : (
@@ -186,10 +186,10 @@ export default function RecapsManagementPage() {
                   >
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)" }}>
+                        <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", color: isSelected ? "var(--grim-ember-2)" : "var(--grim-ink-2)" }}>
                           {recap.title}
                         </div>
-                        <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 3 }}>
+                        <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", marginTop: 3 }}>
                           {recap.date}
                         </div>
                       </div>
@@ -197,14 +197,14 @@ export default function RecapsManagementPage() {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleEdit(recap); }}
                           className="grim-link"
-                          style={{ fontSize: "0.6875rem", letterSpacing: ".06em" }}
+                          style={{ fontSize: "1.2222rem", letterSpacing: ".06em" }}
                         >
                           Edit
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(recap); }}
                           className="grim-link"
-                          style={{ fontSize: "0.6875rem", letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
+                          style={{ fontSize: "1.2222rem", letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
                         >
                           Del
                         </button>
@@ -237,7 +237,7 @@ export default function RecapsManagementPage() {
                   type="date"
                   value={formData.date || ""}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "9px 14px", outline: "none" }}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "9px 14px", outline: "none" }}
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function RecapsManagementPage() {
                   value={formData.title || ""}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter session title…"
-                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "9px 14px", outline: "none" }}
+                  style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", padding: "9px 14px", outline: "none" }}
                 />
               </div>
 
@@ -288,7 +288,7 @@ export default function RecapsManagementPage() {
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
                   <div>
                     <div className="grim-tome-title">{selectedRecap.title}</div>
-                    <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", marginTop: 4, letterSpacing: ".12em" }}>
+                    <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", marginTop: 4, letterSpacing: ".12em" }}>
                       {formatDate(selectedRecap.date)}
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export default function RecapsManagementPage() {
                     {(selectedRecap.tagged_npcs ?? []).map(id => {
                       const n = availableNPCs.find(x => x.id === id);
                       return n ? (
-                        <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: "0.6875rem", textDecoration: "none" }}>
+                        <Link key={id} href={`/admin/data/npcs?selected=${id}`} className="grim-chip is-ember" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
                           {n.name}
                         </Link>
                       ) : null;
@@ -317,7 +317,7 @@ export default function RecapsManagementPage() {
                     {(selectedRecap.tagged_locations ?? []).map(id => {
                       const l = availableLocations.find(x => x.id === id);
                       return l ? (
-                        <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: "0.6875rem", textDecoration: "none" }}>
+                        <Link key={id} href={`/admin/data/locations`} className="grim-chip is-arcane" style={{ fontSize: "1.2222rem", textDecoration: "none" }}>
                           {l.name}
                         </Link>
                       ) : null;
@@ -328,15 +328,15 @@ export default function RecapsManagementPage() {
 
               <div
                 className="prose-grim"
-                style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.75 }}
+                style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "1.6667rem", lineHeight: 1.75 }}
                 dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedRecap.recap, true) }}
               />
             </div>
           ) : (
             <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>✎</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No recap selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: "0.875rem" }}>Select a recap from the list to view, or inscribe a new one.</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "4.4444rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>✎</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.7778rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No recap selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: "1.5556rem" }}>Select a recap from the list to view, or inscribe a new one.</div>
             </div>
           )}
         </div>

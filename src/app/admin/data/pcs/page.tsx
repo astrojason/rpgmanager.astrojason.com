@@ -25,7 +25,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: "0.9375rem",
+  fontSize: "1.6667rem",
   padding: "9px 14px",
   outline: "none",
 };
@@ -123,7 +123,7 @@ export default function PCsManagementPage() {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 14 }}>
         <span className="grim-flame" />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-3)", letterSpacing: ".08em" }}>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-3)", letterSpacing: ".08em" }}>
           Summoning the fellowship&hellip;
         </span>
       </div>
@@ -143,7 +143,7 @@ export default function PCsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; The Fellowship</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>Player Characters</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>Player Characters</h1>
           <p className="grim-page-sub">Tend the dossiers of the fellowship &mdash; their histories, bonds, and burdens.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Add Character</button>
@@ -160,7 +160,7 @@ export default function PCsManagementPage() {
         {/* List panel */}
         <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 14px 0" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 10 }}>
               The Fellowship ({filteredPcs.length})
             </div>
             <input
@@ -174,7 +174,7 @@ export default function PCsManagementPage() {
                 border: "1px solid var(--grim-line-2)",
                 color: "var(--grim-ink)",
                 fontFamily: "var(--font-body)",
-                fontSize: "0.9375rem",
+                fontSize: "1.6667rem",
                 padding: "10px 14px",
                 outline: "none",
               }}
@@ -183,7 +183,7 @@ export default function PCsManagementPage() {
 
           <div style={{ maxHeight: 560, overflowY: "auto", marginTop: 12 }}>
             {filteredPcs.length === 0 && (
-              <div style={{ padding: "24px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-4)" }}>
+              <div style={{ padding: "24px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-4)" }}>
                 No characters found.
               </div>
             )}
@@ -206,22 +206,22 @@ export default function PCsManagementPage() {
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {pc.name}
                       </div>
                       {pc.nickname && (
-                        <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           &ldquo;{pc.nickname}&rdquo;
                         </div>
                       )}
-                      <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {pc.race} {pc.class}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {pc.hometown}
                       </div>
                       {pc.player && (
-                        <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ember-2)", marginTop: 3 }}>
+                        <div className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ember-2)", marginTop: 3 }}>
                           &#9670; {getUserForPc(pc)?.displayName || getUserForPc(pc)?.email || 'Unknown Player'}
                         </div>
                       )}
@@ -230,14 +230,14 @@ export default function PCsManagementPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(pc); }}
                         className="grim-link"
-                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: ".06em" }}
+                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "1.2222rem", letterSpacing: ".06em" }}
                         title="Edit"
                       >
                         edit
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(pc); }}
-                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
+                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "var(--font-mono)", fontSize: "1.2222rem", letterSpacing: ".06em", color: "var(--grim-blood-2)" }}
                         title="Delete"
                       >
                         del
@@ -371,7 +371,7 @@ export default function PCsManagementPage() {
                       {factions.map((f) => {
                         const checked = (formData.factions || []).includes(f.id);
                         return (
-                          <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>
+                          <label key={f.id} style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-2)" }}>
                             <input
                               type="checkbox"
                               checked={checked}
@@ -463,10 +463,10 @@ export default function PCsManagementPage() {
               <div style={{ padding: "24px 28px 28px" }}>
                 {/* Name + status row */}
                 <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
                     {selectedPc.name}
                     {selectedPc.nickname && (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "1.125rem", color: "var(--grim-ink-3)", marginLeft: 12 }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "2rem", color: "var(--grim-ink-3)", marginLeft: 12 }}>
                         &ldquo;{selectedPc.nickname}&rdquo;
                       </span>
                     )}
@@ -488,13 +488,13 @@ export default function PCsManagementPage() {
                     <div className="grim-label" style={{ marginBottom: 10 }}>Character Dossier</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <div>
-                        <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Hometown</span>
-                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-2)", marginTop: 2 }}>{selectedPc.hometown}</div>
+                        <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Hometown</span>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)", marginTop: 2 }}>{selectedPc.hometown}</div>
                       </div>
                       {selectedPc.player && (
                         <div>
-                          <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Player</span>
-                          <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ember-2)", marginTop: 2 }}>
+                          <span className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>Player</span>
+                          <div style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ember-2)", marginTop: 2 }}>
                             {getUserForPc(selectedPc)?.displayName || getUserForPc(selectedPc)?.email || 'Unknown Player'}
                           </div>
                         </div>
@@ -553,11 +553,11 @@ export default function PCsManagementPage() {
           ) : (
             /* Empty state */
             <div className="grim-tome" style={{ padding: "64px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>⚔</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "5.3333rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>⚔</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1.7778rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 No Character Selected
               </div>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
                 Choose a character from the fellowship to view their dossier, or forge a new one.
               </p>
             </div>

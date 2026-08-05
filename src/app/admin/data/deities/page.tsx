@@ -21,7 +21,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: "0.9375rem",
+  fontSize: "1.6667rem",
   padding: "10px 14px",
   outline: "none",
   width: "100%",
@@ -106,7 +106,7 @@ export default function DeitiesManagementPage() {
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "1rem", color: "var(--grim-ink-3)" }}>Consulting the divine compendium…</span>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: "1.7778rem", color: "var(--grim-ink-3)" }}>Consulting the divine compendium…</span>
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function DeitiesManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Pantheon</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>The Divine Compendium</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.4444rem" }}>The Divine Compendium</h1>
           <p className="grim-page-sub">Manage the gods, ancient powers, and divine forces of the campaign.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Deity</button>
@@ -139,7 +139,7 @@ export default function DeitiesManagementPage() {
             <input type="text" placeholder="Search deities…" value={search} onChange={e => setSearch(e.target.value)} style={inputStyle} />
           </div>
           <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--grim-line)" }}>
-            <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
+            <span className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>
               {filtered.length} {filtered.length === 1 ? "deity" : "deities"}
             </span>
           </div>
@@ -159,23 +159,23 @@ export default function DeitiesManagementPage() {
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: isSel ? "var(--grim-gold)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", color: isSel ? "var(--grim-gold)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {d.name}
                     </div>
                     {d.domain && (
-                      <div className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", marginTop: 2 }}>{d.domain}</div>
+                      <div className="grim-mono" style={{ fontSize: "1rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", textTransform: "uppercase", marginTop: 2 }}>{d.domain}</div>
                     )}
-                    {d.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.5625rem", marginTop: 4 }}>hidden</span>}
+                    {d.hidden && <span className="grim-chip is-dead" style={{ fontSize: "1rem", marginTop: 4 }}>hidden</span>}
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
-                    <button onClick={e => { e.stopPropagation(); handleEdit(d); }} className="grim-btn is-ghost" style={{ padding: "3px 8px", fontSize: "0.6875rem" }}>✎</button>
-                    <button onClick={e => { e.stopPropagation(); handleDelete(d); }} className="grim-btn is-blood" style={{ padding: "3px 8px", fontSize: "0.6875rem" }}>✕</button>
+                    <button onClick={e => { e.stopPropagation(); handleEdit(d); }} className="grim-btn is-ghost" style={{ padding: "3px 8px", fontSize: "1.2222rem" }}>✎</button>
+                    <button onClick={e => { e.stopPropagation(); handleDelete(d); }} className="grim-btn is-blood" style={{ padding: "3px 8px", fontSize: "1.2222rem" }}>✕</button>
                   </div>
                 </div>
               );
             })}
             {filtered.length === 0 && (
-              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "0.875rem" }}>No deities found</div>
+              <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "1.5556rem" }}>No deities found</div>
             )}
           </div>
         </div>
@@ -287,7 +287,7 @@ export default function DeitiesManagementPage() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-2)" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "1.5556rem", color: "var(--grim-ink-2)" }}>
                       <input type="checkbox" checked={!!form.hidden} onChange={e => setForm(f => ({ ...f, hidden: e.target.checked }))} style={{ accentColor: "var(--grim-blood)" }} />
                       Hidden from players
                     </label>
@@ -313,8 +313,8 @@ export default function DeitiesManagementPage() {
                         </div>
                       )}
                       <div>
-                        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>{selected.name}</h2>
-                        {selected.pronunciation && <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-4)", fontStyle: "italic", marginTop: 2 }}>{selected.pronunciation}</div>}
+                        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "3.5556rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1.1 }}>{selected.name}</h2>
+                        {selected.pronunciation && <div style={{ fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-4)", fontStyle: "italic", marginTop: 2 }}>{selected.pronunciation}</div>}
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
                           {selected.domain && <span className="grim-chip">{selected.domain}</span>}
                           {selected.alignment && <span className="grim-chip is-unknown">{selected.alignment}</span>}
@@ -330,12 +330,12 @@ export default function DeitiesManagementPage() {
                   </div>
 
                   {selected.description && (
-                    <div style={{ marginBottom: 16, fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}>{selected.description}</div>
+                    <div style={{ marginBottom: 16, fontSize: "1.5556rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}>{selected.description}</div>
                   )}
                   {selected.gm_notes && (
                     <div style={{ padding: "12px 14px", background: "oklch(0.20 0.06 285 / 0.5)", border: "1px solid var(--grim-arcane)", marginBottom: 16 }}>
                       <div className="grim-label" style={{ marginBottom: 6, color: "var(--grim-arcane)" }}>GM Notes</div>
-                      <div style={{ fontSize: "0.8125rem", color: "var(--grim-ink-2)", lineHeight: 1.55 }}>{selected.gm_notes}</div>
+                      <div style={{ fontSize: "1.4444rem", color: "var(--grim-ink-2)", lineHeight: 1.55 }}>{selected.gm_notes}</div>
                     </div>
                   )}
                 </div>
@@ -343,9 +343,9 @@ export default function DeitiesManagementPage() {
             </div>
           ) : (
             <div className="grim-tome" style={{ padding: "60px 40px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>✦</div>
-              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>No deity selected</h3>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9375rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "5.3333rem", color: "var(--grim-ink-4)", marginBottom: 16 }}>✦</div>
+              <h3 style={{ fontFamily: "var(--font-head)", fontSize: "2.2222rem", color: "var(--grim-ink-2)", margin: "0 0 10px", letterSpacing: ".06em" }}>No deity selected</h3>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "1.6667rem", color: "var(--grim-ink-4)", maxWidth: 320, margin: "0 auto" }}>
                 Choose a deity from the list, or create a new one.
               </p>
             </div>

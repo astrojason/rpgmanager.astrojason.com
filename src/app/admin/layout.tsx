@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -78,9 +78,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
         <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-ember)", marginBottom: 12 }}>⚔</div>
-          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.375rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)", marginBottom: 8 }}>Passage Denied</h2>
-          <p style={{ fontSize: "0.9375rem", color: "var(--grim-ink-3)", marginBottom: 24 }}>You must sign in to enter the Scriptorium.</p>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "4.4444rem", color: "var(--grim-ember)", marginBottom: 12 }}>⚔</div>
+          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "2.4444rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)", marginBottom: 8 }}>Passage Denied</h2>
+          <p style={{ fontSize: "1.6667rem", color: "var(--grim-ink-3)", marginBottom: 24 }}>You must sign in to enter the Scriptorium.</p>
           <Link href="/auth" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Sign In</Link>
         </div>
       </div>
@@ -91,10 +91,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--grim-bg)" }}>
         <div className="grim-tome" style={{ padding: "40px 48px", maxWidth: 420, textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-blood-2)", marginBottom: 12 }}>✠</div>
-          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.375rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-blood-2)", marginBottom: 8 }}>Forbidden Ward</h2>
-          <p style={{ fontSize: "0.9375rem", color: "var(--grim-ink-3)", marginBottom: 6 }}>Master&apos;s privileges are required beyond this threshold.</p>
-          <p className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", marginBottom: 24 }}>Current role: {userRole || 'none'}</p>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "4.4444rem", color: "var(--grim-blood-2)", marginBottom: 12 }}>✠</div>
+          <h2 style={{ fontFamily: "var(--font-head)", fontSize: "2.4444rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-blood-2)", marginBottom: 8 }}>Forbidden Ward</h2>
+          <p style={{ fontSize: "1.6667rem", color: "var(--grim-ink-3)", marginBottom: 6 }}>Master&apos;s privileges are required beyond this threshold.</p>
+          <p className="grim-mono" style={{ fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", marginBottom: 24 }}>Current role: {userRole || 'none'}</p>
           <Link href="/campaign" className="grim-btn is-ember" style={{ display: "inline-block", padding: "10px 24px" }}>Return to Campaign</Link>
         </div>
       </div>
@@ -115,10 +115,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* Sidebar header */}
         <div style={{ padding: "22px 20px 16px", borderBottom: "1px solid var(--grim-line)" }}>
-          <div className="grim-mono" style={{ fontSize: "0.5rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
+          <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginBottom: 4 }}>
             The Scriptorium
           </div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--grim-gold)", lineHeight: 1 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "var(--grim-gold)", lineHeight: 1 }}>
             Master&apos;s Codex
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <nav style={{ flex: 1, padding: "16px 0" }}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} style={{ marginBottom: 20 }}>
-              <div className="grim-mono" style={{ fontSize: "0.5rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", padding: "0 20px", marginBottom: 6 }}>
+              <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".22em", color: "var(--grim-ink-4)", textTransform: "uppercase", padding: "0 20px", marginBottom: 6 }}>
                 {section.label}
               </div>
               {section.items.map((item) => {
@@ -144,11 +144,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       background: isActive ? "oklch(0.40 0.10 40 / 0.12)" : "transparent",
                       borderLeft: isActive ? "2px solid var(--grim-ember)" : "2px solid transparent",
                       transition: "color 0.15s, background 0.15s",
-                      fontSize: "0.875rem",
+                      fontSize: "1.5556rem",
                     }}
                   >
-                    <span style={{ fontFamily: "var(--font-display)", fontSize: "1rem", width: 20, textAlign: "center", flexShrink: 0 }}>{item.glyph}</span>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", letterSpacing: ".04em" }}>{item.name}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: "1.7778rem", width: 20, textAlign: "center", flexShrink: 0 }}>{item.glyph}</span>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: "1.4444rem", letterSpacing: ".04em" }}>{item.name}</span>
                   </Link>
                 );
               })}
@@ -160,10 +160,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div style={{ padding: "14px 20px", borderTop: "1px solid var(--grim-line)" }}>
           <Link
             href="/campaign"
-            style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--grim-ink-4)", fontSize: "0.75rem" }}
+            style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--grim-ink-4)", fontSize: "1.3333rem" }}
           >
-            <span style={{ fontFamily: "var(--font-display)", fontSize: "0.875rem" }}>‹</span>
-            <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".16em", textTransform: "uppercase" }}>Back to Campaign</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "1.5556rem" }}>‹</span>
+            <span className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".16em", textTransform: "uppercase" }}>Back to Campaign</span>
           </Link>
         </div>
       </aside>

@@ -38,7 +38,7 @@ function sigilStyle(tint: string): React.CSSProperties {
   const base: React.CSSProperties = {
     width: 46, height: 46, flexShrink: 0, borderRadius: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "var(--font-display)", fontSize: "1.75rem",
+    fontFamily: "var(--font-display)", fontSize: "3.1111rem",
     color: "oklch(0.92 0.05 70)",
   };
   if (tint === "ember") return { ...base, background: "linear-gradient(180deg, oklch(0.40 0.12 40), oklch(0.25 0.08 35))", border: "1px solid var(--grim-ember)" };
@@ -194,7 +194,7 @@ export default function NextSessionPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "1.3333rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Loading the summons&hellip;
         </div>
@@ -206,7 +206,7 @@ export default function NextSessionPage() {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
         {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
-        <div style={{ fontFamily: "var(--font-head)", fontSize: "1.125rem", color: "var(--grim-blood-2)", letterSpacing: ".08em" }}>
+        <div style={{ fontFamily: "var(--font-head)", fontSize: "2rem", color: "var(--grim-blood-2)", letterSpacing: ".08em" }}>
           The summons could not be retrieved.
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function NextSessionPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 26 }}>
         <div>
           <div className="grim-page-eyebrow">By Order of the Master</div>
-          <h1 className="grim-page-title" style={{ fontSize: "3.75rem" }}>The Summoning</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "6.6667rem" }}>The Summoning</h1>
           <p className="grim-page-sub">The party is bid to gather. The candles are lit; the dice await their casting.</p>
         </div>
         {isAdmin && (
@@ -244,17 +244,17 @@ export default function NextSessionPage() {
           <div className="grim-parchment" style={{ borderRadius: 0, margin: 0, padding: "34px 42px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
               <div>
-                <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>
+                <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>
                   A Writ of Gathering
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.875rem", color: "var(--grim-blood)", lineHeight: 1, marginTop: 4 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "5.1111rem", color: "var(--grim-blood)", lineHeight: 1, marginTop: 4 }}>
                   {sessionData.isSkipped ? "Session Adjourned" : weekdayLabel}
                 </div>
               </div>
               <div className="grim-seal">✦</div>
             </div>
 
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.0625rem", color: "oklch(0.26 0.03 50)", lineHeight: 1.65, margin: "10px 0 0" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.8889rem", color: "oklch(0.26 0.03 50)", lineHeight: 1.65, margin: "10px 0 0" }}>
               {sessionData.isSkipped ? (
                 <>The gathering hath been postponed.{sessionData.skipReason && (
                   <> Reason: <b style={{ fontFamily: "var(--font-head)" }}>{sessionData.skipReason}</b>.</>
@@ -275,19 +275,19 @@ export default function NextSessionPage() {
 
             <div style={{ display: "flex", gap: 30, marginTop: 24, paddingTop: 16, borderTop: "1px dashed oklch(0.55 0.08 50 / 0.5)", flexWrap: "wrap" }}>
               <div>
-                <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{currentGameDate ?? "—"}</div>
+                <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{currentGameDate ?? "—"}</div>
               </div>
               {sessionData.location && (
                 <div>
-                  <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Location</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{sessionData.location}</div>
+                  <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Location</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{sessionData.location}</div>
                 </div>
               )}
               {sessionData.lastUpdated && (
                 <div>
-                  <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Last Updated</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{sessionData.lastUpdated}</div>
+                  <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Last Updated</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.2222rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 3 }}>{sessionData.lastUpdated}</div>
                 </div>
               )}
             </div>
@@ -299,7 +299,7 @@ export default function NextSessionPage() {
               <div className="grim-h-section" style={{ margin: 0 }}>The Vigil Approaches</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 {!sessionData.isSkipped && <span className="grim-flame" />}
-                <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", color: sessionData.isSkipped ? "var(--grim-ink-4)" : "var(--grim-ember-2)", textTransform: "uppercase" }}>
+                <span className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".18em", color: sessionData.isSkipped ? "var(--grim-ink-4)" : "var(--grim-ember-2)", textTransform: "uppercase" }}>
                   {sessionData.isSkipped ? "adjourned" : "scheduled"}
                 </span>
               </div>
@@ -307,7 +307,7 @@ export default function NextSessionPage() {
 
             <div style={{ display: "flex", gap: 16, alignItems: "baseline" }}>
               <div style={{
-                fontFamily: "var(--font-display)", fontSize: "6.875rem",
+                fontFamily: "var(--font-display)", fontSize: "12.2222rem",
                 color: sessionData.isSkipped ? "var(--grim-ink-4)" : "var(--grim-ember-2)",
                 lineHeight: 0.8,
                 textShadow: sessionData.isSkipped ? "none" : "0 0 32px oklch(0.72 0.165 48 / 0.5)",
@@ -315,8 +315,8 @@ export default function NextSessionPage() {
                 {daysUntilLabel}
               </div>
               <div>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.375rem", color: "var(--grim-gold)", letterSpacing: ".06em" }}>{daysHenceLabel}</div>
-                <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".16em", marginTop: 3 }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "2.4444rem", color: "var(--grim-gold)", letterSpacing: ".06em" }}>{daysHenceLabel}</div>
+                <div className="grim-mono" style={{ fontSize: "1.2222rem", color: "var(--grim-ink-3)", letterSpacing: ".16em", marginTop: 3 }}>
                   {sessionData.isSkipped
                     ? "no session this week"
                     : daysUntil !== null ? `${pad(countdown.h)}h · ${pad(countdown.m)}m · ${pad(countdown.s)}s` : ""}
@@ -328,8 +328,8 @@ export default function NextSessionPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
                 {([ ["hours", countdown.h], ["min", countdown.m], ["sec", countdown.s] ] as [string, number][]).map(([label, val]) => (
                   <div key={label} style={{ textAlign: "center", padding: "10px 0", background: "oklch(0.12 0.025 290)", border: "1px solid var(--grim-line)" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "1.625rem", color: "var(--grim-gold)", lineHeight: 1 }}>{pad(val)}</div>
-                    <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 4 }}>{label}</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "2.8889rem", color: "var(--grim-gold)", lineHeight: 1 }}>{pad(val)}</div>
+                    <div className="grim-mono" style={{ fontSize: "1rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 4 }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -358,11 +358,11 @@ export default function NextSessionPage() {
             <span className="grim-tome-sub">the Master&apos;s intent</span>
           </div>
           {sessionData.agenda ? (
-            <p className="grim-flavor" style={{ fontSize: "1rem", lineHeight: 1.65, color: "var(--grim-ink)", margin: 0, borderColor: "var(--grim-ember)" }}>
+            <p className="grim-flavor" style={{ fontSize: "1.7778rem", lineHeight: 1.65, color: "var(--grim-ink)", margin: 0, borderColor: "var(--grim-ember)" }}>
               {sessionData.agenda}
             </p>
           ) : (
-            <p className="grim-flavor" style={{ fontSize: "0.9375rem", color: "var(--grim-ink-4)", margin: 0, fontStyle: "italic" }}>
+            <p className="grim-flavor" style={{ fontSize: "1.6667rem", color: "var(--grim-ink-4)", margin: 0, fontStyle: "italic" }}>
               The Master&apos;s intent hath not yet been scribed.
             </p>
           )}
@@ -375,7 +375,7 @@ export default function NextSessionPage() {
           </div>
           {sessionData.notes ? (
             <>
-              <p className="grim-flavor" style={{ fontSize: "0.9375rem", lineHeight: 1.65, color: "var(--grim-ink-2)", margin: 0 }}>
+              <p className="grim-flavor" style={{ fontSize: "1.6667rem", lineHeight: 1.65, color: "var(--grim-ink-2)", margin: 0 }}>
                 {sessionData.notes}
               </p>
               <div className="grim-rule" />
@@ -383,13 +383,13 @@ export default function NextSessionPage() {
                 {sessionData.lastUpdated && (
                   <span className="grim-label">Last updated · {sessionData.lastUpdated}</span>
                 )}
-                <Link href="/campaign/recaps" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "0.75rem", letterSpacing: ".14em", textTransform: "uppercase", marginLeft: "auto" }}>
+                <Link href="/campaign/recaps" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "1.3333rem", letterSpacing: ".14em", textTransform: "uppercase", marginLeft: "auto" }}>
                   Read full recap ›
                 </Link>
               </div>
             </>
           ) : (
-            <p className="grim-flavor" style={{ fontSize: "0.9375rem", color: "var(--grim-ink-4)", margin: 0, fontStyle: "italic" }}>
+            <p className="grim-flavor" style={{ fontSize: "1.6667rem", color: "var(--grim-ink-4)", margin: 0, fontStyle: "italic" }}>
               No notes from last session have been recorded.
             </p>
           )}
@@ -414,10 +414,10 @@ export default function NextSessionPage() {
             >
               <div style={sigilStyle(s.tint)}>{s.sigil}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{s.title}</div>
-                <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{s.sub}</div>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.5556rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{s.title}</div>
+                <div className="grim-mono" style={{ fontSize: "1.1111rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{s.sub}</div>
               </div>
-              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.125rem" }}>›</span>
+              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "2rem" }}>›</span>
             </Link>
           ))}
         </div>

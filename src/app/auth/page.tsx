@@ -91,10 +91,10 @@ export default function AuthPage() {
       <div className="grim-tome is-bordered" style={{ width: "100%", maxWidth: 420 }}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div className="grim-page-eyebrow" style={{ marginBottom: 4 }}>Azorian&apos;s Bounty</div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1 }}>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "4rem", color: "var(--grim-gold)", margin: 0, lineHeight: 1 }}>
             {mode === "signin" ? "A Summoning" : "Inscribe Thyself"}
           </h2>
-          <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)", fontStyle: "italic", marginTop: 6 }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: "1.4444rem", color: "var(--grim-ink-3)", fontStyle: "italic", marginTop: 6 }}>
             {mode === "signin" ? "The codex awaits the worthy." : "Join the campaign roster."}
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function AuthPage() {
             required
             style={{
               background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem",
               padding: "10px 14px", outline: "none", borderRadius: 1
             }}
           />
@@ -122,19 +122,19 @@ export default function AuthPage() {
             required
             style={{
               background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)",
-              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem",
+              color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1.6667rem",
               padding: "10px 14px", outline: "none", borderRadius: 1
             }}
           />
-          {error && <div style={{ color: "var(--grim-blood-2)", fontSize: "0.8125rem", fontFamily: "var(--font-mono)" }}>{error}</div>}
-          <button type="submit" disabled={loading} className="grim-btn is-ember" style={{ justifyContent: "center", padding: "12px 14px", fontSize: "0.8125rem" }}>
+          {error && <div style={{ color: "var(--grim-blood-2)", fontSize: "1.4444rem", fontFamily: "var(--font-mono)" }}>{error}</div>}
+          <button type="submit" disabled={loading} className="grim-btn is-ember" style={{ justifyContent: "center", padding: "12px 14px", fontSize: "1.4444rem" }}>
             {loading || assigningRole ? "Loading..." : mode === "signin" ? "Enter the Codex" : "Sign Up"}
           </button>
         </form>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0" }}>
           <div className="grim-rule" style={{ margin: 0, flex: 1 }}/>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>or</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "1.1111rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", textTransform: "uppercase" }}>or</span>
           <div className="grim-rule" style={{ margin: 0, flex: 1 }}/>
         </div>
 
@@ -152,7 +152,7 @@ export default function AuthPage() {
           <button
             type="button"
             className="grim-link"
-            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "0.8125rem", letterSpacing: ".08em" }}
+            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "1.4444rem", letterSpacing: ".08em" }}
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           >
             {mode === "signin" ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
