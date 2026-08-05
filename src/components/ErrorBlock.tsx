@@ -20,25 +20,16 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
   };
 
   return (
-    <div
-      role="alert"
-      style={{
-        background: "oklch(0.18 0.08 22 / 0.65)",
-        border: "1px solid var(--grim-blood-2)",
-        padding: "12px 14px",
-        marginBottom: 16,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8333rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-blood-2)" }}>
+    <div role="alert" className="bg-grim-error-bg border border-grim-blood-2 px-3.5 py-3 mb-4">
+      <div className="flex justify-between items-center mb-2">
+        <span className="font-mono text-sm tracking-widest-2 uppercase text-grim-blood-2">
           Error
         </span>
-        <div style={{ display: "flex", gap: 6 }}>
+        <div className="flex gap-1.5">
           <button
             type="button"
             onClick={handleCopy}
-            className="grim-btn is-ghost"
-            style={{ fontSize: "0.8333rem", padding: "2px 8px" }}
+            className="grim-btn is-ghost text-sm py-0.5 px-2"
             aria-label="Copy error"
           >
             {copied ? "Copied ✓" : "Copy"}
@@ -47,8 +38,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
             <button
               type="button"
               onClick={onDismiss}
-              className="grim-btn is-ghost"
-              style={{ fontSize: "0.8333rem", padding: "2px 8px" }}
+              className="grim-btn is-ghost text-sm py-0.5 px-2"
               aria-label="Dismiss error"
             >
               Dismiss ✕
@@ -56,18 +46,7 @@ export default function ErrorBlock({ error, onDismiss }: ErrorBlockProps) {
           )}
         </div>
       </div>
-      <pre
-        style={{
-          margin: 0,
-          fontFamily: "var(--font-mono)",
-          fontSize: "1rem",
-          color: "oklch(0.85 0.08 30)",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          userSelect: "all",
-          lineHeight: 1.5,
-        }}
-      >
+      <pre className="m-0 font-mono text-base text-grim-error-text whitespace-pre-wrap break-words select-all leading-normal">
         {error}
       </pre>
     </div>
