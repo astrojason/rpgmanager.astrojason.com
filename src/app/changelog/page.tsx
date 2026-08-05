@@ -22,14 +22,14 @@ export default function ChangelogPage() {
         <Link
           href="/campaign"
           className="grim-mono"
-          style={{ fontSize: 12, color: 'var(--grim-ink-3)', textDecoration: 'none', letterSpacing: '.08em' }}
+          style={{ fontSize: "0.75rem", color: 'var(--grim-ink-3)', textDecoration: 'none', letterSpacing: '.08em' }}
         >
           ← Back
         </Link>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--grim-gold)', margin: 0 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: "1.5rem", color: 'var(--grim-gold)', margin: 0 }}>
           Changelog
         </h1>
-        <span className="grim-mono" style={{ fontSize: 13, color: 'var(--grim-ink-3)', letterSpacing: '.1em' }}>
+        <span className="grim-mono" style={{ fontSize: "0.8125rem", color: 'var(--grim-ink-3)', letterSpacing: '.1em' }}>
           v{data.version}
         </span>
       </div>
@@ -44,7 +44,7 @@ export default function ChangelogPage() {
               gap: '0.75rem',
               padding: '0.5rem 0',
               borderBottom: '1px solid var(--grim-line)',
-              fontSize: 13,
+              fontSize: "0.8125rem",
             }}
           >
             <span style={{ color: 'var(--grim-ink-4)', minWidth: 88, flexShrink: 0 }}>{e.date}</span>

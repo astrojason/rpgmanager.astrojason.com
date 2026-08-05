@@ -38,7 +38,7 @@ const SELECT_STYLE: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: 14,
+  fontSize: "0.875rem",
   padding: "6px 10px",
   outline: "none",
   borderRadius: 2,
@@ -247,7 +247,7 @@ export default function UserManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Permissions</div>
-          <h1 className="grim-page-title" style={{ fontSize: 58 }}>User Management</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>User Management</h1>
           <p className="grim-page-sub">Manage roles and permissions — who may enter the Scriptorium.</p>
         </div>
         <button className="grim-btn is-ghost" onClick={loadUsers} disabled={loading}>
@@ -264,7 +264,7 @@ export default function UserManagementPage() {
           padding: "12px 16px",
           marginBottom: 16,
           fontFamily: "var(--font-body)",
-          fontSize: 14,
+          fontSize: "0.875rem",
         }}>
           {error}
         </div>
@@ -279,7 +279,7 @@ export default function UserManagementPage() {
           padding: "12px 16px",
           marginBottom: 16,
           fontFamily: "var(--font-body)",
-          fontSize: 14,
+          fontSize: "0.875rem",
         }}>
           {success}
         </div>
@@ -293,31 +293,31 @@ export default function UserManagementPage() {
           {/* Admin */}
           <div className="grim-tome" style={{ padding: "20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-blood-2)" }}>⚙</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: 15, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Administrator</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "1.625rem", color: "var(--grim-blood-2)" }}>⚙</span>
+              <span style={{ fontFamily: "var(--font-head)", fontSize: "0.9375rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Administrator</span>
             </div>
             <span className="grim-chip is-blood" style={{ marginBottom: 10 }}>admin</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Full system access</p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Full system access</p>
           </div>
 
           {/* DM */}
           <div className="grim-tome" style={{ padding: "20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-ember)" }}>⚔</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: 15, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Dungeon Master</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "1.625rem", color: "var(--grim-ember)" }}>⚔</span>
+              <span style={{ fontFamily: "var(--font-head)", fontSize: "0.9375rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Dungeon Master</span>
             </div>
             <span className="grim-chip is-ember" style={{ marginBottom: 10 }}>dm</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Enhanced campaign access</p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Enhanced campaign access</p>
           </div>
 
           {/* Player */}
           <div className="grim-tome" style={{ padding: "20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-moss)" }}>⚑</span>
-              <span style={{ fontFamily: "var(--font-head)", fontSize: 15, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Player</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "1.625rem", color: "var(--grim-moss)" }}>⚑</span>
+              <span style={{ fontFamily: "var(--font-head)", fontSize: "0.9375rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink)" }}>Player</span>
             </div>
             <span className="grim-chip is-alive" style={{ marginBottom: 10 }}>player</span>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Standard user access</p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)", margin: "10px 0 0" }}>Standard user access</p>
           </div>
 
         </div>
@@ -328,7 +328,7 @@ export default function UserManagementPage() {
         <h2 className="grim-h-section">
           Souls Registered
           {usersWithCharacters.length > 0 && (
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--grim-gold)", marginLeft: 12, fontWeight: "normal", letterSpacing: ".08em" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--grim-gold)", marginLeft: 12, fontWeight: "normal", letterSpacing: ".08em" }}>
               {usersWithCharacters.length}
             </span>
           )}
@@ -338,15 +338,15 @@ export default function UserManagementPage() {
         {loading && usersWithCharacters.length === 0 ? (
           <div className="grim-tome" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, padding: "48px 28px" }}>
             <span className="grim-flame" style={{ display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--grim-ink-3)" }}>Consulting the registry…</span>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9375rem", color: "var(--grim-ink-3)" }}>Consulting the registry…</span>
           </div>
 
         /* Empty state */
         ) : usersWithCharacters.length === 0 ? (
           <div className="grim-tome" style={{ textAlign: "center", padding: "56px 28px" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-ink-4)", marginBottom: 14 }}>⊕</div>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>No souls registered</div>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>No users are currently recorded in the Scriptorium.</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", color: "var(--grim-ink-4)", marginBottom: 14 }}>⊕</div>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>No souls registered</div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)" }}>No users are currently recorded in the Scriptorium.</div>
           </div>
 
         /* User rows */
@@ -397,17 +397,17 @@ export default function UserManagementPage() {
                       background: ROLE_AVATAR_BG[user.role] ?? ROLE_AVATAR_BG.player,
                       border: "1px solid " + (ROLE_AVATAR_BORDER[user.role] ?? ROLE_AVATAR_BORDER.player),
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-display)", fontSize: 14,
+                      fontFamily: "var(--font-display)", fontSize: "0.875rem",
                       color: "oklch(0.92 0.04 80)",
                       boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.15)",
                     }}>
                       {initials}
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".04em", color: "var(--grim-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".04em", color: "var(--grim-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {user.displayName || "Unknown"}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".08em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {user.email}
                       </div>
                     </div>
@@ -452,14 +452,14 @@ export default function UserManagementPage() {
                         ))}
                       </select>
                     ) : (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: user.assignedCharacter ? "var(--grim-ink-2)" : "var(--grim-ink-4)" }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: user.assignedCharacter ? "var(--grim-ink-2)" : "var(--grim-ink-4)" }}>
                         {charName}
                       </span>
                     )}
                   </div>
 
                   {/* Last sign-in */}
-                  <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-4)", letterSpacing: ".08em" }}>
+                  <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-4)", letterSpacing: ".08em" }}>
                     {user.lastSignIn ? new Date(user.lastSignIn).toLocaleDateString() : "Never"}
                   </div>
 
@@ -471,14 +471,14 @@ export default function UserManagementPage() {
                           className="grim-btn is-ember"
                           onClick={handleSaveRole}
                           disabled={loading}
-                          style={{ padding: "6px 12px", fontSize: 11 }}
+                          style={{ padding: "6px 12px", fontSize: "0.6875rem" }}
                         >
                           {loading ? <span className="grim-flame" style={{ display: "inline-block", width: 6, height: 6 }} /> : "✓"} Save
                         </button>
                         <button
                           className="grim-btn is-ghost"
                           onClick={handleCancelEdit}
-                          style={{ padding: "6px 12px", fontSize: 11, color: "var(--grim-blood-2)", borderColor: "var(--grim-blood-2)" }}
+                          style={{ padding: "6px 12px", fontSize: "0.6875rem", color: "var(--grim-blood-2)", borderColor: "var(--grim-blood-2)" }}
                         >
                           Cancel
                         </button>
@@ -487,7 +487,7 @@ export default function UserManagementPage() {
                       <button
                         className="grim-btn is-ghost"
                         onClick={() => handleEditRole(user)}
-                        style={{ padding: "6px 12px", fontSize: 11 }}
+                        style={{ padding: "6px 12px", fontSize: "0.6875rem" }}
                       >
                         ✎ Edit
                       </button>

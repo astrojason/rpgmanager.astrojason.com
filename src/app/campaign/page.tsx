@@ -66,7 +66,7 @@ function sigilStyle(tint: string) {
   const base = {
     width: 44, height: 44, flexShrink: 0, borderRadius: 1,
     display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "var(--font-display)", fontSize: 28,
+    fontFamily: "var(--font-display)", fontSize: "1.75rem",
     color: "oklch(0.92 0.05 70)",
     boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
   };
@@ -223,10 +223,10 @@ export default function CampaignHome() {
         </div>
         <div style={{ textAlign: "right", paddingBottom: 6 }}>
           <div className="grim-label" style={{ marginBottom: 4 }}>Chapter</div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 26, color: "var(--grim-gold)", lineHeight: 1 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.625rem", color: "var(--grim-gold)", lineHeight: 1 }}>
             The Hellhound Vigil
           </div>
-          <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em", marginTop: 4 }}>
+          <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".18em", marginTop: 4 }}>
             session xxi · stormharbor arc
           </div>
         </div>
@@ -240,17 +240,17 @@ export default function CampaignHome() {
           <div className="grim-parchment" style={{ borderRadius: 0, margin: 0, minHeight: 260, padding: "32px 40px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
               <div>
-                <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>
+                <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>
                   By order of the Master
                 </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 42, color: "var(--grim-blood)", lineHeight: 1, marginTop: 4 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "2.625rem", color: "var(--grim-blood)", lineHeight: 1, marginTop: 4 }}>
                   A Summoning
                 </div>
               </div>
               <div className="grim-seal">✦</div>
             </div>
 
-            <div style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "oklch(0.28 0.03 50)", lineHeight: 1.6, marginTop: 12 }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "1rem", color: "oklch(0.28 0.03 50)", lineHeight: 1.6, marginTop: 12 }}>
               {sessionDateStr ? (
                 <>Hark and attend! The party is bid to gather upon{" "}
                 <b style={{ fontFamily: "var(--font-head)" }}>{sessionDateStr}</b>
@@ -266,15 +266,15 @@ export default function CampaignHome() {
 
             <div style={{ display: "flex", gap: 28, marginTop: 22, paddingTop: 16, borderTop: "1px dashed oklch(0.55 0.08 50 / 0.5)" }}>
               <div>
-                <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
+                <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Game Date</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
                   {currentGameDate ?? "—"}
                 </div>
               </div>
               {sessionData?.location && (
                 <div>
-                  <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Location</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
+                  <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Location</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", color: "oklch(0.25 0.03 40)", lineHeight: 1.2, marginTop: 2 }}>
                     {sessionData.location}
                   </div>
                 </div>
@@ -288,19 +288,19 @@ export default function CampaignHome() {
               <div className="grim-h-section" style={{ margin: 0 }}>The Vigil Approaches</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span className="grim-flame"/>
-                <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>active</span>
+                <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", color: "var(--grim-ember-2)", textTransform: "uppercase" }}>active</span>
               </div>
             </div>
 
             <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 80, color: "var(--grim-ember-2)", lineHeight: 0.85, textShadow: "0 0 30px oklch(0.72 0.165 48 / 0.5)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "5rem", color: "var(--grim-ember-2)", lineHeight: 0.85, textShadow: "0 0 30px oklch(0.72 0.165 48 / 0.5)" }}>
                 {daysUntil !== null && !sessionData?.isSkipped ? daysUntil : "—"}
               </div>
               <div>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: 20, color: "var(--grim-gold)", letterSpacing: ".06em" }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-gold)", letterSpacing: ".06em" }}>
                   {sessionData?.isSkipped ? "skipped" : daysUntil === 0 ? "today!" : daysUntil === 1 ? "day hence" : "days hence"}
                 </div>
-                <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".16em", marginTop: 2 }}>
+                <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".16em", marginTop: 2 }}>
                   {sessionDateStr || "date TBD"}
                 </div>
               </div>
@@ -309,10 +309,10 @@ export default function CampaignHome() {
             {latestRecap && (
               <div style={{ background: "oklch(0.12 0.025 290)", border: "1px solid var(--grim-line)", padding: "14px 16px", borderRadius: 1 }}>
                 <div className="grim-label" style={{ marginBottom: 6 }}>Where we left the party</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink)", lineHeight: 1.55, fontStyle: "italic", marginBottom: 8 }}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink)", lineHeight: 1.55, fontStyle: "italic", marginBottom: 8 }}>
                   {toPlainText(latestRecap.recap).slice(0, 220).trimEnd()}…
                 </div>
-                <Link href="/campaign/recaps" className="grim-link" style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".12em", textTransform: "uppercase" }}>
+                <Link href="/campaign/recaps" className="grim-link" style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".12em", textTransform: "uppercase" }}>
                   {latestRecap.title} ›
                 </Link>
               </div>
@@ -337,10 +337,10 @@ export default function CampaignHome() {
               style={{ padding: "18px", textDecoration: "none", color: "inherit", cursor: "pointer", display: "flex", gap: 14, alignItems: "center" }}>
               <div style={sigilStyle(s.tint)}>{s.sigil}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{s.title}</div>
-                <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2 }}>{s.sub}</div>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{s.title}</div>
+                <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".14em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2 }}>{s.sub}</div>
               </div>
-              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 18 }}>›</span>
+              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.125rem" }}>›</span>
             </a>
           ))}
         </div>
@@ -368,29 +368,29 @@ export default function CampaignHome() {
                       {imgSrc ? (
                         <Image src={imgSrc} alt={name} fill style={{ objectFit: "cover", objectPosition: "center top" }}/>
                       ) : (
-                        <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%", fontSize: 0 }}/>
+                        <div className="grim-img-slot is-portrait" style={{ width: "100%", height: "100%", fontSize: "0rem" }}/>
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                        <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", letterSpacing: ".02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+                        <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", letterSpacing: ".02em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
                         {nameIsHidden && (isAdmin || isDM) && (
-                          <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
+                          <span className="grim-chip" style={{ fontSize: "0.5625rem", padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>
                         )}
-                        {npc.pronunciation && !nameIsHidden && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
+                        {npc.pronunciation && !nameIsHidden && <div style={{ fontFamily: "var(--font-body)", fontSize: "0.6875rem", color: "var(--grim-ink-4)", fontStyle: "italic", flexShrink: 0 }}>({npc.pronunciation})</div>}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {[npc.race, npc.location].filter(Boolean).join(" · ")}
                       </div>
                     </div>
-                    <span className={statusChipClass(npc.status)} style={{ flexShrink: 0, fontSize: 10 }}>
+                    <span className={statusChipClass(npc.status)} style={{ flexShrink: 0, fontSize: "0.625rem" }}>
                       {statusLabel(npc.status)}
                     </span>
                   </div>
                 </Link>
               );
             })}
-            <Link href="/campaign/npcs" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start", marginTop: 4 }}>
+            <Link href="/campaign/npcs" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "0.75rem", letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start", marginTop: 4 }}>
               All souls in the codex ›
             </Link>
           </div>
@@ -404,7 +404,7 @@ export default function CampaignHome() {
           </div>
           <div className="grim-stack" style={{ gap: 14 }}>
             {activeQuests.length === 0 ? (
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)", fontStyle: "italic", margin: 0 }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)", fontStyle: "italic", margin: 0 }}>
                 No threads are in motion.
               </p>
             ) : activeQuests.map((q, i) => {
@@ -418,14 +418,14 @@ export default function CampaignHome() {
                     boxShadow: state !== "dim" ? `0 0 8px ${state === "ember" ? "var(--grim-ember)" : "var(--grim-arcane)"}` : "none"
                   }}/>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".02em", color: "var(--grim-ink)" }}>{q.name}</div>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{questMeta(q.status)}</div>
-                    {desc && <div style={{ fontSize: 13, color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{desc}</div>}
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".02em", color: "var(--grim-ink)" }}>{q.name}</div>
+                    <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>{questMeta(q.status)}</div>
+                    {desc && <div style={{ fontSize: "0.8125rem", color: "var(--grim-ink-2)", fontStyle: "italic", marginTop: 6, lineHeight: 1.45 }}>{desc}</div>}
                   </div>
                 </Link>
               );
             })}
-            <Link href="/campaign/quests" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start" }}>
+            <Link href="/campaign/quests" className="grim-link" style={{ fontFamily: "var(--font-head)", fontSize: "0.75rem", letterSpacing: ".14em", textTransform: "uppercase", alignSelf: "flex-start" }}>
               Unfurl all threads ›
             </Link>
           </div>
@@ -439,7 +439,7 @@ export default function CampaignHome() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3, marginBottom: 14 }}>
             {["Adon","Selū","Rili","Tel'","Pyrt","Neld","Vian","Illu","Bari","Anar"].map((d, i) => (
-              <div key={i} className="grim-mono" style={{ fontSize: 8, letterSpacing: ".04em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid var(--grim-line)" }}>{d}</div>
+              <div key={i} className="grim-mono" style={{ fontSize: "0.5rem", letterSpacing: ".04em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid var(--grim-line)" }}>{d}</div>
             ))}
             {Array.from({ length: 40 }).map((_, i) => {
               const day = i + 1;
@@ -447,7 +447,7 @@ export default function CampaignHome() {
               return (
                 <div key={i} style={{
                   height: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-display)", fontSize: 11,
+                  fontFamily: "var(--font-display)", fontSize: "0.6875rem",
                   color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)",
                   background: isToday ? "var(--grim-ember-2)" : "transparent",
                   borderRadius: 1, position: "relative"
@@ -457,17 +457,17 @@ export default function CampaignHome() {
               );
             })}
           </div>
-          <div className="grim-stack" style={{ gap: 6, fontSize: 13 }}>
+          <div className="grim-stack" style={{ gap: 6, fontSize: "0.8125rem" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ember-2)", letterSpacing: ".12em" }}>36 ▸</span>
+              <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ember-2)", letterSpacing: ".12em" }}>36 ▸</span>
               <span style={{ color: "var(--grim-ink)" }}>The Hellhound Vigil <span className="grim-dim">— today</span></span>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-gold)", letterSpacing: ".12em" }}>40 ▸</span>
+              <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-gold)", letterSpacing: ".12em" }}>40 ▸</span>
               <span style={{ color: "var(--grim-ink-2)" }}>Stormharbor harvest fair</span>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-arcane)", letterSpacing: ".12em" }}>55 ▸</span>
+              <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-arcane)", letterSpacing: ".12em" }}>55 ▸</span>
               <span style={{ color: "var(--grim-ink-2)" }}>The Whispering tide returns</span>
             </div>
           </div>
@@ -481,19 +481,19 @@ export default function CampaignHome() {
       <section className="grim-parchment" style={{ marginTop: 6 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
           <div>
-            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Of the House</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "oklch(0.25 0.05 30)", lineHeight: 1 }}>Rules of the Table</div>
+            <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".22em", color: "oklch(0.40 0.08 30)", textTransform: "uppercase" }}>Of the House</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "oklch(0.25 0.05 30)", lineHeight: 1 }}>Rules of the Table</div>
           </div>
-          <span className="grim-mono" style={{ fontSize: 10, color: "oklch(0.45 0.05 40)", letterSpacing: ".18em", textTransform: "uppercase" }}>Three Edicts</span>
+          <span className="grim-mono" style={{ fontSize: "0.625rem", color: "oklch(0.45 0.05 40)", letterSpacing: ".18em", textTransform: "uppercase" }}>Three Edicts</span>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, color: "oklch(0.25 0.03 40)" }}>
           {HOUSE_RULES.map((rule, i) => (
             <div key={i}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-blood)", marginBottom: 6 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "1.375rem", color: "var(--grim-blood)", marginBottom: 6 }}>
                 {rule.roman}. {rule.label}
               </div>
-              <p style={{ fontSize: 14, lineHeight: 1.55, margin: 0 }}>{rule.body}</p>
+              <p style={{ fontSize: "0.875rem", lineHeight: 1.55, margin: 0 }}>{rule.body}</p>
             </div>
           ))}
         </div>

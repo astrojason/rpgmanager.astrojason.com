@@ -89,7 +89,7 @@ export default function ItemsPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the armoury&hellip;
         </div>
@@ -110,7 +110,7 @@ export default function ItemsPage() {
             style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 640, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
             onClick={e => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "var(--font-head)", fontSize: 20, color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
               Catalogue New Relic
             </h2>
             <form onSubmit={e => { e.preventDefault(); handleAddItem(editingItem); }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -122,21 +122,21 @@ export default function ItemsPage() {
                   { label: "Image URL", field: "image" as keyof Item, full: true },
                 ] as { label: string; field: keyof Item; full: boolean }[]).map(({ label, field, full }) => (
                   <div key={field} style={full ? { gridColumn: "1 / -1" } : {}}>
-                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
                     <input
                       type="text"
                       value={(editingItem[field] as string) || ""}
                       onChange={e => setEditingItem({ ...editingItem, [field]: e.target.value })}
-                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }}
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Category</label>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Category</label>
                   <select
                     value={editingItem.category || "Magic Item"}
                     onChange={e => setEditingItem({ ...editingItem, category: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }}
                   >
                     {CATEGORIES.filter(c => c.id !== "all").map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
@@ -145,21 +145,21 @@ export default function ItemsPage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
                 <MarkdownEditor value={editingItem.description || ""} onChange={v => setEditingItem({ ...editingItem, description: v })} rows={4} label="Description" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Properties / Stats</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Properties / Stats</label>
                 <MarkdownEditor value={editingItem.properties || ""} onChange={v => setEditingItem({ ...editingItem, properties: v })} rows={5} label="Properties" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
                 <MarkdownEditor value={editingItem.gm_notes || ""} onChange={v => setEditingItem({ ...editingItem, gm_notes: v })} rows={4} label="GM Notes" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
               <div>
                 <UserNotesEditor notes={editingItem.notes || []} onChange={notes => setEditingItem({ ...editingItem, notes })} currentUser={userId} isAdmin={isAdmin} className="mt-2" linkEntities={items.map(it => ({ id: String(it.id), name: it.name, type: 'item' as const, url: `/campaign/items/${it.id}` }))} />
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
                 <input type="checkbox" checked={Boolean(editingItem.hidden)} onChange={e => setEditingItem({ ...editingItem, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
                 Hidden from players
               </label>
@@ -193,9 +193,9 @@ export default function ItemsPage() {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Seek a relic, a power, a name…"
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 16, padding: "12px 16px 12px 42px", outline: "none" }}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "1rem", padding: "12px 16px 12px 42px", outline: "none" }}
             />
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: 18 }}>⚔</span>
+            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--grim-gold-2)", fontSize: "1.125rem" }}>⚔</span>
           </div>
           <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", overflow: "hidden", flexWrap: "wrap" }}>
             {CATEGORIES.map(cat => (
@@ -216,7 +216,7 @@ export default function ItemsPage() {
               style={{ padding: "6px 12px", border: `1px solid ${hiddenOnly ? "var(--grim-blood-2)" : "var(--grim-line)"}`, background: hiddenOnly ? undefined : "transparent" }}
             >
               Hidden Only
-              <span className="grim-mono" style={{ fontSize: 10, opacity: 0.7, marginLeft: 6 }}>{hiddenCount}</span>
+              <span className="grim-mono" style={{ fontSize: "0.625rem", opacity: 0.7, marginLeft: 6 }}>{hiddenCount}</span>
             </button>
           )}
         </section>
@@ -225,15 +225,15 @@ export default function ItemsPage() {
         <section>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
             <h2 className="grim-h-section">Of what was found and taken</h2>
-            <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
+            <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>
               {sortedItems.length} of {visibleItems.length} shown
             </div>
           </div>
 
           {sortedItems.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ the vaults are empty ~</div>
-              <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-ink-3)" }}>~ the vaults are empty ~</div>
+              <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>Adjust thy search or filters</div>
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
@@ -253,28 +253,28 @@ export default function ItemsPage() {
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ""; (e.currentTarget as HTMLElement).style.borderColor = "var(--grim-line)"; }}
                 >
                   {item.hidden && isAdmin && (
-                    <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: 9, letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
+                    <span className="grim-mono" style={{ position: "absolute", top: 8, right: 10, fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-blood-2)", textTransform: "uppercase" }}>hidden</span>
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span className="grim-chip" style={{ fontSize: 9, padding: "2px 7px", ...categoryChipStyle(item.category) }}>
+                    <span className="grim-chip" style={{ fontSize: "0.5625rem", padding: "2px 7px", ...categoryChipStyle(item.category) }}>
                       {item.category || "Item"}
                     </span>
                   </div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em" }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.375rem", color: "var(--grim-gold)", lineHeight: 1, letterSpacing: ".01em" }}>
                     {item.name}
                   </div>
                   {item.pronunciation && (
-                    <div className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
+                    <div className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", marginTop: 2 }}>
                       ({item.pronunciation})
                     </div>
                   )}
                   {item.type_tag && (
-                    <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: 12, color: "var(--grim-ink-3)", marginTop: 4 }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: "0.75rem", color: "var(--grim-ink-3)", marginTop: 4 }}>
                       {item.type_tag}
                     </div>
                   )}
                   {item.description && (
-                    <div style={{ fontSize: 12, color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--grim-ink-2)", lineHeight: 1.45, marginTop: 8, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {item.description}
                     </div>
                   )}

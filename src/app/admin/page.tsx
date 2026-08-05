@@ -57,22 +57,22 @@ function AdminTome({ glyph, title, sub, count, tint, href }: {
         <div style={{
           width: 52, height: 52, flexShrink: 0, borderRadius: 1,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "var(--font-display)", fontSize: 30,
+          fontFamily: "var(--font-display)", fontSize: "1.875rem",
           background: TINT_BG[tint], color: "oklch(0.94 0.05 70)",
           border: "1px solid " + TINT_BORDER[tint],
           boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
         }}>{glyph}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{title}</div>
-          <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{sub}</div>
+          <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{title}</div>
+          <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{sub}</div>
         </div>
         {count != null && (
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-gold)", lineHeight: 1 }}>{count}</div>
-            <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>entries</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem", color: "var(--grim-gold)", lineHeight: 1 }}>{count}</div>
+            <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 2 }}>entries</div>
           </div>
         )}
-        <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 20, marginLeft: count != null ? 8 : 0 }}>›</span>
+        <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.25rem", marginLeft: count != null ? 8 : 0 }}>›</span>
       </div>
     </Link>
   );
@@ -108,16 +108,16 @@ export default function AdminPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Master&apos;s hand</div>
-          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Scriptorium</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>The Scriptorium</h1>
           <p className="grim-page-sub">Tend the tomes of the campaign — souls, banners, errands, and the turning of the world&apos;s calendar.</p>
         </div>
         {user && (
           <div style={{ textAlign: "right", paddingBottom: 6, flexShrink: 0 }}>
             <div className="grim-label" style={{ marginBottom: 4 }}>Signed in as</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)", lineHeight: 1 }}>The Master</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.375rem", color: "var(--grim-gold)", lineHeight: 1 }}>The Master</div>
             <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 6, alignItems: "center" }}>
               <span className="grim-chip is-ember">admin</span>
-              <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>{user.email}</span>
+              <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>{user.email}</span>
             </div>
           </div>
         )}
@@ -134,11 +134,11 @@ export default function AdminPage() {
           ] as { n: number | undefined; l: string; glyph: string; tint: Tint }[]).map((s, i) => (
             <div key={i} style={{ padding: "22px 26px", borderLeft: i > 0 ? "1px solid var(--grim-line)" : "none", background: "linear-gradient(180deg, oklch(0.17 0.035 285), oklch(0.135 0.030 290))" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: TINT_BORDER[s.tint] }}>{s.glyph}</span>
-                <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{s.l}</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", color: TINT_BORDER[s.tint] }}>{s.glyph}</span>
+                <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".18em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{s.l}</span>
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 48, color: "var(--grim-gold)", lineHeight: 0.9, textShadow: "0 0 28px oklch(0.72 0.165 48 / 0.15)" }}>
-                {s.n ?? <span style={{ fontSize: 24, color: "var(--grim-ink-4)" }}>—</span>}
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", lineHeight: 0.9, textShadow: "0 0 28px oklch(0.72 0.165 48 / 0.15)" }}>
+                {s.n ?? <span style={{ fontSize: "1.5rem", color: "var(--grim-ink-4)" }}>—</span>}
               </div>
             </div>
           ))}
@@ -163,7 +163,7 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <div style={{ textAlign: "center", padding: "4px 0 10px", color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 28, letterSpacing: ".10em" }}>❦</div>
+      <div style={{ textAlign: "center", padding: "4px 0 10px", color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.75rem", letterSpacing: ".10em" }}>❦</div>
 
       {/* Instruments of the Master */}
       <section>

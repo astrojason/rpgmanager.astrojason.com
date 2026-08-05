@@ -66,7 +66,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
   const tabStyle = (tab: Tab): React.CSSProperties => ({
     padding: "7px 14px",
     fontFamily: "var(--font-head)",
-    fontSize: 11,
+    fontSize: "0.6875rem",
     letterSpacing: ".14em",
     textTransform: "uppercase",
     cursor: "pointer",
@@ -116,7 +116,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
           <span
             style={{
               fontFamily: "var(--font-head)",
-              fontSize: 13,
+              fontSize: "0.8125rem",
               letterSpacing: ".1em",
               textTransform: "uppercase",
               color: "var(--grim-ink)",
@@ -168,7 +168,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
               borderLeft: "1px solid var(--grim-line)",
               color: "var(--grim-ink)",
               fontFamily: "var(--font-body)",
-              fontSize: 12,
+              fontSize: "0.75rem",
               padding: "6px 10px",
               outline: "none",
               width: 120,
@@ -184,7 +184,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
                 padding: "16px",
                 color: "var(--grim-ink-4)",
                 fontFamily: "var(--font-body)",
-                fontSize: 13,
+                fontSize: "0.8125rem",
               }}
             >
               No entities found
@@ -218,7 +218,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
                 <span
                   style={{
                     fontFamily: "var(--font-head)",
-                    fontSize: 9,
+                    fontSize: "0.5625rem",
                     letterSpacing: ".12em",
                     textTransform: "uppercase",
                     color: TYPE_COLOR[entity.type],
@@ -230,7 +230,7 @@ export default function EntityLinkPicker({ entities, onSelect, onClose }: Entity
                 <span
                   style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: 13,
+                    fontSize: "0.8125rem",
                     color: "var(--grim-ink-2)",
                   }}
                 >

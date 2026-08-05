@@ -105,7 +105,7 @@ export default function FactionDetailPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the dossier&hellip;
         </div>
@@ -120,7 +120,7 @@ export default function FactionDetailPage() {
           ‹ The Banners
         </button>
         <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>~ banner not found ~</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ banner not found ~</div>
         </div>
       </div>
     );
@@ -155,7 +155,7 @@ export default function FactionDetailPage() {
             <Image src={factionImage} alt={faction.name} fill style={{ objectFit: "cover", objectPosition: "center top" }} priority />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, oklch(0.22 0.06 290 / 0.88) 0%, oklch(0.16 0.05 285 / 0.78) 55%, oklch(0.20 0.08 40 / 0.82) 100%)" }} />
             <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(135deg, oklch(1 0 0 / 0.02) 0 2px, transparent 2px 7px)", pointerEvents: "none" }} />
-            <button className="grim-btn is-ghost" style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 14, padding: "4px 10px" }}
+            <button className="grim-btn is-ghost" style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: "0.875rem", padding: "4px 10px" }}
               onClick={() => setShowFullImage(true)} aria-label="View full image">⊙</button>
             <div style={{ position: "absolute", inset: 0, padding: "28px 32px", display: "flex", alignItems: "center", gap: 24 }}>
               <HeraldCrest type={faction.type} />
@@ -179,7 +179,7 @@ export default function FactionDetailPage() {
           <div className="grim-tome-head">
             <h3 className="grim-tome-title">Charter</h3>
           </div>
-          <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
+          <div className="grim-stack" style={{ gap: 10, fontSize: "0.875rem" }}>
             {(
               [
                 ["Type", faction.type],
@@ -189,8 +189,8 @@ export default function FactionDetailPage() {
               ] as [string, string][]
             ).map(([k, v], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 3 ? "1px dotted var(--grim-line)" : "none" }}>
-                <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
               </div>
             ))}
           </div>
@@ -200,19 +200,19 @@ export default function FactionDetailPage() {
           <div className="grim-tome-head">
             <h3 className="grim-tome-title">Aims &amp; Ambitions</h3>
           </div>
-          <div className="grim-flavor" style={{ fontSize: 14, color: "var(--grim-ink-2)", marginBottom: 14, lineHeight: 1.6 }}
+          <div className="grim-flavor" style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", marginBottom: 14, lineHeight: 1.6 }}
             dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(faction.goals || "", true) }} />
           {faction.background && (
             <>
               <div className="grim-label" style={{ marginBottom: 6 }}>Background</div>
-              <div style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+              <div style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}
                 dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(faction.background, true) }} />
             </>
           )}
           {!faction.background && faction.description && (
             <>
               <div className="grim-label" style={{ marginBottom: 6 }}>Description</div>
-              <div style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+              <div style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}
                 dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(faction.description, true) }} />
             </>
           )}
@@ -225,7 +225,7 @@ export default function FactionDetailPage() {
           <div className="grim-tome-head">
             <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>GM&apos;s Compendium</h3>
           </div>
-          <div style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6 }}
+          <div style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6 }}
             dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(faction.gm_notes, true) }} />
         </section>
       )}
@@ -286,8 +286,8 @@ export default function FactionDetailPage() {
             {faction.relationships.map((rel, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, paddingBottom: 10, borderBottom: i < faction.relationships!.length - 1 ? "1px dotted var(--grim-line)" : "none" }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", marginBottom: 4 }}>{rel.faction}</div>
-                  {rel.description && <div style={{ fontSize: 13, color: "var(--grim-ink-3)", lineHeight: 1.5 }}>{rel.description}</div>}
+                  <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", marginBottom: 4 }}>{rel.faction}</div>
+                  {rel.description && <div style={{ fontSize: "0.8125rem", color: "var(--grim-ink-3)", lineHeight: 1.5 }}>{rel.description}</div>}
                 </div>
                 <span className={`grim-chip ${rel.status === "Allied" ? "is-alive" : rel.status === "Hostile" ? "is-dead" : "is-unknown"}`} style={{ flexShrink: 0 }}>
                   {rel.status}
@@ -323,18 +323,18 @@ export default function FactionDetailPage() {
             {recaps.map(r => (
               <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`} style={{ textDecoration: "none" }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                  <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-ember-2)", flexShrink: 0 }}>SESSION</span>
-                  <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{r.title}</span>
-                  <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", marginLeft: "auto" }}>{r.date}</span>
+                  <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".12em", color: "var(--grim-ember-2)", flexShrink: 0 }}>SESSION</span>
+                  <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{r.title}</span>
+                  <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", marginLeft: "auto" }}>{r.date}</span>
                 </div>
               </Link>
             ))}
             {quests.map(q => (
               <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ textDecoration: "none" }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                  <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".12em", color: "var(--grim-gold)", flexShrink: 0 }}>QUEST</span>
-                  <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{q.name}</span>
-                  <span className="grim-chip" style={{ fontSize: 9, marginLeft: "auto" }}>{q.status}</span>
+                  <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".12em", color: "var(--grim-gold)", flexShrink: 0 }}>QUEST</span>
+                  <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{q.name}</span>
+                  <span className="grim-chip" style={{ fontSize: "0.5625rem", marginLeft: "auto" }}>{q.status}</span>
                 </div>
               </Link>
             ))}
@@ -350,7 +350,7 @@ function HeraldCrest({ type }: { type: string }) {
     <div style={{
       width: 80, height: 96, flexShrink: 0,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-gold)",
+      fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-gold)",
       background: "linear-gradient(180deg, oklch(0.28 0.08 40), oklch(0.18 0.05 35))",
       border: "1px solid var(--grim-gold-2)",
       clipPath: "polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)",
@@ -364,11 +364,11 @@ function HeraldCrest({ type }: { type: string }) {
 function BannerText({ faction, totalMembers }: { faction: Faction; totalMembers: number }) {
   return (
     <div>
-      <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".24em", color: "var(--grim-gold-2)", textTransform: "uppercase" }}>{faction.type}</div>
-      <h1 style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, textShadow: "0 0 32px oklch(0 0 0 / 0.4)" }}>
+      <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".24em", color: "var(--grim-gold-2)", textTransform: "uppercase" }}>{faction.type}</div>
+      <h1 style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, textShadow: "0 0 32px oklch(0 0 0 / 0.4)" }}>
         {faction.name}
       </h1>
-      <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)", marginBottom: 8 }}>({faction.pronunciation})</div>
+      <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>({faction.pronunciation})</div>
       <div className="grim-row" style={{ gap: 8, flexWrap: "wrap" }}>
         <span className={`grim-chip ${faction.status === "Active" ? "is-alive" : "is-dead"}`}>{faction.status}</span>
         {totalMembers > 0 && <span className="grim-chip is-faction">{totalMembers} known members</span>}
@@ -402,13 +402,13 @@ function MemberCard({ image, name, sub, deceased, href, hidden, nameHidden }: { 
         </div>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: deceased ? "var(--grim-ink-3)" : "var(--grim-ink)", letterSpacing: ".02em", textDecoration: deceased ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: deceased ? "var(--grim-ink-3)" : "var(--grim-ink)", letterSpacing: ".02em", textDecoration: deceased ? "line-through" : "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {name}
             </div>
-            {hidden && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0 }}>hidden</span>}
-            {nameHidden && <span className="grim-chip" style={{ fontSize: 9, padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
+            {hidden && <span className="grim-chip is-blood" style={{ fontSize: "0.5625rem", padding: "1px 6px", flexShrink: 0 }}>hidden</span>}
+            {nameHidden && <span className="grim-chip" style={{ fontSize: "0.5625rem", padding: "1px 6px", flexShrink: 0, background: "oklch(0.25 0.10 78 / 0.85)", color: "var(--grim-gold-2)", border: "1px solid var(--grim-gold-2)" }}>name hidden</span>}
           </div>
-          <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".10em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".10em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {sub}
           </div>
         </div>

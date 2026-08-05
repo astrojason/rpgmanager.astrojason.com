@@ -18,7 +18,7 @@ const fieldStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: 15,
+  fontSize: "0.9375rem",
   padding: "9px 14px",
   outline: "none",
 };
@@ -108,7 +108,7 @@ export default function ItemsManagementPage() {
     return (
       <div style={{ padding: "36px 48px 80px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
             <span className="grim-flame" />
             Consulting the armoury…
           </div>
@@ -128,7 +128,7 @@ export default function ItemsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Relics</div>
-          <h1 className="grim-page-title" style={{ fontSize: 58 }}>The Armoury &amp; Reliquary</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>The Armoury &amp; Reliquary</h1>
           <p className="grim-page-sub">Catalogue weapons, armour, artefacts, and journals.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Catalogue New</button>
@@ -147,10 +147,10 @@ export default function ItemsManagementPage() {
               placeholder="✦ Search relics…"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "10px 14px", outline: "none" }}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "10px 14px", outline: "none" }}
             />
           </div>
-          <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
+          <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-4)", marginBottom: 6, paddingLeft: 2 }}>
             {filteredItems.length} {filteredItems.length === 1 ? "relic" : "relics"}
           </div>
           <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
@@ -169,19 +169,19 @@ export default function ItemsManagementPage() {
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: selectedItem?.id === item.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: selectedItem?.id === item.id ? "var(--grim-ember-2)" : "var(--grim-ink-2)", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 6 }}>
                         <span>{item.name}</span>
-                        {item.hidden && <span style={{ fontSize: 10, color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
+                        {item.hidden && <span style={{ fontSize: "0.625rem", color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", letterSpacing: ".10em" }}>HIDDEN</span>}
                       </div>
                       {item.category && (
-                        <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 2 }}>
+                        <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 2 }}>
                           {item.category}{item.type_tag ? ` · ${item.type_tag}` : ""}
                         </div>
                       )}
                     </div>
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <a className="grim-link" style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }} onClick={e => { e.stopPropagation(); handleEdit(item); }}>edit</a>
-                      <a style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }} onClick={e => { e.stopPropagation(); handleDelete(item); }}>del</a>
+                      <a className="grim-link" style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }} onClick={e => { e.stopPropagation(); handleEdit(item); }}>edit</a>
+                      <a style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }} onClick={e => { e.stopPropagation(); handleDelete(item); }}>del</a>
                     </div>
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export default function ItemsManagementPage() {
                   />
                 </div>
 
-                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)", marginBottom: 20 }}>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-2)", marginBottom: 20 }}>
                   <input type="checkbox" checked={formData.hidden || false} onChange={e => setFormData({ ...formData, hidden: e.target.checked })} />
                   <span>Hidden from players</span>
                 </label>
@@ -280,7 +280,7 @@ export default function ItemsManagementPage() {
             <div className="grim-tome">
               <div className="grim-tome-head">
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>{selectedItem.name}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-gold)", lineHeight: 1, marginBottom: 6 }}>{selectedItem.name}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {selectedItem.category && <span className="grim-chip">{selectedItem.category}</span>}
                     {selectedItem.hidden && <span className="grim-chip is-blood">Hidden</span>}
@@ -294,11 +294,11 @@ export default function ItemsManagementPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                 <div className="grim-stack" style={{ gap: 8 }}>
-                  {selectedItem.pronunciation && <div><span className="grim-label">Pronunciation </span><span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--grim-ink-3)" }}>{selectedItem.pronunciation}</span></div>}
-                  {selectedItem.type_tag && <div><span className="grim-label">Type </span><span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)", fontStyle: "italic" }}>{selectedItem.type_tag}</span></div>}
-                  {(selectedItem.tagged_npcs?.length ?? 0) > 0 && <div><span className="grim-label">NPCs </span><span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{selectedItem.tagged_npcs?.map(id => availableNpcs.find(n => n.id === id)?.name || id).join(", ")}</span></div>}
-                  {(selectedItem.tagged_pcs?.length ?? 0) > 0 && <div><span className="grim-label">PCs </span><span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{selectedItem.tagged_pcs?.map(id => availablePcs.find(p => p.id === id)?.name || id).join(", ")}</span></div>}
-                  {(selectedItem.tagged_locations?.length ?? 0) > 0 && <div><span className="grim-label">Locations </span><span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{selectedItem.tagged_locations?.map(id => availableLocations.find(l => l.id === id)?.name || id).join(", ")}</span></div>}
+                  {selectedItem.pronunciation && <div><span className="grim-label">Pronunciation </span><span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8125rem", color: "var(--grim-ink-3)" }}>{selectedItem.pronunciation}</span></div>}
+                  {selectedItem.type_tag && <div><span className="grim-label">Type </span><span style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-2)", fontStyle: "italic" }}>{selectedItem.type_tag}</span></div>}
+                  {(selectedItem.tagged_npcs?.length ?? 0) > 0 && <div><span className="grim-label">NPCs </span><span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>{selectedItem.tagged_npcs?.map(id => availableNpcs.find(n => n.id === id)?.name || id).join(", ")}</span></div>}
+                  {(selectedItem.tagged_pcs?.length ?? 0) > 0 && <div><span className="grim-label">PCs </span><span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>{selectedItem.tagged_pcs?.map(id => availablePcs.find(p => p.id === id)?.name || id).join(", ")}</span></div>}
+                  {(selectedItem.tagged_locations?.length ?? 0) > 0 && <div><span className="grim-label">Locations </span><span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>{selectedItem.tagged_locations?.map(id => availableLocations.find(l => l.id === id)?.name || id).join(", ")}</span></div>}
                 </div>
               </div>
 
@@ -326,9 +326,9 @@ export default function ItemsManagementPage() {
 
           ) : (
             <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-ink-3)", marginBottom: 12 }}>⚔</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No relic selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: 14 }}>Select a relic from the register, or catalogue a new one.</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>⚔</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No relic selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: "0.875rem" }}>Select a relic from the register, or catalogue a new one.</div>
             </div>
           )}
         </div>

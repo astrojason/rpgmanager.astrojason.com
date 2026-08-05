@@ -103,7 +103,7 @@ export default function InteractiveImage({
             display: "flex",
             alignItems: "center",
             gap: "6px",
-            fontSize: "13px",
+            fontSize: "0.8125rem",
             fontWeight: "bold",
             color: "#fff",
             backgroundColor: "rgba(34, 197, 94, 0.95)",
@@ -134,7 +134,7 @@ export default function InteractiveImage({
             color: "white",
             padding: "8px 12px",
             borderRadius: "4px",
-            fontSize: "14px",
+            fontSize: "0.875rem",
             pointerEvents: "none",
             zIndex: 1000,
             maxWidth: "300px",
@@ -143,7 +143,7 @@ export default function InteractiveImage({
         >
           <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{hoveredArea.name}</div>
           <div
-            style={{ fontSize: "12px", opacity: 0.9, lineHeight: "1.4" }}
+            style={{ fontSize: "0.75rem", opacity: 0.9, lineHeight: "1.4" }}
             className="tooltip-content"
             dangerouslySetInnerHTML={{ __html: parseMarkdown(hoveredArea.teaser) }}
           />

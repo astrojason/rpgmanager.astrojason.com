@@ -33,7 +33,7 @@ export default function DataManagementPage() {
     <div style={{ padding: "36px 48px 80px" }}>
       <header style={{ marginBottom: 28 }}>
         <div className="grim-page-eyebrow">Behind the Screen · Tomes</div>
-        <h1 className="grim-page-title" style={{ fontSize: 58 }}>Tomes of Record</h1>
+        <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>Tomes of Record</h1>
         <p className="grim-page-sub">All the campaign data — souls, banners, errands, and the world entire.</p>
       </header>
 
@@ -44,16 +44,16 @@ export default function DataManagementPage() {
               <div style={{
                 width: 52, height: 52, flexShrink: 0, borderRadius: 1,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-display)", fontSize: 28,
+                fontFamily: "var(--font-display)", fontSize: "1.75rem",
                 background: TINT_BG[type.tint], color: "oklch(0.94 0.05 70)",
                 border: "1px solid " + TINT_BORDER[type.tint],
                 boxShadow: "inset 0 1px 0 oklch(0.90 0.10 80 / 0.2)",
               }}>{type.glyph}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: 15, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{type.name}</div>
-                <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{type.sub}</div>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "0.9375rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>{type.name}</div>
+                <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 3 }}>{type.sub}</div>
               </div>
-              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: 20 }}>›</span>
+              <span style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>›</span>
             </div>
           </Link>
         ))}

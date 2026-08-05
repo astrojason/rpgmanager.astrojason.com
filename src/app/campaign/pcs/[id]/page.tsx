@@ -93,7 +93,7 @@ export default function PCDetailPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -108,8 +108,8 @@ export default function PCDetailPage() {
           ← Back to Player Characters
         </button>
         <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)" }}>~ character not found ~</div>
-          <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-ink-3)" }}>~ character not found ~</div>
+          <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>
             No record in the codex
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function PCDetailPage() {
                 )}
                 <button
                   className="grim-btn is-ghost"
-                  style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: 18, padding: "4px 10px" }}
+                  style={{ position: "absolute", top: 10, right: 10, zIndex: 10, fontSize: "1.125rem", padding: "4px 10px" }}
                   onClick={() => setShowFullImage(true)}
                   aria-label="View full image"
                 >
@@ -215,16 +215,16 @@ export default function PCDetailPage() {
             <div>
               <div className="grim-page-eyebrow" style={{ marginBottom: 6 }}>Dossier of a Fellow Traveller</div>
               <div style={{ display: "flex", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
-                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 56, color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: "3.5rem", color: "var(--grim-gold)", margin: 0, lineHeight: 0.9, textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.3)" }}>
                   {pc.name}
                 </h1>
                 {pc.nickname && (
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: 20, color: "var(--grim-ink-2)" }}>
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: "1.25rem", color: "var(--grim-ink-2)" }}>
                     &ldquo;{pc.nickname}&rdquo;
                   </span>
                 )}
               </div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: 16, color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 6 }}>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", color: "var(--grim-ink)", letterSpacing: ".04em", marginTop: 6 }}>
                 {pc.race} · {pc.class}
               </div>
             </div>
@@ -234,15 +234,15 @@ export default function PCDetailPage() {
               <div className="grim-tome-head">
                 <h3 className="grim-tome-title">Of the Person</h3>
               </div>
-              <div className="grim-stack" style={{ gap: 10, fontSize: 14 }}>
+              <div className="grim-stack" style={{ gap: 10, fontSize: "0.875rem" }}>
                 {([
                   ["Hometown", pc.hometown],
                   ["Race", pc.race],
                   ["Calling", pc.class],
                 ] as [string, string][]).map(([k, v], i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, paddingBottom: 8, borderBottom: i < 2 ? "1px dotted var(--grim-line)" : "none" }}>
-                    <span className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
+                    <span className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase" }}>{k}</span>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", textAlign: "right" }}>{v || "—"}</span>
                   </div>
                 ))}
               </div>
@@ -263,7 +263,7 @@ export default function PCDetailPage() {
                     <button
                       key={factionId}
                       className="grim-chip is-faction"
-                      style={{ cursor: "pointer", fontSize: 12, padding: "5px 12px" }}
+                      style={{ cursor: "pointer", fontSize: "0.75rem", padding: "5px 12px" }}
                       onClick={() => router.push(`/campaign/factions/${factionId}`)}
                     >
                       ⚑ {getFactionName(factionId)}
@@ -287,10 +287,10 @@ export default function PCDetailPage() {
                 <Link key={d.id} href={`/campaign/deities/${d.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
                     <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                      <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
-                      {d.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: 9, padding: "1px 6px" }}>hidden</span>}
+                      <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-gold)", letterSpacing: ".03em" }}>✦ {d.name}</span>
+                      {d.hidden && (isAdmin || isDM) && <span className="grim-chip is-blood" style={{ fontSize: "0.5625rem", padding: "1px 6px" }}>hidden</span>}
                     </span>
-                    <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
+                    <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{d.domain || "—"}</span>
                   </div>
                 </Link>
               ))}
@@ -307,7 +307,7 @@ export default function PCDetailPage() {
             </div>
             <div
               className="prose dark:prose-invert max-w-none prose-sm"
-              style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }}
+              style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.65 }}
               dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(pc.gm_notes || "", true) }}
             />
           </section>

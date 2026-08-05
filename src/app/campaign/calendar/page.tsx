@@ -148,7 +148,7 @@ export default function CalendarPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the codex&hellip;
         </div>
@@ -159,7 +159,7 @@ export default function CalendarPage() {
   if (!calendarData) {
     return (
       <div style={{ padding: "36px 56px 80px" }}>
-        <div style={{ color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+        <div style={{ color: "var(--grim-blood-2)", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }}>
           Calendar data unavailable.
         </div>
       </div>
@@ -229,18 +229,18 @@ export default function CalendarPage() {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+        <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
           codex / the reckoning / {monthName.toLowerCase()}
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <span className="grim-flame" style={{ width: 6, height: 6 }} />
-          <span className="grim-mono" style={{ fontSize: 11, letterSpacing: ".14em", color: "var(--grim-ink-2)", textTransform: "uppercase" }}>
+          <span className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".14em", color: "var(--grim-ink-2)", textTransform: "uppercase" }}>
             Now · {curWeekdayName}, {curMonthName} {initialCurrent.day} · {yearLabel(initialCurrent.year)}
           </span>
           {isAdmin && !editingDate && (
             <button
               className="grim-btn is-ghost"
-              style={{ padding: "4px 10px", fontSize: 11 }}
+              style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
               onClick={() => { setDateForm({ ...initialCurrent }); setEditingDate(true); }}
             >
               ✎ Set Date
@@ -256,20 +256,20 @@ export default function CalendarPage() {
           <div className="grim-label" style={{ marginBottom: 10 }}>Set Current In-Game Date</div>
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
               <input
                 type="number" min={1} max={60}
                 value={dateForm.day}
                 onChange={e => setDateForm(f => ({ ...f, day: Number(e.target.value) }))}
-                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
               <select
                 value={dateForm.month}
                 onChange={e => setDateForm(f => ({ ...f, month: Number(e.target.value) }))}
-                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, padding: "6px 10px", outline: "none" }}
+                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.875rem", padding: "6px 10px", outline: "none" }}
               >
                 {months.map((m, idx) => (
                   <option key={idx} value={idx + 1}>{m.name}</option>
@@ -277,21 +277,21 @@ export default function CalendarPage() {
               </select>
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
               <input
                 type="number" min={1}
                 value={dateForm.year}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
-                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
               <input
                 type="number" min={AB_OFFSET + 1}
                 value={dateForm.year ? dateForm.year + AB_OFFSET : ""}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) - AB_OFFSET }))}
-                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div style={{ display: "flex", gap: 8, alignSelf: "flex-end", paddingBottom: 2 }}>
@@ -308,7 +308,7 @@ export default function CalendarPage() {
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 22 }}>
         <div>
           <div className="grim-page-eyebrow">The Reckoning · Calendar of the Bounty</div>
-          <h1 className="grim-page-title" style={{ fontSize: 78, marginBottom: 4 }}>{monthName}</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "4.875rem", marginBottom: 4 }}>{monthName}</h1>
           <div className="grim-page-sub" style={{ marginBottom: 0 }}>
             The <b style={{ color: "var(--grim-gold-2)" }}>{moonOrdinal} moon</b> · AB {viewYear} / T {viewYear + AB_OFFSET} · {daysInMonth} days, {tendayCount} {tendayCount === 1 ? "tenday" : "tendays"}
           </div>
@@ -318,9 +318,9 @@ export default function CalendarPage() {
         <div style={{ display: "flex", gap: 6, flexShrink: 0, paddingBottom: 8 }}>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y - 1)} title="Previous year">«</button>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToPrevMonth} title="Previous month">‹ {prevMonthName}</button>
-          <div style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-gold)", padding: "0 10px", minWidth: 160, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.3 }}>
+          <div style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", letterSpacing: ".10em", textTransform: "uppercase", color: "var(--grim-gold)", padding: "0 10px", minWidth: 160, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.3 }}>
             <span>{monthName}</span>
-            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-3)", marginTop: 2 }}>{yearLabel(viewYear)}</span>
+            <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-3)", marginTop: 2 }}>{yearLabel(viewYear)}</span>
           </div>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={goToNextMonth} title="Next month">{nextMonthName} ›</button>
           <button className="grim-btn is-ghost" style={{ padding: "8px 10px" }} onClick={() => setViewYear((y) => y + 1)} title="Next year">»</button>
@@ -342,12 +342,12 @@ export default function CalendarPage() {
               borderLeft: `3px solid ${color}`,
             }}
           >
-            <span className="grim-mono" style={{ fontSize: 9, letterSpacing: ".2em", color, textTransform: "uppercase", flexShrink: 0 }}>all moon ▸</span>
-            <span style={{ fontFamily: "var(--font-head)", fontSize: 15, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{e.event.name}</span>
+            <span className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".2em", color, textTransform: "uppercase", flexShrink: 0 }}>all moon ▸</span>
+            <span style={{ fontFamily: "var(--font-head)", fontSize: "0.9375rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{e.event.name}</span>
             {cat && (
               <span className="grim-chip" style={{ flexShrink: 0, color, borderColor: `${color}88` }}>{cat.name}</span>
             )}
-            <span style={{ fontSize: 13, color: "var(--grim-ink-3)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: "0.8125rem", color: "var(--grim-ink-3)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {e.event.description}
             </span>
           </div>
@@ -366,7 +366,7 @@ export default function CalendarPage() {
               <div
                 key={i}
                 className="grim-mono"
-                style={{ fontSize: 9, letterSpacing: ".06em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 8, borderBottom: "1px solid var(--grim-line)" }}
+                style={{ fontSize: "0.5625rem", letterSpacing: ".06em", color: "var(--grim-ink-4)", textAlign: "center", textTransform: "uppercase", paddingBottom: 8, borderBottom: "1px solid var(--grim-line)" }}
               >
                 {wd.name}
               </div>
@@ -378,7 +378,7 @@ export default function CalendarPage() {
             {tendayWeeks.map((week, row) => (
               <div key={row} style={{ display: "grid", gridTemplateColumns: `46px repeat(${colCount}, 1fr)`, gap: 4 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", borderRight: "1px solid var(--grim-line)" }}>
-                  <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".1em" }}>
+                  <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".1em" }}>
                     {TENDAY_LABELS[row]}
                   </span>
                 </div>
@@ -406,7 +406,7 @@ export default function CalendarPage() {
                         borderRadius: 1, position: "relative",
                       }}
                     >
-                      <span style={{ fontSize: 20, lineHeight: 1, opacity: isToday ? 1 : 0.92 }}>{day}</span>
+                      <span style={{ fontSize: "1.25rem", lineHeight: 1, opacity: isToday ? 1 : 0.92 }}>{day}</span>
                       {dots.length > 0 && (
                         <span style={{ display: "flex", gap: 3 }}>
                           {dots.map((c, k) => (
@@ -415,7 +415,7 @@ export default function CalendarPage() {
                         </span>
                       )}
                       {isToday && (
-                        <span className="grim-mono" style={{ position: "absolute", top: 8, right: 8, fontSize: 7.5, letterSpacing: ".12em", color: "oklch(0.20 0.03 40)", textTransform: "uppercase" }}>
+                        <span className="grim-mono" style={{ position: "absolute", top: 8, right: 8, fontSize: "0.4688rem", letterSpacing: ".12em", color: "oklch(0.20 0.03 40)", textTransform: "uppercase" }}>
                           now
                         </span>
                       )}
@@ -440,12 +440,12 @@ export default function CalendarPage() {
               <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                   <span style={{ width: 9, height: 9, borderRadius: "50%", background: "radial-gradient(circle, var(--grim-ember-2), var(--grim-ember))", boxShadow: "0 0 5px var(--grim-ember)" }} />
-                  <span className="grim-mono" style={{ fontSize: 9.5, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>Today</span>
+                  <span className="grim-mono" style={{ fontSize: "0.5938rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>Today</span>
                 </div>
                 {categories.map((cat) => (
                   <div key={cat.id} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                     <span style={{ width: 9, height: 9, borderRadius: "50%", background: cat.color, boxShadow: `0 0 5px ${cat.color}` }} />
-                    <span className="grim-mono" style={{ fontSize: 9.5, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>{cat.name}</span>
+                    <span className="grim-mono" style={{ fontSize: "0.5938rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase" }}>{cat.name}</span>
                   </div>
                 ))}
               </div>
@@ -456,17 +456,17 @@ export default function CalendarPage() {
         {/* Selected-day rail */}
         <section className="grim-tome" style={{ padding: "22px 24px" }}>
           <div className="grim-tome-head" style={{ marginBottom: 14 }}>
-            <h3 className="grim-tome-title" style={{ fontSize: 15 }}>The Chosen Day</h3>
+            <h3 className="grim-tome-title" style={{ fontSize: "0.9375rem" }}>The Chosen Day</h3>
           </div>
           {selectedDay !== null ? (
             <>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 60, color: isCurrentDay(selectedDay) ? "var(--grim-ember-2)" : "var(--grim-gold)", lineHeight: 0.9 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.75rem", color: isCurrentDay(selectedDay) ? "var(--grim-ember-2)" : "var(--grim-gold)", lineHeight: 0.9 }}>
                 {selectedDay}
               </div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".06em", color: "var(--grim-ink-2)", marginTop: 4 }}>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".06em", color: "var(--grim-ink-2)", marginTop: 4 }}>
                 {selWeekdayName} · {selTenday}
               </div>
-              <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 3 }}>
+              <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 3 }}>
                 {monthName} {selectedDay} · {yearLabel(viewYear)}{isCurrentDay(selectedDay) ? " · present" : ""}
               </div>
 
@@ -474,7 +474,7 @@ export default function CalendarPage() {
 
               <div className="grim-label" style={{ marginBottom: 10 }}>Observances</div>
               {selectedDayEvents.length === 0 ? (
-                <div style={{ fontSize: 14, color: "var(--grim-ink-4)", fontStyle: "italic" }}>
+                <div style={{ fontSize: "0.875rem", color: "var(--grim-ink-4)", fontStyle: "italic" }}>
                   A quiet day. Nothing is written.
                 </div>
               ) : (
@@ -486,9 +486,9 @@ export default function CalendarPage() {
                       <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                         <span style={{ width: 7, height: 7, borderRadius: "50%", marginTop: 6, background: color, boxShadow: `0 0 6px ${color}`, flexShrink: 0 }} />
                         <div>
-                          <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", letterSpacing: ".02em" }}>{e.event.name}</div>
+                          <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", letterSpacing: ".02em" }}>{e.event.name}</div>
                           {cat && (
-                            <div className="grim-mono" style={{ fontSize: 9.5, letterSpacing: ".1em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 1 }}>{cat.name}</div>
+                            <div className="grim-mono" style={{ fontSize: "0.5938rem", letterSpacing: ".1em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 1 }}>{cat.name}</div>
                           )}
                         </div>
                       </div>
@@ -498,7 +498,7 @@ export default function CalendarPage() {
               )}
             </>
           ) : (
-            <div style={{ fontSize: 14, color: "var(--grim-ink-4)", fontStyle: "italic" }}>
+            <div style={{ fontSize: "0.875rem", color: "var(--grim-ink-4)", fontStyle: "italic" }}>
               Select a day to consult the record.
             </div>
           )}
@@ -522,14 +522,14 @@ export default function CalendarPage() {
                 <section key={i} className="grim-tome" style={{ padding: "20px 24px", borderLeft: `3px solid ${color}` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
                     <div>
-                      <h4 style={{ fontFamily: "var(--font-head)", fontSize: 22, color: "var(--grim-gold)", letterSpacing: ".02em", margin: 0, lineHeight: 1.05 }}>{e.event.name}</h4>
-                      <div className="grim-mono" style={{ fontSize: 10.5, letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 6 }}>{dateLabel}</div>
+                      <h4 style={{ fontFamily: "var(--font-head)", fontSize: "1.375rem", color: "var(--grim-gold)", letterSpacing: ".02em", margin: 0, lineHeight: 1.05 }}>{e.event.name}</h4>
+                      <div className="grim-mono" style={{ fontSize: "0.6562rem", letterSpacing: ".12em", color: "var(--grim-ink-3)", textTransform: "uppercase", marginTop: 6 }}>{dateLabel}</div>
                     </div>
                     {cat && (
                       <span className="grim-chip" style={{ flexShrink: 0, color, borderColor: `${color}88` }}>✦ {cat.name}</span>
                     )}
                   </div>
-                  <p style={{ margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.55, color: "var(--grim-ink-2)" }}>{e.event.description}</p>
+                  <p style={{ margin: "10px 0 0", fontSize: "0.9062rem", lineHeight: 1.55, color: "var(--grim-ink-2)" }}>{e.event.description}</p>
                 </section>
               );
             })}

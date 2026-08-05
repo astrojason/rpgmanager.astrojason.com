@@ -16,7 +16,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: 15,
+  fontSize: "0.9375rem",
   padding: "9px 14px",
   outline: "none",
 };
@@ -85,7 +85,7 @@ export default function FactionsManagementPage() {
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />Consulting the codex…
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function FactionsManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Banners</div>
-          <h1 className="grim-page-title" style={{ fontSize: 58 }}>Factions</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>Factions</h1>
           <p className="grim-page-sub">Guilds, cabals, and banners — the powers that shape the world.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Raise Banner</button>
@@ -114,7 +114,7 @@ export default function FactionsManagementPage() {
         {/* Factions List */}
         <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--grim-line)" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 10 }}>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 10 }}>
               Factions ({filteredFactions.length})
             </div>
             <input
@@ -122,7 +122,7 @@ export default function FactionsManagementPage() {
               placeholder="Search banners…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "10px 14px", outline: "none" }}
+              style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "10px 14px", outline: "none" }}
             />
           </div>
           <div style={{ maxHeight: 520, overflowY: "auto" }}>
@@ -146,29 +146,29 @@ export default function FactionsManagementPage() {
                   }}
                 >
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: selected ? "var(--grim-ember-2)" : "var(--grim-ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {faction.name}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                    <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
                       {faction.type}{faction.location ? ` · ${faction.location}` : ""}
                     </div>
-                    <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 2, textTransform: "uppercase", letterSpacing: ".10em" }}>
+                    <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 2, textTransform: "uppercase", letterSpacing: ".10em" }}>
                       {faction.status}
                     </div>
-                    {faction.hidden && <span className="grim-chip is-dead" style={{ fontSize: 9, marginTop: 4 }}>hidden</span>}
+                    {faction.hidden && <span className="grim-chip is-dead" style={{ fontSize: "0.5625rem", marginTop: 4 }}>hidden</span>}
                   </div>
                   <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                     <button
                       className="grim-link"
                       onClick={(e) => { e.stopPropagation(); handleEdit(faction); }}
-                      style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}
+                      style={{ fontSize: "0.6875rem", fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px" }}
                       title="Edit"
                     >
                       edit
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(faction); }}
-                      style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px", color: "var(--grim-blood-2)" }}
+                      style={{ fontSize: "0.6875rem", fontFamily: "var(--font-mono)", letterSpacing: ".08em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer", padding: "2px 4px", color: "var(--grim-blood-2)" }}
                       title="Delete"
                     >
                       del
@@ -310,7 +310,7 @@ export default function FactionsManagementPage() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-2)" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-2)" }}>
                       <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} style={{ accentColor: "var(--grim-blood)" }} />
                       Hidden from players
                     </label>
@@ -340,7 +340,7 @@ export default function FactionsManagementPage() {
           ) : selectedFaction ? (
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div className="grim-tome-head" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-                <div className="grim-tome-title" style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-gold)", letterSpacing: ".04em" }}>
+                <div className="grim-tome-title" style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-gold)", letterSpacing: ".04em" }}>
                   {selectedFaction.name}
                 </div>
                 <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
@@ -357,7 +357,7 @@ export default function FactionsManagementPage() {
                     <div className="grim-label" style={{ marginBottom: 10 }}>Banner Details</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       {selectedFaction.pronunciation && (
-                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--grim-ink-3)", letterSpacing: ".14em" }}>
                           [{selectedFaction.pronunciation}]
                         </div>
                       )}
@@ -415,13 +415,13 @@ export default function FactionsManagementPage() {
                           style={{ background: "var(--grim-bg-3)", border: "1px solid var(--grim-line)", padding: "10px 14px" }}
                         >
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                            <span style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink-2)" }}>{rel.faction}</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink-2)" }}>{rel.faction}</span>
                             <span className={`grim-chip ${rel.status === 'allied' ? 'is-faction' : rel.status === 'hostile' ? 'is-ember' : ''}`} style={{ textTransform: "capitalize", flexShrink: 0 }}>
                               {rel.status}
                             </span>
                           </div>
                           {rel.description && (
-                            <div style={{ marginTop: 6, fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-3)" }}>{rel.description}</div>
+                            <div style={{ marginTop: 6, fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-3)" }}>{rel.description}</div>
                           )}
                         </div>
                       ))}
@@ -433,9 +433,9 @@ export default function FactionsManagementPage() {
             </div>
           ) : (
             <div className="grim-tome" style={{ textAlign: "center", padding: "60px 24px" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--grim-ink-3)", marginBottom: 12 }}>⚑</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No banner selected</div>
-              <div style={{ color: "var(--grim-ink-4)", fontSize: 14 }}>Select a faction from the list to view, or raise a new one.</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", color: "var(--grim-ink-3)", marginBottom: 12 }}>⚑</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".08em", textTransform: "uppercase", color: "var(--grim-ink-2)", marginBottom: 8 }}>No banner selected</div>
+              <div style={{ color: "var(--grim-ink-4)", fontSize: "0.875rem" }}>Select a faction from the list to view, or raise a new one.</div>
             </div>
           )}
         </div>

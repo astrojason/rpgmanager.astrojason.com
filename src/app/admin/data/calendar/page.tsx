@@ -13,7 +13,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--grim-line-2)",
   color: "var(--grim-ink)",
   fontFamily: "var(--font-body)",
-  fontSize: 15,
+  fontSize: "0.9375rem",
   padding: "9px 14px",
   outline: "none",
   width: "100%",
@@ -165,7 +165,7 @@ export default function CalendarManagementPage() {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 0" }}>
         <span className="grim-flame" />
-        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: 14 }}>Loading Calendar...</span>
+        <span style={{ marginLeft: 12, fontFamily: "var(--font-body)", color: "var(--grim-ink-3)", fontSize: "0.875rem" }}>Loading Calendar...</span>
       </div>
     );
   }
@@ -177,7 +177,7 @@ export default function CalendarManagementPage() {
       <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 28 }}>
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Calendar</div>
-          <h1 className="grim-page-title" style={{ fontSize: 58 }}>Calendar</h1>
+          <h1 className="grim-page-title" style={{ fontSize: "3.625rem" }}>Calendar</h1>
           <p className="grim-page-sub">Tend the world calendar — sessions, festivals, and the turning of days.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate} style={{ flexShrink: 0 }}>
@@ -194,7 +194,7 @@ export default function CalendarManagementPage() {
           padding: "12px 16px",
           marginBottom: 16,
           fontFamily: "var(--font-body)",
-          fontSize: 14,
+          fontSize: "0.875rem",
         }}>
           {error || queryError?.message}
         </div>
@@ -208,7 +208,7 @@ export default function CalendarManagementPage() {
           padding: "12px 16px",
           marginBottom: 16,
           fontFamily: "var(--font-body)",
-          fontSize: 14,
+          fontSize: "0.875rem",
         }}>
           {success}
         </div>
@@ -220,21 +220,21 @@ export default function CalendarManagementPage() {
           <div className="grim-label" style={{ marginBottom: 4 }}>Current In-Game Date</div>
           {calendarData?.current ? (
             <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--grim-gold)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "1.375rem", color: "var(--grim-gold)" }}>
                 Day {calendarData.current.day} · {calendarData.static.months[calendarData.current.month - 1]?.name ?? `Month ${calendarData.current.month}`} · AB {calendarData.current.year}
               </div>
-              <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".14em", marginTop: 2 }}>
+              <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".14em", marginTop: 2 }}>
                 Tyr&apos;amryn Year {calendarData.current.year + AB_OFFSET}
               </div>
             </div>
           ) : (
-            <div style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: 14 }}>Not set</div>
+            <div style={{ color: "var(--grim-ink-4)", fontFamily: "var(--font-body)", fontSize: "0.875rem" }}>Not set</div>
           )}
         </div>
         {!editingDate && (
           <button
             className="grim-btn is-ghost"
-            style={{ padding: "6px 14px", fontSize: 13 }}
+            style={{ padding: "6px 14px", fontSize: "0.8125rem" }}
             onClick={() => {
               setDateForm(calendarData?.current ?? { day: 1, month: 1, year: 1 });
               setEditingDate(true);
@@ -246,7 +246,7 @@ export default function CalendarManagementPage() {
         {editingDate && (
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>DAY</div>
               <input
                 type="number"
                 value={dateForm.day}
@@ -257,15 +257,15 @@ export default function CalendarManagementPage() {
                   else if (val < 1) setDateForm(f => ({ ...f, day: 40 }));
                   else setDateForm(f => ({ ...f, day: val }));
                 }}
-                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 64, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>MONTH</div>
               <select
                 value={dateForm.month}
                 onChange={e => setDateForm(f => ({ ...f, month: Number(e.target.value) }))}
-                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, padding: "6px 10px", outline: "none" }}
+                style={{ background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.875rem", padding: "6px 10px", outline: "none" }}
               >
                 {(calendarData?.static.months ?? []).map((m, idx) => (
                   <option key={idx} value={idx + 1}>{m.name}</option>
@@ -273,21 +273,21 @@ export default function CalendarManagementPage() {
               </select>
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (AB)</div>
               <input
                 type="number" min={1}
                 value={dateForm.year}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) }))}
-                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 80, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div>
-              <div className="grim-mono" style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
+              <div className="grim-mono" style={{ fontSize: "0.5625rem", letterSpacing: ".14em", color: "var(--grim-ink-4)", marginBottom: 4 }}>YEAR (T)</div>
               <input
                 type="number" min={1}
                 value={dateForm.year ? dateForm.year + AB_OFFSET : ""}
                 onChange={e => setDateForm(f => ({ ...f, year: Number(e.target.value) - AB_OFFSET }))}
-                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: 18, padding: "6px 10px", outline: "none" }}
+                style={{ width: 90, background: "var(--grim-bg-4)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-display)", fontSize: "1.125rem", padding: "6px 10px", outline: "none" }}
               />
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -317,7 +317,7 @@ export default function CalendarManagementPage() {
                 border: "1px solid var(--grim-line-2)",
                 color: "var(--grim-ink)",
                 fontFamily: "var(--font-body)",
-                fontSize: 15,
+                fontSize: "0.9375rem",
                 padding: "10px 14px",
                 outline: "none",
                 width: "100%",
@@ -328,7 +328,7 @@ export default function CalendarManagementPage() {
           {/* List items */}
           <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 280px)" }}>
             {filteredEvents.length === 0 ? (
-              <div style={{ padding: "32px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
+              <div style={{ padding: "32px 16px", textAlign: "center", fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)" }}>
                 No calendar events found
               </div>
             ) : (
@@ -350,10 +350,10 @@ export default function CalendarManagementPage() {
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-head)", fontSize: 14, color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", color: "var(--grim-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {event.name}
                       </div>
-                      <div className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", marginTop: 3 }}>
+                      <div className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", marginTop: 3 }}>
                         {calendarData?.static.months[event.date.month - 1]?.name ?? `Month ${event.date.month}`} {Array.isArray(event.date.day) ? `${event.date.day[0]}–${event.date.day[event.date.day.length - 1]}` : event.date.day} · AB {event.date.year} / T {event.date.year + AB_OFFSET}
                       </div>
                       {event.category && (
@@ -366,7 +366,7 @@ export default function CalendarManagementPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(event); }}
                         className="grim-btn is-ghost"
-                        style={{ padding: "2px 8px", fontSize: 11 }}
+                        style={{ padding: "2px 8px", fontSize: "0.6875rem" }}
                         title="Edit"
                       >
                         ✎
@@ -374,7 +374,7 @@ export default function CalendarManagementPage() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(event); }}
                         className="grim-btn is-blood"
-                        style={{ padding: "2px 8px", fontSize: 11 }}
+                        style={{ padding: "2px 8px", fontSize: "0.6875rem" }}
                         title="Delete"
                       >
                         ✕
@@ -392,7 +392,7 @@ export default function CalendarManagementPage() {
           {isCreating || isEditing ? (
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)" }}>
-                <div style={{ fontFamily: "var(--font-head)", fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
+                <div style={{ fontFamily: "var(--font-head)", fontSize: "1rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--grim-ink)" }}>
                   {isCreating ? "Add New Event" : "Edit Event"}
                 </div>
               </div>
@@ -505,7 +505,7 @@ export default function CalendarManagementPage() {
             <div className="grim-tome" style={{ padding: 0, overflow: "hidden" }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--grim-line)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-gold)", lineHeight: 1.1 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-gold)", lineHeight: 1.1 }}>
                     {selectedEvent.name}
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -536,11 +536,11 @@ export default function CalendarManagementPage() {
             </div>
           ) : (
             <div className="grim-tome" style={{ padding: "64px 32px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 52, color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
-              <div style={{ fontFamily: "var(--font-head)", fontSize: 14, letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", color: "var(--grim-ink-4)", marginBottom: 16, lineHeight: 1 }}>✠</div>
+              <div style={{ fontFamily: "var(--font-head)", fontSize: "0.875rem", letterSpacing: ".12em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 8 }}>
                 Nothing selected
               </div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--grim-ink-4)" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--grim-ink-4)" }}>
                 Choose an event from the calendar, or add a new one.
               </div>
             </div>

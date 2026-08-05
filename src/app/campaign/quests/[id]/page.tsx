@@ -125,7 +125,7 @@ export default function QuestDetailPage() {
   if (loading) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the ledger&hellip;
         </div>
@@ -140,7 +140,7 @@ export default function QuestDetailPage() {
           ‹ The Ledger of Errands
         </button>
         <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, color: "var(--grim-ink-3)", marginBottom: 8 }}>~ errand not found ~</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2.25rem", color: "var(--grim-ink-3)", marginBottom: 8 }}>~ errand not found ~</div>
         </div>
       </div>
     );
@@ -171,14 +171,14 @@ export default function QuestDetailPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
             <div>
               <h1 style={{
-                fontFamily: "var(--font-display)", fontSize: 40,
+                fontFamily: "var(--font-display)", fontSize: "2.5rem",
                 color: "var(--grim-gold)", margin: 0, lineHeight: 1,
                 textDecoration: isClosed ? "line-through" : "none",
                 opacity: isClosed ? 0.7 : 1,
               }}>
                 {quest.name}
               </h1>
-              <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
+              <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".16em", color: "var(--grim-ink-4)", textTransform: "uppercase", marginTop: 6 }}>
                 ⚑ {notes.length} {notes.length === 1 ? "note" : "notes"}
               </div>
             </div>
@@ -199,11 +199,11 @@ export default function QuestDetailPage() {
                       <>
                         <MarkdownEditor value={editingNoteContent} onChange={setEditingNoteContent} />
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-                          <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: 11 }}
+                          <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
                             onClick={() => { setEditingNoteId(null); setEditingNoteContent(""); }}>
                             Cancel
                           </button>
-                          <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: 11 }}
+                          <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
                             onClick={() => handleSaveEditNote(note.id)}>
                             Save
                           </button>
@@ -211,9 +211,9 @@ export default function QuestDetailPage() {
                       </>
                     ) : (
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                        <div style={{ fontSize: 14, color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
+                        <div style={{ fontSize: "0.875rem", color: "var(--grim-ink)", lineHeight: 1.5, flex: 1 }}>
                           {!isLegacyNote(note) && isDM && (
-                            <span className="grim-chip is-arcane" style={{ fontSize: 9, padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
+                            <span className="grim-chip is-arcane" style={{ fontSize: "0.5625rem", padding: "1px 6px", marginRight: 8, verticalAlign: "middle" }}>DM</span>
                           )}
                           <div className="prose prose-sm dark:prose-invert max-w-none" style={{ display: "inline" }}>
                             <ReactMarkdown>{note.content}</ReactMarkdown>
@@ -222,7 +222,7 @@ export default function QuestDetailPage() {
                         <div style={{ display: "flex", gap: 10, flexShrink: 0, paddingTop: 2, alignItems: "center" }}>
                           {!isLegacyNote(note) && (
                             <>
-                              <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
+                              <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em" }}>
                                 {formatNoteTimestamp(note)}
                               </span>
                               <AuthorDisplay uid={note.author} />
@@ -230,11 +230,11 @@ export default function QuestDetailPage() {
                           )}
                           {canEditNote(note) && (
                             <>
-                              <a className="grim-link" style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
+                              <a className="grim-link" style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer" }}
                                 onClick={() => { setEditingNoteId(note.id); setEditingNoteContent(note.content); }}>
                                 edit
                               </a>
-                              <a style={{ fontSize: 11, fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
+                              <a style={{ fontSize: "0.6875rem", fontFamily: "var(--font-head)", letterSpacing: ".10em", textTransform: "uppercase", cursor: "pointer", color: "var(--grim-blood-2)", textDecoration: "none", borderBottom: "1px dotted var(--grim-blood-2)" }}
                                 onClick={() => handleDeleteNote(note.id)}>
                                 delete
                               </a>
@@ -256,7 +256,7 @@ export default function QuestDetailPage() {
             return (
               <div style={{ marginTop: 22 }}>
                 <div className="grim-label" style={{ marginBottom: 8, color: "var(--grim-arcane)" }}>GM&apos;s Compendium</div>
-                <div className="grim-flavor" style={{ fontSize: 14, color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
+                <div className="grim-flavor" style={{ fontSize: "0.875rem", color: "var(--grim-ink-2)", lineHeight: 1.6, borderColor: "var(--grim-arcane)" }}
                   dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(gmNotes, true) }} />
               </div>
             );
@@ -270,8 +270,8 @@ export default function QuestDetailPage() {
                 {appearances.map(r => (
                   <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`}
                     style={{ textDecoration: "none", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "6px 10px", background: "oklch(0.14 0.025 290 / 0.5)", border: "1px solid var(--grim-line)" }}>
-                    <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
-                    <span className="grim-mono" style={{ fontSize: 9, color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
+                    <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-gold-2)", letterSpacing: ".02em" }}>{r.title}</span>
+                    <span className="grim-mono" style={{ fontSize: "0.5625rem", color: "var(--grim-ink-4)", letterSpacing: ".12em", flexShrink: 0 }}>{r.date}</span>
                   </Link>
                 ))}
               </div>
@@ -285,18 +285,18 @@ export default function QuestDetailPage() {
                 <div>
                   <MarkdownEditor value={newNoteContent} onChange={setNewNoteContent} placeholder="Add a note to the ledger…" label="New Note" />
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-                    <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: 11 }}
+                    <button className="grim-btn is-ghost" style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
                       onClick={() => { setEditingNote(false); setNewNoteContent(""); }}>
                       Cancel
                     </button>
-                    <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: 11 }}
+                    <button className="grim-btn is-ember" style={{ padding: "4px 10px", fontSize: "0.6875rem" }}
                       onClick={handleAddNote} disabled={!newNoteContent.trim()}>
                       Add Note
                     </button>
                   </div>
                 </div>
               ) : (
-                <a className="grim-link" style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
+                <a className="grim-link" style={{ display: "inline-block", fontFamily: "var(--font-head)", fontSize: "0.75rem", letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer" }}
                   onClick={() => { setEditingNote(true); setNewNoteContent(""); }}>
                   + Add note
                 </a>

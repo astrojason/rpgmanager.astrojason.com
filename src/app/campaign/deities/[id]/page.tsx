@@ -138,7 +138,7 @@ export default function DeityDetailPage() {
   if (loading) {
     return (
       <div style={{ padding: "36px 56px 80px", height: "100%", overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--grim-ink-3)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: ".18em", textTransform: "uppercase" }}>
           <span className="grim-flame" />
           Consulting the divine compendium&hellip;
         </div>
@@ -152,8 +152,8 @@ export default function DeityDetailPage() {
         {error && <ErrorBlock error={error} onDismiss={() => setError(null)} />}
         <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/deities")}>‹ Back to the Pantheon</button>
         <div style={{ marginTop: 32, textAlign: "center", color: "var(--grim-ink-4)" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--grim-ink-3)" }}>~ divinity not found ~</div>
-          <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this power in the compendium</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--grim-ink-3)" }}>~ divinity not found ~</div>
+          <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 8 }}>No record of this power in the compendium</div>
         </div>
       </div>
     );
@@ -185,7 +185,7 @@ export default function DeityDetailPage() {
             style={{ background: "var(--grim-bg-2)", border: "1px solid var(--grim-line-2)", maxWidth: 640, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 16, padding: 32 }}
             onClick={e => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "var(--font-head)", fontSize: 20, color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
+            <h2 style={{ fontFamily: "var(--font-head)", fontSize: "1.25rem", color: "var(--grim-gold)", letterSpacing: ".12em", textTransform: "uppercase", margin: "0 0 24px" }}>
               Amend the Compendium Entry
             </h2>
             <form
@@ -200,32 +200,32 @@ export default function DeityDetailPage() {
                   { label: "Image URL", field: "image" as keyof Deity, full: true },
                 ] as { label: string; field: keyof Deity; full: boolean }[]).map(({ label, field, full }) => (
                   <div key={field} style={full ? { gridColumn: "1 / -1" } : {}}>
-                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
+                    <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>{label}</label>
                     <input
                       type="text"
                       value={(editingDeity[field] as string) || ""}
                       onChange={e => setEditingDeity({ ...editingDeity, [field]: e.target.value })}
-                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                      style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }}
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Alignment</label>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Alignment</label>
                   <select
                     value={editingDeity.alignment || ""}
                     onChange={e => setEditingDeity({ ...editingDeity, alignment: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }}
                   >
                     <option value="">— Unknown —</option>
                     {ALIGNMENTS.map(a => <option key={a} value={a}>{a}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
+                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Status</label>
                   <select
                     value={editingDeity.status || "active"}
                     onChange={e => setEditingDeity({ ...editingDeity, status: e.target.value })}
-                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }}
+                    style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }}
                   >
                     <option value="active">Active</option>
                     <option value="forgotten">Forgotten</option>
@@ -235,62 +235,62 @@ export default function DeityDetailPage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Description</label>
                 <MarkdownEditor value={editingDeity.description || ""} onChange={v => setEditingDeity({ ...editingDeity, description: v })} rows={4} label="Description" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Symbol</label>
-                <input type="text" value={editingDeity.symbol || ""} onChange={e => setEditingDeity({ ...editingDeity, symbol: e.target.value })} style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 15, padding: "8px 12px", outline: "none" }} />
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Symbol</label>
+                <input type="text" value={editingDeity.symbol || ""} onChange={e => setEditingDeity({ ...editingDeity, symbol: e.target.value })} style={{ width: "100%", background: "var(--grim-bg-3)", border: "1px solid var(--grim-line-2)", color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", padding: "8px 12px", outline: "none" }} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Church</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Church</label>
                 <MarkdownEditor value={editingDeity.church || ""} onChange={v => setEditingDeity({ ...editingDeity, church: v })} rows={3} label="Church" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Garments</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Garments</label>
                 <MarkdownEditor value={editingDeity.garments || ""} onChange={v => setEditingDeity({ ...editingDeity, garments: v })} rows={3} label="Garments" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Tenets</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Tenets</label>
                 <MarkdownEditor value={editingDeity.tenets || ""} onChange={v => setEditingDeity({ ...editingDeity, tenets: v })} rows={4} label="Tenets" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Lore</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Lore</label>
                 <MarkdownEditor value={editingDeity.lore || ""} onChange={v => setEditingDeity({ ...editingDeity, lore: v })} rows={5} label="Lore" linkEntities={linkEntities} />
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — NPCs</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — NPCs</label>
                 <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 160, overflowY: "auto", padding: "6px 0" }}>
                   {npcs.filter(n => !n.hidden).map(n => {
                     const nid = String(n.id);
                     return (
                       <label key={nid} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingDeity.follower_npcs ?? []).includes(nid) ? "oklch(0.72 0.165 48 / 0.12)" : "transparent" }}>
                         <input type="checkbox" checked={(editingDeity.follower_npcs ?? []).includes(nid)} onChange={e => { const cur = editingDeity.follower_npcs ?? []; setEditingDeity({ ...editingDeity, follower_npcs: e.target.checked ? [...cur, nid] : cur.filter(x => x !== nid) }); }} style={{ accentColor: "var(--grim-ember)" }} />
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{n.name || n.aka || nid}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>{n.name || n.aka || nid}</span>
                       </label>
                     );
                   })}
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — PCs</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>Notable Followers — PCs</label>
                 <div style={{ border: "1px solid var(--grim-line-2)", background: "var(--grim-bg-3)", maxHeight: 120, overflowY: "auto", padding: "6px 0" }}>
                   {pcs.map(p => {
                     const pid = String(p.id);
                     return (
                       <label key={pid} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 14px", cursor: "pointer", background: (editingDeity.follower_pcs ?? []).includes(pid) ? "oklch(0.55 0.090 145 / 0.12)" : "transparent" }}>
                         <input type="checkbox" checked={(editingDeity.follower_pcs ?? []).includes(pid)} onChange={e => { const cur = editingDeity.follower_pcs ?? []; setEditingDeity({ ...editingDeity, follower_pcs: e.target.checked ? [...cur, pid] : cur.filter(x => x !== pid) }); }} style={{ accentColor: "var(--grim-moss)" }} />
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--grim-ink-2)" }}>{p.name}</span>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--grim-ink-2)" }}>{p.name}</span>
                       </label>
                     );
                   })}
                 </div>
               </div>
               <div>
-                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
+                <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--grim-ink-3)", marginBottom: 6 }}>GM Notes</label>
                 <MarkdownEditor value={editingDeity.gm_notes || ""} onChange={v => setEditingDeity({ ...editingDeity, gm_notes: v })} rows={4} label="GM Notes" linkEntities={linkEntities} />
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink-2)", letterSpacing: ".04em" }}>
                 <input type="checkbox" checked={Boolean(editingDeity.hidden)} onChange={e => setEditingDeity({ ...editingDeity, hidden: e.target.checked })} style={{ accentColor: "var(--grim-ember)" }} />
                 Hidden from players
               </label>
@@ -317,7 +317,7 @@ export default function DeityDetailPage() {
             <button className="grim-btn is-ghost" onClick={() => router.push("/campaign/deities")}>
               ‹ Back to the Pantheon
             </button>
-            <div className="grim-mono" style={{ fontSize: 11, color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
+            <div className="grim-mono" style={{ fontSize: "0.6875rem", color: "var(--grim-ink-3)", letterSpacing: ".18em" }}>
               pantheon / {deity.name.toLowerCase()}
             </div>
           </div>
@@ -348,7 +348,7 @@ export default function DeityDetailPage() {
               {deityImage ? (
                 <Image src={deityImage} alt={deity.name} fill style={{ objectFit: "cover" }} />
               ) : (
-                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: 56, color: "var(--grim-gold-2)", opacity: 0.6 }}>✦</div>
+                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontSize: "3.5rem", color: "var(--grim-gold-2)", opacity: 0.6 }}>✦</div>
               )}
             </div>
           </div>
@@ -357,11 +357,11 @@ export default function DeityDetailPage() {
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingTop: 4 }}>
             <div>
               <div className="grim-page-eyebrow">Compendium Entry — The Pantheon</div>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: 68, color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "4.25rem", color: "var(--grim-gold)", margin: "2px 0 4px", lineHeight: 0.9, letterSpacing: ".01em", textShadow: "0 0 36px oklch(0.72 0.165 48 / 0.22)" }}>
                 {deity.name}
               </h1>
               {deity.pronunciation && (
-                <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: 17, marginTop: 6 }}>
+                <div style={{ fontFamily: "var(--font-body)", color: "var(--grim-ink-2)", fontSize: "1.0625rem", marginTop: 6 }}>
                   pronounced <b style={{ fontFamily: "var(--font-head)", letterSpacing: ".10em" }}>{deity.pronunciation}</b>
                 </div>
               )}
@@ -383,7 +383,7 @@ export default function DeityDetailPage() {
               ].map(([k, v], i) => (
                 <div key={k} style={{ paddingLeft: i === 0 ? 0 : 16, borderLeft: i === 0 ? "none" : "1px solid var(--grim-line)" }}>
                   <div className="grim-label">{k}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--grim-gold)", lineHeight: 1.2, marginTop: 3 }}>{v}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1rem", color: "var(--grim-gold)", lineHeight: 1.2, marginTop: 3 }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -393,7 +393,7 @@ export default function DeityDetailPage() {
         {/* Description parchment */}
         {deity.description && (
           <section className="grim-parchment" style={{ marginBottom: 28 }}>
-            <div className="prose dark:prose-invert max-w-none prose-sm" style={{ margin: 0, fontSize: 16, lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.description, isAdmin) }} />
+            <div className="prose dark:prose-invert max-w-none prose-sm" style={{ margin: 0, fontSize: "1rem", lineHeight: 1.65, color: "oklch(0.25 0.03 50)" }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.description, isAdmin) }} />
           </section>
         )}
 
@@ -408,7 +408,7 @@ export default function DeityDetailPage() {
                   <h3 className="grim-tome-title">Lore</h3>
                   <span className="grim-tome-sub">history &amp; legend</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.lore, isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.lore, isAdmin) }} />
               </section>
             )}
             {deity.tenets && (
@@ -417,7 +417,7 @@ export default function DeityDetailPage() {
                   <h3 className="grim-tome-title">Tenets</h3>
                   <span className="grim-tome-sub">the sacred laws</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.tenets, isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.tenets, isAdmin) }} />
               </section>
             )}
             {(() => {
@@ -434,16 +434,16 @@ export default function DeityDetailPage() {
                     {followerNpcs.map(n => (
                       <Link key={n.id} href={`/campaign/npcs/${n.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
-                          <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "NPC"}</span>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{n.name || n.aka || "Unknown"}</span>
+                          <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{n.race || "NPC"}</span>
                         </div>
                       </Link>
                     ))}
                     {followerPcs.map(p => (
                       <Link key={p.id} href={`/campaign/pcs/${p.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                          <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ember-2)", letterSpacing: ".03em" }}>{p.name}</span>
-                          <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{p.class || "PC"}</span>
+                          <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ember-2)", letterSpacing: ".03em" }}>{p.name}</span>
+                          <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{p.class || "PC"}</span>
                         </div>
                       </Link>
                     ))}
@@ -453,8 +453,8 @@ export default function DeityDetailPage() {
             })()}
             {linkedRecaps.length === 0 && linkedQuests.length === 0 && !deity.lore && !deity.tenets && (deity.follower_npcs ?? []).length === 0 && (deity.follower_pcs ?? []).length === 0 ? (
               <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "28px 24px", color: "var(--grim-ink-4)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--grim-ink-3)" }}>~ unrecorded ~</div>
-                <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No record yet in the codex</div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem", color: "var(--grim-ink-3)" }}>~ unrecorded ~</div>
+                <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>No record yet in the codex</div>
               </section>
             ) : (linkedRecaps.length > 0 || linkedQuests.length > 0) ? (
               <>
@@ -468,8 +468,8 @@ export default function DeityDetailPage() {
                       {linkedRecaps.map(r => (
                         <Link key={r.id ?? r.date} href={`/campaign/recaps/${r.id ?? r.date}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                            <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
-                            <span className="grim-mono" style={{ fontSize: 10, color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{r.title}</span>
+                            <span className="grim-mono" style={{ fontSize: "0.625rem", color: "var(--grim-ink-4)", letterSpacing: ".10em", flexShrink: 0 }}>{r.date}</span>
                           </div>
                         </Link>
                       ))}
@@ -486,8 +486,8 @@ export default function DeityDetailPage() {
                       {linkedQuests.map(q => (
                         <Link key={q.id} href={`/campaign/quests/${q.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, padding: "6px 0", borderBottom: "1px dashed var(--grim-line)" }}>
-                            <span style={{ fontFamily: "var(--font-head)", fontSize: 13, color: "var(--grim-ink)", letterSpacing: ".03em" }}>{q.name}</span>
-                            <span className="grim-chip" style={{ fontSize: 9 }}>{q.status}</span>
+                            <span style={{ fontFamily: "var(--font-head)", fontSize: "0.8125rem", color: "var(--grim-ink)", letterSpacing: ".03em" }}>{q.name}</span>
+                            <span className="grim-chip" style={{ fontSize: "0.5625rem" }}>{q.status}</span>
                           </div>
                         </Link>
                       ))}
@@ -506,7 +506,7 @@ export default function DeityDetailPage() {
                   <h3 className="grim-tome-title">Church</h3>
                   <span className="grim-tome-sub">clergy &amp; organisation</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.church, isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.church, isAdmin) }} />
               </section>
             )}
             {deity.garments && (
@@ -515,7 +515,7 @@ export default function DeityDetailPage() {
                   <h3 className="grim-tome-title">Garments</h3>
                   <span className="grim-tome-sub">vestments &amp; regalia</span>
                 </div>
-                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.garments, isAdmin) }} />
+                <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink-2)", fontFamily: "var(--font-body)", fontSize: "0.9375rem", lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.garments, isAdmin) }} />
               </section>
             )}
             {(isDM || isAdmin) && (
@@ -526,18 +526,18 @@ export default function DeityDetailPage() {
                       <h3 className="grim-tome-title" style={{ color: "var(--grim-arcane)" }}>★ Master&apos;s Compendium</h3>
                       <span className="grim-tome-sub">hidden from the party</span>
                     </div>
-                    <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: 14, lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.gm_notes, true) }} />
+                    <div className="prose dark:prose-invert max-w-none prose-sm" style={{ color: "var(--grim-ink)", fontFamily: "var(--font-body)", fontSize: "0.875rem", lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(deity.gm_notes, true) }} />
                   </section>
                 ) : isAdmin ? (
                   <section className="grim-tome" style={{ border: "1px dashed oklch(0.65 0.150 285 / 0.5)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no compendium notes ~</div>
-                    <div className="grim-mono" style={{ fontSize: 10, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "1.375rem", color: "oklch(0.65 0.150 285 / 0.6)" }}>~ no compendium notes ~</div>
+                    <div className="grim-mono" style={{ fontSize: "0.625rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Edit to add DM notes</div>
                   </section>
                 ) : null
               ) : (
                 <section className="grim-tome" style={{ border: "1px dashed var(--grim-line-2)", textAlign: "center", padding: "22px 20px", color: "var(--grim-ink-4)" }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--grim-ink-3)" }}>~ sealed ~</div>
-                  <div className="grim-mono" style={{ fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s compendium hidden</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "var(--grim-ink-3)" }}>~ sealed ~</div>
+                  <div className="grim-mono" style={{ fontSize: "0.6875rem", letterSpacing: ".18em", textTransform: "uppercase", marginTop: 4 }}>Master&apos;s compendium hidden</div>
                 </section>
               )
             )}
