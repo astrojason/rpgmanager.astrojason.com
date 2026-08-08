@@ -99,7 +99,7 @@ export default function SideNavigation() {
         <div className="grim-brand-mark">A</div>
         <div className="grim-brand-text">
           <h1 className="grim-brand-name">Azorian&apos;s<br/>Bounty</h1>
-          <div className="grim-brand-sub">Campaign Codex · vol. iii</div>
+          <div className="grim-brand-sub text-xs">Campaign Codex · vol. iii</div>
         </div>
       </div>
 

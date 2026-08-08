@@ -415,7 +415,7 @@ body {
 .grim-screen > * { position: relative; z-index: 2; }
 
 .grim-sidebar {
-  flex: 0 0 240px;
+  flex: 0 0 288px;
   background: linear-gradient(180deg, oklch(0.12 0.030 290) 0%, oklch(0.09 0.025 295) 100%);
   border-right: 1px solid var(--grim-line);
   padding: 22px 0;
@@ -493,7 +493,6 @@ body {
 
 .grim-brand-sub {
   font-family: var(--font-mono);
-  font-size: 1rem;
   color: var(--grim-ink-3);
   letter-spacing: 0.18em;
   text-transform: uppercase;
