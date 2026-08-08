@@ -307,7 +307,7 @@ export default function CalendarPage() {
       <div className="flex items-end justify-between gap-6 mb-5.5">
         <div>
           <div className="grim-page-eyebrow">The Reckoning · Calendar of the Bounty</div>
-          <h1 className="grim-page-title text-8xl mb-1">{monthName}</h1>
+          <h1 className="grim-page-title mb-1">{monthName}</h1>
           <div className="grim-page-sub mb-0">
             The <b className="text-grim-gold-2">{moonOrdinal} moon</b> · AB {viewYear} / T {viewYear + AB_OFFSET} · {daysInMonth} days, {tendayCount} {tendayCount === 1 ? "tenday" : "tendays"}
           </div>

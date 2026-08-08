@@ -16,16 +16,8 @@ import Image from "next/image";
 import { safeImageSrc } from "@/utils/sanitize";
 import { useCrudResource } from "@/hooks/useCrudResource";
 
-const inputStyle: React.CSSProperties = {
-  background: "var(--grim-bg-3)",
-  border: "1px solid var(--grim-line-2)",
-  color: "var(--grim-ink)",
-  fontFamily: "var(--font-body)",
-  fontSize: "1.25rem",
-  padding: "10px 14px",
-  outline: "none",
-  width: "100%",
-};
+const inputStyle =
+  "w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.5 px-3.5 outline-none";
 
 const ALIGNMENTS = [
   "Lawful Good", "Neutral Good", "Chaotic Good",
@@ -122,7 +114,7 @@ export default function DeitiesManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Pantheon</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Divine Compendium</h1>
+          <h1 className="grim-page-title text-7xl">The Divine Compendium</h1>
           <p className="grim-page-sub">Manage the gods, ancient powers, and divine forces of the campaign.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Deity</button>
@@ -136,7 +128,7 @@ export default function DeitiesManagementPage() {
         {/* List */}
         <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
           <div className="border-b border-grim-line">
-            <input type="text" placeholder="Search deities…" value={search} onChange={e => setSearch(e.target.value)} style={inputStyle} />
+            <input type="text" placeholder="Search deities…" value={search} onChange={e => setSearch(e.target.value)} className={inputStyle} />
           </div>
           <div className="pt-2 px-3.5 pb-1.5 border-b border-grim-line">
             <span className="grim-mono text-sm tracking-wider-4 text-grim-ink-4 uppercase">
@@ -192,22 +184,22 @@ export default function DeitiesManagementPage() {
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="grim-label block mb-1.5">Name *</label>
-                      <input type="text" value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={inputStyle} required />
+                      <input type="text" value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputStyle} required />
                     </div>
                     <div>
                       <label className="grim-label block mb-1.5">Pronunciation</label>
-                      <input type="text" value={form.pronunciation || ""} onChange={e => setForm(f => ({ ...f, pronunciation: e.target.value }))} style={inputStyle} placeholder="e.g. sel-oo-NAY" />
+                      <input type="text" value={form.pronunciation || ""} onChange={e => setForm(f => ({ ...f, pronunciation: e.target.value }))} className={inputStyle} placeholder="e.g. sel-oo-NAY" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="grim-label block mb-1.5">Domain</label>
-                      <input type="text" value={form.domain || ""} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} style={inputStyle} placeholder="e.g. War, Storms, Death" />
+                      <input type="text" value={form.domain || ""} onChange={e => setForm(f => ({ ...f, domain: e.target.value }))} className={inputStyle} placeholder="e.g. War, Storms, Death" />
                     </div>
                     <div>
                       <label className="grim-label block mb-1.5">Alignment</label>
-                      <select value={form.alignment || ""} onChange={e => setForm(f => ({ ...f, alignment: e.target.value }))} style={inputStyle}>
+                      <select value={form.alignment || ""} onChange={e => setForm(f => ({ ...f, alignment: e.target.value }))} className={inputStyle}>
                         <option value="">— Unknown —</option>
                         {ALIGNMENTS.map(a => <option key={a} value={a}>{a}</option>)}
                       </select>
@@ -217,7 +209,7 @@ export default function DeitiesManagementPage() {
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="grim-label block mb-1.5">Status</label>
-                      <select value={form.status || "active"} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={inputStyle}>
+                      <select value={form.status || "active"} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={inputStyle}>
                         <option value="active">Active</option>
                         <option value="forgotten">Forgotten</option>
                         <option value="dead">Dead</option>
@@ -226,7 +218,7 @@ export default function DeitiesManagementPage() {
                     </div>
                     <div>
                       <label className="grim-label block mb-1.5">Image URL</label>
-                      <input type="text" value={form.image || ""} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} style={inputStyle} placeholder="https://…" />
+                      <input type="text" value={form.image || ""} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} className={inputStyle} placeholder="https://…" />
                     </div>
                   </div>
 
@@ -237,7 +229,7 @@ export default function DeitiesManagementPage() {
 
                   <div className="mb-4">
                     <label className="grim-label block mb-1.5">Symbol</label>
-                    <input type="text" value={form.symbol || ""} onChange={e => setForm(f => ({ ...f, symbol: e.target.value }))} style={inputStyle} placeholder="e.g. An open eye above a flame" />
+                    <input type="text" value={form.symbol || ""} onChange={e => setForm(f => ({ ...f, symbol: e.target.value }))} className={inputStyle} placeholder="e.g. An open eye above a flame" />
                   </div>
 
                   <div className="mb-4">

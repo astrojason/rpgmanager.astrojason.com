@@ -120,7 +120,7 @@ export default function ItemsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Relics</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Armoury &amp; Reliquary</h1>
+          <h1 className="grim-page-title text-7xl">The Armoury &amp; Reliquary</h1>
           <p className="grim-page-sub">Catalogue weapons, armour, artefacts, and journals.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Catalogue New</button>

@@ -90,7 +90,7 @@ export default function FactionsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Banners</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Factions</h1>
+          <h1 className="grim-page-title text-7xl">Factions</h1>
           <p className="grim-page-sub">Guilds, cabals, and banners — the powers that shape the world.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Raise Banner</button>
@@ -322,7 +322,7 @@ export default function FactionsManagementPage() {
           ) : selectedFaction ? (
             <div className="grim-tome overflow-hidden" style={{ padding: 0 }}>
               <div className="grim-tome-head" style={{ alignItems: "center" }}>
-                <div className="grim-tome-title" style={{ fontFamily: "var(--font-display)", fontSize: "3rem", color: "var(--grim-gold)", letterSpacing: ".04em" }}>
+                <div className="grim-tome-title text-5xl" style={{ fontFamily: "var(--font-display)", color: "var(--grim-gold)", letterSpacing: ".04em" }}>
                   {selectedFaction.name}
                 </div>
                 <div className="flex gap-2 shrink-0">

@@ -135,7 +135,7 @@ export default function PCsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; The Fellowship</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Player Characters</h1>
+          <h1 className="grim-page-title text-7xl">Player Characters</h1>
           <p className="grim-page-sub">Tend the dossiers of the fellowship &mdash; their histories, bonds, and burdens.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Add Character</button>

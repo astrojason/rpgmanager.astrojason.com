@@ -375,7 +375,7 @@ export default function CampaignHome() {
                       {imgSrc ? (
                         <Image src={imgSrc} alt={name} fill className="object-cover object-top"/>
                       ) : (
-                        <div className="grim-img-slot is-portrait w-full h-full" style={{ fontSize: "0rem" }}/>
+                        <div className="grim-img-slot is-portrait w-full h-full"/>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

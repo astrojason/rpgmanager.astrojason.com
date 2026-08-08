@@ -95,7 +95,7 @@ export default function TimelineManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Events</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Timeline</h1>
+          <h1 className="grim-page-title text-7xl">The Timeline</h1>
           <p className="grim-page-sub">Chronicle the turning of history — events, ages, and turning points.</p>
         </div>
         <button className="grim-btn is-ember shrink-0" onClick={handleCreate}>

@@ -77,11 +77,11 @@ body {
 }
 
 .tooltip-content code {
+  @apply text-base;
   background: rgba(255, 255, 255, 0.1);
   padding: 1px 3px;
   border-radius: 2px;
   font-family: monospace;
-  font-size: 1rem;
 }
 
 .tooltip-content ul,
@@ -130,15 +130,15 @@ body {
 }
 
 .sidebar-content h1 {
-  font-size: 2.5rem;
+  @apply text-4xl;
 }
 
 .sidebar-content h2 {
-  font-size: 2rem;
+  @apply text-3xl;
 }
 
 .sidebar-content h3 {
-  font-size: 1.6666rem;
+  @apply text-2xl;
 }
 
 .sidebar-content strong {
@@ -150,12 +150,12 @@ body {
 }
 
 .sidebar-content code {
+  @apply text-sm;
   background: rgba(156, 163, 175, 0.1);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
     "Liberation Mono", Menlo, monospace;
-  font-size: 0.875em;
 }
 
 .sidebar-content ul,
@@ -383,6 +383,7 @@ body {
 @layer components {
 
 .grim-screen {
+  @apply text-2xl;
   width: 100%;
   height: 100%;
   display: flex;
@@ -392,7 +393,6 @@ body {
     var(--grim-bg);
   color: var(--grim-ink);
   font-family: var(--font-body);
-  font-size: 1.4167rem;
   line-height: 1.55;
   overflow: hidden;
   position: relative;
@@ -452,19 +452,19 @@ body {
 }
 
 .grim-sidebar.is-collapsed .grim-brand-mark {
+  @apply text-lg;
   width: 28px;
   height: 28px;
-  font-size: 1.1667rem;
 }
 
 .grim-brand-mark {
+  @apply text-3xl;
   width: 38px; height: 38px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 40%, var(--grim-ember-2), var(--grim-ember) 55%, oklch(0.35 0.10 35) 100%);
   box-shadow: 0 0 24px oklch(0.72 0.165 48 / 0.45), inset 0 0 8px oklch(0.30 0.05 30 / 0.6), 0 0 0 1px var(--grim-gold-2);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
-  font-size: 1.8333rem;
   color: oklch(0.20 0.04 40);
   flex-shrink: 0;
 }
@@ -482,8 +482,8 @@ body {
 }
 
 .grim-brand-name {
+  @apply text-3xl;
   font-family: var(--font-display);
-  font-size: 1.8333rem;
   color: var(--grim-gold);
   letter-spacing: 0.02em;
   line-height: 1.05;
@@ -531,12 +531,12 @@ body {
 }
 
 .grim-nav-item {
+  @apply text-xl;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 9px 12px;
   font-family: var(--font-head);
-  font-size: 1.25rem;
   letter-spacing: 0.04em;
   color: var(--grim-ink-2);
   border-radius: 3px;
@@ -648,8 +648,8 @@ body {
 .grim-main::-webkit-scrollbar-thumb { background: var(--grim-line-2); border-radius: 999px; }
 
 .grim-page-eyebrow {
+  @apply text-base;
   font-family: var(--font-mono);
-  font-size: 1rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--grim-ember);
@@ -657,8 +657,8 @@ body {
 }
 
 .grim-page-title {
+  @apply text-8xl;
   font-family: var(--font-display);
-  font-size: 5.3333rem;
   color: var(--grim-gold);
   margin: 0 0 6px;
   line-height: 0.95;
@@ -667,8 +667,8 @@ body {
 }
 
 .grim-page-sub {
+  @apply text-xl;
   font-family: var(--font-head);
-  font-size: 1.25rem;
   color: var(--grim-ink-3);
   font-style: italic;
   margin: 0 0 28px;
@@ -708,8 +708,8 @@ body {
 }
 
 .grim-tome-title {
+  @apply text-2xl;
   font-family: var(--font-head);
-  font-size: 1.5rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--grim-gold);
@@ -717,9 +717,9 @@ body {
 }
 
 .grim-tome-sub {
+  @apply text-lg;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: 1.1667rem;
   color: var(--grim-ink-3);
 }
 
@@ -753,9 +753,9 @@ body {
 }
 
 .grim-parchment .drop {
+  @apply text-8xl;
   float: left;
   font-family: var(--font-display);
-  font-size: 5.3333rem;
   line-height: 0.85;
   color: var(--grim-blood);
   padding: 4px 8px 0 0;
@@ -763,11 +763,11 @@ body {
 }
 
 .grim-btn {
+  @apply text-lg;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-family: var(--font-head);
-  font-size: 1.25rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: 8px 14px;
@@ -805,11 +805,11 @@ body {
 }
 
 .grim-chip {
+  @apply text-lg;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-family: var(--font-head);
-  font-size: 1.0833rem;
   letter-spacing: 0.10em;
   padding: 3px 9px;
   border: 1px solid var(--grim-line-2);
@@ -827,13 +827,13 @@ body {
 .grim-chip.is-faction { color: var(--grim-gold); border-color: oklch(0.68 0.115 82 / 0.45); background: oklch(0.40 0.08 80 / 0.15); }
 
 .grim-seal {
+  @apply text-4xl;
   width: 72px; height: 72px;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 36%, oklch(0.65 0.20 22), oklch(0.42 0.18 22) 55%, oklch(0.30 0.15 22) 100%);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
   color: oklch(0.90 0.06 60);
-  font-size: 2.5rem;
   box-shadow: inset -2px -3px 6px oklch(0.25 0.10 22 / 0.6), inset 3px 4px 6px oklch(0.85 0.15 30 / 0.4), 0 6px 18px oklch(0.30 0.12 22 / 0.5), 0 0 0 2px oklch(0.25 0.08 22) inset;
   position: relative;
   transform: rotate(-8deg);
@@ -863,6 +863,7 @@ body {
 }
 
 .grim-img-slot {
+  @apply text-lg;
   position: relative;
   background:
     repeating-linear-gradient(135deg,
@@ -873,7 +874,6 @@ body {
   border: 1px solid var(--grim-line);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 1.0833rem;
   color: var(--grim-ink-3);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -894,8 +894,8 @@ body {
 }
 
 .grim-h-section {
+  @apply text-lg;
   font-family: var(--font-head);
-  font-size: 1.1667rem;
   letter-spacing: 0.20em;
   text-transform: uppercase;
   color: var(--grim-ember-2);
@@ -903,8 +903,8 @@ body {
 }
 
 .grim-label {
+  @apply text-lg;
   font-family: var(--font-mono);
-  font-size: 1.0833rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--grim-ink-4);
@@ -937,8 +937,8 @@ body {
 }
 
 .grim-rule-ornament-glyph {
+  @apply text-2xl;
   font-family: var(--font-display);
-  font-size: 1.5rem;
   line-height: 1;
 }
 
@@ -969,8 +969,8 @@ button:not(.grim-btn):active:not(:disabled) {
 
 /* Chronicle body — rendered markdown with drop cap on first paragraph */
 .grim-chronicle {
+  @apply text-2xl;
   font-family: var(--font-body);
-  font-size: 1.4167rem;
   line-height: 1.7;
   color: var(--grim-ink);
 }
@@ -984,9 +984,9 @@ button:not(.grim-btn):active:not(:disabled) {
 }
 
 .grim-chronicle p:first-child::first-letter {
+  @apply text-7xl;
   float: left;
   font-family: var(--font-display);
-  font-size: 4.3334rem;
   line-height: 0.8;
   color: var(--grim-ember-2);
   padding: 4px 10px 0 0;
@@ -1031,7 +1031,7 @@ button:not(.grim-btn):active:not(:disabled) {
 .grim-card-md li { margin: 0; }
 .grim-card-md strong { color: var(--grim-ink); font-weight: 600; }
 .grim-card-md em { font-style: italic; }
-.grim-card-md code { font-family: var(--font-mono); font-size: 0.9em; }
+.grim-card-md code { @apply text-sm; font-family: var(--font-mono); }
 .grim-card-md a { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
 
 .grim-card-md.is-quoted p:first-child::before { content: "\201C"; }
@@ -1057,8 +1057,8 @@ button:not(.grim-btn):active:not(:disabled) {
 }
 
 .grim-modal-message {
+  @apply text-xl;
   font-family: var(--font-body);
-  font-size: 1.3334rem;
   color: var(--grim-ink);
   margin: 0 0 24px;
   line-height: 1.5;

@@ -311,7 +311,7 @@ export default function NPCsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Souls</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>The Codex of Souls</h1>
+          <h1 className="grim-page-title text-7xl">The Codex of Souls</h1>
           <p className="grim-page-sub">Tend the register of NPCs — names, factions, and their fates.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 pb-1.5">

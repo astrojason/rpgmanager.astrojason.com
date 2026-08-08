@@ -88,7 +88,7 @@ export default function LocationsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Places</div>
-          <h1 className="grim-page-title" style={{ fontSize: "4.8333rem" }}>Locations</h1>
+          <h1 className="grim-page-title text-7xl">Locations</h1>
           <p className="grim-page-sub">Towns, cities, and landmarks — the places that shape the journey.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Chart Location</button>
