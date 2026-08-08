@@ -103,19 +103,17 @@ export default function SideNavigation() {
         </div>
       </div>
 
-      <div className="grim-nav-label">Navigation</div>
       <nav className="grim-nav">
         {NAV_ITEMS.map((item) => (
           item.dim ? (
             <span
               key={item.id}
               className="grim-nav-item is-dim"
-              title={item.label}
+              title={`${item.label} — ${item.sub}`}
             >
               <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
               <span className="grim-nav-body">
                 <div>{item.label}</div>
-                <div className="grim-nav-sub">{item.sub}</div>
               </span>
             </span>
           ) : (
@@ -123,12 +121,11 @@ export default function SideNavigation() {
               key={item.id}
               href={item.href}
               className={`grim-nav-item${isActive(item.href) ? " is-active" : ""}`}
-              title={item.label}
+              title={`${item.label} — ${item.sub}`}
             >
               <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
               <span className="grim-nav-body">
                 <div>{item.label}</div>
-                <div className="grim-nav-sub">{item.sub}</div>
               </span>
             </Link>
           )
@@ -138,12 +135,11 @@ export default function SideNavigation() {
           <Link
             href="/admin"
             className={`grim-nav-item${pathname === "/admin" ? " is-active" : ""} mt-3 border-t border-grim-line pt-3`}
-            title="Admin"
+            title="Admin — Administration panel"
           >
             <span className="grim-nav-ico"><NavIcon name="cog"/></span>
             <span className="grim-nav-body">
               <div>Admin</div>
-              <div className="grim-nav-sub">Administration panel</div>
             </span>
           </Link>
         )}

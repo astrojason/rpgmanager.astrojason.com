@@ -52,7 +52,7 @@ describe('SideNavigation', () => {
   it('renders coming-soon items as non-interactive spans with dim class', () => {
     renderWithQueryClient(<SideNavigation />);
 
-    const el = screen.getByTitle('Lore');
+    const el = screen.getByTitle(/^Lore/);
     expect(el.tagName.toLowerCase()).toBe('span');
     expect(el).toHaveClass('is-dim');
   });

@@ -522,31 +522,12 @@ body {
   border-color: var(--grim-gold-2);
 }
 
-.grim-nav-label {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  letter-spacing: 0.22em;
-  color: var(--grim-ink-4);
-  text-transform: uppercase;
-  padding: 0 24px;
-  margin: 14px 0 8px;
-  overflow: hidden;
-  transition: opacity 0.15s ease, max-height 0.22s ease;
-  max-height: 30px;
-}
-
-.grim-sidebar.is-collapsed .grim-nav-label {
-  opacity: 0;
-  max-height: 0;
-  margin: 0;
-  pointer-events: none;
-}
-
 .grim-nav {
   display: flex;
   flex-direction: column;
   gap: 1px;
   padding: 0 12px;
+  margin-top: 14px;
 }
 
 .grim-nav-item {
@@ -562,15 +543,6 @@ body {
   cursor: pointer;
   position: relative;
   text-decoration: none;
-}
-
-.grim-nav-item .grim-nav-sub {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--grim-ink-4);
-  letter-spacing: 0;
-  font-style: italic;
-  margin-top: 1px;
 }
 
 .grim-nav-item:hover {
