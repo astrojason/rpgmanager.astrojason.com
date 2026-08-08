@@ -33,7 +33,7 @@ export default function DataManagementPage() {
     <div className="pt-9 px-12 pb-20">
       <header className="mb-7">
         <div className="grim-page-eyebrow">Behind the Screen · Tomes</div>
-        <h1 className="grim-page-title text-7xl">Tomes of Record</h1>
+        <h1 className="grim-page-title">Tomes of Record</h1>
         <p className="grim-page-sub">All the campaign data — souls, banners, errands, and the world entire.</p>
       </header>
 

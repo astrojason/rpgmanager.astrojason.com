@@ -110,7 +110,7 @@ export default function AdminPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Master&apos;s hand</div>
-          <h1 className="grim-page-title text-7xl">The Scriptorium</h1>
+          <h1 className="grim-page-title">The Scriptorium</h1>
           <p className="grim-page-sub">Tend the tomes of the campaign — souls, banners, errands, and the turning of the world&apos;s calendar.</p>
         </div>
         {user && (

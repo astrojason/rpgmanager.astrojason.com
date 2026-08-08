@@ -226,7 +226,7 @@ export default function NextSessionPage() {
       <header className="flex items-end justify-between gap-6 mb-6.5">
         <div>
           <div className="grim-page-eyebrow">By Order of the Master</div>
-          <h1 className="grim-page-title text-7xl">The Summoning</h1>
+          <h1 className="grim-page-title">The Summoning</h1>
           <p className="grim-page-sub">The party is bid to gather. The candles are lit; the dice await their casting.</p>
         </div>
         {isAdmin && (

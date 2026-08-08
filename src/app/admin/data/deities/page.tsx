@@ -114,7 +114,7 @@ export default function DeitiesManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Pantheon</div>
-          <h1 className="grim-page-title text-7xl">The Divine Compendium</h1>
+          <h1 className="grim-page-title">The Divine Compendium</h1>
           <p className="grim-page-sub">Manage the gods, ancient powers, and divine forces of the campaign.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Deity</button>

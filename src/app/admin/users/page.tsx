@@ -238,7 +238,7 @@ export default function UserManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Permissions</div>
-          <h1 className="grim-page-title text-7xl">User Management</h1>
+          <h1 className="grim-page-title">User Management</h1>
           <p className="grim-page-sub">Manage roles and permissions — who may enter the Scriptorium.</p>
         </div>
         <button className="grim-btn is-ghost" onClick={loadUsers} disabled={loading}>

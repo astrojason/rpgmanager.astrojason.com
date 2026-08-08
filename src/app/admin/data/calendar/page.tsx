@@ -169,7 +169,7 @@ export default function CalendarManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen &middot; Calendar</div>
-          <h1 className="grim-page-title text-7xl">Calendar</h1>
+          <h1 className="grim-page-title">Calendar</h1>
           <p className="grim-page-sub">Tend the world calendar — sessions, festivals, and the turning of days.</p>
         </div>
         <button className="grim-btn is-ember shrink-0" onClick={handleCreate}>

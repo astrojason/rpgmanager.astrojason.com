@@ -90,7 +90,7 @@ export default function FactionsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Banners</div>
-          <h1 className="grim-page-title text-7xl">Factions</h1>
+          <h1 className="grim-page-title">Factions</h1>
           <p className="grim-page-sub">Guilds, cabals, and banners — the powers that shape the world.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ Raise Banner</button>

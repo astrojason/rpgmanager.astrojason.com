@@ -383,7 +383,7 @@ body {
 @layer components {
 
 .grim-screen {
-  @apply text-2xl;
+  @apply text-xl;
   width: 100%;
   height: 100%;
   display: flex;
@@ -458,7 +458,7 @@ body {
 }
 
 .grim-brand-mark {
-  @apply text-3xl;
+  @apply text-2xl;
   width: 38px; height: 38px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 40%, var(--grim-ember-2), var(--grim-ember) 55%, oklch(0.35 0.10 35) 100%);
@@ -482,7 +482,7 @@ body {
 }
 
 .grim-brand-name {
-  @apply text-3xl;
+  @apply text-2xl;
   font-family: var(--font-display);
   color: var(--grim-gold);
   letter-spacing: 0.02em;
@@ -657,7 +657,7 @@ body {
 }
 
 .grim-page-title {
-  @apply text-8xl;
+  @apply text-7xl;
   font-family: var(--font-display);
   color: var(--grim-gold);
   margin: 0 0 6px;
@@ -753,7 +753,7 @@ body {
 }
 
 .grim-parchment .drop {
-  @apply text-8xl;
+  @apply text-7xl;
   float: left;
   font-family: var(--font-display);
   line-height: 0.85;
@@ -805,7 +805,7 @@ body {
 }
 
 .grim-chip {
-  @apply text-lg;
+  @apply text-base;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -863,7 +863,7 @@ body {
 }
 
 .grim-img-slot {
-  @apply text-lg;
+  @apply text-base;
   position: relative;
   background:
     repeating-linear-gradient(135deg,
@@ -903,7 +903,7 @@ body {
 }
 
 .grim-label {
-  @apply text-lg;
+  @apply text-base;
   font-family: var(--font-mono);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -969,7 +969,7 @@ button:not(.grim-btn):active:not(:disabled) {
 
 /* Chronicle body — rendered markdown with drop cap on first paragraph */
 .grim-chronicle {
-  @apply text-2xl;
+  @apply text-xl;
   font-family: var(--font-body);
   line-height: 1.7;
   color: var(--grim-ink);
@@ -984,7 +984,7 @@ button:not(.grim-btn):active:not(:disabled) {
 }
 
 .grim-chronicle p:first-child::first-letter {
-  @apply text-7xl;
+  @apply text-6xl;
   float: left;
   font-family: var(--font-display);
   line-height: 0.8;

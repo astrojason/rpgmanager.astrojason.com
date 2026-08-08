@@ -176,7 +176,7 @@ export default function QuestsManagementPage() {
       <header className="flex items-end justify-between gap-6 mb-7">
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Errands</div>
-          <h1 className="grim-page-title text-7xl">The Ledger of Errands</h1>
+          <h1 className="grim-page-title">The Ledger of Errands</h1>
           <p className="grim-page-sub">Manage the campaign&apos;s threads — active, rumored, and closed.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Errand</button>
