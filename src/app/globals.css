@@ -763,7 +763,7 @@ body {
 }
 
 .grim-btn {
-  @apply text-lg;
+  @apply text-base;
   display: inline-flex;
   align-items: center;
   gap: 8px;
