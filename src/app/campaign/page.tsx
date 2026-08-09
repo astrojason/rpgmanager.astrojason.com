@@ -80,7 +80,7 @@ const HOUSE_RULES = [
     roman: "II",
     label: "Of Inspiration",
     title: '"How do I use my inspiration?"',
-    body: "Earned through recap or roleplay. On checks & saves it sets thy result to 20 + thy modifier. In combat, wield it as bardic boon (+1d8) or wicked bane (−1d4 to the foe).",
+    body: "Earned through recap or roleplay. On checks & saves it sets thy result to 20 + thy modifier. In combat, wield it as advantage for thyself or an ally, or disadvantage upon the foe.",
   },
   {
     roman: "III",
