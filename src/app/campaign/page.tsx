@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
 import { authFetch } from "@/utils/authFetch";
@@ -18,9 +18,16 @@ import {
 } from "@/utils/nextSession";
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
 import { statusChipClass } from "@/utils/chipClass";
-import ErrorBlock from "@/components/ErrorBlock";
+import { dayStart, getCategoryColor, ordinalDate, yearLabel } from "@/utils/calendar";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
+
+interface ChapterData {
+  title: string;
+  subtitle: string;
+  lastUpdated?: string;
+}
 
 interface NextSessionData {
   date: string;
@@ -126,6 +133,29 @@ export default function CampaignHome() {
   const router = useRouter();
   const isAdmin = useIsAdmin();
   const isDM = useIsDM();
+  const queryClient = useQueryClient();
+  const [chapterError, setChapterError] = useState<string | null>(null);
+
+  const { data: chapterData = null } = useQuery<ChapterData | null>({
+    queryKey: ['/api/data/campaign-chapter'],
+    queryFn: async () => {
+      const r = await authFetch('/api/data/campaign-chapter');
+      return r.ok ? r.json() : null;
+    },
+  });
+
+  const handleEditChapter = async () => {
+    const title = prompt("Edit chapter title:", chapterData?.title ?? "");
+    if (title === null) return;
+    const subtitle = prompt("Edit chapter subtitle (e.g. \"session xxi · stormharbor arc\"):", chapterData?.subtitle ?? "");
+    if (subtitle === null) return;
+    const updated: ChapterData = { title, subtitle, lastUpdated: new Date().toISOString().split("T")[0] };
+    try {
+      const r = await authFetch("/api/data/campaign-chapter", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
+      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/campaign-chapter'] });
+      else setChapterError(`Failed to save chapter (${r.status})`);
+    } catch (e) { setChapterError(toErrorMessage(e)); }
+  };
 
   const { data: sessionData = null, error: sessionError } = useQuery<NextSessionData | null>({
     queryKey: ['/api/data/next-session'],
@@ -202,6 +232,32 @@ export default function CampaignHome() {
     return `${monthName} ${cur.day}, ${cur.year}`;
   }, [calendarData]);
 
+  const reckoning = useMemo(() => {
+    if (!calendarData) return null;
+    const { current, static: staticData, events, categories } = calendarData;
+    const months = staticData.months;
+    const weekdays = staticData.weekdays;
+    const monthData = months[current.month - 1];
+    if (!monthData) return null;
+    const todayOrdinal = ordinalDate(current.month, current.day, current.year, months);
+    const upcoming = events
+      .filter((e) => !e.dmOnly)
+      .map((e) => ({ event: e, ordinal: ordinalDate(e.date.month, dayStart(e.date.day), e.date.year, months) }))
+      .filter((e) => e.ordinal >= todayOrdinal)
+      .sort((a, b) => a.ordinal - b.ordinal)
+      .slice(0, 3);
+    return {
+      monthName: monthData.name,
+      daysInMonth: monthData.length,
+      weekdayNames: weekdays.map((w) => w.name),
+      currentDay: current.day,
+      yearLabel: yearLabel(current.year),
+      todayOrdinal,
+      upcoming,
+      categories,
+    };
+  }, [calendarData]);
+
   const storedDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingDate = useMemo(() => determineUpcomingSessionDate(sessionData, new Date()), [sessionData]);
   const daysUntil = useMemo(() => calculateDaysUntil(upcomingDate, new Date()), [upcomingDate]);
@@ -227,15 +283,21 @@ export default function CampaignHome() {
           <p className="grim-page-sub">Welcome, scrivener. The candles are lit and the ink is wet — your campaign awaits.</p>
         </div>
         <div className="text-right pb-1.5">
-          <div className="grim-label mb-1">Chapter</div>
+          <div className="flex items-center justify-end gap-2 mb-1">
+            <div className="grim-label">Chapter</div>
+            {isDM && (
+              <button className="grim-btn is-ghost py-0.5 px-1.5 text-xs" onClick={handleEditChapter} title="Edit chapter">✎</button>
+            )}
+          </div>
           <div className="font-display text-4xl text-grim-gold leading-none">
-            The Hellhound Vigil
+            {chapterData?.title || "Untitled Chapter"}
           </div>
           <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 mt-1">
-            session xxi · stormharbor arc
+            {chapterData?.subtitle || "no session recorded"}
           </div>
         </div>
       </header>
+      {chapterError && <ErrorBlock error={chapterError} onDismiss={() => setChapterError(null)} />}
 
       {/* Next Session — wax-sealed summons */}
       <section className="grim-tome is-bordered mb-7 p-0 overflow-hidden">
@@ -441,40 +503,48 @@ export default function CampaignHome() {
         <section className="grim-tome">
           <div className="grim-tome-head">
             <h3 className="grim-tome-title">The Reckoning</h3>
-            <span className="grim-tome-sub">Calantheon · 3rd month</span>
+            <span className="grim-tome-sub">{reckoning ? `${reckoning.monthName} · ${reckoning.yearLabel}` : "—"}</span>
           </div>
-          <div className="grid grid-cols-10 gap-0.75 mb-3.5">
-            {["Adon","Selū","Rili","Tel'","Pyrt","Neld","Vian","Illu","Bari","Anar"].map((d, i) => (
-              <div key={i} className="grim-mono text-xs tracking-wider text-grim-ink-4 text-center uppercase pb-1 border-b border-grim-line">{d}</div>
-            ))}
-            {Array.from({ length: 40 }).map((_, i) => {
-              const day = i + 1;
-              const isToday = day === 36;
-              return (
-                <div
-                  key={i}
-                  className={`h-6 flex flex-col items-center justify-center font-display text-sm relative ${isToday ? "bg-grim-ember-2" : "bg-transparent"}`}
-                  style={{ color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)", borderRadius: 1 }}
-                >
-                  {day}
-                </div>
-              );
-            })}
-          </div>
-          <div className="grim-stack gap-1.5 text-lg">
-            <div className="flex items-baseline gap-2">
-              <span className="grim-mono text-sm text-grim-ember-2 tracking-wider-2">36 ▸</span>
-              <span className="text-grim-ink">The Hellhound Vigil <span className="grim-dim">— today</span></span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="grim-mono text-sm text-grim-gold tracking-wider-2">40 ▸</span>
-              <span className="text-grim-ink-2">Stormharbor harvest fair</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="grim-mono text-sm text-grim-arcane tracking-wider-2">55 ▸</span>
-              <span className="text-grim-ink-2">The Whispering tide returns</span>
-            </div>
-          </div>
+          {reckoning ? (
+            <>
+              <div className="grid grid-cols-10 gap-0.75 mb-3.5">
+                {reckoning.weekdayNames.map((d, i) => (
+                  <div key={i} className="grim-mono text-xs tracking-wider text-grim-ink-4 text-center uppercase pb-1 border-b border-grim-line">{d}</div>
+                ))}
+                {Array.from({ length: reckoning.daysInMonth }).map((_, i) => {
+                  const day = i + 1;
+                  const isToday = day === reckoning.currentDay;
+                  return (
+                    <div
+                      key={i}
+                      className={`h-6 flex flex-col items-center justify-center font-display text-sm relative ${isToday ? "bg-grim-ember-2" : "bg-transparent"}`}
+                      style={{ color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)", borderRadius: 1 }}
+                    >
+                      {day}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="grim-stack gap-1.5 text-lg">
+                {reckoning.upcoming.length === 0 ? (
+                  <p className="font-body text-lg text-grim-ink-4 italic m-0">No upcoming events are recorded.</p>
+                ) : reckoning.upcoming.map(({ event, ordinal }) => {
+                  const color = getCategoryColor(event.category, reckoning.categories);
+                  return (
+                    <div key={event.id} className="flex items-baseline gap-2">
+                      <span className="grim-mono text-sm tracking-wider-2" style={{ color }}>{dayStart(event.date.day)} ▸</span>
+                      <span className="text-grim-ink">
+                        {event.name}
+                        {ordinal === reckoning.todayOrdinal && <span className="grim-dim"> — today</span>}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <p className="font-body text-lg text-grim-ink-4 italic m-0">Calendar data unavailable.</p>
+          )}
         </section>
       </div>
 

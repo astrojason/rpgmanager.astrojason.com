@@ -2,69 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarData, CalendarEvent, CalendarCategory } from "@/types/interfaces";
+import { CalendarData, CalendarEvent } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
-
-function dayStart(d: number | number[]): number {
-  return Array.isArray(d) ? d[0] : d;
-}
-
-function dayEnd(d: number | number[]): number {
-  return Array.isArray(d) ? d[d.length - 1] : d;
-}
-
-function eventSpanInMonth(
-  event: CalendarEvent,
-  month: number,
-  year: number,
-  daysInMonth: number
-): [number, number] | null {
-  const sm = event.date.month;
-  const sy = event.date.year;
-  const sd = dayStart(event.date.day);
-  const em = event.end ? event.end.month : sm;
-  const ey = event.end ? event.end.year : sy;
-  const ed = event.end ? dayStart(event.end.day) : dayEnd(event.date.day);
-
-  const startsBeforeOrIn = sy < year || (sy === year && sm <= month);
-  const endsAfterOrIn = ey > year || (ey === year && em >= month);
-  if (!startsBeforeOrIn || !endsAfterOrIn) return null;
-
-  const inStart = sy === year && sm === month ? sd : 1;
-  const inEnd = ey === year && em === month ? ed : daysInMonth;
-  return [inStart, inEnd];
-}
-
-function getCategoryColor(categoryId: string | null, categories: CalendarCategory[]): string {
-  if (!categoryId) return "var(--grim-ink-3)";
-  const cat = categories.find((c) => c.id === categoryId);
-  return cat?.color || "var(--grim-ink-3)";
-}
-
-const AB_OFFSET = 1308; // Tyr'amryn year = AB year + AB_OFFSET
-
-function yearLabel(abYear: number): string {
-  return `AB ${abYear} / T ${abYear + AB_OFFSET}`;
-}
-
-function buildDateLabel(event: CalendarEvent, months: { name: string }[]): string {
-  const monthName = months[event.date.month - 1]?.name || `Month ${event.date.month}`;
-  const sd = dayStart(event.date.day);
-  const ed = dayEnd(event.date.day);
-  if (event.end) {
-    const endMonthName = months[event.end.month - 1]?.name || `Month ${event.end.month}`;
-    const endDay = dayStart(event.end.day);
-    if (event.end.month === event.date.month && event.end.year === event.date.year) {
-      return `${monthName} ${sd}–${endDay} · ${yearLabel(event.date.year)}`;
-    }
-    return `${monthName} ${sd} – ${endMonthName} ${endDay} · ${yearLabel(event.date.year)}`;
-  }
-  if (ed !== sd) return `${monthName} ${sd}–${ed} · ${yearLabel(event.date.year)}`;
-  return `${monthName} ${sd} · ${yearLabel(event.date.year)}`;
-}
+import { AB_OFFSET, buildDateLabel, eventSpanInMonth, getCategoryColor, yearLabel } from "@/utils/calendar";
 
 const TENDAY_LABELS = ["I", "II", "III", "IV", "V"];
 const TENDAY_NAMES = [
