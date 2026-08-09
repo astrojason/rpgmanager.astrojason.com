@@ -227,11 +227,10 @@ export default function CampaignHome() {
     return () => unsubscribe();
   }, [router]);
 
-  const chapterSubtitle = useMemo(() => {
+  const chapterSession = useMemo(() => {
     const sessionNumber = allRecaps.length + UNTRACKED_SESSION_COUNT;
-    const roman = `session ${toRoman(sessionNumber)}`;
-    return chapterData?.arc ? `${roman} · ${chapterData.arc}` : roman;
-  }, [allRecaps, chapterData?.arc]);
+    return { sessionNumber, roman: toRoman(sessionNumber) };
+  }, [allRecaps]);
 
   const latestRecap = useMemo(() => {
     const sorted = [...allRecaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -320,7 +319,10 @@ export default function CampaignHome() {
             {chapterData?.title || "Untitled Chapter"}
           </div>
           <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 mt-1">
-            {chapterSubtitle}
+            <span title={`Session ${chapterSession.sessionNumber}`} className="cursor-help">
+              session {chapterSession.roman}
+            </span>
+            {chapterData?.arc && <> · {chapterData.arc}</>}
           </div>
         </div>
       </header>
