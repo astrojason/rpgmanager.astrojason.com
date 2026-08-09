@@ -444,8 +444,8 @@ export default function CampaignHome() {
         </div>
       </section>
 
-      {/* Three-column field */}
-      <div className="grid gap-4.5 mb-7" style={{ gridTemplateColumns: "1.1fr 1.1fr 0.8fr" }}>
+      {/* Two-column field */}
+      <div className="grid grid-cols-2 gap-4.5 mb-4.5">
 
         {/* Lately Beheld — recent NPCs */}
         <section className="grim-tome">
@@ -527,55 +527,55 @@ export default function CampaignHome() {
             </Link>
           </div>
         </section>
-
-        {/* Calendar */}
-        <section className="grim-tome">
-          <div className="grim-tome-head">
-            <h3 className="grim-tome-title">The Reckoning</h3>
-            <span className="grim-tome-sub">{reckoning ? `${reckoning.monthName} · ${reckoning.yearLabel}` : "—"}</span>
-          </div>
-          {reckoning ? (
-            <>
-              <div className="grid grid-cols-10 gap-0.75 mb-3.5">
-                {reckoning.weekdayNames.map((d, i) => (
-                  <div key={i} className="grim-mono text-xs tracking-wider text-grim-ink-4 text-center uppercase pb-1 border-b border-grim-line">{d}</div>
-                ))}
-                {Array.from({ length: reckoning.daysInMonth }).map((_, i) => {
-                  const day = i + 1;
-                  const isToday = day === reckoning.currentDay;
-                  return (
-                    <div
-                      key={i}
-                      className={`h-6 flex flex-col items-center justify-center font-display text-sm relative ${isToday ? "bg-grim-ember-2" : "bg-transparent"}`}
-                      style={{ color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)", borderRadius: 1 }}
-                    >
-                      {day}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="grim-stack gap-1.5 text-lg">
-                {reckoning.upcoming.length === 0 ? (
-                  <p className="font-body text-lg text-grim-ink-4 italic m-0">No upcoming events are recorded.</p>
-                ) : reckoning.upcoming.map(({ event, ordinal }) => {
-                  const color = getCategoryColor(event.category, reckoning.categories);
-                  return (
-                    <div key={event.id} className="flex items-baseline gap-2">
-                      <span className="grim-mono text-sm tracking-wider-2" style={{ color }}>{dayStart(event.date.day)} ▸</span>
-                      <span className="text-grim-ink">
-                        {event.name}
-                        {ordinal === reckoning.todayOrdinal && <span className="grim-dim"> — today</span>}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <p className="font-body text-lg text-grim-ink-4 italic m-0">Calendar data unavailable.</p>
-          )}
-        </section>
       </div>
+
+      {/* Calendar */}
+      <section className="grim-tome mb-7">
+        <div className="grim-tome-head">
+          <h3 className="grim-tome-title">The Reckoning</h3>
+          <span className="grim-tome-sub">{reckoning ? `${reckoning.monthName} · ${reckoning.yearLabel}` : "—"}</span>
+        </div>
+        {reckoning ? (
+          <>
+            <div className="grid grid-cols-10 gap-0.75 mb-3.5">
+              {reckoning.weekdayNames.map((d, i) => (
+                <div key={i} className="grim-mono text-xs tracking-wider text-grim-ink-4 text-center uppercase pb-1 border-b border-grim-line">{d}</div>
+              ))}
+              {Array.from({ length: reckoning.daysInMonth }).map((_, i) => {
+                const day = i + 1;
+                const isToday = day === reckoning.currentDay;
+                return (
+                  <div
+                    key={i}
+                    className={`h-6 flex flex-col items-center justify-center font-display text-sm relative ${isToday ? "bg-grim-ember-2" : "bg-transparent"}`}
+                    style={{ color: isToday ? "oklch(0.20 0.03 40)" : "var(--grim-ink-2)", borderRadius: 1 }}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="grim-stack gap-1.5 text-lg">
+              {reckoning.upcoming.length === 0 ? (
+                <p className="font-body text-lg text-grim-ink-4 italic m-0">No upcoming events are recorded.</p>
+              ) : reckoning.upcoming.map(({ event, ordinal }) => {
+                const color = getCategoryColor(event.category, reckoning.categories);
+                return (
+                  <div key={event.id} className="flex items-baseline gap-2">
+                    <span className="grim-mono text-sm tracking-wider-2" style={{ color }}>{dayStart(event.date.day)} ▸</span>
+                    <span className="text-grim-ink">
+                      {event.name}
+                      {ordinal === reckoning.todayOrdinal && <span className="grim-dim"> — today</span>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <p className="font-body text-lg text-grim-ink-4 italic m-0">Calendar data unavailable.</p>
+        )}
+      </section>
 
       {/* Ornament divider */}
       <div className="grim-rule-ornament"><span className="grim-rule-ornament-glyph">❦</span></div>
