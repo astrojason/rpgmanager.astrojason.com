@@ -16,7 +16,7 @@ export async function GET(request?: NextRequest) {
     const r: Record<string, unknown> = res.rows[0];
     const data = {
       title: r.title ?? '',
-      subtitle: r.subtitle ?? '',
+      arc: r.arc ?? '',
       lastUpdated: r.lastUpdated ?? undefined,
     };
     return NextResponse.json(data);
@@ -32,17 +32,17 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const payload = {
       title: body.title ?? null,
-      subtitle: body.subtitle ?? null,
+      arc: body.arc ?? null,
       lastUpdated: body.lastUpdated ?? null,
     };
     await db.execute({
-      sql: `INSERT INTO ${TABLE} (id,title,subtitle,lastUpdated)
+      sql: `INSERT INTO ${TABLE} (id,title,arc,lastUpdated)
                 VALUES (1,?,?,?)
                 ON CONFLICT(id) DO UPDATE SET
                   title=excluded.title,
-                  subtitle=excluded.subtitle,
+                  arc=excluded.arc,
                   lastUpdated=excluded.lastUpdated`,
-      args: [payload.title, payload.subtitle, payload.lastUpdated],
+      args: [payload.title, payload.arc, payload.lastUpdated],
     });
     return NextResponse.json({ success: true, data: body });
   }, 'Error updating Campaign Chapter:', 'Failed to update Campaign Chapter');

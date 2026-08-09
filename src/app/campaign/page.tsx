@@ -25,8 +25,29 @@ import { useIsDM } from "@/utils/role";
 
 interface ChapterData {
   title: string;
-  subtitle: string;
+  arc: string;
   lastUpdated?: string;
+}
+
+// Sessions played before recaps were tracked in this app.
+const UNTRACKED_SESSION_COUNT = 70;
+
+const ROMAN_NUMERALS: [number, string][] = [
+  [1000, "m"], [900, "cm"], [500, "d"], [400, "cd"],
+  [100, "c"], [90, "xc"], [50, "l"], [40, "xl"],
+  [10, "x"], [9, "ix"], [5, "v"], [4, "iv"], [1, "i"],
+];
+
+function toRoman(num: number): string {
+  let n = num;
+  let result = "";
+  for (const [value, symbol] of ROMAN_NUMERALS) {
+    while (n >= value) {
+      result += symbol;
+      n -= value;
+    }
+  }
+  return result;
 }
 
 interface NextSessionData {
@@ -147,9 +168,9 @@ export default function CampaignHome() {
   const handleEditChapter = async () => {
     const title = prompt("Edit chapter title:", chapterData?.title ?? "");
     if (title === null) return;
-    const subtitle = prompt("Edit chapter subtitle (e.g. \"session xxi · stormharbor arc\"):", chapterData?.subtitle ?? "");
-    if (subtitle === null) return;
-    const updated: ChapterData = { title, subtitle, lastUpdated: new Date().toISOString().split("T")[0] };
+    const arc = prompt("Edit arc name (e.g. \"stormharbor arc\") — the session number is calculated automatically:", chapterData?.arc ?? "");
+    if (arc === null) return;
+    const updated: ChapterData = { title, arc, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/campaign-chapter", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
       if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/campaign-chapter'] });
@@ -205,6 +226,12 @@ export default function CampaignHome() {
     });
     return () => unsubscribe();
   }, [router]);
+
+  const chapterSubtitle = useMemo(() => {
+    const sessionNumber = allRecaps.length + UNTRACKED_SESSION_COUNT;
+    const roman = `session ${toRoman(sessionNumber)}`;
+    return chapterData?.arc ? `${roman} · ${chapterData.arc}` : roman;
+  }, [allRecaps, chapterData?.arc]);
 
   const latestRecap = useMemo(() => {
     const sorted = [...allRecaps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -293,7 +320,7 @@ export default function CampaignHome() {
             {chapterData?.title || "Untitled Chapter"}
           </div>
           <div className="grim-mono text-sm text-grim-ink-3 tracking-widest-2 mt-1">
-            {chapterData?.subtitle || "no session recorded"}
+            {chapterSubtitle}
           </div>
         </div>
       </header>

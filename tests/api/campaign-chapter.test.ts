@@ -7,7 +7,7 @@ describe('campaign-chapter endpoint', () => {
       rows: [
         {
           title: 'The Hellhound Vigil',
-          subtitle: 'session xxi · stormharbor arc',
+          arc: 'stormharbor arc',
           lastUpdated: '2026-08-01',
         },
       ],
@@ -16,7 +16,7 @@ describe('campaign-chapter endpoint', () => {
     const res = await GET();
     expect(await res.json()).toEqual({
       title: 'The Hellhound Vigil',
-      subtitle: 'session xxi · stormharbor arc',
+      arc: 'stormharbor arc',
       lastUpdated: '2026-08-01',
     });
   });
@@ -32,7 +32,7 @@ describe('campaign-chapter endpoint', () => {
     mockDb.execute.mockResolvedValue({ rows: [] });
     const body = {
       title: 'The Hellhound Vigil',
-      subtitle: 'session xxi · stormharbor arc',
+      arc: 'stormharbor arc',
       lastUpdated: '2026-08-09',
     };
     const { PUT } = await import('@/app/api/data/campaign-chapter/route');
