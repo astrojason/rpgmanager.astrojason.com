@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   { id: "factions",     label: "Factions",           sub: "Guilds, politics, cabals",      icon: "banner",  href: "/campaign/factions" },
   { id: "quests",       label: "Quests",             sub: "Active, complete, available",   icon: "key",     href: "/campaign/quests" },
   { id: "items",        label: "Items",              sub: "Weapons, artifacts, charms",    icon: "gem",     href: "/campaign/items" },
-  { id: "lore",         label: "Lore",               sub: "History & world building",      icon: "book",    href: "/campaign/lore",         dim: true },
+  { id: "lore",         label: "Lore",               sub: "History & world building",      icon: "book",    href: "/campaign/lore" },
   { id: "deities",      label: "Deities",            sub: "Gods, pantheons, powers",       icon: "star",    href: "/campaign/deities" },
   { id: "recaps",       label: "Recaps",             sub: "Session summaries",             icon: "feather", href: "/campaign/recaps" },
   { id: "pronounce",    label: "Pronunciations",     sub: "Name pronunciation guide",      icon: "tongue",  href: "/campaign/pronunciations" },
@@ -105,30 +105,17 @@ export default function SideNavigation() {
 
       <nav className="grim-nav">
         {NAV_ITEMS.map((item) => (
-          item.dim ? (
-            <span
-              key={item.id}
-              className="grim-nav-item is-dim"
-              title={`${item.label} — ${item.sub}`}
-            >
-              <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
-              <span className="grim-nav-body">
-                <div>{item.label}</div>
-              </span>
+          <Link
+            key={item.id}
+            href={item.href}
+            className={`grim-nav-item${isActive(item.href) ? " is-active" : ""}`}
+            title={`${item.label} — ${item.sub}`}
+          >
+            <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
+            <span className="grim-nav-body">
+              <div>{item.label}</div>
             </span>
-          ) : (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`grim-nav-item${isActive(item.href) ? " is-active" : ""}`}
-              title={`${item.label} — ${item.sub}`}
-            >
-              <span className="grim-nav-ico"><NavIcon name={item.icon}/></span>
-              <span className="grim-nav-body">
-                <div>{item.label}</div>
-              </span>
-            </Link>
-          )
+          </Link>
         ))}
 
         {isAdmin && (

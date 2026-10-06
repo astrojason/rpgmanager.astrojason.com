@@ -10,6 +10,7 @@ const DATA_TYPES = [
   { glyph: "✦", name: "Quests",            href: "/admin/data/quests",    sub: "Errands & threads",      tint: "ember" },
   { glyph: "✠", name: "Calendar",          href: "/admin/data/calendar",  sub: "World calendar & dates", tint: "gold" },
   { glyph: "☾", name: "Timeline",          href: "/admin/data/timeline",  sub: "Events of the realm",    tint: "arcane" },
+  { glyph: "✎", name: "Lore",              href: "/admin/data/lore",      sub: "History & world building", tint: "arcane" },
   { glyph: "✎", name: "Session Recaps",    href: "/admin/data/recaps",    sub: "Chronicle the sessions", tint: "arcane" },
   { glyph: "⚔", name: "Items",             href: "/admin/data/items",     sub: "Relics & artefacts",     tint: "gold" },
   { glyph: "✦", name: "Deities",           href: "/admin/data/deities",   sub: "Gods & divine forces",   tint: "gold" },

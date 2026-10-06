@@ -49,11 +49,9 @@ describe('SideNavigation', () => {
     expect(screen.getByRole('link', { name: /Admin/i })).toBeInTheDocument();
   });
 
-  it('renders coming-soon items as non-interactive spans with dim class', () => {
+  it('renders Lore as a navigable link', () => {
     renderWithQueryClient(<SideNavigation />);
 
-    const el = screen.getByTitle(/^Lore/);
-    expect(el.tagName.toLowerCase()).toBe('span');
-    expect(el).toHaveClass('is-dim');
+    expect(screen.getByRole('link', { name: /Lore/i })).toHaveAttribute('href', '/campaign/lore');
   });
 });
