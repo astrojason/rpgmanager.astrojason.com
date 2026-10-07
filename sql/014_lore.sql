@@ -1,8 +1,0 @@
-CREATE TABLE lore (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  category TEXT,
-  content TEXT NOT NULL,
-  hidden INTEGER NOT NULL DEFAULT 0,
-  gm_notes TEXT
-);
