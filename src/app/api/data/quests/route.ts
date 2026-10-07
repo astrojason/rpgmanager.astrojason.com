@@ -59,6 +59,7 @@ export async function GET(request?: NextRequest) {
                 name: sanitizeText(r.name),
                 notes: r.notes ? JSON.parse(String(r.notes)) : [],
                 status: sanitizeText(r.status) || 'active',
+                hidden: !!r.hidden,
                 gm_notes: sanitizeOptionalText(r.gm_notes),
                 tagged_npcs: npcMap.get(id) ?? [],
                 tagged_locations: locMap.get(id) ?? [],
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
     return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
-        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes) VALUES (?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null] });
+        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,hidden,gm_notes) VALUES (?,?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.hidden ? 1 : 0, q.gm_notes ?? null] });
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceTagsForQuest(db, newId, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...q, id: String(newId) } });
@@ -91,7 +92,7 @@ export async function PUT(request: NextRequest) {
     return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
-        const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, Number(q.id)] });
+        const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,hidden=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.hidden ? 1 : 0, q.gm_notes ?? null, Number(q.id)] });
         if ((res.rowsAffected ?? 0) === 0) return notFound('Quest not found');
         await replaceTagsForQuest(db, q.id, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: q });

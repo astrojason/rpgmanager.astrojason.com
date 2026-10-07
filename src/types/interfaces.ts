@@ -204,6 +204,7 @@ export interface Quest {
   name: string;
   notes: UserNote[] | string[]; // Support legacy string format
   status: string;
+  hidden?: boolean;
   gm_notes?: string;
   tagged_npcs?: string[];
   tagged_locations?: string[];
