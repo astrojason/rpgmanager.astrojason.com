@@ -234,6 +234,7 @@ export interface SessionRecap {
   date: string;
   title: string;
   recap: string;
+  session_number?: number | null; // real campaign session number
   id?: string; // unique id for editing
   author?: string; // uid of creator
   notes?: UserNote[];

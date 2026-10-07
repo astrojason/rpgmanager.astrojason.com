@@ -71,6 +71,7 @@ export async function GET(request?: NextRequest) {
                 title: r.title !== undefined ? String(r.title) : '',
                 recap: r.recap !== undefined ? String(r.recap) : '',
                 author: r.author !== undefined ? String(r.author) : undefined,
+                session_number: r.session_number !== undefined && r.session_number !== null ? Number(r.session_number) : null,
                 notes: r.notes ? JSON.parse(String(r.notes)) : [],
                 tagged_npcs: npcMap.get(id) ?? [],
                 tagged_locations: locMap.get(id) ?? [],
@@ -106,9 +107,10 @@ export async function GET(request?: NextRequest) {
                     const recap = r.recap ?? '';
                     const author = typeof r.author === 'string' ? r.author : null;
                     const notes = JSON.stringify(r.notes ?? []);
+                    const sessionNumber = typeof r.session_number === 'number' ? r.session_number : null;
                     await tx.execute({
-                        sql: `INSERT INTO ${TABLE} (id,date,title,recap,author,notes) VALUES (?,?,?,?,?,?)`,
-                        args: [id, date, title, recap, author, notes]
+                        sql: `INSERT INTO ${TABLE} (id,date,title,recap,author,notes,session_number) VALUES (?,?,?,?,?,?,?)`,
+                        args: [id, date, title, recap, author, notes, sessionNumber]
                     });
                 }
                 await tx.commit();
@@ -129,7 +131,7 @@ export async function POST(request: NextRequest) {
         const db = getDb();
         const newRecap: SessionRecap = await request.json();
         if (!Array.isArray(newRecap.notes)) newRecap.notes = [];
-        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (date,title,recap,author,notes) VALUES (?,?,?,?,?)`, args: [newRecap.date, newRecap.title, newRecap.recap, newRecap.author ?? null, JSON.stringify(newRecap.notes ?? [])] });
+        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (date,title,recap,author,notes,session_number) VALUES (?,?,?,?,?,COALESCE(?, (SELECT COALESCE(MAX(session_number),0)+1 FROM ${TABLE})))`, args: [newRecap.date, newRecap.title, newRecap.recap, newRecap.author ?? null, JSON.stringify(newRecap.notes ?? []), typeof newRecap.session_number === 'number' ? newRecap.session_number : null] });
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceTagsForRecap(db, newId, newRecap.tagged_npcs ?? [], newRecap.tagged_locations ?? [], newRecap.tagged_quests ?? [], newRecap.tagged_items ?? [], newRecap.tagged_factions ?? [], newRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...newRecap, id: String(newId) } });
@@ -143,7 +145,7 @@ export async function PUT(request: NextRequest) {
     return withErrorHandling(async () => {
         const db = getDb();
         const updatedRecap: SessionRecap = await request.json();
-        const res = await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=? WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), Number(updatedRecap.id)] });
+        const res = await db.execute({ sql: `UPDATE ${TABLE} SET date=?,title=?,recap=?,author=?,notes=?,session_number=COALESCE(?,session_number) WHERE id=?`, args: [updatedRecap.date, updatedRecap.title, updatedRecap.recap, updatedRecap.author || null, JSON.stringify(updatedRecap.notes ?? []), typeof updatedRecap.session_number === 'number' ? updatedRecap.session_number : null, Number(updatedRecap.id)] });
         if ((res.rowsAffected ?? 0) === 0) return notFound('Session Recap not found');
         await replaceTagsForRecap(db, updatedRecap.id!, updatedRecap.tagged_npcs ?? [], updatedRecap.tagged_locations ?? [], updatedRecap.tagged_quests ?? [], updatedRecap.tagged_items ?? [], updatedRecap.tagged_factions ?? [], updatedRecap.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: updatedRecap });

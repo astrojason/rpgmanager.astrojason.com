@@ -4,4 +4,6 @@
 
 ## Features
 
+- Real session numbers on recaps (`session_number`, used by home page chapter + recap pages). Run `sql/016_recap_session_number.sql`, then backfill from the vault.
+
 ## Enhancements

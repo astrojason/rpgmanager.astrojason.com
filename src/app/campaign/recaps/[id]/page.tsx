@@ -14,6 +14,7 @@ import { useIsAdmin } from "@/utils/adminCheck";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
+import { sessionNumberFor } from "@/utils/sessionNumber";
 
 interface EntityItem { id: string; name: string; }
 
@@ -92,9 +93,7 @@ export default function RecapDetailPage() {
   const notFound = !loading && !recap;
   const sessionNo = useMemo(() => {
     if (!recap) return null;
-    const sorted = [...allRecaps].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const idx = sorted.findIndex(r => (r.id ?? r.date) === (recap.id ?? recap.date));
-    return idx !== -1 ? idx + 1 : null;
+    return sessionNumberFor(recap, allRecaps);
   }, [allRecaps, recap]);
   const allNPCData = rawNpcs;
   const availableNPCs = useMemo(() => rawNpcs.map(n => ({ id: String(n.id), name: n.name || n.display_name || String(n.id), hidden: n.hidden, nameHidden: n.nameHidden })), [rawNpcs]);

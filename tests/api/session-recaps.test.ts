@@ -32,6 +32,7 @@ describe('session recaps endpoint', () => {
         title: 'Adventure',
         recap: 'Details',
         author: 'DM',
+        session_number: null,
         notes: [],
         tagged_npcs: [],
         tagged_locations: [],
@@ -150,5 +151,44 @@ describe('session recaps endpoint', () => {
     const { PATCH } = await import('@/app/api/data/session-recaps/route');
     const res = await PATCH(jsonRequest('http://test/api/recaps', 'PATCH', { id: '99', notes: [] }) as any);
     expect(res.status).toBe(404);
+  });
+  it('returns stored session numbers', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ id: 1, date: '2026-10-04', title: 'T', recap: 'R', author: 'DM', notes: '[]', session_number: 108 }] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/session-recaps/route');
+    const data = await (await GET()).json();
+    expect(data[0].session_number).toBe(108);
+  });
+
+  it('assigns the next session number on create when none is given', async () => {
+    mockDb.execute.mockResolvedValueOnce({ lastInsertRowid: 9 });
+    const { POST } = await import('@/app/api/data/session-recaps/route');
+    await POST(jsonRequest('http://test/api/recaps', 'POST', { date: '2026-10-11', title: 'T', recap: 'R', notes: [] }) as any);
+    const call = mockDb.execute.mock.calls.find((c: any[]) => String(c[0]?.sql ?? '').startsWith('INSERT INTO session_recaps'));
+    expect(call?.[0].sql).toContain('session_number');
+    expect(call?.[0].sql).toContain('MAX(session_number)');
+    expect(call?.[0].args).toContain(null);
+  });
+
+  it('keeps an explicit session number on create', async () => {
+    mockDb.execute.mockResolvedValueOnce({ lastInsertRowid: 10 });
+    const { POST } = await import('@/app/api/data/session-recaps/route');
+    await POST(jsonRequest('http://test/api/recaps', 'POST', { date: '2026-10-11', title: 'T', recap: 'R', notes: [], session_number: 109 }) as any);
+    const call = mockDb.execute.mock.calls.find((c: any[]) => String(c[0]?.sql ?? '').startsWith('INSERT INTO session_recaps'));
+    expect(call?.[0].args).toContain(109);
+  });
+
+  it('persists session number on update without clearing it when omitted', async () => {
+    mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
+    const { PUT } = await import('@/app/api/data/session-recaps/route');
+    await PUT(jsonRequest('http://test/api/recaps', 'PUT', { id: '5', date: '2026-10-11', title: 'T', recap: 'R', notes: [] }) as any);
+    const call = mockDb.execute.mock.calls.find((c: any[]) => String(c[0]?.sql ?? '').startsWith('UPDATE session_recaps'));
+    expect(call?.[0].sql).toContain('session_number=COALESCE(?,session_number)');
   });
 });

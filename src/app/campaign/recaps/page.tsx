@@ -13,6 +13,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { authFetch } from "@/utils/authFetch";
 import Link from "next/link";
+import { sessionNumberFor } from "@/utils/sessionNumber";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 interface EntityItem { id: string; name: string; }
@@ -145,12 +146,10 @@ export default function RecapsPage() {
   }, [allRecaps, searchParams]);
 
   // Assign session numbers based on chronological order (oldest = #1)
-  const sessionNumbers = [...allRecaps]
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .reduce(
-      (acc, recap, index) => ({ ...acc, [recap.id || recap.date]: index + 1 }),
-      {} as Record<string, number>
-    );
+  const sessionNumbers = allRecaps.reduce(
+    (acc, recap) => ({ ...acc, [recap.id || recap.date]: sessionNumberFor(recap, allRecaps) ?? 0 }),
+    {} as Record<string, number>
+  );
 
   const filteredRecaps = allRecaps
     .filter(

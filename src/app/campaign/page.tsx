@@ -22,15 +22,13 @@ import { dayStart, getCategoryColor, ordinalDate, yearLabel } from "@/utils/cale
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
+import { latestSessionNumber } from "@/utils/sessionNumber";
 
 interface ChapterData {
   title: string;
   arc: string;
   lastUpdated?: string;
 }
-
-// Sessions played before recaps were tracked in this app.
-const UNTRACKED_SESSION_COUNT = 70;
 
 const ROMAN_NUMERALS: [number, string][] = [
   [1000, "m"], [900, "cm"], [500, "d"], [400, "cd"],
@@ -228,7 +226,7 @@ export default function CampaignHome() {
   }, [router]);
 
   const chapterSession = useMemo(() => {
-    const sessionNumber = allRecaps.length + UNTRACKED_SESSION_COUNT;
+    const sessionNumber = latestSessionNumber(allRecaps);
     return { sessionNumber, roman: toRoman(sessionNumber) };
   }, [allRecaps]);
 
