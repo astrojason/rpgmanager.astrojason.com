@@ -13,6 +13,8 @@ import {
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import { CalendarData, SessionRecap } from "@/types/interfaces";
+import { recapExcerpt } from "@/utils/recapExcerpt";
+import { sessionNumberFor } from "@/utils/sessionNumber";
 
 interface NextSessionData {
   date: string;
@@ -375,24 +377,45 @@ export default function NextSessionPage() {
             <h3 className="grim-tome-title">Where We Left the Party</h3>
             <span className="grim-tome-sub">scribed last session</span>
           </div>
-          {sessionData.notes ? (
+          {latestRecap || sessionData.notes ? (
             <>
-              <p className="grim-flavor text-xl text-grim-ink-2 m-0" style={{ lineHeight: 1.65 }}>
-                {sessionData.notes}
-              </p>
+              {latestRecap && (
+                <>
+                  <div className="font-head text-lg tracking-wider uppercase text-grim-gold mb-2">
+                    {sessionNumberFor(latestRecap, recaps) != null && `Session ${sessionNumberFor(latestRecap, recaps)} · `}
+                    {latestRecap.title}
+                  </div>
+                  <p className="grim-flavor text-xl text-grim-ink-2 m-0" style={{ lineHeight: 1.65 }}>
+                    {recapExcerpt(latestRecap.recap, 600)}
+                  </p>
+                </>
+              )}
+              {sessionData.notes && (
+                <p
+                  className={`grim-flavor text-xl text-grim-ink-2 m-0${latestRecap ? " mt-4 italic" : ""}`}
+                  style={{ lineHeight: 1.65 }}
+                >
+                  {sessionData.notes}
+                </p>
+              )}
               <div className="grim-rule" />
               <div className="flex justify-between items-center">
-                {sessionData.lastUpdated && (
+                {latestRecap ? (
+                  <span className="grim-label">Recap dated · {latestRecap.date}</span>
+                ) : sessionData.lastUpdated ? (
                   <span className="grim-label">Last updated · {sessionData.lastUpdated}</span>
-                )}
-                <Link href="/campaign/recaps" className="grim-link font-head text-base tracking-wider-3 uppercase ml-auto">
+                ) : null}
+                <Link
+                  href={latestRecap?.id ? `/campaign/recaps/${latestRecap.id}` : "/campaign/recaps"}
+                  className="grim-link font-head text-base tracking-wider-3 uppercase ml-auto"
+                >
                   Read full recap ›
                 </Link>
               </div>
             </>
           ) : (
             <p className="grim-flavor text-xl text-grim-ink-4 m-0 italic">
-              No notes from last session have been recorded.
+              No recap or notes from last session have been recorded.
             </p>
           )}
         </section>
