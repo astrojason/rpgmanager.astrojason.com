@@ -4,6 +4,4 @@
 
 ## Features
 
-- Hidden quests: `hidden` flag on quests (API filters for players, admin checkbox + chip). Run `sql/015_quests_hidden.sql` before deploying.
-
 ## Enhancements
