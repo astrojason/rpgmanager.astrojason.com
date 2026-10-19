@@ -92,15 +92,15 @@ export default function NPCsPage() {
 
   const totalPages = Math.max(1, Math.ceil(sortedNPCs.length / PAGE_SIZE));
 
-  useEffect(() => {
+  // Reset to the first page when the filters change (adjusting state during render, not in an effect).
+  const [prevFilters, setPrevFilters] = useState({ searchTerm, statusFilter });
+  if (prevFilters.searchTerm !== searchTerm || prevFilters.statusFilter !== statusFilter) {
+    setPrevFilters({ searchTerm, statusFilter });
     setPage(1);
-  }, [searchTerm, statusFilter]);
+  }
 
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  const pagedNPCs = sortedNPCs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const currentPage = Math.min(page, totalPages);
+  const pagedNPCs = sortedNPCs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const aliveCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "alive").length;
   const unknownCount = visibleNPCs.filter((n) => (n.status || "").toLowerCase() === "unknown").length;
@@ -413,19 +413,19 @@ export default function NPCsPage() {
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2.5 mt-5.5">
               <button
-                className={`grim-btn is-ghost ${page === 1 ? "opacity-40 cursor-default" : "opacity-100 cursor-pointer"}`}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
+                className={`grim-btn is-ghost ${currentPage === 1 ? "opacity-40 cursor-default" : "opacity-100 cursor-pointer"}`}
+                onClick={() => setPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
               >
                 ‹ Prev
               </button>
               <span className="grim-mono text-sm tracking-wider-3 text-grim-ink-3 uppercase">
-                Page {page} of {totalPages}
+                Page {currentPage} of {totalPages}
               </span>
               <button
-                className={`grim-btn is-ghost ${page === totalPages ? "opacity-40 cursor-default" : "opacity-100 cursor-pointer"}`}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
+                className={`grim-btn is-ghost ${currentPage === totalPages ? "opacity-40 cursor-default" : "opacity-100 cursor-pointer"}`}
+                onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
               >
                 Next ›
               </button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 interface ReferrerInfo {
     label: string;
@@ -50,17 +50,19 @@ function getStoredReferrer() {
     return document.referrer || sessionStorage.getItem('lastPage') || '';
 }
 
+const subscribeNoop = () => () => {};
+
+// useSyncExternalStore needs a referentially stable snapshot, so reuse the last value while it is unchanged.
+let cachedReferrer: ReferrerInfo = defaultReferrer;
+function getReferrerSnapshot(): ReferrerInfo {
+    const resolved = parseReferrer(getStoredReferrer());
+    if (resolved.label !== cachedReferrer.label || resolved.url !== cachedReferrer.url) cachedReferrer = resolved;
+    return cachedReferrer;
+}
+
 export function useReferrerInfo(): ReferrerInfo {
-    const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo>(() => parseReferrer(getStoredReferrer()));
-
-    useEffect(() => {
-        const resolved = parseReferrer(getStoredReferrer());
-        setReferrerInfo((current) =>
-            current.label === resolved.label && current.url === resolved.url ? current : resolved
-        );
-    }, []);
-
-    return referrerInfo;
+    // The server snapshot is the default, so hydration matches and the real referrer applies on the client.
+    return useSyncExternalStore(subscribeNoop, getReferrerSnapshot, () => defaultReferrer);
 }
 
 // Hook to track page visits for better referrer tracking

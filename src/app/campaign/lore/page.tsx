@@ -23,7 +23,9 @@ export default function LorePage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const canEdit = useIsAdmin() || useIsDM();
+  const isAdmin = useIsAdmin();
+  const isDM = useIsDM();
+  const canEdit = isAdmin || isDM;
 
   const { data: entries = [], isPending: loading, error: queryError } = useQuery<LoreEntry[]>({
     queryKey: ["/api/data/lore"],

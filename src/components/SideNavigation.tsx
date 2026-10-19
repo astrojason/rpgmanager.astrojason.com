@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -51,10 +51,29 @@ function NavIcon({ name }: { name: string }) {
   }
 }
 
+const COLLAPSED_KEY = "sidenav-collapsed";
+const collapsedListeners = new Set<() => void>();
+
+function subscribeCollapsed(listener: () => void) {
+  collapsedListeners.add(listener);
+  return () => {
+    collapsedListeners.delete(listener);
+  };
+}
+
+function getCollapsedSnapshot(): boolean {
+  return typeof localStorage !== "undefined" && localStorage.getItem(COLLAPSED_KEY) === "true";
+}
+
+function setCollapsedStored(value: boolean) {
+  localStorage.setItem(COLLAPSED_KEY, String(value));
+  collapsedListeners.forEach(listener => listener());
+}
+
 export default function SideNavigation() {
   const pathname = usePathname();
   const isAdmin = useIsAdmin();
-  const [collapsed, setCollapsed] = useState(false);
+  const collapsed = useSyncExternalStore(subscribeCollapsed, getCollapsedSnapshot, () => false);
 
   const { data: calendarData } = useQuery<CalendarData | null>({
     queryKey: ['/api/data/calendar'],
@@ -67,17 +86,7 @@ export default function SideNavigation() {
   const gameDateLine1 = calCurrent && monthName ? `${monthName} ${calCurrent.day}` : null;
   const gameDateLine2 = calCurrent ? `year ${calCurrent.year} of the Bounty` : null;
 
-  useEffect(() => {
-    const saved = localStorage.getItem("sidenav-collapsed");
-    if (saved === "true") setCollapsed(true);
-  }, []);
-
-  const toggle = () => {
-    setCollapsed((prev) => {
-      localStorage.setItem("sidenav-collapsed", String(!prev));
-      return !prev;
-    });
-  };
+  const toggle = () => setCollapsedStored(!collapsed);
 
   const isActive = (href: string) => {
     if (href === "/campaign") return pathname === "/campaign";

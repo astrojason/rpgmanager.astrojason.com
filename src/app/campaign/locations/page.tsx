@@ -11,7 +11,6 @@ import ErrorBlock from "@/components/ErrorBlock";
 import { useQuery } from "@tanstack/react-query";
 
 export default function LocationsPage() {
-  const [selectedArea, setSelectedArea] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);
   const isAdmin = useIsAdmin();
   const router = useRouter();
@@ -27,36 +26,37 @@ export default function LocationsPage() {
   const mainLocation = locations.length > 0 ? locations[0] : null;
   const sublocations = useMemo(() => mainLocation?.locations || [], [mainLocation]);
 
-  useEffect(() => {
+  // undefined = follow the URL (?selected= or #name); null/id = the user's own choice.
+  const [pickedId, setPickedId] = useState<string | null | undefined>(undefined);
+
+  const urlLocation = useMemo(() => {
+    const allLocations = mainLocation ? [mainLocation, ...sublocations] : sublocations;
     const selected = searchParams.get("selected");
-    const fragment = window.location.hash.slice(1);
-
-    if (selectedArea === null) {
-      let location: Location | undefined;
-
-      if (selected) {
-        if (mainLocation && mainLocation.id === selected) location = mainLocation;
-        if (!location) location = sublocations.find((loc: Location) => loc.id === selected);
-      }
-
-      if (!location && fragment) {
-        const searchName = decodeURIComponent(fragment).replace(/-/g, " ").toLowerCase();
-        if (mainLocation && mainLocation.name.toLowerCase() === searchName) location = mainLocation;
-        if (!location) location = sublocations.find((loc: Location) => loc.name.toLowerCase() === searchName);
-      }
-
-      if (location) {
-        setSelectedArea(location);
-        const url = new URL(window.location.href);
-        url.searchParams.set("selected", location.id);
-        url.hash = "";
-        window.history.replaceState({}, "", url.toString());
-      }
+    if (selected) {
+      const byId = allLocations.find((loc: Location) => loc.id === selected);
+      if (byId) return byId;
     }
-  }, [searchParams, mainLocation, sublocations, selectedArea]);
+    const fragment = typeof window === "undefined" ? "" : window.location.hash.slice(1);
+    if (!fragment) return undefined;
+    const searchName = decodeURIComponent(fragment).replace(/-/g, " ").toLowerCase();
+    return allLocations.find((loc: Location) => loc.name.toLowerCase() === searchName);
+  }, [searchParams, mainLocation, sublocations]);
+
+  const selectedArea: Location | null = pickedId === undefined
+    ? (urlLocation ?? null)
+    : ([mainLocation, ...sublocations].find((loc) => loc?.id === pickedId) ?? null);
+
+  // Normalise the URL to ?selected=<id> once a location is resolved from it.
+  useEffect(() => {
+    if (pickedId !== undefined || !urlLocation) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("selected", urlLocation.id);
+    url.hash = "";
+    window.history.replaceState({}, "", url.toString());
+  }, [pickedId, urlLocation]);
 
   const handleAreaClick = (area: Location) => {
-    setSelectedArea(area);
+    setPickedId(area.id);
     const url = new URL(window.location.href);
     url.searchParams.set("selected", area.id);
     url.hash = "";
@@ -64,7 +64,7 @@ export default function LocationsPage() {
   };
 
   const handleCloseDetail = () => {
-    setSelectedArea(null);
+    setPickedId(null);
     const url = new URL(window.location.href);
     url.searchParams.delete("selected");
     url.hash = "";
