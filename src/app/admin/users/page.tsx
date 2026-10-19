@@ -21,6 +21,11 @@ interface RoleUpdateData {
   role: string;
 }
 
+interface DisplayNameUpdateData {
+  uid: string;
+  displayName: string;
+}
+
 const ROLE_AVATAR_BG: Record<string, string> = {
   admin:  "linear-gradient(180deg, oklch(0.40 0.16 22), oklch(0.28 0.14 22))",
   dm:     "linear-gradient(180deg, oklch(0.40 0.12 40), oklch(0.28 0.08 35))",
@@ -48,6 +53,7 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<string>("");
   const [newCharacter, setNewCharacter] = useState<string>("");
+  const [newDisplayName, setNewDisplayName] = useState<string>("");
 
   const roles = [
     { value: "player", label: "Player", description: "Standard user access" },
@@ -112,6 +118,29 @@ export default function UserManagementPage() {
     }
   };
 
+  const updateUserDisplayName = async (uid: string, displayName: string) => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const functions = getFunctions();
+      const setUserDisplayName = httpsCallable<DisplayNameUpdateData>(functions, 'setUserDisplayName');
+      await setUserDisplayName({ uid, displayName });
+
+      const trimmed = displayName.trim();
+      setUsers((prev) => prev.map(user =>
+        user.uid === uid ? { ...user, displayName: trimmed } : user
+      ));
+      setSuccess(trimmed ? `Display name updated to ${trimmed} successfully!` : "Display name cleared successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update display name");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateCharacterAssignment = async (uid: string, characterId: string | null) => {
     setLoading(true);
     setError("");
@@ -163,6 +192,11 @@ export default function UserManagementPage() {
       const user = usersWithCharacters.find(u => u.uid === editingUser);
       if (!user) return;
 
+      // Update display name if changed
+      if (newDisplayName.trim() !== (user.displayName || "")) {
+        await updateUserDisplayName(editingUser, newDisplayName);
+      }
+
       // Update role if changed
       if (newRole && newRole !== user.role) {
         await updateUserRole(editingUser, newRole);
@@ -176,6 +210,7 @@ export default function UserManagementPage() {
       setEditingUser(null);
       setNewRole("");
       setNewCharacter("");
+      setNewDisplayName("");
     }
   };
 
@@ -183,6 +218,7 @@ export default function UserManagementPage() {
     setEditingUser(user.uid);
     setNewRole(user.role);
     setNewCharacter(user.assignedCharacter || "");
+    setNewDisplayName(user.displayName || "");
     setError("");
     setSuccess("");
   };
@@ -195,6 +231,7 @@ export default function UserManagementPage() {
     setEditingUser(null);
     setNewRole("");
     setNewCharacter("");
+    setNewDisplayName("");
     setError("");
   };
 
@@ -373,9 +410,20 @@ export default function UserManagementPage() {
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-head text-lg tracking-wider text-grim-ink truncate">
-                        {user.displayName || "Unknown"}
-                      </div>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={newDisplayName}
+                          onChange={(e) => setNewDisplayName(e.target.value)}
+                          placeholder="Display name"
+                          aria-label="Display name"
+                          className={`${SELECT_CLASS} w-full`}
+                        />
+                      ) : (
+                        <div className="font-head text-lg tracking-wider text-grim-ink truncate">
+                          {user.displayName || "Unknown"}
+                        </div>
+                      )}
                       <div className="grim-mono text-sm text-grim-ink-3 tracking-widest truncate">
                         {user.email}
                       </div>

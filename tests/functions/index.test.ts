@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 const getUserMock = vi.fn();
 const setCustomUserClaimsMock = vi.fn();
 const listUsersMock = vi.fn();
+const updateUserMock = vi.fn();
 
 vi.mock('firebase-admin', () => ({
   initializeApp: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock('firebase-admin', () => ({
     getUser: getUserMock,
     setCustomUserClaims: setCustomUserClaimsMock,
     listUsers: listUsersMock,
+    updateUser: updateUserMock,
   }),
 }));
 
@@ -40,11 +42,13 @@ describe('cloud functions', () => {
     getUserMock.mockReset();
     setCustomUserClaimsMock.mockReset();
     listUsersMock.mockReset();
+    updateUserMock.mockReset();
     process.env.FIREBASE_CONFIG = JSON.stringify({ projectId: 'test' });
     (globalThis as any).__adminAuthMock = {
       getUser: getUserMock,
       setCustomUserClaims: setCustomUserClaimsMock,
       listUsers: listUsersMock,
+      updateUser: updateUserMock,
     };
   });
 
@@ -110,5 +114,39 @@ describe('cloud functions', () => {
     const res = await listUsersHandler({ auth: { token: { role: 'admin' }, uid: 'admin-1' } } as any);
 
     expect(res[0]).toMatchObject({ uid: 'u1', role: 'player' });
+  });
+
+  it('rejects setUserDisplayName when caller is not admin', async () => {
+    const { setUserDisplayNameHandler } = await import('../../functions/src/index');
+    await expect(
+      setUserDisplayNameHandler({ auth: { token: { role: 'player' } }, data: { uid: 'x', displayName: 'Dave' } } as any)
+    ).rejects.toMatchObject({ code: 'permission-denied' });
+    expect(updateUserMock).not.toHaveBeenCalled();
+  });
+
+  it('sets a trimmed display name when caller is admin', async () => {
+    const { setUserDisplayNameHandler } = await import('../../functions/src/index');
+
+    await setUserDisplayNameHandler({ auth: { token: { role: 'admin' }, uid: 'admin-1' }, data: { uid: 'u2', displayName: '  Dave  ' } } as any);
+
+    expect(updateUserMock).toHaveBeenCalledWith('u2', { displayName: 'Dave' });
+  });
+
+  it('clears the display name when given an empty string', async () => {
+    const { setUserDisplayNameHandler } = await import('../../functions/src/index');
+
+    await setUserDisplayNameHandler({ auth: { token: { role: 'admin' }, uid: 'admin-1' }, data: { uid: 'u2', displayName: '   ' } } as any);
+
+    expect(updateUserMock).toHaveBeenCalledWith('u2', { displayName: null });
+  });
+
+  it('rejects setUserDisplayName with missing uid or non-string name', async () => {
+    const { setUserDisplayNameHandler } = await import('../../functions/src/index');
+    await expect(
+      setUserDisplayNameHandler({ auth: { token: { role: 'admin' }, uid: 'a' }, data: { displayName: 'Dave' } } as any)
+    ).rejects.toMatchObject({ code: 'invalid-argument' });
+    await expect(
+      setUserDisplayNameHandler({ auth: { token: { role: 'admin' }, uid: 'a' }, data: { uid: 'u2', displayName: 5 } } as any)
+    ).rejects.toMatchObject({ code: 'invalid-argument' });
   });
 });

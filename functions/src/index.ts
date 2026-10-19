@@ -99,6 +99,30 @@ export const setUserRoleHandler = async (request: any) => {
 };
 export const setUserRole = onCall<SetUserRoleData>(setUserRoleHandler);
 
+interface SetUserDisplayNameData {
+    uid: string;
+    displayName: string;
+}
+
+// Function to set a user's display name (admin only). An empty name clears it.
+export const setUserDisplayNameHandler = async (request: any) => {
+    if (!request.auth || request.auth.token.role !== 'admin') {
+        throw new HttpsError('permission-denied', 'Only admins can set display names');
+    }
+
+    const { uid, displayName } = request.data ?? {};
+    if (typeof uid !== 'string' || !uid || typeof displayName !== 'string') {
+        throw new HttpsError('invalid-argument', 'uid and displayName are required');
+    }
+
+    const trimmed = displayName.trim();
+    await authClient.updateUser(uid, { displayName: trimmed || null });
+
+    logger.log(`Display name set for user ${uid} by ${request.auth.uid}`);
+    return { message: `Display name set for user ${uid}` };
+};
+export const setUserDisplayName = onCall<SetUserDisplayNameData>(setUserDisplayNameHandler);
+
 // Function to list all users (admin only)
 export const listUsersHandler = async (request: any) => {
     // Check if the caller is an admin
