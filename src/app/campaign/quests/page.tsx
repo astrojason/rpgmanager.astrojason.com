@@ -16,12 +16,13 @@ import { authFetch } from "@/utils/authFetch";
 import { getRecapsForQuest } from "@/utils/entityTags";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
+import { QUEST_STATUS_OPTIONS, isQuestEnded } from "@/utils/questStatus";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; railClass: string; glow: boolean }> = {
   active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  railClass: "bg-grim-ember",  glow: true },
-  rumored:   { chip: "is-arcane", word: "rumored",  rail: "var(--grim-arcane)", railClass: "bg-grim-arcane", glow: true },
-  completed: { chip: "",          word: "closed",   rail: "var(--grim-line-2)", railClass: "bg-grim-line-2", glow: false },
-  complete:  { chip: "",          word: "closed",   rail: "var(--grim-line-2)", railClass: "bg-grim-line-2", glow: false },
+  completed: { chip: "",          word: "completed", rail: "var(--grim-line-2)", railClass: "bg-grim-line-2", glow: false },
+  closed:    { chip: "is-dead",   word: "closed",    rail: "var(--grim-blood-2)", railClass: "bg-grim-blood-2", glow: false },
+  undiscovered: { chip: "is-arcane", word: "undiscovered", rail: "var(--grim-arcane)", railClass: "bg-grim-arcane", glow: false },
 };
 
 function getTone(status: string) {
@@ -31,7 +32,9 @@ function getTone(status: string) {
 const FILTERS = [
   { id: "all",       label: "All Errands" },
   { id: "active",    label: "Active" },
-  { id: "completed", label: "Closed" },
+  { id: "completed", label: "Completed" },
+  { id: "closed",    label: "Closed" },
+  { id: "undiscovered", label: "Undiscovered" },
 ];
 
 export default function QuestsPage() {
@@ -80,9 +83,7 @@ export default function QuestsPage() {
       if (quest) {
         // If the quest is not visible under the current filter, switch to "all"
         const visible =
-          activeFilter === "all" ||
-          quest.status === activeFilter ||
-          (activeFilter === "completed" && (quest.status === "completed" || quest.status === "complete"));
+          activeFilter === "all" || quest.status === activeFilter;
         if (!visible) setActiveFilter("all");
       }
       setActiveQuest(questId);
@@ -101,15 +102,12 @@ export default function QuestsPage() {
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     const matchesFilter =
-      activeFilter === "all" ||
-      quest.status === activeFilter ||
-      (activeFilter === "completed" && (quest.status === "completed" || quest.status === "complete"));
+      activeFilter === "all" || quest.status === activeFilter;
     return matchesSearch && matchesFilter;
   });
 
   const countFor = (filterId: string) => {
     if (filterId === "all") return questsData.length;
-    if (filterId === "completed") return questsData.filter(q => q.status === "completed" || q.status === "complete").length;
     return questsData.filter(q => q.status === filterId).length;
   };
 
@@ -306,9 +304,9 @@ export default function QuestsPage() {
                   onChange={(e) => setNewQuestStatus(e.target.value)}
                   className="w-full bg-grim-bg-3 border border-grim-line-2 text-grim-ink font-body text-xl py-2.25 px-3.5 outline-none"
                 >
-                  <option value="active">Active</option>
-                  <option value="rumored">Rumored</option>
-                  <option value="completed">Completed</option>
+                  {QUEST_STATUS_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
               {createError && (
@@ -333,7 +331,7 @@ export default function QuestsPage() {
           filteredQuests.map((quest) => {
             const tone = getTone(quest.status);
             const notes = normalizeQuestNotes(quest);
-            const isClosed = quest.status === "completed" || quest.status === "complete";
+            const isClosed = isQuestEnded(quest.status);
 
             const isActive = activeQuest === quest.id;
             return (

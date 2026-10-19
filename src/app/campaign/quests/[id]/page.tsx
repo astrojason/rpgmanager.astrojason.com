@@ -16,12 +16,13 @@ import { authFetch } from "@/utils/authFetch";
 import { renderMarkdownWithLinks } from "@/utils/markdown";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
+import { isQuestEnded } from "@/utils/questStatus";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; glow: boolean }> = {
   active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  glow: true },
-  rumored:   { chip: "is-arcane", word: "rumored",  rail: "var(--grim-arcane)", glow: true },
-  completed: { chip: "",          word: "closed",   rail: "var(--grim-line-2)", glow: false },
-  complete:  { chip: "",          word: "closed",   rail: "var(--grim-line-2)", glow: false },
+  completed: { chip: "",          word: "completed", rail: "var(--grim-line-2)", glow: false },
+  closed:    { chip: "is-dead",   word: "closed",    rail: "var(--grim-blood-2)", glow: false },
+  undiscovered: { chip: "is-arcane", word: "undiscovered", rail: "var(--grim-arcane)", glow: false },
 };
 
 function getTone(status: string) {
@@ -148,7 +149,7 @@ export default function QuestDetailPage() {
 
   const tone = getTone(quest.status);
   const notes = normalizeQuestNotes(quest);
-  const isClosed = quest.status === "completed" || quest.status === "complete";
+  const isClosed = isQuestEnded(quest.status);
   const appearances = getRecapsForQuest(recapsData, quest.id);
 
   return (

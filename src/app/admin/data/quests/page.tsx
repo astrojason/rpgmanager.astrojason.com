@@ -18,6 +18,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useCrudResource } from "@/hooks/useCrudResource";
 import { useListArrowNav } from "@/hooks/useListArrowNav";
 import Link from "next/link";
+import { QUEST_STATUS_OPTIONS, isQuestEnded } from "@/utils/questStatus";
 
 interface EntityItem { id: string; name: string; }
 
@@ -133,8 +134,8 @@ export default function QuestsManagementPage() {
     const map: Record<string, string> = {
       active:    "grim-chip is-ember",
       completed: "grim-chip",
-      failed:    "grim-chip is-dead",
-      onhold:    "grim-chip is-arcane",
+      closed:    "grim-chip is-dead",
+      undiscovered: "grim-chip is-arcane",
     };
     return map[status] ?? "grim-chip";
   };
@@ -143,8 +144,8 @@ export default function QuestsManagementPage() {
     const map: Record<string, string> = {
       active:    "var(--grim-ember)",
       completed: "var(--grim-line-2)",
-      failed:    "oklch(0.52 0.180 22)",
-      onhold:    "var(--grim-arcane)",
+      closed:    "oklch(0.52 0.180 22)",
+      undiscovered: "var(--grim-arcane)",
     };
     return map[status] ?? "var(--grim-line-2)";
   };
@@ -178,7 +179,7 @@ export default function QuestsManagementPage() {
         <div>
           <div className="grim-page-eyebrow">Behind the Screen · Errands</div>
           <h1 className="grim-page-title">The Ledger of Errands</h1>
-          <p className="grim-page-sub">Manage the campaign&apos;s threads — active, rumored, and closed.</p>
+          <p className="grim-page-sub">Manage the campaign&apos;s threads — active, completed, closed, and undiscovered.</p>
         </div>
         <button className="grim-btn is-ember" onClick={handleCreate}>+ New Errand</button>
       </header>
@@ -330,10 +331,9 @@ export default function QuestsManagementPage() {
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                       className={inputClass}
                     >
-                      <option value="active">Active</option>
-                      <option value="completed">Completed</option>
-                      <option value="failed">Failed</option>
-                      <option value="onhold">On Hold</option>
+                      {QUEST_STATUS_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
                     </select>
                   </div>
 
@@ -396,7 +396,7 @@ export default function QuestsManagementPage() {
                   className="w-1.5 shrink-0"
                   style={{
                     background: getStatusRail(selectedQuest.status || "active"),
-                    boxShadow: selectedQuest.status !== "completed"
+                    boxShadow: !isQuestEnded(selectedQuest.status)
                       ? `0 0 12px ${getStatusRail(selectedQuest.status || "active")}`
                       : "none",
                   }}
@@ -406,7 +406,7 @@ export default function QuestsManagementPage() {
                   <div className="flex justify-between items-start gap-4 mb-4">
                     <div>
                       <h2
-                        className={`font-display text-5xl text-grim-gold m-0 ${selectedQuest.status === "completed" ? "line-through opacity-70" : "no-underline opacity-100"}`}
+                        className={`font-display text-5xl text-grim-gold m-0 ${isQuestEnded(selectedQuest.status) ? "line-through opacity-70" : "no-underline opacity-100"}`}
                         style={{ lineHeight: 1.1 }}
                       >
                         {selectedQuest.name}
