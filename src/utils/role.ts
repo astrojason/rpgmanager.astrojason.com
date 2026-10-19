@@ -4,10 +4,12 @@ import { auth } from '@/firebase/client';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useImpersonation } from '@/lib/ImpersonationContext';
 import { useEffectiveUserId } from '@/lib/useEffectiveUserId';
+import { useViewAsPlayer } from '@/lib/viewAs';
 
 export type UserRole = 'admin' | 'dm' | 'player' | null;
 
-export function useUserRole(): UserRole {
+/** The role in the signed-in user's token, ignoring any "view as player" preview. */
+export function useRealUserRole(): UserRole {
   const [role, setRole] = useState<UserRole>(null);
   const { impersonatedUserId } = useImpersonation();
   const effectiveUserId = useEffectiveUserId();
@@ -39,6 +41,13 @@ export function useUserRole(): UserRole {
   }, [impersonatedUserId, effectiveUserId]);
 
   return role;
+}
+
+/** The effective role: a GM previewing the app as a player is treated as a player. */
+export function useUserRole(): UserRole {
+  const role = useRealUserRole();
+  const viewAsPlayer = useViewAsPlayer();
+  return viewAsPlayer && (role === 'admin' || role === 'dm') ? 'player' : role;
 }
 
 export function useIsDM(): boolean {

@@ -5,12 +5,15 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import SideNavigation from "@/components/SideNavigation";
 import { ImpersonationContext } from "@/lib/ImpersonationContext";
+import ViewAsPlayerControl from "@/components/ViewAsPlayerControl";
+import { useViewAsPlayer } from "@/lib/viewAs";
 
 const ImpersonationToolbarWrapper = dynamic(() => import("@/components/ImpersonationToolbarWrapper"), { ssr: false });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [impersonatedUserId, setImpersonatedUserId] = useState<string | undefined>(undefined);
   const [realUserId, setRealUserId] = useState<string | undefined>(undefined);
+  const viewAsPlayer = useViewAsPlayer();
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? sessionStorage.getItem("impersonatedUserId") : undefined;
     if (stored) setImpersonatedUserId(stored);
@@ -37,11 +40,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       }
     },
   };
-  const effectiveKey = `${realUserId || "nouser"}-${impersonatedUserId || "noimpersonation"}`;
+  const effectiveKey = `${realUserId || "nouser"}-${impersonatedUserId || "noimpersonation"}-${viewAsPlayer ? "player" : "gm"}`;
   return (
     <QueryClientProvider client={queryClient}>
       <ImpersonationContext.Provider value={contextValue}>
         <ImpersonationToolbarWrapper />
+        <ViewAsPlayerControl />
         <div key={effectiveKey} className="grim-screen">
           <SideNavigation />
           <main className="grim-main p-0">

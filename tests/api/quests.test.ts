@@ -119,4 +119,53 @@ describe('quests endpoint', () => {
     expect(call?.[0].sql).toContain('hidden=?');
     expect(call?.[0].args).toContain(0);
   });
+
+  it('hides undiscovered quests from players even when not flagged hidden', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', hidden: 0, gm_notes: null },
+          { id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', hidden: 0, gm_notes: null },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/quests/route');
+    const res = await GET(requestAsRole('player') as any);
+    const data = await res.json();
+    expect(data.map((q: { name: string }) => q.name)).toEqual(['Known Quest']);
+  });
+
+  it('returns undiscovered quests to admins', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', hidden: 0, gm_notes: null }] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/quests/route');
+    const res = await GET(requestAsRole('admin') as any);
+    expect(await res.json()).toHaveLength(1);
+  });
+
+  it('treats an admin sending x-view-as: player like a player', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', hidden: 0, gm_notes: 'secret' },
+          { id: 2, name: 'Hidden Quest', notes: '[]', status: 'active', hidden: 1, gm_notes: null },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/quests/route');
+    const req = new Request('http://test/api', { headers: { 'x-test-role': 'admin', 'x-view-as': 'player' } });
+    const data = await (await GET(req as any)).json();
+    expect(data).toHaveLength(1);
+    expect(data[0].gm_notes).toBeUndefined();
+  });
 });

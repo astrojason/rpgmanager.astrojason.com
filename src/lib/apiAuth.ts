@@ -26,6 +26,17 @@ function getBearerToken(request?: NextRequest | Request): string | null {
   return token;
 }
 
+/**
+ * Lets an admin/dm preview the app as a player: the client sends `x-view-as: player` and the
+ * role is downgraded for that request. It can only ever lower privileges, never raise them,
+ * so it is safe to honour from any caller.
+ */
+function applyViewAs(role: ServerUserRole, request?: NextRequest | Request): ServerUserRole {
+  const header = request && "headers" in request ? request.headers.get("x-view-as") : null;
+  if (header === "player" && (role === "admin" || role === "dm")) return "player";
+  return role;
+}
+
 const DEV_USER: VerifiedUser = { uid: "dev-user", role: "admin", email: "dev@local" };
 
 /**
@@ -45,11 +56,11 @@ export async function verifyRequestAuth(
   options: VerifyOptions = {}
 ): Promise<AuthResult> {
   if (process.env.NODE_ENV === "test") {
-    return { user: { uid: "test-user", role: getTestRole(request), email: "test@local" } };
+    return { user: { uid: "test-user", role: applyViewAs(getTestRole(request), request), email: "test@local" } };
   }
 
   if (process.env.NODE_ENV === "development") {
-    return { user: DEV_USER };
+    return { user: { ...DEV_USER, role: applyViewAs(DEV_USER.role, request) } };
   }
 
   const token = getBearerToken(request);
@@ -63,7 +74,7 @@ export async function verifyRequestAuth(
 
   try {
     const decoded = await getAuth(getAdminApp()).verifyIdToken(token);
-    const role = (decoded.role as ServerUserRole | undefined) ?? null;
+    const role = applyViewAs((decoded.role as ServerUserRole | undefined) ?? null, request);
 
     if (options.allowedRoles && !options.allowedRoles.includes(role as Exclude<ServerUserRole, null>)) {
       return {

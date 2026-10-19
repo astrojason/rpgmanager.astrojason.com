@@ -1,5 +1,6 @@
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
+import { getViewAsPlayer } from "@/lib/viewAs";
 
 async function getIdToken(): Promise<string | null> {
   if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") return null;
@@ -32,6 +33,7 @@ export async function authFetch(input: RequestInfo | URL, init?: RequestInit): P
   const token = await getIdToken();
   const headers = new Headers(init?.headers || {});
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (getViewAsPlayer()) headers.set("x-view-as", "player");
 
   return fetch(input, {
     ...init,
