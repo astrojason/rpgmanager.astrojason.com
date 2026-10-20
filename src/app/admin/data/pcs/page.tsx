@@ -24,6 +24,7 @@ const inputClassName =
 
 export default function PCsManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
 
   const {
     items: pcs,
@@ -69,7 +70,7 @@ export default function PCsManagementPage() {
     const functions = getFunctions();
     const listUsers = httpsCallable(functions, 'listUsers');
     listUsers()
-      .then(result => setUsers(result.data as UserData[]))
+      .then(result => { setUsers(result.data as UserData[]); setUsersLoaded(true); })
       .catch(userError => setError(userError instanceof Error ? userError.message : 'Failed to load users'));
   }, [setError]);
 
@@ -93,6 +94,13 @@ export default function PCsManagementPage() {
     dataAttr: "data-pc-id",
     onSelect: handleView,
   });
+
+  // Until the user list arrives (or if it fails) we can't tell who the player is, so don't claim "Unknown".
+  const playerLabel = (pc: PC) => {
+    const user = getUserForPc(pc);
+    if (user) return user.displayName || user.email;
+    return usersLoaded ? 'Unknown Player' : 'Loading player…';
+  };
 
   const getUserForPc = (pc: PC) => {
     if (!pc.player) return null;
@@ -202,7 +210,7 @@ export default function PCsManagementPage() {
                       </div>
                       {pc.player && (
                         <div className="grim-mono text-sm text-grim-ember-2 mt-1">
-                          &#9670; {getUserForPc(pc)?.displayName || getUserForPc(pc)?.email || 'Unknown Player'}
+                          &#9670; {playerLabel(pc)}
                         </div>
                       )}
                     </div>
@@ -465,7 +473,7 @@ export default function PCsManagementPage() {
                         <div>
                           <span className="grim-mono text-sm text-grim-ink-4 tracking-wider-3 uppercase">Player</span>
                           <div className="font-body text-lg text-grim-ember-2 mt-0.5">
-                            {getUserForPc(selectedPc)?.displayName || getUserForPc(selectedPc)?.email || 'Unknown Player'}
+                            {playerLabel(selectedPc)}
                           </div>
                         </div>
                       )}

@@ -8,6 +8,8 @@ import InteractiveImage from "@/components/InteractiveImage";
 import { Location } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock from "@/components/ErrorBlock";
+import { renderMarkdown } from "@/utils/markdown";
+import { stripExteriorLabel } from "@/utils/locations";
 import { useQuery } from "@tanstack/react-query";
 
 export default function LocationsPage() {
@@ -154,9 +156,10 @@ export default function LocationsPage() {
                     pronounced {selectedArea.pronunciation}
                   </div>
                 )}
-                <p className="text-lg text-grim-ink-2 leading-normal mt-0 mx-0 mb-3">
-                  {selectedArea.teaser}
-                </p>
+                <div
+                  className="grim-card-md text-lg text-grim-ink-2 leading-normal mt-0 mx-0 mb-3"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(stripExteriorLabel(selectedArea.teaser)) }}
+                />
                 <div className="grim-rule" />
                 <button
                   className="grim-btn is-ember w-full justify-center"
@@ -195,10 +198,12 @@ export default function LocationsPage() {
                     {location.pronunciation}
                   </div>
                 )}
-                {location.teaser && (
-                  <div className="text-base text-grim-ink-2 line-clamp-3" style={{ lineHeight: 1.4 }}>
-                    {location.teaser}
-                  </div>
+                {stripExteriorLabel(location.teaser) && (
+                  <div
+                    className="grim-card-md text-base text-grim-ink-2 line-clamp-3"
+                    style={{ lineHeight: 1.4 }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(stripExteriorLabel(location.teaser)) }}
+                  />
                 )}
               </div>
             ))}

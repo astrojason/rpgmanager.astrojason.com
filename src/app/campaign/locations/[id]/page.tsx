@@ -8,6 +8,7 @@ import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { renderMarkdown, renderMarkdownWithLinks } from "@/utils/markdown";
+import { findLocationById, stripExteriorLabel } from "@/utils/locations";
 import { Location, SessionRecap, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
@@ -38,18 +39,7 @@ export default function LocationDetailPage() {
     queryFn: async () => { const r = await authFetch("/api/data/session-recaps"); if (!r.ok) throw new Error("Failed to load recaps"); return r.json(); },
   });
 
-  const location = useMemo(() => {
-    let found = allLocations.find(loc => String(loc.id) === id);
-    if (!found) {
-      for (const parent of allLocations) {
-        if (parent.locations) {
-          found = parent.locations.find(sub => String(sub.id) === id);
-          if (found) break;
-        }
-      }
-    }
-    return found ?? null;
-  }, [allLocations, id]);
+  const location = useMemo(() => findLocationById(allLocations, id), [allLocations, id]);
 
   const notFound = !loading && !location;
   const appearances = useMemo(() =>
@@ -106,8 +96,7 @@ export default function LocationDetailPage() {
   }
 
   const subLocations = location.locations ?? [];
-  const teaserFirstChar = location.teaser?.[0] ?? "";
-  const teaserRest = location.teaser?.slice(1) ?? "";
+  const teaser = stripExteriorLabel(location.teaser);
 
   return (
     <div className="pt-9 px-14 pb-20 h-full overflow-y-auto">
@@ -159,24 +148,27 @@ export default function LocationDetailPage() {
           <h1 className="font-display text-8xl text-grim-gold mt-0 mx-0 mb-1.5 tracking-normal" style={{ lineHeight: 0.88, textShadow: "0 0 40px oklch(0.72 0.165 48 / 0.30)" }}>
             {location.name}
           </h1>
-          {(location.pronunciation || location.teaser) && (
+          {(location.pronunciation || teaser) && (
             <div className="font-body text-grim-ink-2 text-2xl" style={{ maxWidth: "60ch" }}>
               {location.pronunciation && (
-                <>pronounced <b className="font-head tracking-widest text-grim-ink">{location.pronunciation}</b>{location.teaser ? " · " : ""}</>
+                <div>pronounced <b className="font-head tracking-widest text-grim-ink">{location.pronunciation}</b></div>
               )}
-              {location.teaser}
+              {teaser && (
+                <div className="grim-card-md" dangerouslySetInnerHTML={{ __html: renderMarkdown(teaser) }} />
+              )}
             </div>
           )}
         </div>
       </section>
 
       {/* In-character description */}
-      {location.teaser && (
+      {teaser && (
         <section className="grim-parchment mb-7">
-          <p className="m-0 text-2xl text-grim-parchment-ink-2" style={{ lineHeight: 1.65 }}>
-            <span className="drop">{teaserFirstChar}</span>
-            {teaserRest}
-          </p>
+          <div
+            className="grim-card-md text-2xl text-grim-parchment-ink-2"
+            style={{ lineHeight: 1.65 }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(teaser) }}
+          />
         </section>
       )}
 
@@ -222,11 +214,11 @@ export default function LocationDetailPage() {
                     {sub.pronunciation && (
                       <div className="grim-mono text-xs text-grim-ember-2 tracking-wider-3 uppercase mb-1">{sub.pronunciation}</div>
                     )}
-                    {sub.teaser && (
+                    {stripExteriorLabel(sub.teaser) && (
                       <div
                         className="grim-card-md text-base text-grim-ink-2"
                         style={{ lineHeight: 1.45 }}
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(sub.teaser) }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(stripExteriorLabel(sub.teaser)) }}
                       />
                     )}
                   </div>

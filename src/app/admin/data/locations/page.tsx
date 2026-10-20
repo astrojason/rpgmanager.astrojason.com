@@ -10,6 +10,7 @@ import SuccessBlock from "@/components/SuccessBlock";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useCrudResource } from "@/hooks/useCrudResource";
 import { useListArrowNav } from "@/hooks/useListArrowNav";
+import { flattenLocations, stripExteriorLabel } from "@/utils/locations";
 
 export default function LocationsManagementPage() {
   const {
@@ -44,11 +45,16 @@ export default function LocationsManagementPage() {
     deleteSuccessMessage: "Location deleted.",
   });
 
-  const filteredLocations = locations.filter(location =>
-    location.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.teaser?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.detail?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Nested locations are imported from the vault, so only top-level rows are editable here.
+  const topLevelIds = new Set(locations.map(l => l.id));
+  const term = searchTerm.toLowerCase();
+  const filteredEntries = flattenLocations(locations).filter(({ location }) =>
+    location.name?.toLowerCase().includes(term) ||
+    location.teaser?.toLowerCase().includes(term) ||
+    location.detail?.toLowerCase().includes(term)
   );
+  const filteredLocations = filteredEntries.map(e => e.location);
+  const selectedIsVaultManaged = !!selectedLocation && !topLevelIds.has(selectedLocation.id);
 
   useListArrowNav({
     items: filteredLocations,
@@ -121,7 +127,8 @@ export default function LocationsManagementPage() {
                 No locations found.
               </div>
             )}
-            {filteredLocations.map((location) => {
+            {filteredEntries.map(({ location, depth }) => {
+              const vaultManaged = !topLevelIds.has(location.id);
               const selected = selectedLocation?.id === location.id;
               return (
                 <div
@@ -130,6 +137,7 @@ export default function LocationsManagementPage() {
                   onClick={() => handleView(location)}
                   className={`border-b border-grim-line border-l-2 py-3 px-4 cursor-pointer ${selected ? "border-grim-ember" : "border-transparent"}`}
                   style={{
+                    paddingLeft: `${1 + depth}rem`,
                     background: selected
                       ? "linear-gradient(90deg, oklch(0.72 0.165 48 / 0.14), transparent)"
                       : "transparent",
@@ -141,10 +149,13 @@ export default function LocationsManagementPage() {
                         {location.name}
                       </div>
                       <div className="grim-mono text-sm text-grim-ink-4 overflow-hidden text-ellipsis whitespace-nowrap mt-0.5">
-                        {location.teaser}
+                        {stripExteriorLabel(location.teaser)}
                       </div>
                       {location.hidden && <span className="grim-chip is-dead text-xs mt-1">hidden</span>}
                     </div>
+                    {vaultManaged ? (
+                      <span className="grim-chip text-xs shrink-0" title="Imported from the vault; edit it there">vault</span>
+                    ) : (
                     <div className="flex gap-1 shrink-0">
                       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                       <a
@@ -163,6 +174,7 @@ export default function LocationsManagementPage() {
                         Del
                       </a>
                     </div>
+                    )}
                   </div>
                 </div>
               );
@@ -375,14 +387,18 @@ export default function LocationsManagementPage() {
                   )}
                   {selectedLocation.hidden && <span className="grim-chip is-dead mt-1.5 inline-block">hidden</span>}
                 </div>
-                <div className="flex gap-2 shrink-0 pt-1">
-                  <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedLocation)}>
-                    Edit
-                  </button>
-                  <button className="grim-btn is-blood" onClick={() => handleDelete(selectedLocation)}>
-                    Delete
-                  </button>
-                </div>
+                {selectedIsVaultManaged ? (
+                  <span className="grim-chip shrink-0 mt-1" title="Imported from the vault; edit it there">vault-managed · read-only</span>
+                ) : (
+                  <div className="flex gap-2 shrink-0 pt-1">
+                    <button className="grim-btn is-ghost" onClick={() => handleEdit(selectedLocation)}>
+                      Edit
+                    </button>
+                    <button className="grim-btn is-blood" onClick={() => handleDelete(selectedLocation)}>
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Detail body */}
@@ -394,7 +410,7 @@ export default function LocationsManagementPage() {
                     <div className="grim-label mb-1.5">Description</div>
                     <div
                       className="grim-flavor"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(selectedLocation.teaser || '', true) }}
+                      dangerouslySetInnerHTML={{ __html: renderMarkdownWithLinks(stripExteriorLabel(selectedLocation.teaser), true) }}
                     />
                   </div>
                 )}
