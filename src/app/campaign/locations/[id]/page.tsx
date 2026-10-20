@@ -7,7 +7,7 @@ import { usePageTracking } from "@/utils/referrerTracking";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
-import { renderMarkdownWithLinks } from "@/utils/markdown";
+import { renderMarkdown, renderMarkdownWithLinks } from "@/utils/markdown";
 import { Location, SessionRecap, UserNote } from "@/types/interfaces";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
@@ -223,7 +223,11 @@ export default function LocationDetailPage() {
                       <div className="grim-mono text-xs text-grim-ember-2 tracking-wider-3 uppercase mb-1">{sub.pronunciation}</div>
                     )}
                     {sub.teaser && (
-                      <div className="text-base text-grim-ink-2" style={{ lineHeight: 1.45 }}>{sub.teaser}</div>
+                      <div
+                        className="grim-card-md text-base text-grim-ink-2"
+                        style={{ lineHeight: 1.45 }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(sub.teaser) }}
+                      />
                     )}
                   </div>
                 ))}
