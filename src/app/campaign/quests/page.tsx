@@ -19,10 +19,11 @@ import Link from "next/link";
 import { QUEST_STATUS_OPTIONS, isQuestEnded } from "@/utils/questStatus";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; railClass: string; glow: boolean }> = {
-  active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  railClass: "bg-grim-ember",  glow: true },
-  completed: { chip: "",          word: "completed", rail: "var(--grim-line-2)", railClass: "bg-grim-line-2", glow: false },
-  closed:    { chip: "is-dead",   word: "closed",    rail: "var(--grim-blood-2)", railClass: "bg-grim-blood-2", glow: false },
-  undiscovered: { chip: "is-arcane", word: "undiscovered", rail: "var(--grim-arcane)", railClass: "bg-grim-arcane", glow: false },
+  active:       { chip: "is-ember",  word: "active",       rail: "var(--grim-ember)",   railClass: "bg-grim-ember",   glow: true },
+  rumored:      { chip: "is-arcane", word: "rumored",      rail: "var(--grim-arcane)",  railClass: "bg-grim-arcane",  glow: false },
+  completed:    { chip: "",          word: "completed",    rail: "var(--grim-line-2)",  railClass: "bg-grim-line-2",  glow: false },
+  closed:       { chip: "is-dead",   word: "closed",       rail: "var(--grim-blood-2)", railClass: "bg-grim-blood-2", glow: false },
+  undiscovered: { chip: "is-arcane", word: "undiscovered", rail: "var(--grim-arcane)",  railClass: "bg-grim-arcane",  glow: false },
 };
 
 function getTone(status: string) {
@@ -30,10 +31,11 @@ function getTone(status: string) {
 }
 
 const FILTERS = [
-  { id: "all",       label: "All Errands" },
-  { id: "active",    label: "Active" },
-  { id: "completed", label: "Completed" },
-  { id: "closed",    label: "Closed" },
+  { id: "all",          label: "All Errands" },
+  { id: "active",       label: "Active" },
+  { id: "rumored",      label: "Rumored" },
+  { id: "completed",    label: "Completed" },
+  { id: "closed",       label: "Closed" },
   { id: "undiscovered", label: "Undiscovered" },
 ];
 

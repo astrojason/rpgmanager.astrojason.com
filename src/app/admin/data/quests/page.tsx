@@ -132,9 +132,10 @@ export default function QuestsManagementPage() {
 
   const getStatusChipClass = (status: string) => {
     const map: Record<string, string> = {
-      active:    "grim-chip is-ember",
-      completed: "grim-chip",
-      closed:    "grim-chip is-dead",
+      active:       "grim-chip is-ember",
+      rumored:      "grim-chip is-arcane",
+      completed:    "grim-chip",
+      closed:       "grim-chip is-dead",
       undiscovered: "grim-chip is-arcane",
     };
     return map[status] ?? "grim-chip";
@@ -142,9 +143,10 @@ export default function QuestsManagementPage() {
 
   const getStatusRail = (status: string) => {
     const map: Record<string, string> = {
-      active:    "var(--grim-ember)",
-      completed: "var(--grim-line-2)",
-      closed:    "oklch(0.52 0.180 22)",
+      active:       "var(--grim-ember)",
+      rumored:      "var(--grim-arcane)",
+      completed:    "var(--grim-line-2)",
+      closed:       "oklch(0.52 0.180 22)",
       undiscovered: "var(--grim-arcane)",
     };
     return map[status] ?? "var(--grim-line-2)";
