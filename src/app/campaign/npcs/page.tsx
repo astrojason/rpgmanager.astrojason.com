@@ -15,6 +15,8 @@ import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
 import { safeImageSrc, sanitizeOptionalText } from "@/utils/sanitize";
 import { statusChipClass } from "@/utils/chipClass";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { assertOk } from "@/utils/httpError";
 
 const PAGE_SIZE = 24;
 
@@ -24,6 +26,7 @@ export default function NPCsPage() {
   const [page, setPage] = useState(1);
   const [editingNPC, setEditingNPC] = useState<Partial<NPC>>({});
   const [showAddForm, setShowAddForm] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   const userId = useEffectiveUserId();
   const router = useRouter();
@@ -119,19 +122,19 @@ export default function NPCsPage() {
   ];
 
   const handleAddNPC = async (data: Partial<NPC>) => {
+    setAddError(null);
     try {
       const response = await authFetch("/api/data/npcs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (response.ok) {
-        await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
-        setShowAddForm(false);
-        setEditingNPC({});
-      }
-    } catch {
-      /* noop */
+      await assertOk(response, "Create NPC");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/npcs'] });
+      setShowAddForm(false);
+      setEditingNPC({});
+    } catch (e) {
+      setAddError(toErrorMessage(e));
     }
   };
 
@@ -174,6 +177,7 @@ export default function NPCsPage() {
             <h2 className="font-head text-2xl text-grim-gold tracking-wider-2 uppercase mt-0 mx-0 mb-6">
               Inscribe New Soul
             </h2>
+            {addError && <ErrorBlock error={addError} onDismiss={() => setAddError(null)} />}
             <form
               onSubmit={(e) => { e.preventDefault(); handleAddNPC(editingNPC); }}
               className="flex flex-col gap-4"

@@ -157,7 +157,6 @@ export default function LocationsManagementPage() {
                       <span className="grim-chip text-xs shrink-0" title="Imported from the vault; edit it there">vault</span>
                     ) : (
                     <div className="flex gap-1 shrink-0">
-                      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                       <a
                         className="grim-link text-base cursor-pointer"
                         onClick={(e) => { e.stopPropagation(); handleEdit(location); }}

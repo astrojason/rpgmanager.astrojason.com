@@ -1,5 +1,6 @@
 import { Quest, UserNote, PC } from '@/types/interfaces';
 import { authFetch } from '@/utils/authFetch';
+import { assertOk } from '@/utils/httpError';
 
 // Cache for PCs data
 let pcsCache: PC[] | null = null;
@@ -10,17 +11,10 @@ async function loadPcsCache(): Promise<PC[]> {
         return pcsCache;
     }
 
-    try {
-        const response = await authFetch('/api/data/pcs');
-        if (response.ok) {
-            pcsCache = await response.json();
-            return pcsCache || [];
-        }
-    } catch (error) {
-        console.error('Error loading PCs cache:', error);
-    }
-
-    return [];
+    const response = await authFetch('/api/data/pcs');
+    await assertOk(response, 'Load PCs');
+    pcsCache = await response.json();
+    return pcsCache || [];
 }
 
 // Function to get display name for a UID - either "DM", character name, or "Unknown"

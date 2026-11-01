@@ -33,4 +33,12 @@ describe('AuthorDisplay', () => {
     await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument());
     expect(mockGetDisplayNameForUID).toHaveBeenCalledWith('impersonated-id');
   });
+
+  it('shows a copyable error block when the lookup fails', async () => {
+    mockGetDisplayNameForUID.mockRejectedValue(new Error('Load PCs failed (500): pcs down'));
+    render(<AuthorDisplay uid="user-1" />);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('pcs down');
+  });
 });

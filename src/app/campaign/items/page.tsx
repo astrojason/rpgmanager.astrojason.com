@@ -10,6 +10,8 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import UserNotesEditor from "@/components/UserNotesEditor";
 import { useEffectiveUserId } from "@/lib/useEffectiveUserId";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { assertOk } from "@/utils/httpError";
 
 const CATEGORIES = [
   { id: "all", label: "All" },
@@ -35,6 +37,7 @@ export default function ItemsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [hiddenOnly, setHiddenOnly] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<Partial<Item>>({});
 
   const router = useRouter();
@@ -67,18 +70,20 @@ export default function ItemsPage() {
   const sortedItems = [...filteredItems].sort((a, b) => a.name.localeCompare(b.name));
 
   const handleAddItem = async (data: Partial<Item>) => {
+    setAddError(null);
     try {
       const res = await authFetch("/api/data/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (res.ok) {
-        await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
-        setShowAddForm(false);
-        setEditingItem({});
-      }
-    } catch { /* noop */ }
+      await assertOk(res, "Create item");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/items'] });
+      setShowAddForm(false);
+      setEditingItem({});
+    } catch (e) {
+      setAddError(toErrorMessage(e));
+    }
   };
 
   const startAdding = () => {
@@ -113,6 +118,7 @@ export default function ItemsPage() {
             <h2 className="font-head text-2xl text-grim-gold tracking-wider-2 uppercase mt-0 mx-0 mb-6">
               Catalogue New Relic
             </h2>
+            {addError && <ErrorBlock error={addError} onDismiss={() => setAddError(null)} />}
             <form onSubmit={e => { e.preventDefault(); handleAddItem(editingItem); }} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-3">
                 {([

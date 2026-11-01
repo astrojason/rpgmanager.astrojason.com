@@ -142,7 +142,6 @@ export default function RecapsPage() {
     if (recapId && allRecaps.length > 0) {
       handleJumpToRecap(recapId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRecaps, searchParams]);
 
   // Assign session numbers based on chronological order (oldest = #1)
