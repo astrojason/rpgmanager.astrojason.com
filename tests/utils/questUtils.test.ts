@@ -25,6 +25,14 @@ describe('quest utils', () => {
     await expect(getDisplayNameForUID('Admin')).resolves.toBe('Admin');
   });
 
+  it('rejects with status and body when PCs fail to load', async () => {
+    global.fetch = vi.fn(async () => ({ ok: false, status: 500, statusText: 'Server Error', text: async () => 'pcs down' })) as any;
+    const { getDisplayNameForUID, clearPcsCache } = await import('@/utils/questUtils');
+    clearPcsCache();
+
+    await expect(getDisplayNameForUID('user-1')).rejects.toThrow(/Load PCs failed \(500 Server Error\): pcs down/);
+  });
+
   it('loads and caches PCs to resolve player names', async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

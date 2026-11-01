@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useIsAdmin } from "@/utils/adminCheck";
 import {
@@ -10,6 +10,8 @@ import {
   parseSessionDate,
 } from "@/utils/nextSession";
 import { authFetch } from "@/utils/authFetch";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { assertOk } from "@/utils/httpError";
 
 interface NextSessionData {
   date: string;
@@ -27,7 +29,9 @@ export default function NextSessionCard() {
   const isAdmin = useIsAdmin();
   const queryClient = useQueryClient();
 
-  const { data: sessionData = null, isPending: loading } = useQuery<NextSessionData | null>({
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const { data: sessionData = null, isPending: loading, error: loadError } = useQuery<NextSessionData | null>({
     queryKey: ['/api/data/next-session'],
     queryFn: async () => {
       const response = await authFetch('/api/data/next-session');
@@ -36,28 +40,33 @@ export default function NextSessionCard() {
     },
   });
 
+  const saveSession = async (updatedData: NextSessionData) => {
+    setActionError(null);
+    try {
+      const response = await authFetch('/api/data/next-session', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      await assertOk(response, 'Update next session');
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+    } catch (e) {
+      setActionError(toErrorMessage(e));
+    }
+  };
+
   const handleSkipSession = async () => {
     if (!sessionData) return;
     const reason = prompt('Reason for skipping this session (optional):');
     if (reason === null) return;
     const updatedData = { ...sessionData, isSkipped: true, skipReason: reason, lastUpdated: new Date().toISOString().split('T')[0] };
-    const response = await authFetch('/api/data/next-session', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData),
-    });
-    if (response.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+    await saveSession(updatedData);
   };
 
   const handleResumeSession = async () => {
     if (!sessionData) return;
     const updatedData = { ...sessionData, isSkipped: false, skipReason: '', lastUpdated: new Date().toISOString().split('T')[0] };
-    const response = await authFetch('/api/data/next-session', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedData),
-    });
-    if (response.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+    await saveSession(updatedData);
   };
 
   const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
@@ -96,7 +105,8 @@ export default function NextSessionCard() {
         <h2 className="text-2xl font-bold text-red-700 dark:text-red-300 mb-2">
           Session Data Unavailable
         </h2>
-        <p className="text-red-600 dark:text-red-400">Unable to load next session information.</p>
+        <p className="text-red-600 dark:text-red-400 mb-3">Unable to load next session information.</p>
+        {loadError && <ErrorBlock error={toErrorMessage(loadError)} />}
       </div>
     );
   }
@@ -105,6 +115,7 @@ export default function NextSessionCard() {
   if (isSkipped) {
     return (
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-300 dark:border-gray-600 rounded-lg p-6 shadow-lg">
+        {actionError && <ErrorBlock error={actionError} onDismiss={() => setActionError(null)} />}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
             Session Skipped
@@ -146,6 +157,7 @@ export default function NextSessionCard() {
 
   return (
     <div className="bg-gradient-to-r from-slate-50 to-stone-50 dark:from-slate-900/20 dark:to-stone-900/20 border border-slate-200 dark:border-slate-700 rounded-lg p-6 shadow-lg">
+      {actionError && <ErrorBlock error={actionError} onDismiss={() => setActionError(null)} />}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
           Next Session

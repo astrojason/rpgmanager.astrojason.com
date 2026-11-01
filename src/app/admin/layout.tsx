@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { auth } from "@/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
+import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -42,18 +43,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [roleError, setRoleError] = useState<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      setRoleError(null);
       if (u) {
         try {
           const tokenResult = await u.getIdTokenResult();
           setUserRole((tokenResult.claims.role as string) || null);
-        } catch {
+        } catch (e) {
           setUserRole(null);
+          setRoleError(toErrorMessage(e));
         }
       } else {
         setUserRole(null);
@@ -95,6 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <h2 className="font-head text-3xl tracking-widest uppercase text-grim-blood-2 mb-2">Forbidden Ward</h2>
           <p className="text-xl text-grim-ink-3 mb-1.5">Master&apos;s privileges are required beyond this threshold.</p>
           <p className="grim-mono text-sm text-grim-ink-4 tracking-wider-3 mb-6">Current role: {userRole || 'none'}</p>
+          {roleError && <div className="text-left"><ErrorBlock error={roleError} /></div>}
           <Link href="/campaign" className="grim-btn is-ember inline-block py-2.5 px-6">Return to Campaign</Link>
         </div>
       </div>

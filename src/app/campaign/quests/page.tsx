@@ -15,6 +15,7 @@ import { normalizeQuestNotes, isLegacyNote, formatNoteTimestamp } from '@/utils/
 import { authFetch } from "@/utils/authFetch";
 import { getRecapsForQuest } from "@/utils/entityTags";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { assertOk } from "@/utils/httpError";
 import Link from "next/link";
 import { QUEST_STATUS_OPTIONS, isQuestEnded } from "@/utils/questStatus";
 
@@ -126,15 +127,13 @@ export default function QuestsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error('Failed to create quest');
-      await response.json();
+      await assertOk(response, 'Create quest');
       await queryClient.invalidateQueries({ queryKey: ['/api/data/quests'] });
       setIsCreating(false);
       setNewQuestName("");
       setNewQuestStatus("active");
     } catch (error) {
-      console.error('Error creating quest:', error);
-      setCreateError('Failed to create errand. Please try again.');
+      setCreateError(toErrorMessage(error));
     }
   };
 
@@ -311,9 +310,7 @@ export default function QuestsPage() {
                   ))}
                 </select>
               </div>
-              {createError && (
-                <div className="grim-mono text-sm text-grim-blood-2 tracking-wider-2">{createError}</div>
-              )}
+              {createError && <ErrorBlock error={createError} onDismiss={() => setCreateError("")} />}
               <div className="flex justify-end gap-2 mt-1">
                 <button className="grim-btn is-ghost" onClick={handleCancelCreate}>Cancel</button>
                 <button className="grim-btn is-ember" onClick={handleCreateQuest} disabled={!newQuestName.trim()}>Save</button>

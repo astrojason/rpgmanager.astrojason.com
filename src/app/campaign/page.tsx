@@ -19,6 +19,7 @@ import {
 import { getRecentlyTaggedNpcs } from "@/utils/entityTags";
 import { statusChipClass } from "@/utils/chipClass";
 import { dayStart, getCategoryColor, ordinalDate, yearLabel } from "@/utils/calendar";
+import { assertOk } from "@/utils/httpError";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import { useIsAdmin } from "@/utils/adminCheck";
 import { useIsDM } from "@/utils/role";
@@ -171,8 +172,8 @@ export default function CampaignHome() {
     const updated: ChapterData = { title, arc, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/campaign-chapter", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/campaign-chapter'] });
-      else setChapterError(`Failed to save chapter (${r.status})`);
+      await assertOk(r, "Save chapter");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/campaign-chapter'] });
     } catch (e) { setChapterError(toErrorMessage(e)); }
   };
 

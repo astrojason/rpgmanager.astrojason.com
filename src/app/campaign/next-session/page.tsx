@@ -12,6 +12,7 @@ import {
 } from "@/utils/nextSession";
 import { authFetch } from "@/utils/authFetch";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
+import { assertOk } from "@/utils/httpError";
 import { CalendarData, SessionRecap } from "@/types/interfaces";
 import { recapExcerpt } from "@/utils/recapExcerpt";
 import { sessionNumberFor } from "@/utils/sessionNumber";
@@ -112,7 +113,6 @@ export default function NextSessionPage() {
   const storedSessionDate = useMemo(() => parseSessionDate(sessionData?.date), [sessionData?.date]);
   const upcomingSessionDate = useMemo(
     () => determineUpcomingSessionDate(sessionData, new Date()),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sessionData]
   );
   const daysUntil = useMemo(() => calculateDaysUntil(upcomingSessionDate, new Date()), [upcomingSessionDate]);
@@ -163,7 +163,8 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, location, agenda, notes, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+      await assertOk(r, "Update next session");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -174,7 +175,8 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, isSkipped: true, skipReason: reason, lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+      await assertOk(r, "Update next session");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -183,7 +185,8 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, isSkipped: false, skipReason: "", lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+      await assertOk(r, "Update next session");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 
@@ -194,7 +197,8 @@ export default function NextSessionPage() {
     const updated = { ...sessionData, date: current.toISOString().split("T")[0], isSkipped: false, skipReason: "", lastUpdated: new Date().toISOString().split("T")[0] };
     try {
       const r = await authFetch("/api/data/next-session", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) });
-      if (r.ok) await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
+      await assertOk(r, "Update next session");
+      await queryClient.invalidateQueries({ queryKey: ['/api/data/next-session'] });
     } catch (e) { setError(toErrorMessage(e)); }
   };
 

@@ -90,3 +90,29 @@ describe('NextSessionCard', () => {
     await waitFor(() => expect(screen.getByText(/Next Session/)).toBeInTheDocument());
   });
 });
+
+describe('NextSessionCard error surfacing', () => {
+  const originalFetch = global.fetch;
+  const originalPrompt = global.prompt;
+  beforeEach(() => { useIsAdminMock.mockReturnValue(true); global.fetch = vi.fn(); global.prompt = vi.fn(); });
+  afterEach(() => { global.fetch = originalFetch; global.prompt = originalPrompt; });
+
+  it('shows the load failure detail in a copyable error block', async () => {
+    (global.fetch as any).mockResolvedValueOnce({ ok: false, status: 500 });
+    renderWithClient(<NextSessionCard />);
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toMatch(/Failed to load session data/);
+  });
+
+  it('shows the server error when skipping fails', async () => {
+    (global.fetch as any)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ date: '2035-01-01', agenda: 'x', reminders: [], currentGameDate: 'Day 1', isSkipped: false }) })
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Server Error', text: async () => 'write denied' });
+    (global.prompt as any).mockReturnValue('busy');
+    renderWithClient(<NextSessionCard />);
+    await waitFor(() => expect(screen.getByText(/Next Session/)).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: /Skip/ }));
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('write denied');
+  });
+});
