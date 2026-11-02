@@ -126,7 +126,6 @@ export default function QuestsManagementPage() {
       name: "",
       notes: [],
       status: "active",
-      hidden: false
     });
   };
 
@@ -234,7 +233,6 @@ export default function QuestsManagementPage() {
                       <span className={`${getStatusChipClass(quest.status || "active")} text-sm py-px px-2`}>
                         {quest.status || "active"}
                       </span>
-                      {quest.hidden && <span className="grim-chip is-dead text-xs py-px px-2 ml-1.5">hidden</span>}
                       <div className="grim-mono text-sm text-grim-ink-4 mt-1">
                         {normalizeQuestNotes(quest).length} note{normalizeQuestNotes(quest).length !== 1 ? "s" : ""}
                       </div>
@@ -339,14 +337,6 @@ export default function QuestsManagementPage() {
                     </select>
                   </div>
 
-                  {/* Visibility */}
-                  <div className="flex items-center gap-4 mb-5">
-                    <label className="flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2">
-                      <input type="checkbox" checked={!!formData.hidden} onChange={(e) => setFormData({ ...formData, hidden: e.target.checked })} className="accent-grim-blood" />
-                      Hidden from players
-                    </label>
-                  </div>
-
                   {/* GM Notes */}
                   <div className="mb-5">
                     <label className="grim-label block mb-1.5">GM Notes</label>
@@ -417,7 +407,6 @@ export default function QuestsManagementPage() {
                         <span className={getStatusChipClass(selectedQuest.status || "active")}>
                           {selectedQuest.status || "active"}
                         </span>
-                        {selectedQuest.hidden && <span className="grim-chip is-dead ml-2">hidden</span>}
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0">

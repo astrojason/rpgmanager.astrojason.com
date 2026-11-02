@@ -29,10 +29,9 @@ vi.mock('@/components/EntityTagPicker', () => ({
 
 const quest = (overrides: Record<string, unknown> = {}) => ({
   id: '1',
-  name: 'Secret Quest',
+  name: 'Hidden Gem Quest',
   notes: [],
   status: 'active',
-  hidden: true,
   gm_notes: '',
   tagged_npcs: [],
   tagged_locations: [],
@@ -53,20 +52,20 @@ function renderWithClient(ui: React.ReactElement) {
   return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
 }
 
-describe('admin quests page hidden flag', () => {
+describe('admin quests page visibility', () => {
   beforeEach(() => {
     mockAuthFetch.mockReset();
   });
 
-  it('marks hidden quests in the list', async () => {
-    setupFetch([quest()]);
+  it('does not show a hidden chip, since status alone decides visibility', async () => {
+    setupFetch([quest({ hidden: true })]);
     const { default: Page } = await import('@/app/admin/data/quests/page');
     renderWithClient(<Page />);
-    await waitFor(() => expect(screen.getAllByText('Secret Quest')[0]).toBeInTheDocument());
-    expect(screen.getAllByText('hidden').length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getAllByText('Hidden Gem Quest')[0]).toBeInTheDocument());
+    expect(screen.queryByText('hidden')).not.toBeInTheDocument();
   });
 
-  it('offers a "Hidden from players" checkbox when creating a quest', async () => {
+  it('has no "Hidden from players" checkbox when creating a quest', async () => {
     setupFetch([]);
     const { default: Page } = await import('@/app/admin/data/quests/page');
     renderWithClient(<Page />);
@@ -74,9 +73,7 @@ describe('admin quests page hidden flag', () => {
     const create = addButtons.find(b => /new|add|create|inscribe/i.test(b.textContent ?? ''));
     expect(create).toBeDefined();
     fireEvent.click(create!);
-    const checkbox = await screen.findByLabelText(/hidden from players/i);
-    expect((checkbox as HTMLInputElement).checked).toBe(false);
-    fireEvent.click(checkbox);
-    expect((checkbox as HTMLInputElement).checked).toBe(true);
+    await screen.findByText('GM Notes');
+    expect(screen.queryByLabelText(/hidden from players/i)).not.toBeInTheDocument();
   });
 });

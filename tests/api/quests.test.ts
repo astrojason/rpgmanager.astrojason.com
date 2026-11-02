@@ -16,7 +16,7 @@ describe('quests endpoint', () => {
     const { GET } = await import('@/app/api/data/quests/route');
     const res = await GET();
     expect(await res.json()).toEqual([
-      { id: '1', name: 'Quest', notes: ['step'], status: 'active', hidden: false, gm_notes: 'secret', tagged_npcs: [], tagged_locations: [], tagged_factions: [], tagged_deities: [] },
+      { id: '1', name: 'Quest', notes: ['step'], status: 'active', gm_notes: 'secret', tagged_npcs: [], tagged_locations: [], tagged_factions: [], tagged_deities: [] },
     ]);
   });
 
@@ -70,12 +70,12 @@ describe('quests endpoint', () => {
     const ok = await DELETE(requestWithQuery('http://test/api/quests?id=2') as any);
     expect(ok.status).toBe(200);
   });
-  it('hides hidden quests from players', async () => {
+  it('hides undiscovered quests from players', async () => {
     mockDb.execute
       .mockResolvedValueOnce({
         rows: [
-          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', hidden: 0, gm_notes: null },
-          { id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', hidden: 1, gm_notes: null },
+          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', gm_notes: null },
+          { id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', gm_notes: null },
         ],
       })
       .mockResolvedValueOnce({ rows: [] })
@@ -88,59 +88,55 @@ describe('quests endpoint', () => {
     expect(data.map((q: { name: string }) => q.name)).toEqual(['Known Quest']);
   });
 
-  it('returns hidden quests to admins with hidden flag', async () => {
+  it('lets status alone decide visibility, ignoring any leftover hidden column', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [{ id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'active', hidden: 1, gm_notes: null }] })
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 1, name: 'Stale Hidden Flag', notes: '[]', status: 'active', hidden: 1, gm_notes: null },
+          { id: 2, name: 'Undiscovered', notes: '[]', status: 'undiscovered', hidden: 0, gm_notes: null },
+        ],
+      })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] });
     const { GET } = await import('@/app/api/data/quests/route');
-    const res = await GET(requestAsRole('admin') as any);
-    const data = await res.json();
-    expect(data).toHaveLength(1);
-    expect(data[0].hidden).toBe(true);
+    const data = await (await GET(requestAsRole('player') as any)).json();
+    expect(data.map((q: { name: string }) => q.name)).toEqual(['Stale Hidden Flag']);
   });
 
-  it('persists the hidden flag on create', async () => {
+  it('does not expose a hidden field on quests', async () => {
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ id: 2, name: 'Quest', notes: '[]', status: 'undiscovered', hidden: 1, gm_notes: null }] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const { GET } = await import('@/app/api/data/quests/route');
+    const data = await (await GET(requestAsRole('admin') as any)).json();
+    expect(data).toHaveLength(1);
+    expect(data[0]).not.toHaveProperty('hidden');
+  });
+
+  it('does not write a hidden column on create', async () => {
     mockDb.execute.mockResolvedValueOnce({ lastInsertRowid: 4 });
     const { POST } = await import('@/app/api/data/quests/route');
     await POST(jsonRequest('http://test/api/quests', 'POST', { name: 'Secret', notes: [], hidden: true }) as any);
     const call = mockDb.execute.mock.calls.find((c: any[]) => String(c[0]?.sql ?? '').startsWith('INSERT INTO quests'));
-    expect(call?.[0].sql).toContain('hidden');
-    expect(call?.[0].args).toContain(1);
+    expect(call?.[0].sql).not.toContain('hidden');
   });
 
-  it('persists the hidden flag on update', async () => {
+  it('does not write a hidden column on update', async () => {
     mockDb.execute.mockResolvedValueOnce({ rowsAffected: 1 });
     const { PUT } = await import('@/app/api/data/quests/route');
     await PUT(jsonRequest('http://test/api/quests', 'PUT', { id: '5', name: 'Secret', notes: [], hidden: false }) as any);
     const call = mockDb.execute.mock.calls.find((c: any[]) => String(c[0]?.sql ?? '').startsWith('UPDATE quests'));
-    expect(call?.[0].sql).toContain('hidden=?');
-    expect(call?.[0].args).toContain(0);
-  });
-
-  it('hides undiscovered quests from players even when not flagged hidden', async () => {
-    mockDb.execute
-      .mockResolvedValueOnce({
-        rows: [
-          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', hidden: 0, gm_notes: null },
-          { id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', hidden: 0, gm_notes: null },
-        ],
-      })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] });
-    const { GET } = await import('@/app/api/data/quests/route');
-    const res = await GET(requestAsRole('player') as any);
-    const data = await res.json();
-    expect(data.map((q: { name: string }) => q.name)).toEqual(['Known Quest']);
+    expect(call?.[0].sql).not.toContain('hidden');
   });
 
   it('returns undiscovered quests to admins', async () => {
     mockDb.execute
-      .mockResolvedValueOnce({ rows: [{ id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', hidden: 0, gm_notes: null }] })
+      .mockResolvedValueOnce({ rows: [{ id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', gm_notes: null }] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] })
@@ -154,8 +150,8 @@ describe('quests endpoint', () => {
     mockDb.execute
       .mockResolvedValueOnce({
         rows: [
-          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', hidden: 0, gm_notes: 'secret' },
-          { id: 2, name: 'Hidden Quest', notes: '[]', status: 'active', hidden: 1, gm_notes: null },
+          { id: 1, name: 'Known Quest', notes: '[]', status: 'active', gm_notes: 'secret' },
+          { id: 2, name: 'Undiscovered Quest', notes: '[]', status: 'undiscovered', gm_notes: null },
         ],
       })
       .mockResolvedValueOnce({ rows: [] })
