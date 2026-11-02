@@ -17,6 +17,7 @@ import { renderMarkdownWithLinks } from "@/utils/markdown";
 import ErrorBlock, { toErrorMessage } from "@/components/ErrorBlock";
 import Link from "next/link";
 import { isQuestEnded } from "@/utils/questStatus";
+import { getChildQuests, getParentQuest } from "@/utils/questHierarchy";
 
 const STATUS_TONE: Record<string, { chip: string; word: string; rail: string; glow: boolean }> = {
   active:    { chip: "is-ember",  word: "active",   rail: "var(--grim-ember)",  glow: true },
@@ -151,6 +152,9 @@ export default function QuestDetailPage() {
   const notes = normalizeQuestNotes(quest);
   const isClosed = isQuestEnded(quest.status);
   const appearances = getRecapsForQuest(recapsData, quest.id);
+  const parentQuest = getParentQuest(allQuests, quest);
+  const childQuests = getChildQuests(allQuests, quest.id);
+  const parentLinkHidden = !!quest.parent_hidden && (isAdmin || isDM);
 
   return (
     <div className="py-9 px-14 pb-20 overflow-y-auto h-full">
@@ -176,12 +180,35 @@ export default function QuestDetailPage() {
               <h1 className={`font-display text-5xl text-grim-gold m-0 leading-none ${isClosed ? "line-through" : "no-underline"} ${isClosed ? "opacity-70" : "opacity-100"}`}>
                 {quest.name}
               </h1>
+              {parentQuest && (
+                <div className="grim-mono text-sm tracking-wider-3 text-grim-ink-4 uppercase mt-1.5">
+                  Part of{" "}
+                  <Link href={`/campaign/quests/${parentQuest.id}`} className="grim-link">{parentQuest.name}</Link>
+                  {parentLinkHidden && <span className="grim-chip is-arcane text-xs py-0 px-1.5 ml-2">hidden from players</span>}
+                </div>
+              )}
               <div className="grim-mono text-sm tracking-wider-3 text-grim-ink-4 uppercase mt-1.5">
                 ⚑ {notes.length} {notes.length === 1 ? "note" : "notes"}
               </div>
             </div>
             <span className={`grim-chip ${tone.chip} shrink-0`}>{tone.word}</span>
           </div>
+
+          {/* Sub-quests */}
+          {childQuests.length > 0 && (
+            <div className="mt-5.5">
+              <div className="grim-label mb-2">Sub-quests</div>
+              <div className="grim-stack gap-1">
+                {childQuests.map(c => (
+                  <Link key={c.id} href={`/campaign/quests/${c.id}`}
+                    className="no-underline flex justify-between items-baseline gap-3 py-1.5 px-2.5 bg-grim-bg-overlay/50 border border-grim-line">
+                    <span className="font-head text-lg text-grim-gold-2 tracking-wide">{c.name}</span>
+                    <span className="grim-mono text-xs text-grim-ink-4 tracking-wider-2 shrink-0">{getTone(c.status).word}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Notes / Marginalia */}
           {notes.length > 0 && (

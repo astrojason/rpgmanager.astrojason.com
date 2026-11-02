@@ -35,6 +35,40 @@ async function replaceTagsForQuest(
     ], "write");
 }
 
+type ParentResult = { error: NextResponse } | { parentId: number | null; parentHidden: 0 | 1 };
+
+/** Normalises the parent link from a request body and rejects self-parenting, missing parents and cycles. */
+async function resolveParent(
+    db: ReturnType<typeof getDb>,
+    body: { parent_id?: unknown; parent_hidden?: unknown },
+    questId: number | null
+): Promise<ParentResult> {
+    const raw = body.parent_id;
+    if (raw === null || raw === undefined || raw === '') return { parentId: null, parentHidden: 0 };
+    const parentId = Number(raw);
+    if (!Number.isInteger(parentId)) return { error: NextResponse.json({ error: 'Invalid parent quest' }, { status: 400 }) };
+    if (questId !== null && parentId === questId) {
+        return { error: NextResponse.json({ error: 'A quest cannot be its own parent' }, { status: 400 }) };
+    }
+    // Walk up from the chosen parent: it must exist, and must not lead back to this quest.
+    const seen = new Set<number>();
+    let current: number | null = parentId;
+    while (current !== null) {
+        if (seen.has(current)) break;
+        seen.add(current);
+        const res = await db.execute({ sql: `SELECT parent_id FROM ${TABLE} WHERE id=?`, args: [current] });
+        if (res.rows.length === 0) {
+            return { error: NextResponse.json({ error: 'Parent quest not found' }, { status: 400 }) };
+        }
+        const next: unknown = res.rows[0].parent_id;
+        current = next === null || next === undefined ? null : Number(next);
+        if (questId !== null && current === questId) {
+            return { error: NextResponse.json({ error: 'The chosen parent is a descendant of this quest; that would create a cycle' }, { status: 400 }) };
+        }
+    }
+    return { parentId, parentHidden: body.parent_hidden ? 1 : 0 };
+}
+
 export async function GET(request?: NextRequest) {
     const authResult = await verifyRequestAuth(request);
     if ('errorResponse' in authResult) return authResult.errorResponse;
@@ -59,6 +93,8 @@ export async function GET(request?: NextRequest) {
                 name: sanitizeText(r.name),
                 notes: r.notes ? JSON.parse(String(r.notes)) : [],
                 status: sanitizeText(r.status) || 'active',
+                parent_id: r.parent_id === null || r.parent_id === undefined ? null : String(r.parent_id),
+                parent_hidden: !!r.parent_hidden,
                 gm_notes: sanitizeOptionalText(r.gm_notes),
                 tagged_npcs: npcMap.get(id) ?? [],
                 tagged_locations: locMap.get(id) ?? [],
@@ -68,8 +104,15 @@ export async function GET(request?: NextRequest) {
         });
         const role = authResult.user?.role ?? null;
         // Status alone decides visibility: players never see undiscovered quests.
-        const visible = isPrivilegedRole(role) ? data : data.filter(q => q.status !== 'undiscovered');
-        return NextResponse.json(filterForRole(visible, role));
+        if (isPrivilegedRole(role)) return NextResponse.json(data);
+        const visible = data.filter(q => q.status !== 'undiscovered');
+        const visibleIds = new Set(visible.map(q => q.id));
+        // Players only see a parent link that is not hidden and points at a quest they can see.
+        const shaped = visible.map(({ parent_hidden, ...q }) => ({
+            ...q,
+            parent_id: q.parent_id && !parent_hidden && visibleIds.has(q.parent_id) ? q.parent_id : null,
+        }));
+        return NextResponse.json(filterForRole(shaped, role));
     }, 'Error reading Quests file:', 'Failed to load Quests');
 }
 
@@ -80,7 +123,9 @@ export async function POST(request: NextRequest) {
     return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
-        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes) VALUES (?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null] });
+        const parent = await resolveParent(db, q, null);
+        if ('error' in parent) return parent.error;
+        const res = await db.execute({ sql: `INSERT INTO ${TABLE} (name,notes,status,gm_notes,parent_id,parent_hidden) VALUES (?,?,?,?,?,?)`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, parent.parentId, parent.parentHidden] });
         const newId = Number(res.lastInsertRowid ?? 0);
         await replaceTagsForQuest(db, newId, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: { ...q, id: String(newId) } });
@@ -94,7 +139,9 @@ export async function PUT(request: NextRequest) {
     return withErrorHandling(async () => {
         const db = getDb();
         const q = await request.json();
-        const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, Number(q.id)] });
+        const parent = await resolveParent(db, q, Number(q.id));
+        if ('error' in parent) return parent.error;
+        const res = await db.execute({ sql: `UPDATE ${TABLE} SET name=?,notes=?,status=?,gm_notes=?,parent_id=?,parent_hidden=? WHERE id=?`, args: [q.name, JSON.stringify(q.notes ?? []), q.status ?? 'active', q.gm_notes ?? null, parent.parentId, parent.parentHidden, Number(q.id)] });
         if ((res.rowsAffected ?? 0) === 0) return notFound('Quest not found');
         await replaceTagsForQuest(db, q.id, q.tagged_npcs ?? [], q.tagged_locations ?? [], q.tagged_factions ?? [], q.tagged_deities ?? []);
         return NextResponse.json({ success: true, data: q });

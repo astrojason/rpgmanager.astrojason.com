@@ -204,6 +204,10 @@ export interface Quest {
   name: string;
   notes: UserNote[] | string[]; // Support legacy string format
   status: string;
+  /** Parent quest id; null/absent for a top-level quest. Stripped for players when the link is hidden. */
+  parent_id?: string | null;
+  /** GM-only: hide the parent link from players. Never sent to players. */
+  parent_hidden?: boolean;
   gm_notes?: string;
   tagged_npcs?: string[];
   tagged_locations?: string[];

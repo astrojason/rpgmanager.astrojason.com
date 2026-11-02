@@ -19,6 +19,7 @@ import { useCrudResource } from "@/hooks/useCrudResource";
 import { useListArrowNav } from "@/hooks/useListArrowNav";
 import Link from "next/link";
 import { QUEST_STATUS_OPTIONS, isQuestEnded } from "@/utils/questStatus";
+import { getParentCandidates } from "@/utils/questHierarchy";
 
 interface EntityItem { id: string; name: string; }
 
@@ -335,6 +336,28 @@ export default function QuestsManagementPage() {
                         <option key={o.value} value={o.value}>{o.label}</option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* Parent quest */}
+                  <div className="mb-5">
+                    <label htmlFor="quest-parent" className="grim-label block mb-1.5">Parent quest</label>
+                    <select
+                      id="quest-parent"
+                      value={formData.parent_id ?? ""}
+                      onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null, parent_hidden: e.target.value ? formData.parent_hidden : false })}
+                      className={inputClass}
+                    >
+                      <option value="">None (top-level quest)</option>
+                      {getParentCandidates(quests, String(formData.id ?? "")).map(q => (
+                        <option key={q.id} value={q.id}>{q.name}</option>
+                      ))}
+                    </select>
+                    {formData.parent_id && (
+                      <label htmlFor="quest-parent-hidden" className="flex items-center gap-2 cursor-pointer font-body text-lg text-grim-ink-2 mt-2">
+                        <input id="quest-parent-hidden" type="checkbox" checked={!!formData.parent_hidden} onChange={(e) => setFormData({ ...formData, parent_hidden: e.target.checked })} className="accent-grim-blood" />
+                        Hide parent link from players
+                      </label>
+                    )}
                   </div>
 
                   {/* GM Notes */}
